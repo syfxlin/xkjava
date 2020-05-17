@@ -28,6 +28,6 @@ public class RouteParser {
                 );
             variableNames.add(ms[0].trim());
         }
-        return new RouteData(routeRegex, variableNames);
+        return new RouteData(route, routeRegex, variableNames);
     }
 }

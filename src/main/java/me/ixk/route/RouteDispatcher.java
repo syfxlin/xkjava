@@ -26,22 +26,23 @@ public class RouteDispatcher {
         return new RouteDispatcher(routeCollector);
     }
 
-    public DispatcherResult dispatch(String httpMethod, String url) {
+    public RouteResult dispatch(String httpMethod, String url) {
         boolean methodInStatic = this.staticRoutes.containsKey(httpMethod);
         boolean methodInVariable = this.variableRoutes.containsKey(httpMethod);
         if (
             methodInStatic && this.staticRoutes.get(httpMethod).containsKey(url)
         ) {
-            return new DispatcherResult(
-                DispatcherStatus.FOUND,
-                this.staticRoutes.get(httpMethod).get(url)
+            return new RouteResult(
+                RouteStatus.FOUND,
+                this.staticRoutes.get(httpMethod).get(url),
+                url
             );
         }
         if (methodInVariable) {
             MergeRouteData mergeRouteData = variableRoutes.get(httpMethod);
-            DispatcherResult result =
+            RouteResult result =
                 this.dispatchVariableRoute(mergeRouteData, url);
-            if (result.getStatus() == DispatcherStatus.FOUND) {
+            if (result.getStatus() == RouteStatus.FOUND) {
                 return result;
             }
         }
@@ -52,34 +53,30 @@ public class RouteDispatcher {
 
         for (Map<String, HandlerInterface> routeData : this.staticRoutes.values()) {
             if (routeData.containsKey(url)) {
-                return new DispatcherResult(
-                    DispatcherStatus.METHOD_NOT_ALLOWED
-                );
+                return new RouteResult(RouteStatus.METHOD_NOT_ALLOWED);
             }
         }
 
         for (MergeRouteData routeData : this.variableRoutes.values()) {
             if (
                 this.dispatchVariableRoute(routeData, url).getStatus() ==
-                DispatcherStatus.FOUND
+                RouteStatus.FOUND
             ) {
-                return new DispatcherResult(
-                    DispatcherStatus.METHOD_NOT_ALLOWED
-                );
+                return new RouteResult(RouteStatus.METHOD_NOT_ALLOWED);
             }
         }
 
-        return new DispatcherResult();
+        return new RouteResult();
     }
 
-    protected DispatcherResult dispatchVariableRoute(
+    protected RouteResult dispatchVariableRoute(
         MergeRouteData mergeRouteData,
         String url
     ) {
         Pattern pattern = Pattern.compile(mergeRouteData.getRegex());
         Matcher matcher = pattern.matcher(url);
         if (!matcher.find()) {
-            return new DispatcherResult();
+            return new RouteResult();
         }
         int index;
         for (index = 1; matcher.group(index) == null; index++);
@@ -89,10 +86,11 @@ public class RouteDispatcher {
         for (String paramName : routeData.getVariableNames()) {
             routeParams.put(paramName, matcher.group(index++));
         }
-        return new DispatcherResult(
-            DispatcherStatus.FOUND,
+        return new RouteResult(
+            RouteStatus.FOUND,
             routeData.getHandler(),
-            routeParams
+            routeParams,
+            routeData.getRoute()
         );
     }
 }

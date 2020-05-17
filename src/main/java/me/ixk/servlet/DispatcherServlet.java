@@ -1,15 +1,15 @@
 package me.ixk.servlet;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.Queue;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import me.ixk.http.Request;
 import me.ixk.http.Response;
-import me.ixk.middleware.*;
+import me.ixk.middleware.Handler1;
+import me.ixk.route.RouteDispatcher;
+import me.ixk.route.RouteResult;
 
 public class DispatcherServlet extends HttpServlet {
 
@@ -30,15 +30,28 @@ public class DispatcherServlet extends HttpServlet {
         Response response = new Response(
             (org.eclipse.jetty.server.Response) resp
         );
-        Queue<MiddlewareInterface> queue = new LinkedList<>();
-        queue.add(new Middleware1());
-        queue.add(new Middleware2());
-        HandlerInterface handler = new Handler1();
-        Runner runner = new Runner(handler, queue);
-        response.content(
-            runner
-                .then(request.input("hoverEvent.action.1").getAsString())
-                .toString()
+        RouteDispatcher dispatcher = RouteDispatcher.dispatcher(
+            r -> {
+                r.addGroup(
+                    "/user",
+                    rr -> {
+                        rr.addRoute("GET", "", new Handler1());
+                        rr.addRoute("GET", "/{id: \\d+}", new Handler1());
+                        rr.addRoute(
+                            "GET",
+                            "/{id: \\d+}/{name}",
+                            new Handler1()
+                        );
+                    }
+                );
+            }
+        );
+        RouteResult result = dispatcher.dispatch(
+            request.getMethod(),
+            request.getUri().getPath()
+        );
+        System.out.println(
+            ((RouteResult) result.getHandler().handle(result)).getRoute()
         );
     }
 }

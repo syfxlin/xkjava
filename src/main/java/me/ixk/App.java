@@ -1,8 +1,8 @@
 package me.ixk;
 
 import me.ixk.middleware.Handler1;
-import me.ixk.route.DispatcherResult;
 import me.ixk.route.RouteDispatcher;
+import me.ixk.route.RouteResult;
 
 public class App {
 
@@ -23,6 +23,6 @@ public class App {
                 );
             }
         );
-        DispatcherResult result = dispatcher.dispatch("GET", "/user/a/syfxlin");
+        RouteResult result = dispatcher.dispatch("GET", "/user/a/syfxlin");
     }
 }

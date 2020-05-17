@@ -16,7 +16,7 @@ public class RouteGenerator {
         regex.append("^(?:");
         for (RouteData routeData : variableRoutes) {
             int variableSize = routeData.getVariableSize();
-            regex.append("(").append(routeData.getRoute()).append(")|");
+            regex.append("(").append(routeData.getRegex()).append(")|");
             routeMap.put(numGroups, routeData);
             numGroups += variableSize + 1;
         }

@@ -1,44 +1,50 @@
 package me.ixk.route;
 
 import java.util.Map;
-import java.util.Set;
 import me.ixk.middleware.HandlerInterface;
 
-public class DispatcherResult {
-    protected DispatcherStatus status = DispatcherStatus.NOT_FOUND;
+public class RouteResult {
+    protected RouteStatus status = RouteStatus.NOT_FOUND;
+
+    protected String route = null;
 
     protected HandlerInterface handler = null;
 
     protected Map<String, String> params = null;
 
-    protected Set<String> allowedMethods = null;
+    public RouteResult() {}
 
-    public DispatcherResult() {}
-
-    public DispatcherResult(DispatcherStatus status) {
+    public RouteResult(RouteStatus status) {
         this.status = status;
     }
 
-    public DispatcherResult(DispatcherStatus status, HandlerInterface handler) {
+    public RouteResult(
+        RouteStatus status,
+        HandlerInterface handler,
+        String route
+    ) {
         this.status = status;
         this.handler = handler;
+        this.route = route;
     }
 
-    public DispatcherResult(
-        DispatcherStatus status,
+    public RouteResult(
+        RouteStatus status,
         HandlerInterface handler,
-        Map<String, String> params
+        Map<String, String> params,
+        String route
     ) {
         this.status = status;
         this.handler = handler;
         this.params = params;
+        this.route = route;
     }
 
-    public DispatcherStatus getStatus() {
+    public RouteStatus getStatus() {
         return status;
     }
 
-    public void setStatus(DispatcherStatus status) {
+    public void setStatus(RouteStatus status) {
         this.status = status;
     }
 
@@ -58,11 +64,11 @@ public class DispatcherResult {
         this.params = params;
     }
 
-    public Set<String> getAllowedMethods() {
-        return allowedMethods;
+    public String getRoute() {
+        return route;
     }
 
-    public void setAllowedMethods(Set<String> allowedMethods) {
-        this.allowedMethods = allowedMethods;
+    public void setRoute(String route) {
+        this.route = route;
     }
 }

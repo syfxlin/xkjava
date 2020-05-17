@@ -231,7 +231,10 @@ public class Request {
     }
 
     public boolean isJson() {
-        return _base.getContentType().startsWith("application/json");
+        return (
+            _base.getContentType() != null &&
+            _base.getContentType().startsWith("application/json")
+        );
     }
 
     public Part file(String name) throws IOException, ServletException {

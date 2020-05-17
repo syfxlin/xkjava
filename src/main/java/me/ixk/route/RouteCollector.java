@@ -1,11 +1,12 @@
 package me.ixk.route;
 
+import me.ixk.middleware.HandlerInterface;
+import org.eclipse.jetty.http.HttpMethod;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.middleware.HandlerInterface;
-import org.eclipse.jetty.http.HttpMethod;
 
 public class RouteCollector {
     protected Map<String, Map<String, HandlerInterface>> staticRoutes;
@@ -121,7 +122,7 @@ public class RouteCollector {
                     httpMethod,
                     new ConcurrentHashMap<>()
                 );
-        methodMap.put(routeData.getRoute(), handler);
+        methodMap.put(routeData.getRegex(), handler);
         this.staticRoutes.put(httpMethod, methodMap);
     }
 

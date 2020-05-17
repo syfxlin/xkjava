@@ -4,19 +4,22 @@ import java.util.List;
 import me.ixk.middleware.HandlerInterface;
 
 public class RouteData {
+    protected String regex;
+
     protected String route;
 
     protected HandlerInterface handler;
 
     protected List<String> variableNames;
 
-    public RouteData(String route, List<String> variableNames) {
+    public RouteData(String route, String regex, List<String> variableNames) {
         this.route = route;
+        this.regex = regex;
         this.variableNames = variableNames;
     }
 
     public boolean matches(String route) {
-        return route.matches(this.route);
+        return route.matches(this.regex);
     }
 
     public String getRoute() {
@@ -25,6 +28,14 @@ public class RouteData {
 
     public void setRoute(String route) {
         this.route = route;
+    }
+
+    public String getRegex() {
+        return regex;
+    }
+
+    public void setRegex(String route) {
+        this.regex = route;
     }
 
     public void setHandler(HandlerInterface handler) {
