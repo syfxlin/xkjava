@@ -9,14 +9,20 @@ public class App {
     public static void main(String[] args) {
         RouteDispatcher dispatcher = RouteDispatcher.dispatcher(
             r -> {
-                r.addRoute("GET", "/user", new Handler1());
-                r.addRoute("GET", "/user/{id: \\d+}", new Handler1());
-                r.addRoute("GET", "/user/{id: \\d+}/{name}", new Handler1());
+                r.addGroup(
+                    "/user",
+                    rr -> {
+                        rr.addRoute("GET", "", new Handler1());
+                        rr.addRoute("GET", "/{id: \\d+}", new Handler1());
+                        rr.addRoute(
+                            "GET",
+                            "/{id: \\d+}/{name}",
+                            new Handler1()
+                        );
+                    }
+                );
             }
         );
-        DispatcherResult result = dispatcher.dispatch(
-            "POST",
-            "/user/1/syfxlin"
-        );
+        DispatcherResult result = dispatcher.dispatch("GET", "/user/a/syfxlin");
     }
 }

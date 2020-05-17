@@ -72,6 +72,13 @@ public class RouteCollector {
         }
     }
 
+    public void addGroup(String prefix, RouteDefinition routeDefinition) {
+        String prevGroupPrefix = this.routeGroupPrefix;
+        this.routeGroupPrefix = prevGroupPrefix + prefix;
+        routeDefinition.invoke(this);
+        this.routeGroupPrefix = prevGroupPrefix;
+    }
+
     public void get(String route, HandlerInterface handler) {
         this.addRoute("GET", route, handler);
     }
