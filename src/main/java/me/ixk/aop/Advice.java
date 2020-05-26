@@ -1,6 +1,6 @@
 package me.ixk.aop;
 
-public interface AdviceInterface {
+public interface Advice {
     void before(JoinPoint joinPoint);
 
     void after(JoinPoint joinPoint);

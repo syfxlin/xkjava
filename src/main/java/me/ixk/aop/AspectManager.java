@@ -21,11 +21,11 @@ public class AspectManager {
     protected static class AdviceEntry {
         private final AspectPointcut pointcut;
 
-        private final AdviceInterface advice;
+        private final Advice advice;
 
         private final int order;
 
-        public AdviceEntry(AspectPointcut pointcut, AdviceInterface advice) {
+        public AdviceEntry(AspectPointcut pointcut, Advice advice) {
             this.pointcut = pointcut;
             this.advice = advice;
             Order order = advice.getClass().getAnnotation(Order.class);
@@ -40,7 +40,7 @@ public class AspectManager {
             return pointcut;
         }
 
-        public AdviceInterface getAdvice() {
+        public Advice getAdvice() {
             return advice;
         }
 
@@ -56,7 +56,7 @@ public class AspectManager {
     }
 
     public Object weavingAspect(Class<?> _class) throws Throwable {
-        Map<String, List<AdviceInterface>> map = this.matches(_class);
+        Map<String, List<Advice>> map = this.matches(_class);
         Constructor<?>[] constructors = _class.getDeclaredConstructors();
         if (constructors.length != 1) {
             // 不允许构造器重载
@@ -74,8 +74,8 @@ public class AspectManager {
         );
     }
 
-    protected Map<String, List<AdviceInterface>> matches(Class<?> _class) {
-        Map<String, List<AdviceInterface>> map = new ConcurrentHashMap<>();
+    protected Map<String, List<Advice>> matches(Class<?> _class) {
+        Map<String, List<Advice>> map = new ConcurrentHashMap<>();
         for (AdviceEntry entry : this.adviceList) {
             if (entry.getPointcut().matches(_class)) {
                 for (Method method : _class.getMethods()) {
@@ -102,10 +102,10 @@ public class AspectManager {
 
     protected void addAdviceToMap(
         String name,
-        AdviceInterface advice,
-        Map<String, List<AdviceInterface>> map
+        Advice advice,
+        Map<String, List<Advice>> map
     ) {
-        List<AdviceInterface> list = map.getOrDefault(name, new ArrayList<>());
+        List<Advice> list = map.getOrDefault(name, new ArrayList<>());
         list.add(advice);
         map.put(name, list);
     }
@@ -113,7 +113,7 @@ public class AspectManager {
     protected void loadAdvice() {
         this.app.getClassesByAnnotation(Aspect.class)
             .stream()
-            .filter(AdviceInterface.class::isAssignableFrom)
+            .filter(Advice.class::isAssignableFrom)
             .forEach(
                 adviceClass -> {
                     Aspect aspect = adviceClass.getAnnotation(Aspect.class);
@@ -122,7 +122,7 @@ public class AspectManager {
                                 new AspectPointcut(aspect.value()),
                                 this.app.make(
                                         adviceClass.getName(),
-                                        AdviceInterface.class
+                                        Advice.class
                                     )
                             )
                         );

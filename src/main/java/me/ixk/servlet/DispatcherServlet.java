@@ -1,15 +1,16 @@
 package me.ixk.servlet;
 
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import me.ixk.http.Request;
 import me.ixk.http.Response;
 import me.ixk.middleware.Handler1;
 import me.ixk.route.RouteDispatcher;
 import me.ixk.route.RouteResult;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public class DispatcherServlet extends HttpServlet {
 
@@ -19,7 +20,7 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     /**
-     * HttpServer Start -> Load Shared Config -> DispatcherServlet -> Load Single Config
+     * HttpServer Start -> Load Shared Environment -> DispatcherServlet -> Load Single Environment
      *
      * DispatcherServlet -> Middleware -> Handler => Controller@Method
      */

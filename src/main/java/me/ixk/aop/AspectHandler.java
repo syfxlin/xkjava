@@ -11,9 +11,9 @@ public class AspectHandler {
 
     protected Object[] args;
 
-    protected List<AdviceInterface> aspects;
+    protected List<Advice> aspects;
 
-    protected AdviceInterface aspect = null;
+    protected Advice aspect = null;
 
     protected Throwable error = null;
 
@@ -21,7 +21,7 @@ public class AspectHandler {
         Object target,
         MethodProxy method,
         Object[] args,
-        List<AdviceInterface> aspects
+        List<Advice> aspects
     ) {
         this.target = target;
         this.method = method;

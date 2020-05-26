@@ -1,6 +1,6 @@
 package me.ixk.aop;
 
-public abstract class AbstractAdvice implements AdviceInterface {
+public abstract class AbstractAdvice implements Advice {
 
     @Override
     public void before(JoinPoint joinPoint) {}

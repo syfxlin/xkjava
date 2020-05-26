@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 public class DynamicInterceptor implements MethodInterceptor {
-    protected Map<String, List<AdviceInterface>> aspects;
+    protected Map<String, List<Advice>> aspects;
 
-    public DynamicInterceptor(Map<String, List<AdviceInterface>> aspects) {
+    public DynamicInterceptor(Map<String, List<Advice>> aspects) {
         this.aspects = aspects;
     }
 

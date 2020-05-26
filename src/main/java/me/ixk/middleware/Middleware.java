@@ -1,6 +1,6 @@
 package me.ixk.middleware;
 
 @FunctionalInterface
-public interface MiddlewareInterface {
+public interface Middleware {
     Object handle(Object request, Runner next);
 }

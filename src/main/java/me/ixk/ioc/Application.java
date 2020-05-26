@@ -32,11 +32,11 @@ public class Application extends Container {
         private static final Application instance = new Application();
     }
 
-    public static Application make() {
+    public static Application boot() {
         return Inner.instance;
     }
 
-    public static Application make(
+    public static Application boot(
         List<String> packages,
         List<Class<? extends Annotation>> annotations
     ) {

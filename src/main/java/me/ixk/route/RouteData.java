@@ -1,14 +1,15 @@
 package me.ixk.route;
 
+import me.ixk.middleware.Handler;
+
 import java.util.List;
-import me.ixk.middleware.HandlerInterface;
 
 public class RouteData {
     protected String regex;
 
     protected String route;
 
-    protected HandlerInterface handler;
+    protected Handler handler;
 
     protected List<String> variableNames;
 
@@ -38,11 +39,11 @@ public class RouteData {
         this.regex = route;
     }
 
-    public void setHandler(HandlerInterface handler) {
+    public void setHandler(Handler handler) {
         this.handler = handler;
     }
 
-    public HandlerInterface getHandler() {
+    public Handler getHandler() {
         return handler;
     }
 

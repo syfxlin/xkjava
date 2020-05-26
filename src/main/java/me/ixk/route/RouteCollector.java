@@ -1,6 +1,6 @@
 package me.ixk.route;
 
-import me.ixk.middleware.HandlerInterface;
+import me.ixk.middleware.Handler;
 import org.eclipse.jetty.http.HttpMethod;
 
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RouteCollector {
-    protected Map<String, Map<String, HandlerInterface>> staticRoutes;
+    protected Map<String, Map<String, Handler>> staticRoutes;
 
     protected Map<String, List<RouteData>> variableRoutes;
 
@@ -32,7 +32,7 @@ public class RouteCollector {
     public void addRoute(
         HttpMethod httpMethod,
         String route,
-        HandlerInterface handler
+        Handler handler
     ) {
         this.addRoute(httpMethod.asString(), route, handler);
     }
@@ -40,7 +40,7 @@ public class RouteCollector {
     public void addRoute(
         HttpMethod[] httpMethods,
         String route,
-        HandlerInterface handler
+        Handler handler
     ) {
         String[] methods = new String[httpMethods.length];
         for (int i = 0; i < httpMethods.length; i++) {
@@ -52,7 +52,7 @@ public class RouteCollector {
     public void addRoute(
         String httpMethod,
         String route,
-        HandlerInterface handler
+        Handler handler
     ) {
         this.addRoute(new String[] { httpMethod }, route, handler);
     }
@@ -60,7 +60,7 @@ public class RouteCollector {
     public void addRoute(
         String[] httpMethods,
         String route,
-        HandlerInterface handler
+        Handler handler
     ) {
         route = this.routeGroupPrefix + route;
         RouteData routeData = this.routeParser.parse(route);
@@ -80,31 +80,31 @@ public class RouteCollector {
         this.routeGroupPrefix = prevGroupPrefix;
     }
 
-    public void get(String route, HandlerInterface handler) {
+    public void get(String route, Handler handler) {
         this.addRoute("GET", route, handler);
     }
 
-    public void post(String route, HandlerInterface handler) {
+    public void post(String route, Handler handler) {
         this.addRoute("POST", route, handler);
     }
 
-    public void put(String route, HandlerInterface handler) {
+    public void put(String route, Handler handler) {
         this.addRoute("PUT", route, handler);
     }
 
-    public void delete(String route, HandlerInterface handler) {
+    public void delete(String route, Handler handler) {
         this.addRoute("DELETE", route, handler);
     }
 
-    public void patch(String route, HandlerInterface handler) {
+    public void patch(String route, Handler handler) {
         this.addRoute("PATCH", route, handler);
     }
 
-    public void head(String route, HandlerInterface handler) {
+    public void head(String route, Handler handler) {
         this.addRoute("HEAD", route, handler);
     }
 
-    public void options(String route, HandlerInterface handler) {
+    public void options(String route, Handler handler) {
         this.addRoute("OPTIONS", route, handler);
     }
 
@@ -115,9 +115,9 @@ public class RouteCollector {
     protected void addStaticRoute(
         String httpMethod,
         RouteData routeData,
-        HandlerInterface handler
+        Handler handler
     ) {
-        Map<String, HandlerInterface> methodMap =
+        Map<String, Handler> methodMap =
             this.staticRoutes.getOrDefault(
                     httpMethod,
                     new ConcurrentHashMap<>()
@@ -129,7 +129,7 @@ public class RouteCollector {
     protected void addVariableRoute(
         String httpMethod,
         RouteData routeData,
-        HandlerInterface handler
+        Handler handler
     ) {
         List<RouteData> routeList =
             this.variableRoutes.getOrDefault(httpMethod, new ArrayList<>());
@@ -149,7 +149,7 @@ public class RouteCollector {
         return map;
     }
 
-    public Map<String, Map<String, HandlerInterface>> getStaticRoutes() {
+    public Map<String, Map<String, Handler>> getStaticRoutes() {
         return staticRoutes;
     }
 

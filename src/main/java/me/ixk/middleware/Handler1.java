@@ -1,6 +1,6 @@
 package me.ixk.middleware;
 
-public class Handler1 implements HandlerInterface {
+public class Handler1 implements Handler {
 
     @Override
     public Object handle(Object request) {

@@ -77,7 +77,7 @@ public class Container {
     ) {
         this.setBinding(_abstract, concrete, shared, overwrite);
         if (alias != null) {
-            this.alias(_abstract, alias);
+            this.alias(alias, _abstract);
         }
         return this;
     }
@@ -426,11 +426,11 @@ public class Container {
         return this.make(_abstract.getName(), _abstract, args);
     }
 
-    public Container alias(String _abstract, String alias) {
+    public Container alias(String alias, String _abstract) {
         if (_abstract.equals(alias)) {
             return this;
         }
-        this.aliases.put(_abstract, alias);
+        this.aliases.put(alias, _abstract);
         return this;
     }
 
