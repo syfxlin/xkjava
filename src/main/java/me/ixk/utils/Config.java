@@ -10,6 +10,7 @@ import me.ixk.ioc.Application;
 public class Config {
     protected static Map<String, Map<String, Object>> config;
 
+    @SuppressWarnings("unchecked")
     public Config(Application app)
         throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         config = new ConcurrentHashMap<>();
@@ -21,15 +22,14 @@ public class Config {
             ) {
                 continue;
             }
+            Object instance = _class
+                .getConstructor(Application.class)
+                .newInstance(app);
             config.put(
-                _class.getSimpleName().toLowerCase(),
+                (String) _class.getMethod("configName").invoke(instance),
                 (Map<String, Object>) _class
                     .getMethod("config")
-                    .invoke(
-                        _class
-                            .getConstructor(Application.class)
-                            .newInstance(app)
-                    )
+                    .invoke(instance)
             );
         }
     }
@@ -44,6 +44,10 @@ public class Config {
 
     public Object get(String name, Object _default) {
         return Helper.dataGet(config, name, _default);
+    }
+
+    public <T> T get(String name, Object _default, Class<T> returnType) {
+        return returnType.cast(this.get(name, _default));
     }
 
     protected void setItem(String name, Object value) {

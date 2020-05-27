@@ -1,14 +1,21 @@
 package me.ixk.config;
 
-import me.ixk.ioc.Application;
-
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.ioc.Application;
+import me.ixk.providers.AppProvider;
 
-public class App extends AbstractConfig {
+public class AppConfig extends AbstractConfig {
 
-    public App(Application app) {
+    public AppConfig(Application app) {
         super(app);
+    }
+
+    @Override
+    public String configName() {
+        return "app";
     }
 
     @Override
@@ -29,7 +36,7 @@ public class App extends AbstractConfig {
         return map;
     }
 
-    private Class<?>[] providers() {
-        return new Class<?>[] {  };
+    private List<Class<?>> providers() {
+        return Arrays.asList(AppProvider.class);
     }
 }

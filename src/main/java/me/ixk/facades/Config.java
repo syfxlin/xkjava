@@ -3,33 +3,44 @@ package me.ixk.facades;
 import java.util.Map;
 
 public class Config extends AbstractFacade {
-    protected static Class<?> _class = me.ixk.utils.Config.class;
+
+    protected static me.ixk.utils.Config make() {
+        return make(me.ixk.utils.Config.class);
+    }
 
     public static Map<String, Map<String, Object>> all() {
-        return invoke(_class, "all", Map.class);
+        return make().all();
     }
 
     public static Object get(String name) {
-        return invoke(_class, "get", Object.class, name);
+        return make().get(name);
     }
 
     public static Object get(String name, Object _default) {
-        return invoke(_class, "get", Object.class, name, _default);
+        return make().get(name, _default);
+    }
+
+    public static <T> T get(String name, Class<T> returnType) {
+        return returnType.cast(get(name));
+    }
+
+    public static <T> T get(String name, Object _default, Class<T> returnType) {
+        return returnType.cast(get(name, _default));
     }
 
     public static void set(String name, Object value) {
-        invoke(_class, "set", null, name, value);
+        make().set(name, value);
     }
 
     public static void set(Map<String, Object> values) {
-        invoke(_class, "set", null, values);
+        make().set(values);
     }
 
     public static void push(String name, Object value) {
-        invoke(_class, "push", null, name, value);
+        make().push(name, value);
     }
 
     public static boolean has(String name) {
-        return invoke(_class, "has", boolean.class, name);
+        return make().has(name);
     }
 }

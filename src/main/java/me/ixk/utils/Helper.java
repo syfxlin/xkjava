@@ -100,6 +100,7 @@ public class Helper {
         return dataGet(target, keys, null);
     }
 
+    @SuppressWarnings("unchecked")
     public static Object dataGet(
         Object target,
         String[] keys,
