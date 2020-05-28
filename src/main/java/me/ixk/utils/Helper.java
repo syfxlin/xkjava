@@ -3,12 +3,16 @@ package me.ixk.utils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public class Helper {
+    protected static final String BASE_STRING =
+        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    protected static final SecureRandom RANDOM = new SecureRandom();
 
     public static JsonElement dataGet(JsonElement target, String key) {
         return dataGet(target, key, null);
@@ -159,5 +163,19 @@ public class Helper {
             return _default;
         }
         return target;
+    }
+
+    public static String strRandom() {
+        return strRandom(10);
+    }
+
+    public static String strRandom(int length) {
+        StringBuilder stringBuilder = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            stringBuilder.append(
+                BASE_STRING.charAt(RANDOM.nextInt(BASE_STRING.length()))
+            );
+        }
+        return stringBuilder.toString();
     }
 }

@@ -21,6 +21,7 @@ import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.server.SessionManager;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.Attributes;
 import org.eclipse.jetty.util.MultiMap;
@@ -563,7 +564,7 @@ public class Request {
         return _base.getSession(create);
     }
 
-    public SessionManager getSessionManager() {
+    public org.eclipse.jetty.server.SessionManager getSessionManager() {
         return _base.getSessionManager();
     }
 

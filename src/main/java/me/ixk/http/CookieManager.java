@@ -6,20 +6,28 @@ import javax.servlet.http.Cookie;
 import org.eclipse.jetty.http.HttpCookie;
 
 public class CookieManager {
+    protected Map<String, Cookie> _requestCookies;
+
     protected Map<String, HttpCookie> _cookies;
 
     public CookieManager() {
         this._cookies = new ConcurrentHashMap<>();
     }
 
+    public void setRequestCookies(Map<String, Cookie> cookies) {
+        this._requestCookies = cookies;
+    }
+
     public boolean has(String name) {
-        // TODO: unset
-        return false;
+        return this._requestCookies.containsKey(name);
     }
 
     public Cookie get(String name) {
-        // TODO: unset
-        return null;
+        return this.get(name, null);
+    }
+
+    public Cookie get(String name, Cookie _default) {
+        return this._requestCookies.getOrDefault(name, _default);
     }
 
     /* ===================================== */
