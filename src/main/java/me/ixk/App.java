@@ -1,20 +1,16 @@
 package me.ixk;
 
-import me.ixk.utils.Base64;
-import me.ixk.utils.Crypt;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.utils.JWT;
 
 public class App {
 
     public static void main(String[] args) {
-        try {
-            Crypt crypt = new Crypt(
-                Base64.decode("8nv1uWkiIVuSVyQyPnMEOTpzOeZ3CmoqyLA2ZLsfiMM=")
-            );
-            String encrypt = crypt.encrypt("123");
-            System.out.println(encrypt);
-            System.out.println(crypt.decrypt(encrypt));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        JWT jwt = new JWT("123", "HS256");
+        Map<String, String> payload = new ConcurrentHashMap<>();
+        payload.put("key", "value");
+        String token = jwt.encode(payload);
+        System.out.println(jwt.decode(token));
     }
 }
