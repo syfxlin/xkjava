@@ -6,13 +6,14 @@ import me.ixk.framework.facades.Config;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.StdErrorJson;
+import me.ixk.framework.middleware.Middleware;
 
 public class RouteManager {
     public static RouteCollector route;
 
-    public static List<Class<?>> globalMiddleware;
+    public static List<Class<? extends Middleware>> globalMiddleware;
 
-    public static List<Class<?>> routeMiddleware;
+    public static Map<String, Class<? extends Middleware>> routeMiddleware;
 
     // TODO: 注解中间件
 
@@ -20,7 +21,7 @@ public class RouteManager {
 
     @SuppressWarnings("unchecked")
     public RouteManager() {
-        Map<String, List<Class<?>>> middlewareConfig = Config.get(
+        Map<String, Object> middlewareConfig = Config.get(
             "middleware",
             Map.class
         );
@@ -28,8 +29,12 @@ public class RouteManager {
             "route",
             Map.class
         );
-        globalMiddleware = middlewareConfig.get("global");
-        routeMiddleware = middlewareConfig.get("route");
+        globalMiddleware =
+            (List<Class<? extends Middleware>>) middlewareConfig.get("global");
+        routeMiddleware =
+            (Map<String, Class<? extends Middleware>>) middlewareConfig.get(
+                "route"
+            );
         dispatcher =
             RouteDispatcher.dispatcher(
                 routeCollector -> {
