@@ -1,5 +1,6 @@
 package me.ixk.framework.ioc;
 
+import me.ixk.app.annotations.Log;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.bootstrap.*;
@@ -14,7 +15,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Application extends Container {
-    protected static List<String> scanPackages = Arrays.asList("me.ixk.beans");
+    protected static List<String> scanPackages = Arrays.asList(
+        "me.ixk.app.beans"
+    );
 
     protected static List<Class<? extends Annotation>> beanAnnotations = Arrays.asList(
         Bean.class,

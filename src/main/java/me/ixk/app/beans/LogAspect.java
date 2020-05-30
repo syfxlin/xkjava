@@ -4,7 +4,7 @@ import me.ixk.framework.annotations.Aspect;
 import me.ixk.framework.aop.AbstractAdvice;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 
-@Aspect("@annotation(me.ixk.annotations.Log2)")
+@Aspect("@annotation(me.ixk.app.annotations.Log2)")
 public class LogAspect extends AbstractAdvice {
 
     @Override

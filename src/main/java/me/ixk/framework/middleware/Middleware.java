@@ -5,5 +5,5 @@ import me.ixk.framework.http.Response;
 
 @FunctionalInterface
 public interface Middleware {
-    void handle(Request request, Response response, Runner next);
+    Object handle(Request request, Response response, Runner next);
 }

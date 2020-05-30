@@ -5,7 +5,7 @@ import me.ixk.framework.annotations.Order;
 import me.ixk.framework.aop.AbstractAdvice;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 
-@Aspect("@annotation(me.ixk.annotations.Log2)")
+@Aspect("@annotation(me.ixk.app.annotations.Log2)")
 @Order(1)
 public class Log2Aspect extends AbstractAdvice {
 

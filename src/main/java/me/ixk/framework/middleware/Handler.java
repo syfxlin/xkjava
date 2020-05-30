@@ -5,5 +5,5 @@ import me.ixk.framework.http.Response;
 
 @FunctionalInterface
 public interface Handler {
-    void handle(Request request, Response response);
+    Object handle(Request request, Response response);
 }

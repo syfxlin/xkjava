@@ -7,7 +7,16 @@ import me.ixk.framework.route.RouteDefinition;
 public class WebRoute implements RouteDefinition {
 
     @Override
-    public void routes(RouteCollector routeCollector) {
-        routeCollector.get("/user", new Handler1());
+    public void routes(RouteCollector r) {
+        r
+            .middleware("middleware1")
+            .group(
+                "/user",
+                rr -> {
+                    rr.addRoute("GET", "", new Handler1());
+                    rr.addRoute("GET", "/{id: \\d+}", new Handler1());
+                    rr.addRoute("GET", "/{id: \\d+}/{name}", new Handler1());
+                }
+            );
     }
 }

@@ -1,4 +1,4 @@
-package me.ixk.framework.annotations;
+package me.ixk.app.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,5 +7,5 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Log2 {
+public @interface Log {
 }

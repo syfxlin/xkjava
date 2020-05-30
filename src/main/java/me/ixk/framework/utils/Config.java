@@ -1,12 +1,11 @@
 package me.ixk.framework.utils;
 
-import me.ixk.framework.ioc.Application;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.ioc.Application;
 
 public class Config {
     protected static Map<String, Map<String, Object>> config;
@@ -15,7 +14,7 @@ public class Config {
     public Config(Application app)
         throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         config = new ConcurrentHashMap<>();
-        Set<Class<?>> classes = ClassUtil.getPackageClass("me.ixk.config");
+        Set<Class<?>> classes = ClassUtil.getPackageClass("me.ixk.app.config");
         for (Class<?> _class : classes) {
             if (
                 Modifier.isInterface(_class.getModifiers()) ||

@@ -2,9 +2,9 @@ package me.ixk.app.beans;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import me.ixk.app.annotations.Log;
+import me.ixk.app.annotations.Log2;
 import me.ixk.framework.annotations.Bean;
-import me.ixk.framework.annotations.Log;
-import me.ixk.framework.annotations.Log2;
 import me.ixk.framework.annotations.Scope;
 
 @Data

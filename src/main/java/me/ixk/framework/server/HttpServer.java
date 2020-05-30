@@ -1,5 +1,8 @@
 package me.ixk.framework.server;
 
+import java.io.File;
+import me.ixk.framework.ioc.Application;
+import me.ixk.framework.route.RouteManager;
 import me.ixk.framework.servlet.DispatcherServlet;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -10,8 +13,6 @@ import org.eclipse.jetty.server.session.HashSessionIdManager;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 
-import java.io.File;
-
 public class HttpServer {
 
     public static void main(String[] args) {
@@ -20,6 +21,8 @@ public class HttpServer {
         int port = 8090;
 
         Server server = buildServer(port, resource);
+
+        startApplication();
 
         try {
             server.start();
@@ -31,6 +34,15 @@ public class HttpServer {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void startApplication() {
+        Application application = Application.createAndBoot();
+        application.instance(
+            RouteManager.class,
+            new RouteManager(),
+            "routeManager"
+        );
     }
 
     public static Server buildServer(int port, String resource) {

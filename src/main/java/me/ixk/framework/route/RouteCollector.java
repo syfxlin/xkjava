@@ -1,12 +1,15 @@
 package me.ixk.framework.route;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.middleware.Middleware;
+import me.ixk.framework.middleware.Runner;
 import org.eclipse.jetty.http.HttpMethod;
 
 public class RouteCollector {
@@ -23,7 +26,7 @@ public class RouteCollector {
     protected static List<Class<? extends Middleware>> useGroupMiddleware =
         null;
 
-    protected List<Class<? extends Middleware>> middleware;
+    protected List<Class<? extends Middleware>> middleware = new ArrayList<>();
 
     public RouteCollector(
         RouteParser routeParser,
@@ -33,6 +36,42 @@ public class RouteCollector {
         this.variableRoutes = new ConcurrentHashMap<>();
         this.routeParser = routeParser;
         this.routeGenerator = routeGenerator;
+    }
+
+    public Handler getHandler(Handler handler) {
+        List<Class<? extends Middleware>> middleware = this.middleware;
+        this.middleware = new ArrayList<>();
+        if (useGroupMiddleware != null) {
+            middleware.addAll(useGroupMiddleware);
+        }
+        if (RouteManager.globalMiddleware != null) {
+            middleware.addAll(RouteManager.globalMiddleware);
+        }
+        return (request, response) -> {
+            Runner runner = new Runner(
+                handler,
+                middleware
+                    .stream()
+                    .map(
+                        ac -> {
+                            try {
+                                return ac.getConstructor().newInstance();
+                            } catch (
+                                InstantiationException
+                                | IllegalAccessException
+                                | InvocationTargetException
+                                | NoSuchMethodException e
+                            ) {
+                                e.printStackTrace();
+                            }
+                            return null;
+                        }
+                    )
+                    .collect(Collectors.toList())
+            );
+            // TODO: return to response
+            return runner.then(request, response);
+        };
     }
 
     public RouteCollector addRoute(
@@ -72,9 +111,17 @@ public class RouteCollector {
         RouteData routeData = this.routeParser.parse(route);
         for (String method : httpMethods) {
             if (this.isStaticRoute(routeData)) {
-                this.addStaticRoute(method, routeData, handler);
+                this.addStaticRoute(
+                        method,
+                        routeData,
+                        this.getHandler(handler)
+                    );
             } else {
-                this.addVariableRoute(method, routeData, handler);
+                this.addVariableRoute(
+                        method,
+                        routeData,
+                        this.getHandler(handler)
+                    );
             }
         }
         return this;
@@ -85,6 +132,7 @@ public class RouteCollector {
         RouteDefinition routeDefinition
     ) {
         useGroupMiddleware = this.middleware;
+        this.middleware = new ArrayList<>();
         String prevGroupPrefix = this.routeGroupPrefix;
         this.routeGroupPrefix = prevGroupPrefix + prefix;
         routeDefinition.routes(this);
@@ -186,6 +234,7 @@ public class RouteCollector {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    return response;
                 }
             );
     }
@@ -223,6 +272,7 @@ public class RouteCollector {
                 route,
                 (request, response) -> {
                     // TODO: view
+                    return response;
                 }
             );
     }
