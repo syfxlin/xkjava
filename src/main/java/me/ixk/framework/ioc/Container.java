@@ -23,16 +23,22 @@ public class Container {
         this.aliases = new ConcurrentHashMap<>();
     }
 
+    /* bind String, String */
+
     public Container bind(String _abstract) {
-        return this.bind(_abstract, _abstract, false, null, false);
+        return this.bind(_abstract, _abstract);
     }
 
     public Container bind(String _abstract, String concrete) {
-        return this.bind(_abstract, concrete, false, null, false);
+        return this.bind(_abstract, concrete, false);
     }
 
     public Container bind(String _abstract, String concrete, boolean shared) {
-        return this.bind(_abstract, concrete, shared, null, false);
+        return this.bind(_abstract, concrete, shared, null);
+    }
+
+    public Container bind(String _abstract, String concrete, String alias) {
+        return this.bind(_abstract, concrete, false, alias);
     }
 
     public Container bind(
@@ -69,6 +75,29 @@ public class Container {
             );
     }
 
+    /* bind String, Concrete */
+
+    public Container bind(String _abstract, Concrete concrete) {
+        return this.bind(_abstract, concrete, false);
+    }
+
+    public Container bind(String _abstract, Concrete concrete, boolean shared) {
+        return this.bind(_abstract, concrete, shared, null);
+    }
+
+    public Container bind(String _abstract, Concrete concrete, String alias) {
+        return this.bind(_abstract, concrete, false, alias);
+    }
+
+    public Container bind(
+        String _abstract,
+        Concrete concrete,
+        boolean shared,
+        String alias
+    ) {
+        return this.bind(_abstract, concrete, shared, alias, false);
+    }
+
     public Container bind(
         String _abstract,
         Concrete concrete,
@@ -82,6 +111,8 @@ public class Container {
         }
         return this;
     }
+
+    /* bind Class, Class */
 
     public Container bind(Class<?> _abstract) {
         return this.bind(_abstract, _abstract, false, null, false);
@@ -124,12 +155,57 @@ public class Container {
             );
     }
 
+    /* bind Class, Concrete */
+
+    public Container bind(Class<?> _abstract, Concrete concrete) {
+        return this.bind(_abstract, concrete, false);
+    }
+
+    public Container bind(
+        Class<?> _abstract,
+        Concrete concrete,
+        boolean shared
+    ) {
+        return this.bind(_abstract, concrete, shared, null);
+    }
+
+    public Container bind(Class<?> _abstract, Concrete concrete, String alias) {
+        return this.bind(_abstract, concrete, false, alias);
+    }
+
+    public Container bind(
+        Class<?> _abstract,
+        Concrete concrete,
+        boolean shared,
+        String alias
+    ) {
+        return this.bind(_abstract, concrete, shared, alias, false);
+    }
+
+    public Container bind(
+        Class<?> _abstract,
+        Concrete concrete,
+        boolean shared,
+        String alias,
+        boolean overwrite
+    ) {
+        return this.bind(
+                _abstract.getName(),
+                concrete,
+                shared,
+                alias,
+                overwrite
+            );
+    }
+
+    /* singleton String, String */
+
     public Container singleton(String _abstract) {
-        return this.bind(_abstract, _abstract, true, null, false);
+        return this.singleton(_abstract, _abstract);
     }
 
     public Container singleton(String _abstract, String concrete) {
-        return this.bind(_abstract, concrete, true, null, false);
+        return this.singleton(_abstract, concrete, null);
     }
 
     public Container singleton(
@@ -137,7 +213,7 @@ public class Container {
         String concrete,
         String alias
     ) {
-        return this.bind(_abstract, concrete, true, alias, false);
+        return this.singleton(_abstract, concrete, alias, false);
     }
 
     public Container singleton(
@@ -149,12 +225,37 @@ public class Container {
         return this.bind(_abstract, concrete, true, alias, overwrite);
     }
 
+    /* singleton String, Concrete */
+
+    public Container singleton(String _abstract, Concrete concrete) {
+        return this.singleton(_abstract, concrete, null);
+    }
+
+    public Container singleton(
+        String _abstract,
+        Concrete concrete,
+        String alias
+    ) {
+        return this.singleton(_abstract, concrete, alias, false);
+    }
+
+    public Container singleton(
+        String _abstract,
+        Concrete concrete,
+        String alias,
+        boolean overwrite
+    ) {
+        return this.bind(_abstract, concrete, true, alias, overwrite);
+    }
+
+    /* singleton Class, Class */
+
     public Container singleton(Class<?> _abstract) {
-        return this.bind(_abstract, _abstract, true, null, false);
+        return this.singleton(_abstract, _abstract);
     }
 
     public Container singleton(Class<?> _abstract, Class<?> concrete) {
-        return this.bind(_abstract, concrete, true, null, false);
+        return this.singleton(_abstract, concrete, null);
     }
 
     public Container singleton(
@@ -162,7 +263,7 @@ public class Container {
         Class<?> concrete,
         String alias
     ) {
-        return this.bind(_abstract, concrete, true, alias, false);
+        return this.singleton(_abstract, concrete, alias, false);
     }
 
     public Container singleton(
@@ -173,6 +274,31 @@ public class Container {
     ) {
         return this.bind(_abstract, concrete, true, alias, overwrite);
     }
+
+    /* singleton Class, Concrete */
+
+    public Container singleton(Class<?> _abstract, Concrete concrete) {
+        return this.singleton(_abstract, concrete, null);
+    }
+
+    public Container singleton(
+        Class<?> _abstract,
+        Concrete concrete,
+        String alias
+    ) {
+        return this.singleton(_abstract, concrete, alias, false);
+    }
+
+    public Container singleton(
+        Class<?> _abstract,
+        Concrete concrete,
+        String alias,
+        boolean overwrite
+    ) {
+        return this.bind(_abstract, concrete, true, alias, overwrite);
+    }
+
+    /* instance String, Object */
 
     public Container instance(String _abstract, Object instance) {
         return this.instance(_abstract, instance, null);
@@ -187,6 +313,8 @@ public class Container {
         this.bind(_abstract, (container, args) -> instance, true, alias, true);
         return this;
     }
+
+    /* instance Class, Object */
 
     public Container instance(Class<?> _abstract, Object instance) {
         return this.instance(_abstract.getName(), instance, null);

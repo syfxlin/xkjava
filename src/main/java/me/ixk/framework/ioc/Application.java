@@ -1,18 +1,16 @@
 package me.ixk.framework.ioc;
 
-import me.ixk.app.annotations.Log;
-import me.ixk.framework.annotations.*;
-import me.ixk.framework.aop.AspectManager;
-import me.ixk.framework.bootstrap.*;
-import me.ixk.framework.kernel.ProviderManager;
-import me.ixk.framework.utils.ClassUtil;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import me.ixk.app.annotations.Log;
+import me.ixk.framework.annotations.*;
+import me.ixk.framework.bootstrap.*;
+import me.ixk.framework.kernel.ProviderManager;
+import me.ixk.framework.utils.ClassUtil;
 
 public class Application extends Container {
     protected static List<String> scanPackages = Arrays.asList(
@@ -78,8 +76,6 @@ public class Application extends Container {
         }
 
         this.loadClass();
-        AspectManager manager = new AspectManager(this);
-        this.instance(AspectManager.class, manager);
         this.bootstrap();
 
         if (this.bootedCallback != null) {

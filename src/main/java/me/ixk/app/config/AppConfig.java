@@ -1,13 +1,13 @@
 package me.ixk.app.config;
 
-import me.ixk.framework.config.AbstractConfig;
-import me.ixk.framework.ioc.Application;
-import me.ixk.framework.providers.AppProvider;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.config.AbstractConfig;
+import me.ixk.framework.ioc.Application;
+import me.ixk.framework.providers.AppProvider;
+import me.ixk.framework.providers.AspectProvider;
 
 public class AppConfig extends AbstractConfig {
 
@@ -39,6 +39,6 @@ public class AppConfig extends AbstractConfig {
     }
 
     private List<Class<?>> providers() {
-        return Arrays.asList(AppProvider.class);
+        return Arrays.asList(AppProvider.class, AspectProvider.class);
     }
 }
