@@ -13,9 +13,9 @@ public class WebRoute implements RouteDefinition {
             .group(
                 "/user",
                 rr -> {
-                    rr.addRoute("GET", "", new Handler1());
-                    rr.addRoute("GET", "/{id: \\d+}", new Handler1());
-                    rr.addRoute("GET", "/{id: \\d+}/{name}", new Handler1());
+                    rr.middleware("middleware2").get("", new Handler1());
+                    rr.get("/{id: \\d+}", new Handler1());
+                    rr.get("/{id: \\d+}/{name}", new Handler1());
                 }
             );
     }
