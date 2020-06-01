@@ -12,7 +12,7 @@ public class JSON extends ObjectMapper {
         super();
     }
 
-    public static JSON create() {
+    public static JSON make() {
         return Inner.INSTANCE;
     }
 
@@ -26,7 +26,7 @@ public class JSON extends ObjectMapper {
 
     public static ObjectNode parseObject(String json) {
         try {
-            return create().readValue(json, ObjectNode.class);
+            return make().readValue(json, ObjectNode.class);
         } catch (JsonProcessingException e) {
             return null;
         }
@@ -34,7 +34,7 @@ public class JSON extends ObjectMapper {
 
     public static ArrayNode parseArray(String json) {
         try {
-            return create().readValue(json, ArrayNode.class);
+            return make().readValue(json, ArrayNode.class);
         } catch (JsonProcessingException e) {
             return null;
         }
@@ -42,7 +42,7 @@ public class JSON extends ObjectMapper {
 
     public static JsonNode parse(String json) {
         try {
-            return create().readTree(json);
+            return make().readTree(json);
         } catch (JsonProcessingException e) {
             return null;
         }
@@ -50,7 +50,7 @@ public class JSON extends ObjectMapper {
 
     public static <T> T parse(String json, Class<T> _class) {
         try {
-            return create().readValue(json, _class);
+            return make().readValue(json, _class);
         } catch (JsonProcessingException e) {
             return null;
         }
@@ -58,7 +58,7 @@ public class JSON extends ObjectMapper {
 
     public static String stringify(Object object) {
         try {
-            return create().writeValueAsString(object);
+            return make().writeValueAsString(object);
         } catch (JsonProcessingException e) {
             return null;
         }
@@ -69,14 +69,14 @@ public class JSON extends ObjectMapper {
     }
 
     public static ObjectNode createObject() {
-        return create().createObjectNode();
+        return make().createObjectNode();
     }
 
     public static ArrayNode createArray() {
-        return create().createArrayNode();
+        return make().createArrayNode();
     }
 
     public static JsonNode convertToNode(Object object) {
-        return create().valueToTree(object);
+        return make().valueToTree(object);
     }
 }
