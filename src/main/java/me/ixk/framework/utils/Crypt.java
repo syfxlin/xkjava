@@ -1,15 +1,14 @@
 package me.ixk.framework.utils;
 
-import com.google.gson.JsonObject;
-
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
 
 public class Crypt {
     protected byte[] key;
@@ -44,10 +43,10 @@ public class Crypt {
                 ivEncoded + encrypted,
                 key
             );
-            JsonObject json = new JsonObject();
-            json.addProperty("iv", ivEncoded);
-            json.addProperty("value", encrypted);
-            json.addProperty("mac", macEncoded);
+            ObjectNode json = JSON.createObject();
+            json.put("iv", ivEncoded);
+            json.put("value", encrypted);
+            json.put("mac", macEncoded);
             return Base64.encode(json.toString());
         } catch (Exception e) {
             e.printStackTrace();
@@ -57,13 +56,13 @@ public class Crypt {
 
     public String decrypt(String encrypted) {
         try {
-            JsonObject payload = JSON.parseObject(Base64.decode(encrypted));
+            ObjectNode payload = JSON.parseObject(Base64.decode(encrypted));
             if (!this.vaild(payload)) {
                 return null;
             }
             IvParameterSpec iv = new IvParameterSpec(
                 Base64
-                    .decode(payload.get("iv").getAsString())
+                    .decode(payload.get("iv").asText())
                     .getBytes(StandardCharsets.ISO_8859_1)
             );
             SecretKeySpec aesKeySpec = new SecretKeySpec(key, "AES");
@@ -72,7 +71,7 @@ public class Crypt {
                 cipher.doFinal(
                     payload
                         .get("value")
-                        .getAsString()
+                        .asText()
                         .getBytes(StandardCharsets.ISO_8859_1)
                 ),
                 StandardCharsets.ISO_8859_1
@@ -83,23 +82,22 @@ public class Crypt {
         return null;
     }
 
-    public boolean vaild(JsonObject payload) {
+    public boolean vaild(ObjectNode payload) {
         if (
             !payload.has("iv") || !payload.has("mac") || !payload.has("value")
         ) {
             return false;
         }
-        if (Base64.decode(payload.get("iv").getAsString()).length() != 16) {
+        if (Base64.decode(payload.get("iv").asText()).length() != 16) {
             return false;
         }
         return payload
             .get("mac")
-            .getAsString()
+            .asText()
             .equals(
                 Mac.make(
                     "HmacSHA256",
-                    payload.get("iv").getAsString() +
-                    payload.get("value").getAsString(),
+                    payload.get("iv").asText() + payload.get("value").asText(),
                     key
                 )
             );

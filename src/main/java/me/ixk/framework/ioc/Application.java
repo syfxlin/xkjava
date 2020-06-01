@@ -46,11 +46,11 @@ public class Application extends Container {
     private Application() {}
 
     private static class Inner {
-        private static final Application instance = new Application();
+        private static final Application INSTANCE = new Application();
     }
 
     public static Application create() {
-        return Inner.instance;
+        return Inner.INSTANCE;
     }
 
     public static Application create(
@@ -59,11 +59,11 @@ public class Application extends Container {
     ) {
         scanPackages = packages;
         beanAnnotations = annotations;
-        return Inner.instance;
+        return Inner.INSTANCE;
     }
 
     public static Application getInstance() {
-        return Inner.instance;
+        return Inner.INSTANCE;
     }
 
     public static Application createAndBoot() {

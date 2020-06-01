@@ -1,53 +1,53 @@
 package me.ixk.framework.utils;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Helper {
     protected static final String BASE_STRING =
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     protected static final SecureRandom RANDOM = new SecureRandom();
 
-    public static JsonElement dataGet(JsonElement target, String key) {
+    public static JsonNode dataGet(JsonNode target, String key) {
         return dataGet(target, key, null);
     }
 
-    public static JsonElement dataGet(
-        JsonElement target,
+    public static JsonNode dataGet(
+        JsonNode target,
         String key,
-        JsonElement _default
+        JsonNode _default
     ) {
         String[] keys = key.split("\\.");
         return dataGet(target, keys, _default);
     }
 
-    public static JsonElement dataGet(JsonElement target, String[] keys) {
+    public static JsonNode dataGet(JsonNode target, String[] keys) {
         return dataGet(target, keys, null);
     }
 
-    public static JsonElement dataGet(
-        JsonElement target,
+    public static JsonNode dataGet(
+        JsonNode target,
         String[] keys,
-        JsonElement _default
+        JsonNode _default
     ) {
         if (keys == null) {
             return target;
         }
         for (int i = 0; i < keys.length; i++) {
             if (keys[i].equals("*")) {
-                JsonArray array = new JsonArray();
+                ArrayNode array = JSON.createArray();
                 String[] subKeys = Arrays.copyOfRange(keys, i + 1, keys.length);
-                if (target.isJsonObject()) {
-                    JsonObject object = target.getAsJsonObject();
-                    for (String itemKey : object.keySet()) {
-                        JsonElement element = dataGet(
+                if (target.isObject()) {
+                    ObjectNode object = (ObjectNode) target;
+                    for (
+                        Iterator<String> it = object.fieldNames();
+                        it.hasNext();
+                    ) {
+                        String itemKey = it.next();
+                        JsonNode element = dataGet(
                             object.get(itemKey),
                             subKeys,
                             null
@@ -56,26 +56,26 @@ public class Helper {
                             array.add(element);
                         }
                     }
-                } else if (target.isJsonArray()) {
-                    JsonArray array1 = target.getAsJsonArray();
-                    for (JsonElement item : array1) {
-                        JsonElement element = dataGet(item, subKeys, null);
+                } else if (target.isArray()) {
+                    ArrayNode array1 = (ArrayNode) target;
+                    for (JsonNode item : array1) {
+                        JsonNode element = dataGet(item, subKeys, null);
                         if (element != null) {
                             array.add(element);
                         }
                     }
                 }
                 return array;
-            } else if (target.isJsonArray()) {
-                JsonArray array = target.getAsJsonArray();
+            } else if (target.isArray()) {
+                ArrayNode array = (ArrayNode) target;
                 int index = Integer.parseInt(keys[i]);
                 if (array.size() <= index) {
                     target = null;
                     break;
                 }
                 target = array.get(index);
-            } else if (target.isJsonObject()) {
-                JsonObject object = target.getAsJsonObject();
+            } else if (target.isObject()) {
+                ObjectNode object = (ObjectNode) target;
                 if (!object.has(keys[i])) {
                     target = null;
                     break;

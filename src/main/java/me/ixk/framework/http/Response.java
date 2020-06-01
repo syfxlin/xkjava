@@ -1,14 +1,5 @@
 package me.ixk.framework.http;
 
-import com.google.gson.Gson;
-import org.eclipse.jetty.http.HttpContent;
-import org.eclipse.jetty.http.HttpCookie;
-import org.eclipse.jetty.http.HttpFields;
-import org.eclipse.jetty.http.HttpHeader;
-import org.eclipse.jetty.server.HttpOutput;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
@@ -16,6 +7,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
+import me.ixk.framework.utils.JSON;
+import org.eclipse.jetty.http.HttpContent;
+import org.eclipse.jetty.http.HttpCookie;
+import org.eclipse.jetty.http.HttpFields;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.server.HttpOutput;
 
 public class Response {
     protected org.eclipse.jetty.server.Response _base;
@@ -69,7 +68,7 @@ public class Response {
     public Response json(Object data, int status, Map<Object, String> headers)
         throws IOException {
         return this.reset()
-            .setContent(new Gson().toJson(data))
+            .setContent(JSON.stringify(data))
             .setStatus(status)
             .setHeaders(headers)
             .setContentType("application/json");

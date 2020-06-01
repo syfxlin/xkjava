@@ -1,22 +1,7 @@
 package me.ixk.framework.http;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import me.ixk.framework.utils.Helper;
-import org.eclipse.jetty.http.HttpFields;
-import org.eclipse.jetty.http.HttpMethod;
-import org.eclipse.jetty.http.HttpURI;
-import org.eclipse.jetty.http.HttpVersion;
-import org.eclipse.jetty.server.Response;
-import org.eclipse.jetty.server.SessionManager;
-import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.util.Attributes;
-import org.eclipse.jetty.util.MultiMap;
-
-import javax.servlet.*;
-import javax.servlet.http.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
@@ -26,11 +11,25 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import me.ixk.framework.utils.Helper;
+import me.ixk.framework.utils.JSON;
+import org.eclipse.jetty.http.HttpFields;
+import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.http.HttpURI;
+import org.eclipse.jetty.http.HttpVersion;
+import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.server.SessionManager;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.util.Attributes;
+import org.eclipse.jetty.util.MultiMap;
 
 public class Request {
     protected org.eclipse.jetty.server.Request _base;
     protected String _body;
-    protected JsonElement _parseBody = null;
+    protected JsonNode _parseBody = null;
     protected Map<String, Cookie> _cookies;
 
     public Request(org.eclipse.jetty.server.Request request) {
@@ -66,8 +65,7 @@ public class Request {
         if (!this.isJson()) {
             return;
         }
-        Gson gson = new Gson();
-        this._parseBody = gson.fromJson(this._body, JsonElement.class);
+        this._parseBody = JSON.parse(this._body);
     }
 
     public String getBody() {
@@ -79,11 +77,11 @@ public class Request {
         return this;
     }
 
-    public JsonElement getParseBody() {
+    public JsonNode getParseBody() {
         return _parseBody;
     }
 
-    public Request setParseBody(JsonElement parseBody) {
+    public Request setParseBody(JsonNode parseBody) {
         this._parseBody = parseBody;
         return this;
     }
@@ -122,10 +120,14 @@ public class Request {
         } catch (IOException | ServletException e) {
             // no code
         }
-        if (this._parseBody.isJsonObject()) {
-            JsonObject object = this._parseBody.getAsJsonObject();
-            for (String key : object.keySet()) {
-                map.put(key, object.get(key));
+        if (this._parseBody != null && this._parseBody.isObject()) {
+            ObjectNode object = (ObjectNode) this._parseBody;
+            for (
+                Iterator<Map.Entry<String, JsonNode>> it = object.fields();
+                it.hasNext();
+            ) {
+                Map.Entry<String, JsonNode> entry = it.next();
+                map.put(entry.getKey(), entry.getValue());
             }
         } else {
             map.put("_body", this._parseBody);
@@ -133,22 +135,22 @@ public class Request {
         return map;
     }
 
-    public JsonElement input() {
+    public JsonNode input() {
         if (this._parseBody != null) {
             return this._parseBody;
         } else {
-            return new Gson().toJsonTree(this.getParameterMap());
+            return JSON.convertToNode(this.getParameterMap());
         }
     }
 
-    public JsonElement input(String name) {
+    public JsonNode input(String name) {
         if (this._parseBody == null) {
-            return new Gson().toJsonTree(_base.getParameter(name));
+            return JSON.convertToNode(_base.getParameter(name));
         }
         return Helper.dataGet(this._parseBody, name, null);
     }
 
-    public JsonElement input(String name, JsonElement _default) {
+    public JsonNode input(String name, JsonNode _default) {
         return this.getOrDefault(this.input(name), _default);
     }
 
