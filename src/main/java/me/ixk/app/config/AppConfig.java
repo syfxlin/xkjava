@@ -1,9 +1,13 @@
 package me.ixk.app.config;
 
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.app.annotations.Log;
+import me.ixk.framework.annotations.*;
+import me.ixk.framework.annotations.processor.BeanAnnotationProcessor;
 import me.ixk.framework.config.AbstractConfig;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.providers.AppProvider;
@@ -35,10 +39,30 @@ public class AppConfig extends AbstractConfig {
         map.put("jwt.algo", this.env.get("app.jwt", "HS256"));
 
         map.put("providers", this.providers());
+
+        map.put("annotation_processors", this.annotationProcessors());
+
+        map.put("bean_annotations", this.beanAnnotations());
         return map;
     }
 
     private List<Class<?>> providers() {
         return Arrays.asList(AppProvider.class, AspectProvider.class);
+    }
+
+    private List<Class<?>> annotationProcessors() {
+        return Arrays.asList(BeanAnnotationProcessor.class);
+    }
+
+    private List<Class<? extends Annotation>> beanAnnotations() {
+        return Arrays.asList(
+            Bean.class,
+            Component.class,
+            Controller.class,
+            Repository.class,
+            Service.class,
+            Aspect.class,
+            Log.class
+        );
     }
 }

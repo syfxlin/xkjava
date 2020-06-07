@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import me.ixk.app.annotations.Log;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.bootstrap.*;
+import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.kernel.ProviderManager;
 import me.ixk.framework.utils.ClassUtil;
 
@@ -31,6 +32,7 @@ public class Application extends Container {
         LoadEnvironmentVariables.class,
         LoadConfiguration.class,
         RegisterFacades.class,
+        ProcessAnnotation.class,
         RegisterProviders.class,
         BootProviders.class
     );
@@ -38,6 +40,8 @@ public class Application extends Container {
     protected boolean booted = false;
 
     protected ProviderManager providerManager;
+
+    protected AnnotationProcessorManager annotationProcessorManager;
 
     protected BootCallback bootingCallback = null;
 
@@ -75,7 +79,7 @@ public class Application extends Container {
             this.bootedCallback.invoke(this);
         }
 
-        this.loadClass();
+        // this.loadClass();
         this.bootstrap();
 
         if (this.bootedCallback != null) {
@@ -143,6 +147,16 @@ public class Application extends Container {
         this.providerManager = providerManager;
     }
 
+    public AnnotationProcessorManager getAnnotationProcessorManager() {
+        return annotationProcessorManager;
+    }
+
+    public void setAnnotationProcessorManager(
+        AnnotationProcessorManager annotationProcessorManager
+    ) {
+        this.annotationProcessorManager = annotationProcessorManager;
+    }
+
     public boolean isBooted() {
         return this.booted;
     }
@@ -153,5 +167,13 @@ public class Application extends Container {
 
     public void booted(BootCallback callback) {
         this.bootedCallback = callback;
+    }
+
+    public List<String> getScanPackages() {
+        return scanPackages;
+    }
+
+    public void setScanPackages(List<String> scanPackages) {
+        Application.scanPackages = scanPackages;
     }
 }

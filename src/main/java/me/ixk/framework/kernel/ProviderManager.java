@@ -1,13 +1,12 @@
 package me.ixk.framework.kernel;
 
-import me.ixk.framework.ioc.Application;
-import me.ixk.framework.providers.Provider;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import me.ixk.framework.ioc.Application;
+import me.ixk.framework.providers.Provider;
 
 public class ProviderManager {
     protected Application app;
@@ -69,10 +68,18 @@ public class ProviderManager {
         return result;
     }
 
+    public Provider register(Class<?> _class) {
+        return this.register(_class.getName());
+    }
+
+    public Provider register(Class<?> _class, boolean force) {
+        return this.register(_class.getName(), force);
+    }
+
     public List<Provider> registers(List<Class<?>> providers) {
         return providers
             .stream()
-            .map(provider -> this.register(provider.getName()))
+            .map(this::register)
             .collect(Collectors.toList());
     }
 
