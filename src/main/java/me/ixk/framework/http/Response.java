@@ -481,4 +481,8 @@ public class Response {
     public String toString() {
         return _base.toString();
     }
+
+    public org.eclipse.jetty.server.Response getOriginResponse() {
+        return this._base;
+    }
 }

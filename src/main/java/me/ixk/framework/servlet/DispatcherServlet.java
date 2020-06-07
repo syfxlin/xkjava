@@ -31,6 +31,9 @@ public class DispatcherServlet extends HttpServlet {
         );
         Application
             .getInstance()
+            .instance(DispatcherServlet.class, this, "dispatcherServlet");
+        Application
+            .getInstance()
             .make(RouteManager.class)
             .dispatch(request, response);
     }

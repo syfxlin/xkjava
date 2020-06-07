@@ -10,8 +10,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.session.HashSessionIdManager;
-import org.eclipse.jetty.server.session.SessionHandler;
-import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 
 public class HttpServer {
 
@@ -55,14 +54,26 @@ public class HttpServer {
         resourceHandler.setDirectoriesListed(true);
         resourceHandler.setResourceBase(resource);
 
-        ServletHandler servletHandler = new ServletHandler();
-        servletHandler.addServletWithMapping(DispatcherServlet.class, "/*");
+        //        ServletHandler servletHandler = new ServletHandler();
+        //        servletHandler.addServletWithMapping(DispatcherServlet.class, "/*");
 
-        SessionHandler sessionHandler = new SessionHandler();
+        //        SessionHandler sessionHandler = new SessionHandler();
+
+        ServletContextHandler servletContextHandler = new ServletContextHandler(
+            ServletContextHandler.SESSIONS
+        );
+        servletContextHandler.setContextPath("/");
+        servletContextHandler.addServlet(DispatcherServlet.class, "/*");
+        servletContextHandler.setResourceBase(resource + "/..");
 
         HandlerList handlers = new HandlerList();
         handlers.setHandlers(
-            new Handler[] { resourceHandler, sessionHandler, servletHandler }
+            new Handler[] {
+                resourceHandler,
+                //                sessionHandler,
+                //                servletHandler,
+                servletContextHandler,
+            }
         );
         server.setHandler(handlers);
         server.setSessionIdManager(new HashSessionIdManager());

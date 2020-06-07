@@ -868,4 +868,8 @@ public class Request {
         throws IOException, ServletException {
         return _base.upgrade(handlerClass);
     }
+
+    public org.eclipse.jetty.server.Request getOriginRequest() {
+        return this._base;
+    }
 }

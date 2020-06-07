@@ -12,6 +12,7 @@ import me.ixk.framework.config.AbstractConfig;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.providers.AppProvider;
 import me.ixk.framework.providers.AspectProvider;
+import me.ixk.framework.providers.ThymeleafProvider;
 
 public class AppConfig extends AbstractConfig {
 
@@ -47,7 +48,11 @@ public class AppConfig extends AbstractConfig {
     }
 
     private List<Class<?>> providers() {
-        return Arrays.asList(AppProvider.class, AspectProvider.class);
+        return Arrays.asList(
+            AppProvider.class,
+            AspectProvider.class,
+            ThymeleafProvider.class
+        );
     }
 
     private List<Class<?>> annotationProcessors() {
