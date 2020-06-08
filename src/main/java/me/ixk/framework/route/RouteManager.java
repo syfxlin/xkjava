@@ -1,5 +1,6 @@
 package me.ixk.framework.route;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import me.ixk.framework.facades.Config;
@@ -15,7 +16,7 @@ public class RouteManager {
 
     public static Map<String, Class<? extends Middleware>> routeMiddleware;
 
-    // TODO: 注解中间件
+    public static List<AnnotationRouteDefinition> annotationRouteDefinitions = new ArrayList<>();
 
     protected RouteDispatcher dispatcher;
 
@@ -49,7 +50,13 @@ public class RouteManager {
                             e.printStackTrace();
                         }
                     }
-                    // TODO: 注解路由
+                    for (AnnotationRouteDefinition definition : annotationRouteDefinitions) {
+                        routeCollector.match(
+                            definition.getMethod(),
+                            definition.getRoute(),
+                            definition.getHandler()
+                        );
+                    }
                 }
             );
     }

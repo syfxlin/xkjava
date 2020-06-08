@@ -1,14 +1,13 @@
 package me.ixk.framework.ioc;
 
-import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.aop.AspectManager;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.aop.AspectManager;
 
 public class Container {
     protected Map<String, Binding> bindings;
@@ -649,11 +648,42 @@ public class Container {
         return this.call(target, paramTypes, returnType, new HashMap<>());
     }
 
+    public <T> T call(Class<?> _class, Method method, Class<T> returnType) {
+        return this.call(_class, method, returnType, new HashMap<>());
+    }
+
+    public <T> T call(
+        Class<?> _class,
+        Method method,
+        Class<T> returnType,
+        Map<String, Object> args
+    ) {
+        return returnType.cast(
+            this.callMethod(this.bindAndMake(_class), method, args)
+        );
+    }
+
+    public <T> T call(Method method, Class<T> returnType) {
+        return this.call(method, returnType, new HashMap<>());
+    }
+
+    public <T> T call(
+        Method method,
+        Class<T> returnType,
+        Map<String, Object> args
+    ) {
+        return this.call(method.getDeclaringClass(), method, returnType, args);
+    }
+
     protected Object bindAndMake(String _class) {
         if (!this.hasBinding(_class)) {
             this.bind(_class);
         }
         return this.make(_class);
+    }
+
+    protected Object bindAndMake(Class<?> _class) {
+        return this.bindAndMake(_class.getName());
     }
 
     protected Object callMethod(
@@ -700,5 +730,17 @@ public class Container {
             .filter(superClass::isAssignableFrom)
             .filter(_class -> !_class.equals(superClass))
             .collect(Collectors.toSet());
+    }
+
+    public void remove(String _abstract) {
+        String alias = _abstract;
+        _abstract = this.getAbstractByAlias(_abstract);
+        this.aliases.remove(alias);
+        this.bindings.remove(_abstract);
+        this.instances.remove(_abstract);
+    }
+
+    public void remove(Class<?> _abstract) {
+        this.remove(_abstract.getName());
     }
 }

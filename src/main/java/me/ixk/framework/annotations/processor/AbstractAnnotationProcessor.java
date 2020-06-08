@@ -1,19 +1,34 @@
 package me.ixk.framework.annotations.processor;
 
-import java.lang.annotation.Annotation;
-import java.util.Map;
-import java.util.Set;
 import me.ixk.framework.ioc.Application;
-import me.ixk.framework.utils.AnnotationScanner;
+import org.reflections.Reflections;
+import org.reflections.scanners.FieldAnnotationsScanner;
+import org.reflections.scanners.MethodAnnotationsScanner;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 
 public abstract class AbstractAnnotationProcessor
     implements AnnotationProcessor {
     protected Application app;
 
-    protected Map<Class<? extends Annotation>, Set<Class<?>>> annotations;
+    protected Reflections reflections;
 
     public AbstractAnnotationProcessor(Application app) {
         this.app = app;
-        this.annotations = AnnotationScanner.scan(this.app.getScanPackages());
+        this.reflections =
+            new Reflections(
+                new ConfigurationBuilder()
+                    .setUrls(
+                        ClasspathHelper.forPackage(Application.getScanPackage())
+                    )
+                    .setScanners(
+                        new TypeAnnotationsScanner(),
+                        new MethodAnnotationsScanner(),
+                        new FieldAnnotationsScanner(),
+                        new SubTypesScanner()
+                    )
+            );
     }
 }

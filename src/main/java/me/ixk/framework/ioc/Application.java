@@ -1,32 +1,14 @@
 package me.ixk.framework.ioc;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import me.ixk.app.annotations.Log;
-import me.ixk.framework.annotations.*;
 import me.ixk.framework.bootstrap.*;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.kernel.ProviderManager;
-import me.ixk.framework.utils.ClassUtil;
 
 public class Application extends Container {
-    protected static List<String> scanPackages = Arrays.asList(
-        "me.ixk.app.beans"
-    );
-
-    protected static List<Class<? extends Annotation>> beanAnnotations = Arrays.asList(
-        Bean.class,
-        Component.class,
-        Controller.class,
-        Repository.class,
-        Service.class,
-        Aspect.class,
-        Log.class
-    );
+    protected static String scanPackage = "me.ixk.app";
 
     protected List<Class<? extends Bootstrap>> bootstraps = Arrays.asList(
         LoadEnvironmentVariables.class,
@@ -57,12 +39,8 @@ public class Application extends Container {
         return Inner.INSTANCE;
     }
 
-    public static Application create(
-        List<String> packages,
-        List<Class<? extends Annotation>> annotations
-    ) {
-        scanPackages = packages;
-        beanAnnotations = annotations;
+    public static Application create(String _package) {
+        scanPackage = _package;
         return Inner.INSTANCE;
     }
 
@@ -79,7 +57,6 @@ public class Application extends Container {
             this.bootedCallback.invoke(this);
         }
 
-        // this.loadClass();
         this.bootstrap();
 
         if (this.bootedCallback != null) {
@@ -88,35 +65,6 @@ public class Application extends Container {
 
         this.booted = true;
         return this;
-    }
-
-    public void loadClass() {
-        Set<Class<?>> classes = scanPackages
-            .stream()
-            .map(ClassUtil::getPackageClass)
-            .flatMap(Set::stream)
-            .collect(Collectors.toSet());
-        for (Class<?> _class : classes) {
-            boolean isShared = true;
-            Scope scope = _class.getAnnotation(Scope.class);
-            if (scope != null) {
-                isShared = scope.value().equals("singleton");
-            }
-            Bean bean = _class.getAnnotation(Bean.class);
-            if (bean != null) {
-                this.bind(_class, _class, isShared);
-                for (String name : bean.value()) {
-                    this.bind(_class, _class, isShared, name);
-                }
-                continue;
-            }
-            for (Class<? extends Annotation> annotation : beanAnnotations) {
-                if (_class.isAnnotationPresent(annotation)) {
-                    this.bind(_class, _class, isShared);
-                    break;
-                }
-            }
-        }
     }
 
     protected void bootstrap() {
@@ -169,11 +117,11 @@ public class Application extends Container {
         this.bootedCallback = callback;
     }
 
-    public List<String> getScanPackages() {
-        return scanPackages;
+    public static String getScanPackage() {
+        return scanPackage;
     }
 
-    public void setScanPackages(List<String> scanPackages) {
-        Application.scanPackages = scanPackages;
+    public static void setScanPackage(String scanPackage) {
+        Application.scanPackage = scanPackage;
     }
 }

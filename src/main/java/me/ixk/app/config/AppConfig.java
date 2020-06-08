@@ -9,6 +9,7 @@ import me.ixk.app.annotations.Log;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.annotations.processor.AnnotationProcessor;
 import me.ixk.framework.annotations.processor.BeanAnnotationProcessor;
+import me.ixk.framework.annotations.processor.RouteAnnotationProcessor;
 import me.ixk.framework.config.AbstractConfig;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.providers.*;
@@ -48,16 +49,21 @@ public class AppConfig extends AbstractConfig {
 
     private List<Class<? extends Provider>> providers() {
         return Arrays.asList(
-            AppProvider.class,
             AspectProvider.class,
             DataSourceProvider.class,
             MybatisPlusProvider.class,
-            ThymeleafProvider.class
+            ThymeleafProvider.class,
+            // App
+            AppProvider.class,
+            RouteProvider.class
         );
     }
 
     private List<Class<? extends AnnotationProcessor>> annotationProcessors() {
-        return Arrays.asList(BeanAnnotationProcessor.class);
+        return Arrays.asList(
+            BeanAnnotationProcessor.class,
+            RouteAnnotationProcessor.class
+        );
     }
 
     private List<Class<? extends Annotation>> beanAnnotations() {

@@ -3,11 +3,9 @@ package me.ixk.framework.annotations.processor;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
-import org.eclipse.jetty.util.ConcurrentHashSet;
 
 public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     protected List<Class<? extends Annotation>> aliasAnnotations = Arrays.asList(
@@ -25,22 +23,16 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     @Override
     @SuppressWarnings("unchecked")
     public void process() {
-        Set<Class<?>> scopes =
-            this.annotations.getOrDefault(
-                    Scope.class,
-                    new ConcurrentHashSet<>()
-                );
         List<Class<? extends Annotation>> beanAnnotations = Config.get(
             "app.bean_annotations",
             List.class
         );
         for (Class<? extends Annotation> annotation : beanAnnotations) {
-            for (Class<?> _class : this.annotations.getOrDefault(
-                    annotation,
-                    new ConcurrentHashSet<>()
+            for (Class<?> _class : this.reflections.getTypesAnnotatedWith(
+                    annotation
                 )) {
                 boolean isShared = true;
-                if (scopes.contains(_class)) {
+                if (_class.isAnnotationPresent(Scope.class)) {
                     isShared =
                         _class
                             .getAnnotation(Scope.class)

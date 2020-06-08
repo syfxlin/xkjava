@@ -11,6 +11,12 @@ import me.ixk.framework.ioc.Application;
 import me.ixk.framework.route.RouteManager;
 
 public class DispatcherServlet extends HttpServlet {
+    protected Application app;
+
+    public DispatcherServlet() {
+        super();
+        this.app = Application.getInstance();
+    }
 
     @Override
     public void init() throws ServletException {
@@ -29,12 +35,24 @@ public class DispatcherServlet extends HttpServlet {
         Response response = new Response(
             (org.eclipse.jetty.server.Response) resp
         );
-        Application
-            .getInstance()
-            .instance(DispatcherServlet.class, this, "dispatcherServlet");
-        Application
-            .getInstance()
-            .make(RouteManager.class)
-            .dispatch(request, response);
+        this.dispatch(request, response);
+    }
+
+    protected void dispatch(Request request, Response response) {
+        this.beforeDispatch(request, response);
+        this.doDispatch(request, response);
+        this.afterDispatch(request, response);
+    }
+
+    protected void beforeDispatch(Request request, Response response) {
+        this.app.instance(DispatcherServlet.class, this, "dispatcherServlet");
+    }
+
+    protected void doDispatch(Request request, Response response) {
+        this.app.make(RouteManager.class).dispatch(request, response);
+    }
+
+    protected void afterDispatch(Request request, Response response) {
+        this.app.remove(DispatcherServlet.class);
     }
 }

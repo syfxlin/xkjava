@@ -2,7 +2,6 @@ package me.ixk.framework.server;
 
 import java.io.File;
 import me.ixk.framework.ioc.Application;
-import me.ixk.framework.route.RouteManager;
 import me.ixk.framework.servlet.DispatcherServlet;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -21,7 +20,7 @@ public class HttpServer {
 
         Server server = buildServer(port, resource);
 
-        startApplication();
+        Application.createAndBoot();
 
         try {
             server.start();
@@ -35,15 +34,6 @@ public class HttpServer {
         }
     }
 
-    public static void startApplication() {
-        Application application = Application.createAndBoot();
-        application.instance(
-            RouteManager.class,
-            new RouteManager(),
-            "routeManager"
-        );
-    }
-
     public static Server buildServer(int port, String resource) {
         Server server = new Server();
         ServerConnector connector = new ServerConnector(server);
@@ -54,11 +44,6 @@ public class HttpServer {
         resourceHandler.setDirectoriesListed(true);
         resourceHandler.setResourceBase(resource);
 
-        //        ServletHandler servletHandler = new ServletHandler();
-        //        servletHandler.addServletWithMapping(DispatcherServlet.class, "/*");
-
-        //        SessionHandler sessionHandler = new SessionHandler();
-
         ServletContextHandler servletContextHandler = new ServletContextHandler(
             ServletContextHandler.SESSIONS
         );
@@ -68,12 +53,7 @@ public class HttpServer {
 
         HandlerList handlers = new HandlerList();
         handlers.setHandlers(
-            new Handler[] {
-                resourceHandler,
-                //                sessionHandler,
-                //                servletHandler,
-                servletContextHandler,
-            }
+            new Handler[] { resourceHandler, servletContextHandler }
         );
         server.setHandler(handlers);
         server.setSessionIdManager(new HashSessionIdManager());
