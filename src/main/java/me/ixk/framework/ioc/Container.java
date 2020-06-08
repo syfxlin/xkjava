@@ -735,7 +735,15 @@ public class Container {
     public void remove(String _abstract) {
         String alias = _abstract;
         _abstract = this.getAbstractByAlias(_abstract);
-        this.aliases.remove(alias);
+        for (Map.Entry<String, String> entry : this.aliases.entrySet()) {
+            if (entry.getKey().equals(alias)) {
+                this.aliases.remove(entry.getKey());
+                break;
+            } else if (entry.getValue().equals(_abstract)) {
+                this.aliases.remove(entry.getValue());
+                break;
+            }
+        }
         this.bindings.remove(_abstract);
         this.instances.remove(_abstract);
     }

@@ -15,7 +15,7 @@ public class DispatcherServlet extends HttpServlet {
 
     public DispatcherServlet() {
         super();
-        this.app = Application.getInstance();
+        this.app = Application.get();
     }
 
     @Override
@@ -46,6 +46,8 @@ public class DispatcherServlet extends HttpServlet {
 
     protected void beforeDispatch(Request request, Response response) {
         this.app.instance(DispatcherServlet.class, this, "dispatcherServlet");
+        this.app.instance(Request.class, request, "request");
+        this.app.instance(Response.class, response, "response");
     }
 
     protected void doDispatch(Request request, Response response) {
@@ -54,5 +56,7 @@ public class DispatcherServlet extends HttpServlet {
 
     protected void afterDispatch(Request request, Response response) {
         this.app.remove(DispatcherServlet.class);
+        this.app.remove(Request.class);
+        this.app.remove(Response.class);
     }
 }

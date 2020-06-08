@@ -37,10 +37,7 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
             (ParameterizedType) this.getClass().getGenericSuperclass()
         ).getActualTypeArguments()[0];
         this.baseMapper =
-            Application
-                .getInstance()
-                .make(MybatisPlus.class)
-                .getMapper(mapperClass);
+            Application.get().make(MybatisPlus.class).getMapper(mapperClass);
     }
 
     @Override

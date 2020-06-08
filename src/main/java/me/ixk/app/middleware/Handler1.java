@@ -19,15 +19,12 @@ public class Handler1 implements Handler {
         WebContext webContext = new WebContext(
             request.getOriginRequest(),
             response.getOriginResponse(),
-            Application
-                .getInstance()
-                .make(DispatcherServlet.class)
-                .getServletContext()
+            Application.get().make(DispatcherServlet.class).getServletContext()
         );
         try {
             return response.content(
                 Application
-                    .getInstance()
+                    .get()
                     .make(Thymeleaf.class)
                     .getTemplateEngine()
                     .process("index", webContext)

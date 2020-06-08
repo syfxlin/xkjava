@@ -48,6 +48,10 @@ public class Application extends Container {
         return Inner.INSTANCE;
     }
 
+    public static Application get() {
+        return Inner.INSTANCE;
+    }
+
     public static Application createAndBoot() {
         return create().boot();
     }

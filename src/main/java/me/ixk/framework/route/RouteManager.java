@@ -3,6 +3,7 @@ package me.ixk.framework.route;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.facades.Config;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
@@ -17,6 +18,8 @@ public class RouteManager {
     public static Map<String, Class<? extends Middleware>> routeMiddleware;
 
     public static List<AnnotationRouteDefinition> annotationRouteDefinitions = new ArrayList<>();
+
+    public static Map<String, AnnotationMiddlewareDefinition> annotationMiddlewareDefinitions = new ConcurrentHashMap<>();
 
     protected RouteDispatcher dispatcher;
 

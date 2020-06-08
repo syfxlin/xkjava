@@ -9,6 +9,7 @@ import me.ixk.app.annotations.Log;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.annotations.processor.AnnotationProcessor;
 import me.ixk.framework.annotations.processor.BeanAnnotationProcessor;
+import me.ixk.framework.annotations.processor.MiddlewareAnnotationProcessor;
 import me.ixk.framework.annotations.processor.RouteAnnotationProcessor;
 import me.ixk.framework.config.AbstractConfig;
 import me.ixk.framework.ioc.Application;
@@ -62,7 +63,8 @@ public class AppConfig extends AbstractConfig {
     private List<Class<? extends AnnotationProcessor>> annotationProcessors() {
         return Arrays.asList(
             BeanAnnotationProcessor.class,
-            RouteAnnotationProcessor.class
+            RouteAnnotationProcessor.class,
+            MiddlewareAnnotationProcessor.class
         );
     }
 

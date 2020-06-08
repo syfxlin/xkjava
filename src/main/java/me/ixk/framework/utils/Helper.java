@@ -3,6 +3,7 @@ package me.ixk.framework.utils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.lang.reflect.Method;
 import java.security.SecureRandom;
 import java.util.*;
 
@@ -178,5 +179,24 @@ public class Helper {
             );
         }
         return stringBuilder.toString();
+    }
+
+    public static String routeHandler(String handler) {
+        if (handler.indexOf('.') == -1) {
+            handler = "me.ixk.app.controllers." + handler;
+        }
+        return handler;
+    }
+
+    public static String routeHandler(Class<?> _class, String method) {
+        return _class.getName() + "@" + method;
+    }
+
+    public static String routeHandler(Method method) {
+        return method.getDeclaringClass().getName() + "@" + method.getName();
+    }
+
+    public static String routeHandler(String[] handler) {
+        return handler[0] + "@" + handler[1];
     }
 }

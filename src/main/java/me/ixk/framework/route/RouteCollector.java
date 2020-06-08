@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import me.ixk.framework.ioc.Application;
 import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.middleware.Middleware;
 import me.ixk.framework.middleware.Runner;
+import me.ixk.framework.utils.Helper;
 import org.eclipse.jetty.http.HttpMethod;
 
 public class RouteCollector {
@@ -37,7 +39,7 @@ public class RouteCollector {
         this.routeGenerator = routeGenerator;
     }
 
-    public Handler getHandler(Handler handler) {
+    protected Handler getHandler(Handler handler) {
         List<Class<? extends Middleware>> middleware = this.middleware;
         this.middleware = new ArrayList<>();
         if (this.useGroupMiddleware != null) {
@@ -73,6 +75,20 @@ public class RouteCollector {
         };
     }
 
+    protected void registerAnnotationMiddleware(String handler) {
+        AnnotationMiddlewareDefinition definition = RouteManager.annotationMiddlewareDefinitions.get(
+            handler
+        );
+        if (definition == null) {
+            return;
+        }
+        if (definition.isClass()) {
+            this.middleware(definition.getMiddleware());
+        } else {
+            this.middleware(definition.getValue());
+        }
+    }
+
     public void addRoute(HttpMethod httpMethod, String route, Handler handler) {
         this.addRoute(httpMethod.asString(), route, handler);
     }
@@ -82,11 +98,9 @@ public class RouteCollector {
         String route,
         Handler handler
     ) {
-        String[] methods = new String[httpMethods.length];
-        for (int i = 0; i < httpMethods.length; i++) {
-            methods[i] = httpMethods[i].asString();
+        for (HttpMethod httpMethod : httpMethods) {
+            this.addRoute(httpMethod.asString(), route, handler);
         }
-        this.addRoute(methods, route, handler);
     }
 
     public void addRoute(String httpMethod, String route, Handler handler) {
@@ -111,6 +125,35 @@ public class RouteCollector {
                     );
             }
         }
+    }
+
+    public void addRoute(HttpMethod httpMethod, String route, String handler) {
+        this.addRoute(httpMethod.asString(), route, handler);
+    }
+
+    public void addRoute(
+        HttpMethod[] httpMethod,
+        String route,
+        String handler
+    ) {
+        for (HttpMethod method : httpMethod) {
+            this.addRoute(method.asString(), route, handler);
+        }
+    }
+
+    public void addRoute(String httpMethod, String route, String handler) {
+        this.addRoute(new String[] { httpMethod }, route, handler);
+    }
+
+    public void addRoute(String[] httpMethod, String route, String handler) {
+        this.registerAnnotationMiddleware(handler);
+        String finalHandler = Helper.routeHandler(handler);
+        this.addRoute(
+                httpMethod,
+                route,
+                (request, response) ->
+                    Application.get().call(finalHandler, Object.class)
+            );
     }
 
     public RouteCollector addGroup(
@@ -164,6 +207,58 @@ public class RouteCollector {
     }
 
     public void any(String route, Handler handler) {
+        this.addRoute(
+                new String[] {
+                    "GET",
+                    "POST",
+                    "PUT",
+                    "DELETE",
+                    "PATCH",
+                    "HEAD",
+                    "OPTIONS",
+                },
+                route,
+                handler
+            );
+    }
+
+    public void get(String route, String handler) {
+        this.addRoute("GET", route, handler);
+    }
+
+    public void post(String route, String handler) {
+        this.addRoute("POST", route, handler);
+    }
+
+    public void put(String route, String handler) {
+        this.addRoute("PUT", route, handler);
+    }
+
+    public void delete(String route, String handler) {
+        this.addRoute("DELETE", route, handler);
+    }
+
+    public void patch(String route, String handler) {
+        this.addRoute("PATCH", route, handler);
+    }
+
+    public void head(String route, String handler) {
+        this.addRoute("HEAD", route, handler);
+    }
+
+    public void options(String route, String handler) {
+        this.addRoute("OPTIONS", route, handler);
+    }
+
+    public void match(String[] httpMethods, String route, String handler) {
+        this.addRoute(httpMethods, route, handler);
+    }
+
+    public void match(HttpMethod[] httpMethods, String route, String handler) {
+        this.addRoute(httpMethods, route, handler);
+    }
+
+    public void any(String route, String handler) {
         this.addRoute(
                 new String[] {
                     "GET",
