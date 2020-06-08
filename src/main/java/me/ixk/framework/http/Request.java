@@ -475,7 +475,7 @@ public class Request {
         return _base.getQueryString();
     }
 
-    public BufferedReader getReader() throws IOException {
+    public BufferedReader getReader() {
         return new BufferedReader(new StringReader(this._body));
     }
 

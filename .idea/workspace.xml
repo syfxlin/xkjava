@@ -20,24 +20,30 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e9f88982-44fc-417e-826d-49a67d104d37" name="默认的" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__ognl_ognl_3_1_12.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_attoparser_attoparser_2_0_5_RELEASE.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_javassist_javassist_3_20_0_GA.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_slf4j_slf4j_api_1_7_25.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_thymeleaf_thymeleaf_3_0_11_RELEASE.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_unbescape_unbescape_1_1_6_RELEASE.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/me/ixk/framework/providers/ThymeleafProvider.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/me/ixk/framework/utils/Thymeleaf.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/templates/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_baomidou_mybatis_plus_3_3_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_baomidou_mybatis_plus_annotation_3_3_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_baomidou_mybatis_plus_core_3_3_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_baomidou_mybatis_plus_extension_3_3_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_github_jsqlparser_jsqlparser_3_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_google_protobuf_protobuf_java_3_6_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__mysql_mysql_connector_java_8_0_20.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_mybatis_mybatis_3_5_4.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_mybatis_mybatis_spring_2_0_4.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/me/ixk/app/entity/Users.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/me/ixk/app/mapper/UsersMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/me/ixk/app/mapper/xml/UsersMapper.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/me/ixk/app/service/IUsersService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/me/ixk/app/service/impl/UsersServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/me/ixk/framework/service/IService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/me/ixk/framework/service/ServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/me/ixk/framework/utils/MybatisPlus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/xkjava.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/xkjava.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/ixk/app/config/AppConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/ixk/app/config/AppConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/me/ixk/app/middleware/Handler1.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/ixk/app/middleware/Handler1.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/me/ixk/framework/http/Request.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/ixk/framework/http/Request.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/ixk/framework/http/Response.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/ixk/framework/http/Response.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/ixk/framework/server/HttpServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/ixk/framework/server/HttpServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/ixk/framework/servlet/DispatcherServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/ixk/framework/servlet/DispatcherServlet.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,9 +59,9 @@
         <option value="HTTP Request" />
         <option value="AnnotationType" />
         <option value="Enum" />
+        <option value="Thymeleaf HTML" />
         <option value="Interface" />
         <option value="Class" />
-        <option value="Thymeleaf HTML" />
       </list>
     </option>
   </component>
@@ -104,6 +110,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="DatabaseDriversLRU" value="mysql" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
@@ -132,6 +139,9 @@
   <component name="RecentsManager">
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
       <recent name="me.ixk.app" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="F:\workspace\demo\xkjava\src\main\java\me\ixk\app\mapper\xml" />
     </key>
   </component>
   <component name="RunManager" selected="应用程序.HttpServer">
@@ -228,7 +238,9 @@
       <workItem from="1591341204951" duration="73000" />
       <workItem from="1591341292313" duration="77000" />
       <workItem from="1591341565250" duration="5954000" />
-      <workItem from="1591530549069" duration="14711000" />
+      <workItem from="1591530549069" duration="14777000" />
+      <workItem from="1591577318337" duration="30000" />
+      <workItem from="1591577362452" duration="11389000" />
     </task>
     <task id="LOCAL-00001" summary=":tada: init: Init">
       <created>1589697922096</created>
@@ -356,7 +368,14 @@
       <option name="project" value="LOCAL" />
       <updated>1591538805490</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary=":sparkles: feat: Add Thymeleaf">
+      <created>1591548506063</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1591548506063</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -394,13 +413,14 @@
     <MESSAGE value=":art: refactor: Update Gson to Jackson" />
     <MESSAGE value=":art: refactor: Rename JSON method" />
     <MESSAGE value=":sparkles: feat: Add AnnotationProcessor, AnnotationProcessorManager, AnnotationScanner" />
-    <option name="LAST_COMMIT_MESSAGE" value=":sparkles: feat: Add AnnotationProcessor, AnnotationProcessorManager, AnnotationScanner" />
+    <MESSAGE value=":sparkles: feat: Add Thymeleaf" />
+    <option name="LAST_COMMIT_MESSAGE" value=":sparkles: feat: Add Thymeleaf" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1590756950940">
+    <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1591583461862">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824@0.0.1536.824" timestamp="1590756950940" />
+    <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824@0.0.1536.824" timestamp="1591583461862" />
     <state x="593" y="206" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1589695767679">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -417,10 +437,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="586" y="47" key="#com.intellij.ide.ui.customization.CustomizableActionsPanel.FindAvailableActionsDialog/0.0.1536.824@0.0.1536.824" timestamp="1590836256137" />
-    <state x="574" y="116" key="#com.intellij.ide.util.MemberChooser" timestamp="1591543041330">
+    <state x="574" y="116" key="#com.intellij.ide.util.MemberChooser" timestamp="1591590059862">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="574" y="116" key="#com.intellij.ide.util.MemberChooser/0.0.1536.824@0.0.1536.824" timestamp="1591543041330" />
+    <state x="574" y="116" key="#com.intellij.ide.util.MemberChooser/0.0.1536.824@0.0.1536.824" timestamp="1591590059862" />
     <state x="393" y="314" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog" timestamp="1590754625499">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -437,10 +457,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="565" y="263" key="#com.intellij.ws.actions.HttpClientConvertFromCurlDialog/0.0.1536.824@0.0.1536.824" timestamp="1588952898166" />
-    <state x="107" y="40" key="#xdebugger.evaluate" timestamp="1591548355000">
+    <state x="107" y="40" key="#xdebugger.evaluate" timestamp="1591589443970">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="107" y="40" key="#xdebugger.evaluate/0.0.1536.824@0.0.1536.824" timestamp="1591548355000" />
+    <state x="107" y="40" key="#xdebugger.evaluate/0.0.1536.824@0.0.1536.824" timestamp="1591589443970" />
     <state x="669" y="311" key="#自定义插件存储库" timestamp="1589641987992">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -453,10 +473,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="519" y="270" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.1536.824@0.0.1536.824" timestamp="1590473220232" />
-    <state x="203" y="0" key="CommitChangelistDialog2" timestamp="1591538804694">
+    <state x="203" y="0" key="CommitChangelistDialog2" timestamp="1591548505214">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="203" y="0" key="CommitChangelistDialog2/0.0.1536.824@0.0.1536.824" timestamp="1591538804694" />
+    <state x="203" y="0" key="CommitChangelistDialog2/0.0.1536.824@0.0.1536.824" timestamp="1591548505214" />
     <state width="481" height="620" key="DebuggerActiveHint" timestamp="1588927054441">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -469,38 +489,42 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="549" y="167" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1591341273131" />
-    <state width="1493" height="339" key="GridCell.Tab.0.bottom" timestamp="1591548397735">
+    <state width="1493" height="339" key="GridCell.Tab.0.bottom" timestamp="1591589447357">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="339" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1591548397735" />
-    <state width="1493" height="339" key="GridCell.Tab.0.center" timestamp="1591548397734">
+    <state width="1493" height="339" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1591589447357" />
+    <state width="1493" height="339" key="GridCell.Tab.0.center" timestamp="1591589447357">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="339" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1591548397734" />
-    <state width="1493" height="339" key="GridCell.Tab.0.left" timestamp="1591548397734">
+    <state width="1493" height="339" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1591589447357" />
+    <state width="1493" height="339" key="GridCell.Tab.0.left" timestamp="1591589447357">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="339" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1591548397734" />
-    <state width="1493" height="339" key="GridCell.Tab.0.right" timestamp="1591548397735">
+    <state width="1493" height="339" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1591589447357" />
+    <state width="1493" height="339" key="GridCell.Tab.0.right" timestamp="1591589447357">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="339" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1591548397735" />
-    <state width="1493" height="339" key="GridCell.Tab.1.bottom" timestamp="1591548397735">
+    <state width="1493" height="339" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1591589447357" />
+    <state width="1493" height="339" key="GridCell.Tab.1.bottom" timestamp="1591589447358">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="339" key="GridCell.Tab.1.bottom/0.0.1536.824@0.0.1536.824" timestamp="1591548397735" />
-    <state width="1493" height="339" key="GridCell.Tab.1.center" timestamp="1591548397735">
+    <state width="1493" height="339" key="GridCell.Tab.1.bottom/0.0.1536.824@0.0.1536.824" timestamp="1591589447358" />
+    <state width="1493" height="339" key="GridCell.Tab.1.center" timestamp="1591589447358">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="339" key="GridCell.Tab.1.center/0.0.1536.824@0.0.1536.824" timestamp="1591548397735" />
-    <state width="1493" height="339" key="GridCell.Tab.1.left" timestamp="1591548397735">
+    <state width="1493" height="339" key="GridCell.Tab.1.center/0.0.1536.824@0.0.1536.824" timestamp="1591589447358" />
+    <state width="1493" height="339" key="GridCell.Tab.1.left" timestamp="1591589447357">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="339" key="GridCell.Tab.1.left/0.0.1536.824@0.0.1536.824" timestamp="1591548397735" />
-    <state width="1493" height="339" key="GridCell.Tab.1.right" timestamp="1591548397735">
+    <state width="1493" height="339" key="GridCell.Tab.1.left/0.0.1536.824@0.0.1536.824" timestamp="1591589447357" />
+    <state width="1493" height="339" key="GridCell.Tab.1.right" timestamp="1591589447358">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="339" key="GridCell.Tab.1.right/0.0.1536.824@0.0.1536.824" timestamp="1591548397735" />
+    <state width="1493" height="339" key="GridCell.Tab.1.right/0.0.1536.824@0.0.1536.824" timestamp="1591589447358" />
+    <state width="221" height="540" key="HiddenNamespacesPopup" timestamp="1591583544005">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="221" height="540" key="HiddenNamespacesPopup/0.0.1536.824@0.0.1536.824" timestamp="1591583544005" />
     <state x="299" y="67" key="Maven.ArtifactSearchDialog" timestamp="1588853629541">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -521,10 +545,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="498" height="446" key="SwitcherDM/0.0.1536.824@0.0.1536.824" timestamp="1589619844897" />
-    <state x="361" y="145" key="Vcs.Push.Dialog.v2" timestamp="1591538807034">
+    <state x="361" y="145" key="Vcs.Push.Dialog.v2" timestamp="1591548507378">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="361" y="145" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1591538807034" />
+    <state x="361" y="145" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1591548507378" />
     <state x="514" y="256" key="cloudConfig.PluginsDialog" timestamp="1590839626719">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -533,10 +557,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="93" y="93" width="1350" height="638" key="com.intellij.history.integration.ui.views.DirectoryHistoryDialog/0.0.1536.824@0.0.1536.824" timestamp="1590994613977" />
-    <state x="93" y="93" width="1350" height="638" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1591020377919">
+    <state x="93" y="93" width="1350" height="638" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1591585809117">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="93" y="93" width="1350" height="638" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.0.1536.824@0.0.1536.824" timestamp="1591020377919" />
+    <state x="93" y="93" width="1350" height="638" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.0.1536.824@0.0.1536.824" timestamp="1591585809117" />
     <state x="648" y="353" key="com.intellij.ide.ui.customization.CustomizableActionsPanel$EditIconDialog" timestamp="1590836300515">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -565,17 +589,17 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="526" y="284" width="566" height="273" key="org.intellij.images.editor.actions.BackgroundImageDialog/0.0.1536.824@0.0.1536.824" timestamp="1589702809497" />
-    <state x="584" y="151" key="refactoring.ChangeSignatureDialog" timestamp="1588877276483">
+    <state x="584" y="151" key="refactoring.ChangeSignatureDialog" timestamp="1591590008240">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="584" y="151" key="refactoring.ChangeSignatureDialog/0.0.1536.824@0.0.1536.824" timestamp="1588877276483" />
+    <state x="584" y="151" key="refactoring.ChangeSignatureDialog/0.0.1536.824@0.0.1536.824" timestamp="1591590008240" />
     <state x="425" y="187" width="672" height="677" key="run.anything.popup" timestamp="1590757189797">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="425" y="187" width="672" height="677" key="run.anything.popup/0.0.1536.824@0.0.1536.824" timestamp="1590757189797" />
-    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup" timestamp="1590836264565">
+    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup" timestamp="1591589225315">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup/0.0.1536.824@0.0.1536.824" timestamp="1590836264565" />
+    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup/0.0.1536.824@0.0.1536.824" timestamp="1591589225315" />
   </component>
 </project>
