@@ -8,12 +8,15 @@ import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.*;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import me.ixk.framework.ioc.Application;
+import me.ixk.framework.utils.MybatisPlus;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
@@ -28,6 +31,17 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
     protected Log log = LogFactory.getLog(getClass());
 
     protected M baseMapper;
+
+    public ServiceImpl() {
+        Class<M> mapperClass = (Class<M>) (
+            (ParameterizedType) this.getClass().getGenericSuperclass()
+        ).getActualTypeArguments()[0];
+        this.baseMapper =
+            Application
+                .getInstance()
+                .make(MybatisPlus.class)
+                .getMapper(mapperClass);
+    }
 
     @Override
     public M getBaseMapper() {

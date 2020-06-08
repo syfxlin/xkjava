@@ -7,12 +7,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.app.annotations.Log;
 import me.ixk.framework.annotations.*;
+import me.ixk.framework.annotations.processor.AnnotationProcessor;
 import me.ixk.framework.annotations.processor.BeanAnnotationProcessor;
 import me.ixk.framework.config.AbstractConfig;
 import me.ixk.framework.ioc.Application;
-import me.ixk.framework.providers.AppProvider;
-import me.ixk.framework.providers.AspectProvider;
-import me.ixk.framework.providers.ThymeleafProvider;
+import me.ixk.framework.providers.*;
 
 public class AppConfig extends AbstractConfig {
 
@@ -47,15 +46,17 @@ public class AppConfig extends AbstractConfig {
         return map;
     }
 
-    private List<Class<?>> providers() {
+    private List<Class<? extends Provider>> providers() {
         return Arrays.asList(
             AppProvider.class,
             AspectProvider.class,
+            DataSourceProvider.class,
+            MybatisPlusProvider.class,
             ThymeleafProvider.class
         );
     }
 
-    private List<Class<?>> annotationProcessors() {
+    private List<Class<? extends AnnotationProcessor>> annotationProcessors() {
         return Arrays.asList(BeanAnnotationProcessor.class);
     }
 
