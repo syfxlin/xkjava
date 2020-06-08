@@ -1,8 +1,0 @@
-{
-    "hoverEvent": {
-        "action": ["action1", "action2"],
-        "value": {
-            "extra": "something"
-        }
-    }
-}
