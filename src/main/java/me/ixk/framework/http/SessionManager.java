@@ -1,17 +1,16 @@
 package me.ixk.framework.http;
 
-import me.ixk.framework.utils.Helper;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
 import java.util.Enumeration;
 import java.util.List;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
+import me.ixk.framework.utils.Helper;
 
 public class SessionManager {
     HttpSession _session;
     org.eclipse.jetty.server.SessionManager _sessionManager;
 
-    public void setSession(
+    public void refresh(
         HttpSession session,
         org.eclipse.jetty.server.SessionManager sessionManager
     ) {
@@ -41,16 +40,16 @@ public class SessionManager {
         return this._session.getAttribute(name) != null;
     }
 
-    public Object get(String name) {
-        return this.get(name, null);
+    public <T> T get(String name, Class<T> returnType) {
+        return this.get(name, returnType, null);
     }
 
-    public Object get(String name, Object _default) {
+    public <T> T get(String name, Class<T> returnType, T _default) {
         Object result = this._session.getAttribute(name);
         if (result == null) {
             return _default;
         }
-        return result;
+        return returnType.cast(result);
     }
 
     public void put(String name, Object value) {
@@ -74,14 +73,14 @@ public class SessionManager {
         }
     }
 
-    public Object pull(String name, Object _default) {
-        Object result = this.get(name, _default);
+    public <T> T pull(String name, Class<T> returnType, T _default) {
+        T result = this.get(name, returnType, _default);
         this.forget(name);
         return result;
     }
 
     public String token() {
-        return this.get("_token").toString();
+        return this.get("_token", String.class);
     }
 
     public void regenerateToken() {

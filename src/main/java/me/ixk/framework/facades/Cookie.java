@@ -10,10 +10,8 @@ public class Cookie extends AbstractFacade {
         return app.make(CookieManager.class);
     }
 
-    public static void setRequestCookies(
-        Map<String, javax.servlet.http.Cookie> cookies
-    ) {
-        make().setRequestCookies(cookies);
+    public static void refresh(javax.servlet.http.Cookie[] cookies) {
+        make().refresh(cookies);
     }
 
     public static boolean has(String name) {

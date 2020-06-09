@@ -82,4 +82,21 @@ public class ClassUtil {
             .replaceAll("/", ".");
         return loadClass(className);
     }
+
+    public static Class<?> getUserClass(Object instance) {
+        if (instance == null) {
+            throw new RuntimeException("Instance must not be null");
+        }
+        return getUserClass(instance.getClass());
+    }
+
+    public static Class<?> getUserClass(Class<?> clazz) {
+        if (clazz.getName().contains("$$")) {
+            Class<?> superclass = clazz.getSuperclass();
+            if (superclass != null && superclass != Object.class) {
+                return superclass;
+            }
+        }
+        return clazz;
+    }
 }

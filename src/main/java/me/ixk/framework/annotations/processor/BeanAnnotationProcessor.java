@@ -8,12 +8,19 @@ import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
 
 public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
+    protected List<Class<? extends Annotation>> notSharedAnnotations = Arrays.asList(
+        Repository.class,
+        Service.class,
+        Mapper.class
+    );
+
     protected List<Class<? extends Annotation>> aliasAnnotations = Arrays.asList(
         Bean.class,
         Component.class,
         Controller.class,
         Repository.class,
-        Service.class
+        Service.class,
+        Mapper.class
     );
 
     public BeanAnnotationProcessor(Application app) {
@@ -31,7 +38,8 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
             for (Class<?> _class : this.reflections.getTypesAnnotatedWith(
                     annotation
                 )) {
-                boolean isShared = true;
+                boolean isShared =
+                    !this.notSharedAnnotations.contains(annotation);
                 if (_class.isAnnotationPresent(Scope.class)) {
                     isShared =
                         _class

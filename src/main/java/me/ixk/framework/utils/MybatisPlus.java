@@ -2,20 +2,16 @@ package me.ixk.framework.utils;
 
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;
+import java.util.List;
+import javax.sql.DataSource;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 
-import javax.sql.DataSource;
-import java.util.List;
-
 public class MybatisPlus {
     protected SqlSessionFactory sessionFactory;
-
-    protected SqlSession session;
 
     public MybatisPlus(DataSource dataSource, List<String> mapperPackages) {
         SqlSessionFactoryBuilder builder = new MybatisSqlSessionFactoryBuilder();
@@ -29,19 +25,14 @@ public class MybatisPlus {
             configuration.addMappers(mapperPackage);
         }
         this.sessionFactory = builder.build(configuration);
-        this.session = this.sessionFactory.openSession();
     }
 
     public SqlSessionFactory getSessionFactory() {
         return this.sessionFactory;
     }
 
-    public SqlSession getSession() {
-        return this.session;
-    }
-
     public <M> M getMapper(Class<M> mapperClass) {
-        return this.session.getMapper(mapperClass);
+        return this.sessionFactory.openSession(true).getMapper(mapperClass);
     }
 
     public <S> S getService(Class<S> serviceClass) {

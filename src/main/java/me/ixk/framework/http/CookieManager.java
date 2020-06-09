@@ -1,22 +1,21 @@
 package me.ixk.framework.http;
 
-import org.eclipse.jetty.http.HttpCookie;
-
-import javax.servlet.http.Cookie;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.servlet.http.Cookie;
+import org.eclipse.jetty.http.HttpCookie;
 
 public class CookieManager {
     protected Map<String, Cookie> _requestCookies;
 
     protected Map<String, HttpCookie> _cookies;
 
-    public CookieManager() {
+    public void refresh(Cookie[] cookies) {
+        this._requestCookies = new ConcurrentHashMap<>();
+        for (Cookie cookie : cookies) {
+            this._requestCookies.put(cookie.getName(), cookie);
+        }
         this._cookies = new ConcurrentHashMap<>();
-    }
-
-    public void setRequestCookies(Map<String, Cookie> cookies) {
-        this._requestCookies = cookies;
     }
 
     public boolean has(String name) {
@@ -24,7 +23,7 @@ public class CookieManager {
     }
 
     public Cookie get(String name) {
-        return this.get(name, null);
+        return this._requestCookies.get(name);
     }
 
     public Cookie get(String name, Cookie _default) {

@@ -1,17 +1,14 @@
 package me.ixk.framework.aop;
 
-import me.ixk.framework.annotations.Aspect;
-import me.ixk.framework.annotations.Order;
-import me.ixk.framework.ioc.Application;
-import net.sf.cglib.proxy.Enhancer;
-
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.annotations.Aspect;
+import me.ixk.framework.annotations.Order;
+import me.ixk.framework.ioc.Application;
 
 public class AspectManager {
     protected Application app;
@@ -55,26 +52,7 @@ public class AspectManager {
         this.loadAdvice();
     }
 
-    public Object weavingAspect(Class<?> _class) throws Throwable {
-        Map<String, List<Advice>> map = this.matches(_class);
-        Constructor<?>[] constructors = _class.getDeclaredConstructors();
-        if (constructors.length != 1) {
-            // 不允许构造器重载
-            throw new RuntimeException(
-                "The bound instance must have only one constructor"
-            );
-        }
-        if (map.isEmpty()) {
-            return constructors[0].newInstance();
-        }
-        return Enhancer.create(
-            _class,
-            constructors[0].getParameterTypes(),
-            new DynamicInterceptor(map)
-        );
-    }
-
-    protected Map<String, List<Advice>> matches(Class<?> _class) {
+    public Map<String, List<Advice>> matches(Class<?> _class) {
         Map<String, List<Advice>> map = new ConcurrentHashMap<>();
         for (AdviceEntry entry : this.adviceList) {
             if (entry.getPointcut().matches(_class)) {

@@ -1,21 +1,43 @@
 package me.ixk.app.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 @Data
-public class Users {
-    @TableId(value = "id", type = IdType.AUTO)
-    private long id;
+@Builder
+@EqualsAndHashCode
+@Accessors(chain = true)
+public class Users implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    @TableField(value = "username")
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
+
     private String username;
 
-    @TableField(value = "password")
+    private String nickname;
+
+    private String email;
+
     private String password;
 
-    @TableField(value = "remember_token")
     private String rememberToken;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
+    private String url;
+
+    private Integer status;
+
+    private String type;
+
+    private LocalDateTime emailVerifiedAt;
 }

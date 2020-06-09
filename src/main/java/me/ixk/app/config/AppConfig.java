@@ -35,9 +35,10 @@ public class AppConfig extends AbstractConfig {
         map.put("url", this.env.get("app.url", "http://localhost"));
         map.put("asset_url", this.env.get("app.asset.url", ""));
         map.put("key", this.env.get("app.key"));
-        map.put("cipher", this.env.get("app.cipher", "AES_256_CBC"));
+        map.put("cipher", this.env.get("app.cipher", "AES/CBC/PKCS5PADDING"));
         map.put("hash.algo", this.env.get("app.hash", "bcrypt"));
         map.put("jwt.algo", this.env.get("app.jwt", "HS256"));
+        map.put("jwt.default_payload", new ConcurrentHashMap<String, String>());
 
         map.put("providers", this.providers());
 
@@ -50,10 +51,16 @@ public class AppConfig extends AbstractConfig {
     private List<Class<? extends Provider>> providers() {
         return Arrays.asList(
             AspectProvider.class,
+            CookieManagerProvider.class,
+            SessionManagerProvider.class,
             DataSourceProvider.class,
             MybatisPlusProvider.class,
             ThymeleafProvider.class,
             ViewProvider.class,
+            EncryptionProvider.class,
+            HashProvider.class,
+            JwtProvider.class,
+            AuthProvider.class,
             // App
             AppProvider.class,
             RouteProvider.class
@@ -75,6 +82,7 @@ public class AppConfig extends AbstractConfig {
             Controller.class,
             Repository.class,
             Service.class,
+            Mapper.class,
             Aspect.class
         );
     }

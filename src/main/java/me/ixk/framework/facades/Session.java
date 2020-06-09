@@ -12,11 +12,11 @@ public class Session extends AbstractFacade {
         return app.make(SessionManager.class);
     }
 
-    public static void setSession(
+    public static void refresh(
         HttpSession session,
         org.eclipse.jetty.server.SessionManager sessionManager
     ) {
-        make().setSession(session, sessionManager);
+        make().refresh(session, sessionManager);
     }
 
     public static HttpSession getSession() {
@@ -41,12 +41,12 @@ public class Session extends AbstractFacade {
         return make().has(name);
     }
 
-    public static Object get(String name) {
-        return make().get(name);
+    public static <T> T get(String name, Class<T> returnType) {
+        return make().get(name, returnType);
     }
 
-    public static Object get(String name, Object _default) {
-        return make().get(name, _default);
+    public static <T> T get(String name, Class<T> returnType, T _default) {
+        return make().get(name, returnType, _default);
     }
 
     public static void put(String name, Object value) {
@@ -65,8 +65,8 @@ public class Session extends AbstractFacade {
         make().flush();
     }
 
-    public static Object pull(String name, Object _default) {
-        return make().pull(name, _default);
+    public static <T> T pull(String name, Class<T> returnType, T _default) {
+        return make().pull(name, returnType, _default);
     }
 
     public static String token() {

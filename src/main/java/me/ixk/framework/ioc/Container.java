@@ -7,7 +7,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
+import me.ixk.framework.aop.DynamicInterceptor;
+import me.ixk.framework.utils.ClassUtil;
+import net.sf.cglib.proxy.Enhancer;
 
 public class Container {
     protected Map<String, Binding> bindings;
@@ -408,13 +412,15 @@ public class Container {
     }
 
     public Object build(Class<?> _class, Map<String, Object> args) {
+        Map<String, List<Advice>> map = null;
         if (this.instances.containsKey(AspectManager.class.getName())) {
             try {
-                return (
-                    (AspectManager) this.instances.get(
-                            AspectManager.class.getName()
-                        )
-                ).weavingAspect(_class);
+                map =
+                    (
+                        (AspectManager) this.instances.get(
+                                AspectManager.class.getName()
+                            )
+                    ).matches(_class);
             } catch (Throwable throwable) {
                 throwable.printStackTrace();
             }
@@ -426,12 +432,20 @@ public class Container {
             Object[] dependencies =
                 this.injectingDependencies(constructor, args);
             try {
-                instance = constructor.newInstance(dependencies);
-            } catch (
-                InstantiationException
-                | IllegalAccessException
-                | InvocationTargetException e
-            ) {
+                if (map == null || map.isEmpty()) {
+                    instance = constructor.newInstance(dependencies);
+                } else {
+                    Enhancer enhancer = new Enhancer();
+                    enhancer.setSuperclass(_class);
+                    //                    enhancer.setInterfaces(constructor.getParameterTypes());
+                    enhancer.setCallback(new DynamicInterceptor(map));
+                    instance =
+                        enhancer.create(
+                            constructor.getParameterTypes(),
+                            dependencies
+                        );
+                }
+            } catch (Exception e) {
                 // TODO: 异常处理
                 e.printStackTrace();
             }
@@ -466,13 +480,13 @@ public class Container {
         if (instance == null) {
             return null;
         }
-        Field[] fields = instance.getClass().getDeclaredFields();
+        Field[] fields = ClassUtil.getUserClass(instance).getDeclaredFields();
         for (Field field : fields) {
             Autowired autowired = field.getAnnotation(Autowired.class);
             if (autowired == null) {
                 continue;
             }
-            Object dependency = null;
+            Object dependency;
             if (!autowired.name().equals("")) {
                 dependency = this.make(autowired.name());
             } else {
