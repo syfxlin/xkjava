@@ -421,7 +421,7 @@ public class Request extends AbstractFacade {
         return make().getRequestURL();
     }
 
-    public static Response getResponse() {
+    public static org.eclipse.jetty.server.Response getResponse() {
         return make().getResponse();
     }
 
