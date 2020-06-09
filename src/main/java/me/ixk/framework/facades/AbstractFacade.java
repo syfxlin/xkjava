@@ -8,8 +8,4 @@ public abstract class AbstractFacade {
     public static void setApplication(Application application) {
         app = application;
     }
-
-    public static <T> T make(Class<T> _class) {
-        return app.make(_class);
-    }
 }

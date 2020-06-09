@@ -53,6 +53,7 @@ public class AppConfig extends AbstractConfig {
             DataSourceProvider.class,
             MybatisPlusProvider.class,
             ThymeleafProvider.class,
+            ViewProvider.class,
             // App
             AppProvider.class,
             RouteProvider.class

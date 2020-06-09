@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import me.ixk.framework.http.ToResponse;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.middleware.Middleware;
@@ -49,7 +50,12 @@ public class RouteCollector {
             middleware.addAll(RouteManager.globalMiddleware);
         }
         Runner runner = new Runner(
-            handler,
+            (request, response) ->
+                ToResponse.toResponse(
+                    request,
+                    response,
+                    handler.handle(request, response)
+                ),
             middleware
                 .stream()
                 .map(
@@ -69,10 +75,8 @@ public class RouteCollector {
                 )
                 .collect(Collectors.toList())
         );
-        return (request, response) -> {
-            // TODO: return to response
-            return runner.then(request, response);
-        };
+        // TODO: return to response
+        return runner::then;
     }
 
     protected void registerAnnotationMiddleware(String handler) {

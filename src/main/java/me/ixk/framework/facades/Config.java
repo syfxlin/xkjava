@@ -5,7 +5,7 @@ import java.util.Map;
 public class Config extends AbstractFacade {
 
     protected static me.ixk.framework.utils.Config make() {
-        return make(me.ixk.framework.utils.Config.class);
+        return app.make(me.ixk.framework.utils.Config.class);
     }
 
     public static Map<String, Map<String, Object>> all() {

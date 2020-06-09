@@ -485,4 +485,11 @@ public class Response {
     public org.eclipse.jetty.server.Response getOriginResponse() {
         return this._base;
     }
+
+    public Response setOriginResponse(
+        org.eclipse.jetty.server.Response response
+    ) {
+        this._base = response;
+        return this;
+    }
 }

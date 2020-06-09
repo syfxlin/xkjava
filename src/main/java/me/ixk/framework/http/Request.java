@@ -872,4 +872,9 @@ public class Request {
     public org.eclipse.jetty.server.Request getOriginRequest() {
         return this._base;
     }
+
+    public Request setOriginRequest(org.eclipse.jetty.server.Request request) {
+        this._base = request;
+        return this;
+    }
 }
