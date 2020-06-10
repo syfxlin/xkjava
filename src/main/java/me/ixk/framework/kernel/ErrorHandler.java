@@ -152,6 +152,9 @@ public class ErrorHandler
             message,
             th != null ? th.getMessage() : message
         );
+        if (this.isShowStacks()) {
+            errorJson.setThrowable(th);
+        }
         String json = JSON.stringify(errorJson);
         writer.write(
             json != null

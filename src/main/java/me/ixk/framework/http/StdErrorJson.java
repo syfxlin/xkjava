@@ -1,5 +1,12 @@
 package me.ixk.framework.http;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+
 public class StdErrorJson {
     protected int status;
 
@@ -7,10 +14,40 @@ public class StdErrorJson {
 
     protected String errors;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("@stacks")
+    protected Throwable throwable;
+
     public StdErrorJson(int status, String message, String errors) {
         this.status = status;
         this.message = message;
         this.errors = errors;
+    }
+
+    public StdErrorJson(
+        int status,
+        String message,
+        String errors,
+        Throwable throwable
+    ) {
+        this.status = status;
+        this.message = message;
+        this.errors = errors;
+        this.throwable = throwable;
+    }
+
+    public StdErrorJson(int status, Throwable throwable) {
+        this.status = status;
+        this.message = ResponseReason.getMessage(status);
+        this.errors = throwable.getMessage();
+        this.throwable = throwable;
+    }
+
+    public StdErrorJson(Throwable throwable) {
+        this.status = 500;
+        this.message = ResponseReason.getMessage(500);
+        this.errors = throwable.getMessage();
+        this.throwable = throwable;
     }
 
     public int getStatus() {
@@ -35,5 +72,23 @@ public class StdErrorJson {
 
     public void setErrors(String errors) {
         this.errors = errors;
+    }
+
+    public List<String> getThrowable() {
+        Throwable th = throwable;
+        List<String> list = new ArrayList<>();
+        while (th != null) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            th.printStackTrace(pw);
+            pw.flush();
+            list.add(sw.getBuffer().toString());
+            th = th.getCause();
+        }
+        return list;
+    }
+
+    public void setThrowable(Throwable throwable) {
+        this.throwable = throwable;
     }
 }
