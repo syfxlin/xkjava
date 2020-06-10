@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import me.ixk.framework.http.ToResponse;
+import me.ixk.framework.facades.Response;
+import me.ixk.framework.facades.View;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.middleware.Middleware;
@@ -16,7 +17,7 @@ import me.ixk.framework.utils.Helper;
 import org.eclipse.jetty.http.HttpMethod;
 
 public class RouteCollector {
-    protected Map<String, Map<String, Handler>> staticRoutes;
+    protected Map<String, Map<String, RouteHandler>> staticRoutes;
 
     protected Map<String, List<RouteData>> variableRoutes;
 
@@ -40,7 +41,7 @@ public class RouteCollector {
         this.routeGenerator = routeGenerator;
     }
 
-    protected Handler getHandler(Handler handler) {
+    protected RouteHandler getHandler(Handler handler) {
         List<Class<? extends Middleware>> middleware = this.middleware;
         this.middleware = new ArrayList<>();
         if (this.useGroupMiddleware != null) {
@@ -49,34 +50,30 @@ public class RouteCollector {
         if (RouteManager.globalMiddleware != null) {
             middleware.addAll(RouteManager.globalMiddleware);
         }
-        Runner runner = new Runner(
-            (request, response) ->
-                ToResponse.toResponse(
-                    request,
-                    response,
-                    handler.handle(request, response)
-                ),
-            middleware
-                .stream()
-                .map(
-                    ac -> {
-                        try {
-                            return ac.getConstructor().newInstance();
-                        } catch (
-                            InstantiationException
-                            | IllegalAccessException
-                            | InvocationTargetException
-                            | NoSuchMethodException e
-                        ) {
-                            e.printStackTrace();
+        return (request, response) -> {
+            Runner runner = new Runner(
+                handler,
+                middleware
+                    .stream()
+                    .map(
+                        ac -> {
+                            try {
+                                return ac.getConstructor().newInstance();
+                            } catch (
+                                InstantiationException
+                                | IllegalAccessException
+                                | InvocationTargetException
+                                | NoSuchMethodException e
+                            ) {
+                                e.printStackTrace();
+                            }
+                            return null;
                         }
-                        return null;
-                    }
-                )
-                .collect(Collectors.toList())
-        );
-        // TODO: return to response
-        return runner::then;
+                    )
+                    .collect(Collectors.toList())
+            );
+            return runner.then(request, response);
+        };
     }
 
     protected void registerAnnotationMiddleware(String handler) {
@@ -155,8 +152,7 @@ public class RouteCollector {
         this.addRoute(
                 httpMethod,
                 route,
-                (request, response) ->
-                    Application.get().call(finalHandler, Object.class)
+                request -> Application.get().call(finalHandler, Object.class)
             );
     }
 
@@ -301,13 +297,13 @@ public class RouteCollector {
     public void redirect(String oldRoute, String newRoute, int status) {
         this.get(
                 oldRoute,
-                (request, response) -> {
+                request -> {
                     try {
-                        response.redirect(newRoute, status);
+                        return Response.redirect(newRoute, status);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    return response;
+                    return null;
                 }
             );
     }
@@ -337,13 +333,7 @@ public class RouteCollector {
     }
 
     public void view(String route, String view, Map<String, Object> data) {
-        this.get(
-                route,
-                (request, response) -> {
-                    // TODO: view
-                    return response;
-                }
-            );
+        this.get(route, request -> View.make(view, data));
     }
 
     protected boolean isStaticRoute(RouteData routeData) {
@@ -353,9 +343,9 @@ public class RouteCollector {
     protected void addStaticRoute(
         String httpMethod,
         RouteData routeData,
-        Handler handler
+        RouteHandler handler
     ) {
-        Map<String, Handler> methodMap =
+        Map<String, RouteHandler> methodMap =
             this.staticRoutes.getOrDefault(
                     httpMethod,
                     new ConcurrentHashMap<>()
@@ -367,7 +357,7 @@ public class RouteCollector {
     protected void addVariableRoute(
         String httpMethod,
         RouteData routeData,
-        Handler handler
+        RouteHandler handler
     ) {
         List<RouteData> routeList =
             this.variableRoutes.getOrDefault(httpMethod, new ArrayList<>());
@@ -387,7 +377,7 @@ public class RouteCollector {
         return map;
     }
 
-    public Map<String, Map<String, Handler>> getStaticRoutes() {
+    public Map<String, Map<String, RouteHandler>> getStaticRoutes() {
         return staticRoutes;
     }
 

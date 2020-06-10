@@ -4,7 +4,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.utils.JSON;
 
-public class ToResponse {
+public class ResponseProcessor {
 
     public static Response toResponse(
         Request request,
@@ -31,7 +31,7 @@ public class ToResponse {
             }
         } else if (result instanceof String) {
             try {
-                return response.setContent(result.toString());
+                return response.content(result.toString());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -45,5 +45,9 @@ public class ToResponse {
             }
         }
         return response;
+    }
+
+    public static Response dispatchResponse(Response response) {
+        return response.pushCookieToHeader();
     }
 }

@@ -2,7 +2,7 @@ package me.ixk.framework.facades;
 
 import java.util.Map;
 import me.ixk.framework.http.CookieManager;
-import org.eclipse.jetty.http.HttpCookie;
+import me.ixk.framework.http.SetCookie;
 
 public class Cookie extends AbstractFacade {
 
@@ -10,7 +10,7 @@ public class Cookie extends AbstractFacade {
         return app.make(CookieManager.class);
     }
 
-    public static void refresh(javax.servlet.http.Cookie[] cookies) {
+    public static void refresh(SetCookie[] cookies) {
         make().refresh(cookies);
     }
 
@@ -24,16 +24,16 @@ public class Cookie extends AbstractFacade {
 
     public static javax.servlet.http.Cookie get(
         String name,
-        javax.servlet.http.Cookie _default
+        SetCookie _default
     ) {
         return make().get(name, _default);
     }
 
-    public static void put(HttpCookie cookie) {
+    public static void put(SetCookie cookie) {
         make().put(cookie);
     }
 
-    public static void forever(HttpCookie cookie) {
+    public static void forever(SetCookie cookie) {
         make().forever(cookie);
     }
 
@@ -49,19 +49,19 @@ public class Cookie extends AbstractFacade {
         make().unqueue(name);
     }
 
-    public static void queue(HttpCookie cookie) {
+    public static void queue(SetCookie cookie) {
         make().queue(cookie);
     }
 
-    public static HttpCookie queued(String name) {
+    public static SetCookie queued(String name) {
         return make().queued(name);
     }
 
-    public static HttpCookie queued(String name, HttpCookie cookie) {
+    public static SetCookie queued(String name, SetCookie cookie) {
         return make().queued(name, cookie);
     }
 
-    public static Map<String, HttpCookie> getQueues() {
+    public static Map<String, SetCookie> getQueues() {
         return make().getQueues();
     }
 }

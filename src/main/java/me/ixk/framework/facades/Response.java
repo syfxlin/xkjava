@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
+import me.ixk.framework.http.SetCookie;
 import org.eclipse.jetty.http.HttpContent;
-import org.eclipse.jetty.http.HttpCookie;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.server.HttpOutput;
@@ -77,21 +76,26 @@ public class Response extends AbstractFacade {
         return make().json(data, status, headers);
     }
 
-    public static void redirect(String url) throws IOException {
-        make().redirect(url);
+    public static me.ixk.framework.http.Response redirect(String url)
+        throws IOException {
+        return make().redirect(url);
     }
 
-    public static void redirect(String url, int status) throws IOException {
-        make().redirect(url, status);
+    public static me.ixk.framework.http.Response redirect(
+        String url,
+        int status
+    )
+        throws IOException {
+        return make().redirect(url, status);
     }
 
-    public static void redirect(
+    public static me.ixk.framework.http.Response redirect(
         String url,
         int status,
         Map<Object, String> headers
     )
         throws IOException {
-        make().redirect(url, status, headers);
+        return make().redirect(url, status, headers);
     }
 
     public static void error(String message) throws IOException {
@@ -163,7 +167,7 @@ public class Response extends AbstractFacade {
         String value,
         String domain,
         String path,
-        long maxAge,
+        int maxAge,
         String comment,
         boolean isSecure,
         boolean isHttpOnly,
@@ -184,7 +188,13 @@ public class Response extends AbstractFacade {
     }
 
     public static me.ixk.framework.http.Response addCookies(
-        List<Object> cookies
+        Collection<SetCookie> cookies
+    ) {
+        return make().addCookies(cookies);
+    }
+
+    public static me.ixk.framework.http.Response addCookies(
+        SetCookie[] cookies
     ) {
         return make().addCookies(cookies);
     }
@@ -215,11 +225,7 @@ public class Response extends AbstractFacade {
         return make().included();
     }
 
-    public static me.ixk.framework.http.Response addCookie(HttpCookie cookie) {
-        return make().addCookie(cookie);
-    }
-
-    public static me.ixk.framework.http.Response addCookie(Cookie cookie) {
+    public static me.ixk.framework.http.Response addCookie(SetCookie cookie) {
         return make().addCookie(cookie);
     }
 
@@ -228,7 +234,7 @@ public class Response extends AbstractFacade {
         String value,
         String domain,
         String path,
-        long maxAge,
+        int maxAge,
         String comment,
         boolean isSecure,
         boolean isHttpOnly,
@@ -497,5 +503,13 @@ public class Response extends AbstractFacade {
         org.eclipse.jetty.server.Response response
     ) {
         return make().setOriginResponse(response);
+    }
+
+    public List<SetCookie> getCookies() {
+        return make().getCookies();
+    }
+
+    public me.ixk.framework.http.Response pushCookieToHeader() {
+        return make().pushCookieToHeader();
     }
 }

@@ -3,12 +3,11 @@ package me.ixk.framework.http;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.Cookie;
-import org.eclipse.jetty.http.HttpCookie;
 
 public class CookieManager {
     protected Map<String, Cookie> _requestCookies;
 
-    protected Map<String, HttpCookie> _cookies;
+    protected Map<String, SetCookie> _cookies;
 
     public void refresh(Cookie[] cookies) {
         this._requestCookies = new ConcurrentHashMap<>();
@@ -32,27 +31,19 @@ public class CookieManager {
 
     /* ===================================== */
 
-    public void put(HttpCookie cookie) {
+    public void put(SetCookie cookie) {
         this._cookies.put(cookie.getName(), cookie);
     }
 
-    public void forever(HttpCookie cookie) {
-        HttpCookie newCookie = new HttpCookie(
-            cookie.getName(),
-            cookie.getValue(),
-            cookie.getDomain(),
-            cookie.getPath(),
-            2628000,
-            cookie.isHttpOnly(),
-            cookie.isSecure(),
-            cookie.getComment(),
-            cookie.getVersion()
-        );
-        this.put(newCookie);
+    public void forever(SetCookie cookie) {
+        cookie.setMaxAge(2628000);
+        this.put(cookie);
     }
 
     public void forget(String name) {
-        this.put(new HttpCookie(name, "", 1));
+        SetCookie cookie = new SetCookie(name, "");
+        cookie.setMaxAge(1);
+        this.put(cookie);
     }
 
     public boolean hasQueue(String name) {
@@ -63,19 +54,19 @@ public class CookieManager {
         this._cookies.remove(name);
     }
 
-    public void queue(HttpCookie cookie) {
+    public void queue(SetCookie cookie) {
         this.put(cookie);
     }
 
-    public HttpCookie queued(String name) {
+    public SetCookie queued(String name) {
         return this.queued(name, null);
     }
 
-    public HttpCookie queued(String name, HttpCookie cookie) {
+    public SetCookie queued(String name, SetCookie cookie) {
         return this._cookies.getOrDefault(name, cookie);
     }
 
-    public Map<String, HttpCookie> getQueues() {
+    public Map<String, SetCookie> getQueues() {
         return this._cookies;
     }
 }

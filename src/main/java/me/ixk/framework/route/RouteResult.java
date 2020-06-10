@@ -1,7 +1,5 @@
 package me.ixk.framework.route;
 
-import me.ixk.framework.middleware.Handler;
-
 import java.util.Map;
 
 public class RouteResult {
@@ -9,7 +7,7 @@ public class RouteResult {
 
     protected String route = null;
 
-    protected Handler handler = null;
+    protected RouteHandler handler = null;
 
     protected Map<String, String> params = null;
 
@@ -19,11 +17,7 @@ public class RouteResult {
         this.status = status;
     }
 
-    public RouteResult(
-        RouteStatus status,
-        Handler handler,
-        String route
-    ) {
+    public RouteResult(RouteStatus status, RouteHandler handler, String route) {
         this.status = status;
         this.handler = handler;
         this.route = route;
@@ -31,7 +25,7 @@ public class RouteResult {
 
     public RouteResult(
         RouteStatus status,
-        Handler handler,
+        RouteHandler handler,
         Map<String, String> params,
         String route
     ) {
@@ -49,11 +43,11 @@ public class RouteResult {
         this.status = status;
     }
 
-    public Handler getHandler() {
+    public RouteHandler getHandler() {
         return handler;
     }
 
-    public void setHandler(Handler handler) {
+    public void setHandler(RouteHandler handler) {
         this.handler = handler;
     }
 

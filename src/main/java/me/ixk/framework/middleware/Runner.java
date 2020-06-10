@@ -5,9 +5,12 @@ import java.util.List;
 import java.util.Queue;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
+import me.ixk.framework.http.ResponseProcessor;
 
 public class Runner {
     protected Handler handler;
+
+    protected Response response;
 
     protected Queue<Middleware> middleware;
 
@@ -20,17 +23,22 @@ public class Runner {
         this.middleware = middleware;
     }
 
-    public Object handle(Request request, Response response) {
+    public Response handle(Request request) {
         Middleware middleware = this.middleware.poll();
         if (middleware == null) {
             // 请求处理器
-            return handler.handle(request, response);
+            return ResponseProcessor.toResponse(
+                request,
+                this.response,
+                handler.handle(request)
+            );
         }
         // 中间件
-        return middleware.handle(request, response, this);
+        return middleware.handle(request, this);
     }
 
-    public Object then(Request request, Response response) {
-        return this.handle(request, response);
+    public Response then(Request request, Response response) {
+        this.response = response;
+        return this.handle(request);
     }
 }

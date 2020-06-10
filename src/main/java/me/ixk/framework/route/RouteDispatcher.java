@@ -1,14 +1,12 @@
 package me.ixk.framework.route;
 
-import me.ixk.framework.middleware.Handler;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RouteDispatcher {
-    protected Map<String, Map<String, Handler>> staticRoutes;
+    protected Map<String, Map<String, RouteHandler>> staticRoutes;
 
     protected Map<String, MergeRouteData> variableRoutes;
 
@@ -52,7 +50,7 @@ public class RouteDispatcher {
             return this.dispatch("GET", url);
         }
 
-        for (Map<String, Handler> routeData : this.staticRoutes.values()) {
+        for (Map<String, RouteHandler> routeData : this.staticRoutes.values()) {
             if (routeData.containsKey(url)) {
                 return new RouteResult(RouteStatus.METHOD_NOT_ALLOWED);
             }

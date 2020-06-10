@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.facades.Config;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
+import me.ixk.framework.http.ResponseProcessor;
 import me.ixk.framework.http.StdErrorJson;
 import me.ixk.framework.middleware.Middleware;
 
@@ -116,6 +117,6 @@ public class RouteManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return response;
+        return ResponseProcessor.dispatchResponse(response);
     }
 }

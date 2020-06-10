@@ -235,7 +235,7 @@ public class Route extends AbstractFacade {
         return make().getMergeVariableRoutes();
     }
 
-    public static Map<String, Map<String, Handler>> getStaticRoutes() {
+    public static Map<String, Map<String, RouteHandler>> getStaticRoutes() {
         return make().getStaticRoutes();
     }
 

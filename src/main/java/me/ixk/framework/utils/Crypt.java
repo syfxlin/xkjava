@@ -77,7 +77,7 @@ public class Crypt {
                 StandardCharsets.ISO_8859_1
             );
         } catch (Exception e) {
-            e.printStackTrace();
+            //            e.printStackTrace();
         }
         return null;
     }

@@ -8,10 +8,10 @@ import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.facades.Cookie;
 import me.ixk.framework.facades.Hash;
 import me.ixk.framework.facades.Session;
+import me.ixk.framework.http.SetCookie;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.Helper;
 import me.ixk.framework.utils.Validation;
-import org.eclipse.jetty.http.HttpCookie;
 
 public class Auth {
     protected Users user = null;
@@ -134,21 +134,16 @@ public class Auth {
     }
 
     protected void queueRememberTokenCookie(Users user) {
-        Cookie.forever(
-            new HttpCookie(
-                this.getRememberName(),
-                user.getId() +
-                "/" +
-                user.getRememberToken() +
-                "/" +
-                user.getPassword(),
-                null,
-                null,
-                1440L,
-                true,
-                false
-            )
+        SetCookie cookie = new SetCookie(
+            this.getRememberName(),
+            user.getId() +
+            "/" +
+            user.getRememberToken() +
+            "/" +
+            user.getPassword()
         );
+        cookie.setHttpOnly(true);
+        Cookie.forever(cookie);
     }
 
     protected void clearUserDataFromStorage() {

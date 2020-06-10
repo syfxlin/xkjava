@@ -2,22 +2,19 @@ package me.ixk.framework.http;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
 import me.ixk.framework.utils.JSON;
 import org.eclipse.jetty.http.HttpContent;
-import org.eclipse.jetty.http.HttpCookie;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.server.HttpOutput;
 
 public class Response {
     protected org.eclipse.jetty.server.Response _base;
+
+    protected List<SetCookie> _cookies = new ArrayList<>();
 
     public Response(org.eclipse.jetty.server.Response response) {
         this._base = response;
@@ -74,17 +71,22 @@ public class Response {
             .setContentType("application/json");
     }
 
-    public void redirect(String url) throws IOException {
-        this.redirect(url, 200, new ConcurrentHashMap<>());
+    public Response redirect(String url) throws IOException {
+        return this.redirect(url, 200, new ConcurrentHashMap<>());
     }
 
-    public void redirect(String url, int status) throws IOException {
-        this.redirect(url, status, new ConcurrentHashMap<>());
+    public Response redirect(String url, int status) throws IOException {
+        return this.redirect(url, status, new ConcurrentHashMap<>());
     }
 
-    public void redirect(String url, int status, Map<Object, String> headers)
+    public Response redirect(
+        String url,
+        int status,
+        Map<Object, String> headers
+    )
         throws IOException {
         this.reset().setHeaders(headers).sendRedirect(status, url);
+        return this;
     }
 
     public void error(String message) throws IOException {
@@ -113,7 +115,6 @@ public class Response {
     }
 
     public Response setContent(String content) throws IOException {
-        _base.getWriter().flush();
         _base.getWriter().write(content);
         return this;
     }
@@ -155,34 +156,49 @@ public class Response {
         String value,
         String domain,
         String path,
-        long maxAge,
+        int maxAge,
         String comment,
         boolean isSecure,
         boolean isHttpOnly,
         int version
     ) {
-        _base.addSetCookie(
-            name,
-            value,
-            domain,
-            path,
-            maxAge,
-            comment,
-            isSecure,
-            isHttpOnly,
-            version
-        );
+        this.addSetCookie(
+                name,
+                value,
+                domain,
+                path,
+                maxAge,
+                comment,
+                isSecure,
+                isHttpOnly,
+                version
+            );
         return this;
     }
 
-    public Response addCookies(List<Object> cookies) {
-        for (Object cookie : cookies) {
-            if (cookie.getClass().isAssignableFrom(Cookie.class)) {
-                _base.addCookie((Cookie) cookie);
-            } else if (cookie.getClass().isAssignableFrom(HttpCookie.class)) {
-                _base.addCookie((HttpCookie) cookie);
-            }
+    public Response addCookies(Collection<SetCookie> cookies) {
+        for (SetCookie cookie : cookies) {
+            this.addCookie(cookie);
         }
+        return this;
+    }
+
+    public Response addCookies(SetCookie[] cookies) {
+        for (SetCookie cookie : cookies) {
+            this.addCookie(cookie);
+        }
+        return this;
+    }
+
+    public List<SetCookie> getCookies() {
+        return _cookies;
+    }
+
+    public Response pushCookieToHeader() {
+        for (SetCookie cookie : this._cookies) {
+            _base.addCookie(cookie);
+        }
+        this._cookies.clear();
         return this;
     }
 
@@ -216,13 +232,8 @@ public class Response {
         return this;
     }
 
-    public Response addCookie(HttpCookie cookie) {
-        _base.addCookie(cookie);
-        return this;
-    }
-
-    public Response addCookie(Cookie cookie) {
-        _base.addCookie(cookie);
+    public Response addCookie(SetCookie cookie) {
+        this._cookies.add(cookie);
         return this;
     }
 
@@ -231,23 +242,25 @@ public class Response {
         String value,
         String domain,
         String path,
-        long maxAge,
+        int maxAge,
         String comment,
         boolean isSecure,
         boolean isHttpOnly,
         int version
     ) {
-        _base.addSetCookie(
-            name,
-            value,
-            domain,
-            path,
-            maxAge,
-            comment,
-            isSecure,
-            isHttpOnly,
-            version
-        );
+        this.addCookie(
+                new SetCookie(
+                    name,
+                    value,
+                    domain,
+                    path,
+                    maxAge,
+                    isHttpOnly,
+                    isSecure,
+                    comment,
+                    version
+                )
+            );
         return this;
     }
 

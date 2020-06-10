@@ -357,7 +357,11 @@ public class Request {
     }
 
     public Cookie[] getCookies() {
-        return _base.getCookies();
+        Cookie[] cookies = _base.getCookies();
+        if (cookies == null) {
+            return new Cookie[0];
+        }
+        return cookies;
     }
 
     public long getDateHeader(String name) {

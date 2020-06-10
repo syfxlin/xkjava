@@ -8,8 +8,8 @@ import me.ixk.framework.middleware.Runner;
 public class Middleware2 implements Middleware {
 
     @Override
-    public Object handle(Request request, Response response, Runner next) {
+    public Response handle(Request request, Runner next) {
         System.out.println("Middleware2");
-        return next.handle(request, response);
+        return next.handle(request);
     }
 }
