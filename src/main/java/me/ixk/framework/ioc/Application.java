@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import me.ixk.framework.bootstrap.*;
+import me.ixk.framework.exceptions.ApplicationException;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.kernel.ProviderManager;
 
@@ -85,7 +86,12 @@ public class Application extends Container {
                         | InvocationTargetException
                         | NoSuchMethodException e
                     ) {
-                        e.printStackTrace();
+                        throw new ApplicationException(
+                            "Target [" +
+                            bootstrap.getSimpleName() +
+                            "] bootstrap error",
+                            e
+                        );
                     }
                 }
             );

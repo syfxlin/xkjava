@@ -10,6 +10,7 @@ import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.DynamicInterceptor;
+import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.utils.ClassUtil;
 import net.sf.cglib.proxy.Enhancer;
 
@@ -395,20 +396,16 @@ public class Container {
         try {
             return concrete.invoke(this, args);
         } catch (Throwable e) {
-            // TODO: 异常处理
-            e.printStackTrace();
+            throw new ContainerException("Instance build failed", e);
         }
-        return null;
     }
 
     public Object build(String _class, Map<String, Object> args) {
         try {
             return this.build(Class.forName(_class), args);
         } catch (ClassNotFoundException e) {
-            // TODO: 异常处理
-            e.printStackTrace();
+            throw new ContainerException("Instance build failed", e);
         }
-        return null;
     }
 
     public Object build(Class<?> _class, Map<String, Object> args) {
@@ -421,8 +418,11 @@ public class Container {
                                 AspectManager.class.getName()
                             )
                     ).matches(_class);
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
+            } catch (Throwable e) {
+                throw new ContainerException(
+                    "Instance build failed (Aspect matches)",
+                    e
+                );
             }
         }
         Constructor<?>[] constructors = _class.getDeclaredConstructors();
@@ -446,8 +446,7 @@ public class Container {
                         );
                 }
             } catch (Exception e) {
-                // TODO: 异常处理
-                e.printStackTrace();
+                throw new ContainerException("Instantiated object failed", e);
             }
         } else {
             // 不允许构造器重载
@@ -503,8 +502,7 @@ public class Container {
             try {
                 field.set(instance, dependency);
             } catch (IllegalAccessException e) {
-                // TODO: 异常处理
-                e.printStackTrace();
+                throw new ContainerException("Object field setting failed", e);
             }
             field.setAccessible(originAccessible);
         }
@@ -551,8 +549,7 @@ public class Container {
         try {
             instance = binding.getConcrete().invoke(this, args);
         } catch (Throwable e) {
-            // TODO: 异常处理
-            e.printStackTrace();
+            throw new ContainerException("Instance make failed", e);
         }
         if (binding.isShared()) {
             this.instances.put(_abstract, instance);
@@ -619,8 +616,10 @@ public class Container {
         try {
             method = object.getClass().getMethod(target[1], paramTypes);
         } catch (NoSuchMethodException e) {
-            // TODO: 异常处理
-            e.printStackTrace();
+            throw new ContainerException(
+                "Corresponding methods not found in the specified class",
+                e
+            );
         }
         return returnType.cast(this.callMethod(object, method, args));
     }
@@ -709,10 +708,8 @@ public class Container {
         try {
             return method.invoke(object, dependencies);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            // TODO: 异常处理
-            e.printStackTrace();
+            throw new ContainerException("Method call failed", e);
         }
-        return null;
     }
 
     // Get

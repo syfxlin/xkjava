@@ -19,13 +19,11 @@ public class Response extends AbstractFacade {
         return app.make(me.ixk.framework.http.Response.class);
     }
 
-    public static me.ixk.framework.http.Response text(String text)
-        throws IOException {
+    public static me.ixk.framework.http.Response text(String text) {
         return make().text(text);
     }
 
-    public static me.ixk.framework.http.Response text(String text, int status)
-        throws IOException {
+    public static me.ixk.framework.http.Response text(String text, int status) {
         return make().text(text, status);
     }
 
@@ -33,18 +31,15 @@ public class Response extends AbstractFacade {
         String text,
         int status,
         Map<Object, String> headers
-    )
-        throws IOException {
+    ) {
         return make().text(text, status, headers);
     }
 
-    public static me.ixk.framework.http.Response html(String html)
-        throws IOException {
+    public static me.ixk.framework.http.Response html(String html) {
         return make().html(html);
     }
 
-    public static me.ixk.framework.http.Response html(String html, int status)
-        throws IOException {
+    public static me.ixk.framework.http.Response html(String html, int status) {
         return make().html(html, status);
     }
 
@@ -52,18 +47,15 @@ public class Response extends AbstractFacade {
         String html,
         int status,
         Map<Object, String> headers
-    )
-        throws IOException {
+    ) {
         return make().html(html, status, headers);
     }
 
-    public static me.ixk.framework.http.Response json(Object data)
-        throws IOException {
+    public static me.ixk.framework.http.Response json(Object data) {
         return make().json(data);
     }
 
-    public static me.ixk.framework.http.Response json(Object data, int status)
-        throws IOException {
+    public static me.ixk.framework.http.Response json(Object data, int status) {
         return make().json(data, status);
     }
 
@@ -71,21 +63,18 @@ public class Response extends AbstractFacade {
         Object data,
         int status,
         Map<Object, String> headers
-    )
-        throws IOException {
+    ) {
         return make().json(data, status, headers);
     }
 
-    public static me.ixk.framework.http.Response redirect(String url)
-        throws IOException {
+    public static me.ixk.framework.http.Response redirect(String url) {
         return make().redirect(url);
     }
 
     public static me.ixk.framework.http.Response redirect(
         String url,
         int status
-    )
-        throws IOException {
+    ) {
         return make().redirect(url, status);
     }
 
@@ -93,16 +82,15 @@ public class Response extends AbstractFacade {
         String url,
         int status,
         Map<Object, String> headers
-    )
-        throws IOException {
+    ) {
         return make().redirect(url, status, headers);
     }
 
-    public static void error(String message) throws IOException {
+    public static void error(String message) {
         make().error(message);
     }
 
-    public static void error(String message, int status) throws IOException {
+    public static void error(String message, int status) {
         make().error(message, status);
     }
 
@@ -110,31 +98,27 @@ public class Response extends AbstractFacade {
         String message,
         int status,
         Map<Object, String> headers
-    )
-        throws IOException {
+    ) {
         make().error(message, status, headers);
     }
 
-    public static void processing() throws IOException {
+    public static void processing() {
         make().processing();
     }
 
-    public static void processing(Map<Object, String> headers)
-        throws IOException {
+    public static void processing(Map<Object, String> headers) {
         make().processing(headers);
     }
 
-    public static String getContent() throws IOException {
+    public static String getContent() {
         return make().getContent();
     }
 
-    public static me.ixk.framework.http.Response setContent(String content)
-        throws IOException {
+    public static me.ixk.framework.http.Response setContent(String content) {
         return make().setContent(content);
     }
 
-    public static me.ixk.framework.http.Response content(String content)
-        throws IOException {
+    public static me.ixk.framework.http.Response content(String content) {
         return make().content(content);
     }
 
@@ -274,24 +258,23 @@ public class Response extends AbstractFacade {
         return make().encodeRedirectUrl(url);
     }
 
-    public static void sendError(int sc) throws IOException {
+    public static void sendError(int sc) {
         make().sendError(sc);
     }
 
-    public static void sendError(int code, String message) throws IOException {
+    public static void sendError(int code, String message) {
         make().sendError(code, message);
     }
 
-    public static void sendProcessing() throws IOException {
+    public static void sendProcessing() {
         make().sendProcessing();
     }
 
-    public static void sendRedirect(int code, String location)
-        throws IOException {
+    public static void sendRedirect(int code, String location) {
         make().sendRedirect(code, location);
     }
 
-    public static void sendRedirect(String location) throws IOException {
+    public static void sendRedirect(String location) {
         make().sendRedirect(location);
     }
 
@@ -387,7 +370,7 @@ public class Response extends AbstractFacade {
         return make().isWriting();
     }
 
-    public static PrintWriter getWriter() throws IOException {
+    public static PrintWriter getWriter() {
         return make().getWriter();
     }
 

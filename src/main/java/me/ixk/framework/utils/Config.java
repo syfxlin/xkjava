@@ -1,18 +1,17 @@
 package me.ixk.framework.utils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.exceptions.LoadConfigException;
 import me.ixk.framework.ioc.Application;
 
 public class Config {
     protected static Map<String, Map<String, Object>> config;
 
     @SuppressWarnings("unchecked")
-    public Config(Application app)
-        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public Config(Application app) {
         config = new ConcurrentHashMap<>();
         Set<Class<?>> classes = ClassUtil.getPackageClass("me.ixk.app.config");
         for (Class<?> _class : classes) {
@@ -22,15 +21,22 @@ public class Config {
             ) {
                 continue;
             }
-            Object instance = _class
-                .getConstructor(Application.class)
-                .newInstance(app);
-            config.put(
-                (String) _class.getMethod("configName").invoke(instance),
-                (Map<String, Object>) _class
-                    .getMethod("config")
-                    .invoke(instance)
-            );
+            try {
+                Object instance = _class
+                    .getConstructor(Application.class)
+                    .newInstance(app);
+                config.put(
+                    (String) _class.getMethod("configName").invoke(instance),
+                    (Map<String, Object>) _class
+                        .getMethod("config")
+                        .invoke(instance)
+                );
+            } catch (Exception e) {
+                throw new LoadConfigException(
+                    "Load [" + _class.getSimpleName() + "] config failed",
+                    e
+                );
+            }
         }
     }
 

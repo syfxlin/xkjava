@@ -49,9 +49,8 @@ public class Crypt {
             json.put("mac", macEncoded);
             return Base64.encode(json.toString());
         } catch (Exception e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     public String decrypt(String encrypted) {
@@ -77,9 +76,8 @@ public class Crypt {
                 StandardCharsets.ISO_8859_1
             );
         } catch (Exception e) {
-            //            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     public boolean vaild(ObjectNode payload) {
@@ -119,8 +117,7 @@ public class Crypt {
             SecretKey key = generator.generateKey();
             return key.getEncoded();
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 }

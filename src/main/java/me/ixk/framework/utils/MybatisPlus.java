@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;
 import java.util.List;
 import javax.sql.DataSource;
+import me.ixk.framework.exceptions.MybatisPlusException;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -39,7 +40,7 @@ public class MybatisPlus {
         try {
             return serviceClass.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
-            return null;
+            throw new MybatisPlusException("Instantiating service failed", e);
         }
     }
 }

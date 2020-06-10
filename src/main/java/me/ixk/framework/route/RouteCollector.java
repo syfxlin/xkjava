@@ -1,12 +1,12 @@
 package me.ixk.framework.route;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import me.ixk.framework.exceptions.RouteCollectorException;
 import me.ixk.framework.facades.Response;
 import me.ixk.framework.facades.View;
 import me.ixk.framework.ioc.Application;
@@ -65,9 +65,11 @@ public class RouteCollector {
                                 | InvocationTargetException
                                 | NoSuchMethodException e
                             ) {
-                                e.printStackTrace();
+                                throw new RouteCollectorException(
+                                    "Instantiating middleware failed",
+                                    e
+                                );
                             }
-                            return null;
                         }
                     )
                     .collect(Collectors.toList())
@@ -295,17 +297,7 @@ public class RouteCollector {
     }
 
     public void redirect(String oldRoute, String newRoute, int status) {
-        this.get(
-                oldRoute,
-                request -> {
-                    try {
-                        return Response.redirect(newRoute, status);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    return null;
-                }
-            );
+        this.get(oldRoute, request -> Response.redirect(newRoute, status));
     }
 
     public RouteCollector middleware(Class<? extends Middleware> middleware) {

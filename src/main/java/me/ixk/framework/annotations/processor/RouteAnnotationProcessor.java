@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Set;
 import me.ixk.framework.annotations.*;
+import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.route.AnnotationRouteDefinition;
 import me.ixk.framework.route.RouteManager;
@@ -50,7 +51,10 @@ public class RouteAnnotationProcessor extends AbstractAnnotationProcessor {
                     )
                 );
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new AnnotationProcessorException(
+                    "Route annotation process error",
+                    e
+                );
             }
         }
     }

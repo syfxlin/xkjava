@@ -1,5 +1,7 @@
 package me.ixk.framework.aop;
 
+import me.ixk.framework.exceptions.AspectProcessException;
+
 public abstract class AbstractAdvice implements Advice {
 
     @Override
@@ -21,8 +23,10 @@ public abstract class AbstractAdvice implements Advice {
         try {
             return joinPoint.proceed();
         } catch (Throwable e) {
-            e.printStackTrace();
+            throw new AspectProcessException(
+                "Around process has errors not captured",
+                e
+            );
         }
-        return null;
     }
 }

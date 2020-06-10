@@ -2,6 +2,7 @@ package me.ixk.framework.server;
 
 import java.io.File;
 import me.ixk.framework.ioc.Application;
+import me.ixk.framework.kernel.ErrorHandler;
 import me.ixk.framework.servlet.DispatcherServlet;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -51,9 +52,15 @@ public class HttpServer {
         servletContextHandler.addServlet(DispatcherServlet.class, "/*");
         servletContextHandler.setResourceBase(resource + "/..");
 
+        ErrorHandler errorHandler = new ErrorHandler();
+
         HandlerList handlers = new HandlerList();
         handlers.setHandlers(
-            new Handler[] { resourceHandler, servletContextHandler }
+            new Handler[] {
+                errorHandler,
+                resourceHandler,
+                servletContextHandler,
+            }
         );
         server.setHandler(handlers);
         server.setSessionIdManager(new HashSessionIdManager());

@@ -3,6 +3,7 @@ package me.ixk.framework.utils;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
+import me.ixk.framework.exceptions.LoadEnvironmentFileException;
 
 public class Environment {
     protected static Properties property;
@@ -12,7 +13,10 @@ public class Environment {
         try {
             property.load(this.getClass().getResourceAsStream(path));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new LoadEnvironmentFileException(
+                "Load environment [" + path + "] failed",
+                e
+            );
         }
     }
 

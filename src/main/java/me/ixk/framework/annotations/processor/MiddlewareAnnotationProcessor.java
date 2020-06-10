@@ -3,6 +3,7 @@ package me.ixk.framework.annotations.processor;
 import java.lang.reflect.Method;
 import java.util.Set;
 import me.ixk.framework.annotations.Middleware;
+import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.route.AnnotationMiddlewareDefinition;
 import me.ixk.framework.route.RouteManager;
@@ -34,7 +35,10 @@ public class MiddlewareAnnotationProcessor extends AbstractAnnotationProcessor {
                     )
                 );
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new AnnotationProcessorException(
+                    "Middleware annotation process error",
+                    e
+                );
             }
         }
     }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import me.ixk.framework.exceptions.ProviderException;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.providers.Provider;
 
@@ -49,9 +50,8 @@ public class ProviderManager {
             | NoSuchMethodException
             | ClassNotFoundException e
         ) {
-            e.printStackTrace();
+            throw new ProviderException("Instantiating provider failed", e);
         }
-        return null;
     }
 
     public Provider register(String provider) {

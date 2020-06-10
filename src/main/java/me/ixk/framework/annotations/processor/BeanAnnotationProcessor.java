@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
 import me.ixk.framework.annotations.*;
+import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
 
@@ -75,7 +76,10 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
                 this.app.bind(_class, _class, isShared, name);
             }
         } catch (Exception e) {
-            // no code
+            throw new AnnotationProcessorException(
+                "Wrongly handled bean annotations without aliases",
+                e
+            );
         }
     }
 

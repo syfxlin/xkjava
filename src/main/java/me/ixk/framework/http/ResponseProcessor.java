@@ -1,6 +1,5 @@
 package me.ixk.framework.http;
 
-import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.utils.JSON;
 
@@ -22,29 +21,16 @@ public class ResponseProcessor {
         } else if (result instanceof Responsable) {
             return ((Responsable) result).toResponse(request, response, result);
         } else if (result instanceof Renderable) {
-            try {
-                return response
-                    .setContentType("text/html")
-                    .content(((Renderable) result).render());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            return response
+                .setContentType("text/html")
+                .content(((Renderable) result).render());
         } else if (result instanceof String) {
-            try {
-                return response.content(result.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            return response.content(result.toString());
         } else {
-            try {
-                return response
-                    .setContentType("application/json")
-                    .content(JSON.stringify(result));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            return response
+                .setContentType("application/json")
+                .content(JSON.stringify(result));
         }
-        return response;
     }
 
     public static Response dispatchResponse(Response response) {

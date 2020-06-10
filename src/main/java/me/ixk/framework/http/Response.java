@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.ServletOutputStream;
+import me.ixk.framework.exceptions.ResponseException;
 import me.ixk.framework.utils.JSON;
 import org.eclipse.jetty.http.HttpContent;
 import org.eclipse.jetty.http.HttpFields;
@@ -20,16 +21,15 @@ public class Response {
         this._base = response;
     }
 
-    public Response text(String text) throws IOException {
+    public Response text(String text) {
         return this.text(text, 200, new ConcurrentHashMap<>());
     }
 
-    public Response text(String text, int status) throws IOException {
+    public Response text(String text, int status) {
         return this.text(text, status, new ConcurrentHashMap<>());
     }
 
-    public Response text(String text, int status, Map<Object, String> headers)
-        throws IOException {
+    public Response text(String text, int status, Map<Object, String> headers) {
         return this.reset()
             .setContent(text)
             .setStatus(status)
@@ -37,16 +37,15 @@ public class Response {
             .setContentType("text/plain");
     }
 
-    public Response html(String html) throws IOException {
+    public Response html(String html) {
         return this.html(html, 200, new ConcurrentHashMap<>());
     }
 
-    public Response html(String html, int status) throws IOException {
+    public Response html(String html, int status) {
         return this.html(html, status, new ConcurrentHashMap<>());
     }
 
-    public Response html(String html, int status, Map<Object, String> headers)
-        throws IOException {
+    public Response html(String html, int status, Map<Object, String> headers) {
         return this.reset()
             .setContent(html)
             .setStatus(status)
@@ -54,16 +53,15 @@ public class Response {
             .setContentType("text/html");
     }
 
-    public Response json(Object data) throws IOException {
+    public Response json(Object data) {
         return this.json(data, 200, new ConcurrentHashMap<>());
     }
 
-    public Response json(Object data, int status) throws IOException {
+    public Response json(Object data, int status) {
         return this.json(data, status, new ConcurrentHashMap<>());
     }
 
-    public Response json(Object data, int status, Map<Object, String> headers)
-        throws IOException {
+    public Response json(Object data, int status, Map<Object, String> headers) {
         return this.reset()
             .setContent(JSON.stringify(data))
             .setStatus(status)
@@ -71,11 +69,11 @@ public class Response {
             .setContentType("application/json");
     }
 
-    public Response redirect(String url) throws IOException {
+    public Response redirect(String url) {
         return this.redirect(url, 302, new ConcurrentHashMap<>());
     }
 
-    public Response redirect(String url, int status) throws IOException {
+    public Response redirect(String url, int status) {
         return this.redirect(url, status, new ConcurrentHashMap<>());
     }
 
@@ -83,43 +81,41 @@ public class Response {
         String url,
         int status,
         Map<Object, String> headers
-    )
-        throws IOException {
+    ) {
         this.reset().setHeaders(headers).sendRedirect(status, url);
         return this;
     }
 
-    public void error(String message) throws IOException {
+    public void error(String message) {
         this.error(message, 200, new ConcurrentHashMap<>());
     }
 
-    public void error(String message, int status) throws IOException {
+    public void error(String message, int status) {
         this.error(message, status, new ConcurrentHashMap<>());
     }
 
-    public void error(String message, int status, Map<Object, String> headers)
-        throws IOException {
+    public void error(String message, int status, Map<Object, String> headers) {
         this.reset().setHeaders(headers).sendError(status, message);
     }
 
-    public void processing() throws IOException {
+    public void processing() {
         this.processing(new ConcurrentHashMap<>());
     }
 
-    public void processing(Map<Object, String> headers) throws IOException {
+    public void processing(Map<Object, String> headers) {
         this.reset().setHeaders(headers).sendProcessing();
     }
 
-    public String getContent() throws IOException {
-        return _base.getWriter().toString();
+    public String getContent() {
+        return this.getWriter().toString();
     }
 
-    public Response setContent(String content) throws IOException {
-        _base.getWriter().write(content);
+    public Response setContent(String content) {
+        this.getWriter().write(content);
         return this;
     }
 
-    public Response content(String content) throws IOException {
+    public Response content(String content) {
         this.setContent(content);
         return this;
     }
@@ -284,24 +280,44 @@ public class Response {
         return _base.encodeRedirectUrl(url);
     }
 
-    public void sendError(int sc) throws IOException {
-        _base.sendError(sc);
+    public void sendError(int sc) {
+        try {
+            _base.sendError(sc);
+        } catch (IOException e) {
+            throw new ResponseException("Send error is error", e);
+        }
     }
 
-    public void sendError(int code, String message) throws IOException {
-        _base.sendError(code, message);
+    public void sendError(int code, String message) {
+        try {
+            _base.sendError(code, message);
+        } catch (IOException e) {
+            throw new ResponseException("Send error is error", e);
+        }
     }
 
-    public void sendProcessing() throws IOException {
-        _base.sendProcessing();
+    public void sendProcessing() {
+        try {
+            _base.sendProcessing();
+        } catch (IOException e) {
+            throw new ResponseException("Send processing error", e);
+        }
     }
 
-    public void sendRedirect(int code, String location) throws IOException {
-        _base.sendRedirect(code, location);
+    public void sendRedirect(int code, String location) {
+        try {
+            _base.sendRedirect(code, location);
+        } catch (IOException e) {
+            throw new ResponseException("Send redirect error", e);
+        }
     }
 
-    public void sendRedirect(String location) throws IOException {
-        _base.sendRedirect(location);
+    public void sendRedirect(String location) {
+        try {
+            _base.sendRedirect(location);
+        } catch (IOException e) {
+            throw new ResponseException("Send redirect error", e);
+        }
     }
 
     public Response setDateHeader(String name, long date) {
@@ -382,8 +398,12 @@ public class Response {
         return _base.isWriting();
     }
 
-    public PrintWriter getWriter() throws IOException {
-        return _base.getWriter();
+    public PrintWriter getWriter() {
+        try {
+            return _base.getWriter();
+        } catch (IOException e) {
+            throw new ResponseException("Get writer error", e);
+        }
     }
 
     public Response setContentLength(int len) {

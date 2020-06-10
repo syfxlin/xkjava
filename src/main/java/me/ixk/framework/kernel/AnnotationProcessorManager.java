@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import me.ixk.framework.annotations.processor.AnnotationProcessor;
+import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.Application;
 
 public class AnnotationProcessorManager {
@@ -49,9 +50,11 @@ public class AnnotationProcessorManager {
             | NoSuchMethodException
             | ClassNotFoundException e
         ) {
-            e.printStackTrace();
+            throw new AnnotationProcessorException(
+                "Instantiating annotation processor failed",
+                e
+            );
         }
-        return null;
     }
 
     public AnnotationProcessor register(String processor) {

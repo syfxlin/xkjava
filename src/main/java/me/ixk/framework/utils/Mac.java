@@ -1,7 +1,7 @@
 package me.ixk.framework.utils;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import javax.crypto.spec.SecretKeySpec;
 
 public class Mac {
 
@@ -55,8 +55,7 @@ public class Mac {
                 ? new String(rawHmac, StandardCharsets.ISO_8859_1)
                 : byteArrayToHexString(rawHmac);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            return null;
         }
-        return null;
     }
 }
