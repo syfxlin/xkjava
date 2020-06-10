@@ -2,7 +2,6 @@ package me.ixk.app.controllers;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.app.annotations.Log;
 import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.Controller;
@@ -21,8 +20,6 @@ public class IndexController {
     }
 
     @GetMapping("/controller")
-    //    @Middleware(middleware = Authenticate.class)
-    @Log
     public String index(Request request) {
         Cookie.forever(new SetCookie("key", "value"));
 

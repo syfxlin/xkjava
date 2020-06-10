@@ -1,16 +1,17 @@
 package me.ixk.framework.server;
 
-import java.io.File;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.kernel.ErrorHandler;
 import me.ixk.framework.servlet.DispatcherServlet;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.session.HashSessionIdManager;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHandler;
+
+import java.io.File;
 
 public class HttpServer {
 
@@ -45,24 +46,24 @@ public class HttpServer {
         resourceHandler.setDirectoriesListed(true);
         resourceHandler.setResourceBase(resource);
 
-        ServletContextHandler servletContextHandler = new ServletContextHandler(
-            ServletContextHandler.SESSIONS
-        );
-        servletContextHandler.setContextPath("/");
-        servletContextHandler.addServlet(DispatcherServlet.class, "/*");
-        servletContextHandler.setResourceBase(resource + "/..");
+        SessionHandler sessionHandler = new SessionHandler();
+
+        ServletHandler servletHandler = new ServletHandler();
+        servletHandler.addServletWithMapping(DispatcherServlet.class, "/*");
 
         ErrorHandler errorHandler = new ErrorHandler();
 
-        HandlerList handlers = new HandlerList();
-        handlers.setHandlers(
-            new Handler[] {
-                errorHandler,
-                resourceHandler,
-                servletContextHandler,
-            }
+        ServletContextHandler servletContextHandler = new ServletContextHandler(
+            resourceHandler,
+            "/",
+            sessionHandler,
+            null,
+            servletHandler,
+            errorHandler
         );
-        server.setHandler(handlers);
+        servletContextHandler.setResourceBase(resource + "/..");
+
+        server.setHandler(servletContextHandler);
         server.setSessionIdManager(new HashSessionIdManager());
 
         return server;
