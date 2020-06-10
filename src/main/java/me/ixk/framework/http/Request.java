@@ -231,7 +231,12 @@ public class Request {
     }
 
     public boolean ajax() {
-        return this.hasHeader("X-Requested-With");
+        String xrw = this.getHeader("X-Requested-With");
+        String acc = this.getHeader("Accept");
+        return (
+            "XMLHttpRequest".equals(xrw) ||
+            (acc != null && acc.startsWith("application/json"))
+        );
     }
 
     public boolean isJson() {

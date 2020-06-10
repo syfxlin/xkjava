@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.exceptions.RouteCollectorException;
 import me.ixk.framework.facades.Config;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.ResponseProcessor;
-import me.ixk.framework.http.StdErrorJson;
 import me.ixk.framework.middleware.Middleware;
 
 public class RouteManager {
@@ -95,21 +95,16 @@ public class RouteManager {
 
         switch (routeResult.getStatus()) {
             case NOT_FOUND:
-                response.json(
-                    new StdErrorJson(
-                        404,
-                        "Not Found",
-                        "The URI \"" + request.getUri() + "\" was not found."
-                    )
+                throw new HttpException(
+                    404,
+                    "Not Found",
+                    "The URI \"" + request.getUri() + "\" was not found."
                 );
-                break;
             case METHOD_NOT_ALLOWED:
-                response.json(
-                    new StdErrorJson(
-                        405,
-                        "Method Not Allowed",
-                        "Method \"" + request.getMethod() + "\" is not allowed."
-                    )
+                throw new HttpException(
+                    405,
+                    "Method Not Allowed",
+                    "Method \"" + request.getMethod() + "\" is not allowed."
                 );
             case FOUND:
                 routeResult.getHandler().handle(request, response);
