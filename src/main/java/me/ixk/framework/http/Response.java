@@ -72,7 +72,7 @@ public class Response {
     }
 
     public Response redirect(String url) throws IOException {
-        return this.redirect(url, 200, new ConcurrentHashMap<>());
+        return this.redirect(url, 302, new ConcurrentHashMap<>());
     }
 
     public Response redirect(String url, int status) throws IOException {

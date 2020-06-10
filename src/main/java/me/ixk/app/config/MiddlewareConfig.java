@@ -4,13 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.app.middleware.Middleware1;
-import me.ixk.app.middleware.Middleware2;
 import me.ixk.framework.config.AbstractConfig;
 import me.ixk.framework.ioc.Application;
-import me.ixk.framework.middleware.AddQueuedCookies;
-import me.ixk.framework.middleware.EncryptCookies;
-import me.ixk.framework.middleware.Middleware;
+import me.ixk.framework.middleware.*;
 
 public class MiddlewareConfig extends AbstractConfig {
 
@@ -22,8 +18,8 @@ public class MiddlewareConfig extends AbstractConfig {
     public Map<String, Object> config() {
         Map<String, Class<? extends Middleware>> routeMiddleware = new ConcurrentHashMap<>();
 
-        routeMiddleware.put("middleware1", Middleware1.class);
-        routeMiddleware.put("middleware2", Middleware2.class);
+        routeMiddleware.put("auth", Authenticate.class);
+        routeMiddleware.put("guest", RedirectIfAuthenticated.class);
 
         Map<String, Object> map = new ConcurrentHashMap<>();
         map.put("global", this.globalMiddleware());
