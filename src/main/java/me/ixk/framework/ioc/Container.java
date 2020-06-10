@@ -21,6 +21,8 @@ public class Container {
 
     protected Map<String, String> aliases;
 
+    protected Map<String, Object> globalArgs = new ConcurrentHashMap<>();
+
     public Container() {
         this.bindings = new ConcurrentHashMap<>();
         this.instances = new ConcurrentHashMap<>();
@@ -360,13 +362,20 @@ public class Container {
 
     protected Binding getBinding(String _abstract) {
         _abstract = this.getAbstractByAlias(_abstract);
-        Binding binding = this.bindings.get(_abstract);
-        if (binding == null) {
-            throw new RuntimeException(
-                "Target [" + _abstract + "] is not binding"
+        String finalAbstract = _abstract;
+        //        if (binding == null) {
+        //            throw new RuntimeException(
+        //                "Target [" + _abstract + "] is not binding"
+        //            );
+        //        }
+        // 自动创建binding
+        return this.bindings.getOrDefault(
+                _abstract,
+                new Binding(
+                    (container, args) -> container.build(finalAbstract, args),
+                    false
+                )
             );
-        }
-        return binding;
     }
 
     protected boolean hasBinding(String _abstract) {
@@ -518,6 +527,7 @@ public class Container {
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
             if (args.containsKey(parameter.getName())) {
+                // TODO: 类型转换
                 dependencies[i] = args.get(parameter.getName());
                 continue;
             }
@@ -532,7 +542,7 @@ public class Container {
     }
 
     public <T> T make(String _abstract, Class<T> returnType) {
-        return this.make(_abstract, returnType, new HashMap<>());
+        return this.make(_abstract, returnType, this.globalArgs);
     }
 
     public <T> T make(
@@ -558,7 +568,7 @@ public class Container {
     }
 
     public <T> T make(Class<T> _abstract) {
-        return this.make(_abstract.getName(), _abstract, new HashMap<>());
+        return this.make(_abstract.getName(), _abstract, this.globalArgs);
     }
 
     public <T> T make(Class<T> _abstract, Map<String, Object> args) {
@@ -586,7 +596,16 @@ public class Container {
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        Object object = this.bindAndMake(target[0]);
+        return this.call(target, returnType, args, this.globalArgs);
+    }
+
+    public <T> T call(
+        String[] target,
+        Class<T> returnType,
+        Map<String, Object> args,
+        Map<String, Object> newArgs
+    ) {
+        Object object = this.make(target[0], Object.class, newArgs);
         Method[] methods = Arrays
             .stream(object.getClass().getMethods())
             .filter(m -> m.getName().equals(target[1]))
@@ -602,7 +621,7 @@ public class Container {
     }
 
     public <T> T call(String[] target, Class<T> returnType) {
-        return this.call(target, returnType, new HashMap<>());
+        return this.call(target, returnType, this.globalArgs);
     }
 
     public <T> T call(
@@ -611,7 +630,17 @@ public class Container {
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        Object object = this.bindAndMake(target[0]);
+        return this.call(target, paramTypes, returnType, args, this.globalArgs);
+    }
+
+    public <T> T call(
+        String[] target,
+        Class<?>[] paramTypes,
+        Class<T> returnType,
+        Map<String, Object> args,
+        Map<String, Object> newArgs
+    ) {
+        Object object = this.make(target[0], Object.class, newArgs);
         Method method = null;
         try {
             method = object.getClass().getMethod(target[1], paramTypes);
@@ -629,7 +658,7 @@ public class Container {
         Class<?>[] paramTypes,
         Class<T> returnType
     ) {
-        return this.call(target, paramTypes, returnType, new HashMap<>());
+        return this.call(target, paramTypes, returnType, this.globalArgs);
     }
 
     public <T> T call(
@@ -637,11 +666,20 @@ public class Container {
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        return this.call(target.split("@"), returnType, args);
+        return this.call(target, returnType, args, this.globalArgs);
+    }
+
+    public <T> T call(
+        String target,
+        Class<T> returnType,
+        Map<String, Object> args,
+        Map<String, Object> newArgs
+    ) {
+        return this.call(target.split("@"), returnType, args, newArgs);
     }
 
     public <T> T call(String target, Class<T> returnType) {
-        return this.call(target, returnType, new HashMap<>());
+        return this.call(target, returnType, this.globalArgs);
     }
 
     public <T> T call(
@@ -650,7 +688,23 @@ public class Container {
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        return this.call(target.split("@"), paramTypes, returnType, args);
+        return this.call(target, paramTypes, returnType, args, this.globalArgs);
+    }
+
+    public <T> T call(
+        String target,
+        Class<?>[] paramTypes,
+        Class<T> returnType,
+        Map<String, Object> args,
+        Map<String, Object> newArgs
+    ) {
+        return this.call(
+                target.split("@"),
+                paramTypes,
+                returnType,
+                args,
+                newArgs
+            );
     }
 
     public <T> T call(
@@ -658,11 +712,11 @@ public class Container {
         Class<?>[] paramTypes,
         Class<T> returnType
     ) {
-        return this.call(target, paramTypes, returnType, new HashMap<>());
+        return this.call(target, paramTypes, returnType, this.globalArgs);
     }
 
     public <T> T call(Class<?> _class, Method method, Class<T> returnType) {
-        return this.call(_class, method, returnType, new HashMap<>());
+        return this.call(_class, method, returnType, this.globalArgs);
     }
 
     public <T> T call(
@@ -671,13 +725,23 @@ public class Container {
         Class<T> returnType,
         Map<String, Object> args
     ) {
+        return this.call(_class, method, returnType, args, this.globalArgs);
+    }
+
+    public <T> T call(
+        Class<?> _class,
+        Method method,
+        Class<T> returnType,
+        Map<String, Object> args,
+        Map<String, Object> newArgs
+    ) {
         return returnType.cast(
-            this.callMethod(this.bindAndMake(_class), method, args)
+            this.callMethod(this.make(_class, newArgs), method, args)
         );
     }
 
     public <T> T call(Method method, Class<T> returnType) {
-        return this.call(method, returnType, new HashMap<>());
+        return this.call(method, returnType, this.globalArgs);
     }
 
     public <T> T call(
@@ -685,18 +749,22 @@ public class Container {
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        return this.call(method.getDeclaringClass(), method, returnType, args);
+        return this.call(method, returnType, args, this.globalArgs);
     }
 
-    protected Object bindAndMake(String _class) {
-        if (!this.hasBinding(_class)) {
-            this.bind(_class);
-        }
-        return this.make(_class);
-    }
-
-    protected Object bindAndMake(Class<?> _class) {
-        return this.bindAndMake(_class.getName());
+    public <T> T call(
+        Method method,
+        Class<T> returnType,
+        Map<String, Object> args,
+        Map<String, Object> newArgs
+    ) {
+        return this.call(
+                method.getDeclaringClass(),
+                method,
+                returnType,
+                args,
+                newArgs
+            );
     }
 
     protected Object callMethod(
@@ -761,5 +829,17 @@ public class Container {
 
     public void remove(Class<?> _abstract) {
         this.remove(_abstract.getName());
+    }
+
+    public Map<String, Object> getGlobalArgs() {
+        return globalArgs;
+    }
+
+    public void setGlobalArgs(Map<String, Object> globalArgs) {
+        this.globalArgs = globalArgs;
+    }
+
+    public void resetGlobalArgs() {
+        this.globalArgs = new ConcurrentHashMap<>();
     }
 }

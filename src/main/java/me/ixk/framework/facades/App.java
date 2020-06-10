@@ -471,4 +471,73 @@ public class App extends AbstractFacade {
     public static void remove(Class<?> _abstract) {
         app.remove(_abstract);
     }
+
+    public static <T> T call(
+        String[] target,
+        Class<T> returnType,
+        Map<String, Object> args,
+        Map<String, Object> newArgs
+    ) {
+        return app.call(target, returnType, args, newArgs);
+    }
+
+    public static <T> T call(
+        String[] target,
+        Class<?>[] paramTypes,
+        Class<T> returnType,
+        Map<String, Object> args,
+        Map<String, Object> newArgs
+    ) {
+        return app.call(target, paramTypes, returnType, args, newArgs);
+    }
+
+    public static <T> T call(
+        String target,
+        Class<T> returnType,
+        Map<String, Object> args,
+        Map<String, Object> newArgs
+    ) {
+        return app.call(target, returnType, args, newArgs);
+    }
+
+    public static <T> T call(
+        String target,
+        Class<?>[] paramTypes,
+        Class<T> returnType,
+        Map<String, Object> args,
+        Map<String, Object> newArgs
+    ) {
+        return app.call(target, paramTypes, returnType, args, newArgs);
+    }
+
+    public static <T> T call(
+        Class<?> _class,
+        Method method,
+        Class<T> returnType,
+        Map<String, Object> args,
+        Map<String, Object> newArgs
+    ) {
+        return app.call(_class, method, returnType, args, newArgs);
+    }
+
+    public static <T> T call(
+        Method method,
+        Class<T> returnType,
+        Map<String, Object> args,
+        Map<String, Object> newArgs
+    ) {
+        return app.call(method, returnType, args, newArgs);
+    }
+
+    public static Map<String, Object> getGlobalArgs() {
+        return app.getGlobalArgs();
+    }
+
+    public static void setGlobalArgs(Map<String, Object> globalArgs) {
+        app.setGlobalArgs(globalArgs);
+    }
+
+    public static void resetGlobalArgs() {
+        app.resetGlobalArgs();
+    }
 }

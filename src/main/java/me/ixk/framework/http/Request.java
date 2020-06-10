@@ -111,7 +111,13 @@ public class Request {
 
     public Map<String, Object> all() {
         Map<String, Object> map = new ConcurrentHashMap<>();
-        map.putAll(_base.getParameterMap());
+        for (Map.Entry<String, String[]> entry : _base
+            .getParameterMap()
+            .entrySet()) {
+            String[] value = entry.getValue();
+            map.put(entry.getKey(), value.length == 1 ? value[0] : value);
+        }
+        // TODO: 将类型转换移到指定的方法
         map.putAll(this._cookies);
         try {
             for (Part part : _base.getParts()) {
@@ -120,17 +126,19 @@ public class Request {
         } catch (IOException | ServletException e) {
             // no code
         }
-        if (this._parseBody != null && this._parseBody.isObject()) {
-            ObjectNode object = (ObjectNode) this._parseBody;
-            for (
-                Iterator<Map.Entry<String, JsonNode>> it = object.fields();
-                it.hasNext();
-            ) {
-                Map.Entry<String, JsonNode> entry = it.next();
-                map.put(entry.getKey(), entry.getValue());
+        if (this._parseBody != null) {
+            if (this._parseBody.isObject()) {
+                ObjectNode object = (ObjectNode) this._parseBody;
+                for (
+                    Iterator<Map.Entry<String, JsonNode>> it = object.fields();
+                    it.hasNext();
+                ) {
+                    Map.Entry<String, JsonNode> entry = it.next();
+                    map.put(entry.getKey(), entry.getValue());
+                }
+            } else {
+                map.put("_body", this._parseBody);
             }
-        } else {
-            map.put("_body", this._parseBody);
         }
         return map;
     }

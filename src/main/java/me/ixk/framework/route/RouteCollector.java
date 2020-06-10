@@ -154,7 +154,13 @@ public class RouteCollector {
         this.addRoute(
                 httpMethod,
                 route,
-                request -> Application.get().call(finalHandler, Object.class)
+                request -> {
+                    Application app = Application.get();
+                    app.setGlobalArgs(request.all());
+                    Object result = app.call(finalHandler, Object.class);
+                    app.resetGlobalArgs();
+                    return result;
+                }
             );
     }
 
