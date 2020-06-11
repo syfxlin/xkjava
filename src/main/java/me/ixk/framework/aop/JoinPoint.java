@@ -1,5 +1,6 @@
 package me.ixk.framework.aop;
 
+import java.lang.reflect.Method;
 import net.sf.cglib.proxy.MethodProxy;
 
 public class JoinPoint {
@@ -11,7 +12,9 @@ public class JoinPoint {
 
     protected Class<?> _class;
 
-    protected MethodProxy method;
+    protected Method method;
+
+    protected MethodProxy methodProxy;
 
     protected Object _return;
 
@@ -20,7 +23,8 @@ public class JoinPoint {
     public JoinPoint(
         AspectHandler handler,
         Object object,
-        MethodProxy method,
+        Method method,
+        MethodProxy methodProxy,
         Object[] args
     ) {
         this.handler = handler;
@@ -28,6 +32,7 @@ public class JoinPoint {
         this.object = object;
         this._class = object.getClass();
         this.method = method;
+        this.methodProxy = methodProxy;
     }
 
     public Object[] getArgs() {
@@ -54,12 +59,12 @@ public class JoinPoint {
         this._class = _class;
     }
 
-    public MethodProxy getMethod() {
-        return method;
+    public MethodProxy getMethodProxy() {
+        return methodProxy;
     }
 
-    public void setMethod(MethodProxy method) {
-        this.method = method;
+    public void setMethodProxy(MethodProxy methodProxy) {
+        this.methodProxy = methodProxy;
     }
 
     public Object getReturn() {
@@ -76,5 +81,13 @@ public class JoinPoint {
 
     public void setError(Throwable error) {
         this.error = error;
+    }
+
+    public Method getMethod() {
+        return method;
+    }
+
+    public void setMethod(Method method) {
+        this.method = method;
     }
 }

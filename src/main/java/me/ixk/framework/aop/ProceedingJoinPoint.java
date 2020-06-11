@@ -1,5 +1,6 @@
 package me.ixk.framework.aop;
 
+import java.lang.reflect.Method;
 import net.sf.cglib.proxy.MethodProxy;
 
 public class ProceedingJoinPoint extends JoinPoint {
@@ -7,10 +8,11 @@ public class ProceedingJoinPoint extends JoinPoint {
     public ProceedingJoinPoint(
         AspectHandler handler,
         Object object,
-        MethodProxy method,
+        Method method,
+        MethodProxy methodProxy,
         Object[] args
     ) {
-        super(handler, object, method, args);
+        super(handler, object, method, methodProxy, args);
     }
 
     public Object proceed(Object... args) throws Throwable {

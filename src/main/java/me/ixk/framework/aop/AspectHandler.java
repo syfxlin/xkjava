@@ -1,13 +1,15 @@
 package me.ixk.framework.aop;
 
-import net.sf.cglib.proxy.MethodProxy;
-
+import java.lang.reflect.Method;
 import java.util.List;
+import net.sf.cglib.proxy.MethodProxy;
 
 public class AspectHandler {
     protected Object target;
 
-    protected MethodProxy method;
+    protected Method method;
+
+    protected MethodProxy methodProxy;
 
     protected Object[] args;
 
@@ -19,12 +21,14 @@ public class AspectHandler {
 
     public AspectHandler(
         Object target,
-        MethodProxy method,
+        Method method,
+        MethodProxy methodProxy,
         Object[] args,
         List<Advice> aspects
     ) {
         this.target = target;
         this.method = method;
+        this.methodProxy = methodProxy;
         this.args = args;
         if (!aspects.isEmpty()) {
             this.aspect = aspects.remove(0);
@@ -34,7 +38,7 @@ public class AspectHandler {
 
     public Object invokeAspect() throws Throwable {
         if (aspect == null) {
-            return this.method.invokeSuper(this.target, this.args);
+            return this.methodProxy.invokeSuper(this.target, this.args);
         }
         Object result = null;
         try {
@@ -60,7 +64,7 @@ public class AspectHandler {
         if (!this.aspects.isEmpty()) {
             return this.invokeNext();
         }
-        return this.method.invokeSuper(
+        return this.methodProxy.invokeSuper(
                 this.target,
                 args.length == 0 ? this.args : args
             );
@@ -70,6 +74,7 @@ public class AspectHandler {
         AspectHandler handler = new AspectHandler(
             this.target,
             this.method,
+            this.methodProxy,
             this.args,
             this.aspects
         );
@@ -81,6 +86,7 @@ public class AspectHandler {
             this,
             this.target,
             this.method,
+            this.methodProxy,
             this.args
         );
         if (this.error != null) {
@@ -98,6 +104,7 @@ public class AspectHandler {
             this,
             this.target,
             this.method,
+            this.methodProxy,
             this.args
         );
         if (this.error != null) {

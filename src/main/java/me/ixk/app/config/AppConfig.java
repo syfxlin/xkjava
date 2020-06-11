@@ -6,10 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.*;
-import me.ixk.framework.annotations.processor.AnnotationProcessor;
-import me.ixk.framework.annotations.processor.BeanAnnotationProcessor;
-import me.ixk.framework.annotations.processor.MiddlewareAnnotationProcessor;
-import me.ixk.framework.annotations.processor.RouteAnnotationProcessor;
+import me.ixk.framework.annotations.processor.*;
 import me.ixk.framework.config.AbstractConfig;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.providers.*;
@@ -70,6 +67,7 @@ public class AppConfig extends AbstractConfig {
     private List<Class<? extends AnnotationProcessor>> annotationProcessors() {
         return Arrays.asList(
             BeanAnnotationProcessor.class,
+            AspectAnnotationProcessor.class,
             RouteAnnotationProcessor.class,
             MiddlewareAnnotationProcessor.class
         );

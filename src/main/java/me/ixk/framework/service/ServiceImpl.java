@@ -7,6 +7,14 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.*;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
+import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.MybatisPlus;
 import org.apache.ibatis.binding.MapperMethod;
@@ -18,37 +26,21 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 
-import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 @SuppressWarnings("unchecked")
 public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
     protected Log log = LogFactory.getLog(getClass());
 
-    protected M baseMapper;
+    protected Class<M> mapperClass = (Class<M>) (
+        (ParameterizedType) this.getClass().getGenericSuperclass()
+    ).getActualTypeArguments()[0];
 
-    public ServiceImpl() {
-        Class<M> mapperClass = (Class<M>) (
-            (ParameterizedType) this.getClass().getGenericSuperclass()
-        ).getActualTypeArguments()[0];
-        this.baseMapper =
-            Application.get().make(MybatisPlus.class).getMapper(mapperClass);
-    }
+    protected MybatisPlus mybatisPlus = Application
+        .get()
+        .make(MybatisPlus.class);
 
     @Override
     public M getBaseMapper() {
-        return baseMapper;
-    }
-
-    @Override
-    public void setBaseMapper(BaseMapper<T> baseMapper) {
-        this.baseMapper = (M) baseMapper;
+        return mybatisPlus.getMapper(mapperClass);
     }
 
     protected Class<?> entityClass = currentModelClass();
@@ -214,14 +206,20 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
     @Override
     public T getOne(Wrapper<T> queryWrapper, boolean throwEx) {
         if (throwEx) {
-            return baseMapper.selectOne(queryWrapper);
+            return this.getBaseMapper().selectOne(queryWrapper);
         }
-        return SqlHelper.getObject(log, baseMapper.selectList(queryWrapper));
+        return SqlHelper.getObject(
+            log,
+            this.getBaseMapper().selectList(queryWrapper)
+        );
     }
 
     @Override
     public Map<String, Object> getMap(Wrapper<T> queryWrapper) {
-        return SqlHelper.getObject(log, baseMapper.selectMaps(queryWrapper));
+        return SqlHelper.getObject(
+            log,
+            this.getBaseMapper().selectMaps(queryWrapper)
+        );
     }
 
     @Override

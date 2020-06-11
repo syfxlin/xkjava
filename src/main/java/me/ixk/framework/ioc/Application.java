@@ -9,7 +9,7 @@ import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.kernel.ProviderManager;
 
 public class Application extends Container {
-    protected static String scanPackage = "me.ixk.app";
+    protected static String[] scanPackage = new String[] { "me.ixk.app" };
 
     protected List<Class<? extends Bootstrap>> bootstraps = Arrays.asList(
         LoadEnvironmentVariables.class,
@@ -40,7 +40,7 @@ public class Application extends Container {
         return Inner.INSTANCE;
     }
 
-    public static Application create(String _package) {
+    public static Application create(String[] _package) {
         scanPackage = _package;
         return Inner.INSTANCE;
     }
@@ -127,11 +127,11 @@ public class Application extends Container {
         this.bootedCallback = callback;
     }
 
-    public static String getScanPackage() {
+    public static String[] getScanPackage() {
         return scanPackage;
     }
 
-    public static void setScanPackage(String scanPackage) {
+    public static void setScanPackage(String[] scanPackage) {
         Application.scanPackage = scanPackage;
     }
 }

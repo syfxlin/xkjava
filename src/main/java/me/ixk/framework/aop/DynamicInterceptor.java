@@ -1,11 +1,10 @@
 package me.ixk.framework.aop;
 
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
-
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
 
 public class DynamicInterceptor implements MethodInterceptor {
     protected Map<String, List<Advice>> aspects;
@@ -25,6 +24,7 @@ public class DynamicInterceptor implements MethodInterceptor {
         if (this.aspects.containsKey(method.getName())) {
             AspectHandler handler = new AspectHandler(
                 o,
+                method,
                 methodProxy,
                 objects,
                 aspects.get(method.getName())

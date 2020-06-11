@@ -1,10 +1,11 @@
 package me.ixk.framework.providers;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import java.util.Map;
 import javax.sql.DataSource;
 import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
-import org.apache.ibatis.datasource.pooled.PooledDataSource;
 
 public class DataSourceProvider extends AbstractProvider {
 
@@ -16,15 +17,14 @@ public class DataSourceProvider extends AbstractProvider {
     @SuppressWarnings("unchecked")
     public void register() {
         Map<String, String> config = Config.get("database", Map.class);
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setDriverClassName(config.get("driver"));
+        hikariConfig.setJdbcUrl(config.get("url"));
+        hikariConfig.setUsername(config.get("username"));
+        hikariConfig.setPassword(config.get("password"));
         this.app.singleton(
                 DataSource.class,
-                (container, args) ->
-                    new PooledDataSource(
-                        config.get("driver"),
-                        config.get("url"),
-                        config.get("username"),
-                        config.get("password")
-                    ),
+                (container, args) -> new HikariDataSource(hikariConfig),
                 "dataSource"
             );
     }

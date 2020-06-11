@@ -2,6 +2,7 @@ package me.ixk.framework.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -151,5 +152,15 @@ public abstract class ClassUtils {
                 ? isAssignable(type, value.getClass())
                 : !type.isPrimitive()
         );
+    }
+
+    public static <T> Class<?> getGenericClass(Class<T> _class) {
+        return getGenericClass(_class, 0);
+    }
+
+    public static <T> Class<?> getGenericClass(Class<T> _class, int index) {
+        return (Class<?>) (
+            (ParameterizedType) _class.getGenericSuperclass()
+        ).getActualTypeArguments()[index];
     }
 }

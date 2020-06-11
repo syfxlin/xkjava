@@ -369,11 +369,6 @@ public interface IService<T> {
     BaseMapper<T> getBaseMapper();
 
     /**
-     * 设置对应 entity 的 BaseMapper
-     */
-    void setBaseMapper(BaseMapper<T> baseMapper);
-
-    /**
      * 以下的方法使用介绍:
      *
      * 一. 名称介绍

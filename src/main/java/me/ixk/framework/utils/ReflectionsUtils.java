@@ -1,27 +1,27 @@
 package me.ixk.framework.utils;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import org.reflections.Reflections;
 import org.reflections.scanners.*;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
 public abstract class ReflectionsUtils {
 
-    public static org.reflections.Reflections make(String _package) {
+    public static Reflections make(String _package) {
         return make(ClasspathHelper.forPackage(_package));
     }
 
-    public static org.reflections.Reflections make(
-        String _prefix,
-        Scanner... scanners
-    ) {
-        return new org.reflections.Reflections(_prefix, scanners);
+    public static Reflections make(String prefix, Scanner... scanners) {
+        return new Reflections(prefix, scanners);
     }
 
-    public static org.reflections.Reflections make(Collection<URL> urls) {
-        return new org.reflections.Reflections(
+    public static Reflections make(Collection<URL> urls) {
+        return new Reflections(
             new ConfigurationBuilder()
                 .setUrls(urls)
                 .setScanners(
@@ -33,7 +33,15 @@ public abstract class ReflectionsUtils {
         );
     }
 
-    public static org.reflections.Reflections make(URL... urls) {
+    public static Reflections make(String... packages) {
+        List<URL> urls = new ArrayList<>(packages.length);
+        for (String item : packages) {
+            urls.addAll(ClasspathHelper.forPackage(item));
+        }
+        return make(urls);
+    }
+
+    public static Reflections make(URL... urls) {
         return make(Arrays.asList(urls));
     }
 }

@@ -6,14 +6,17 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotations.Aspect;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.Application;
 
 public class AspectManager {
     protected Application app;
 
-    protected List<AdviceEntry> adviceList;
+    protected static List<AdviceEntry> adviceList = new ArrayList<>();
+
+    public static void addAdvice(AspectPointcut pointcut, Advice advice) {
+        adviceList.add(new AdviceEntry(pointcut, advice));
+    }
 
     protected static class AdviceEntry {
         private final AspectPointcut pointcut;
@@ -48,13 +51,11 @@ public class AspectManager {
 
     public AspectManager(Application app) {
         this.app = app;
-        this.adviceList = new ArrayList<>();
-        this.loadAdvice();
     }
 
     public Map<String, List<Advice>> matches(Class<?> _class) {
         Map<String, List<Advice>> map = new ConcurrentHashMap<>();
-        for (AdviceEntry entry : this.adviceList) {
+        for (AdviceEntry entry : adviceList) {
             if (entry.getPointcut().matches(_class)) {
                 for (Method method : _class.getMethods()) {
                     this.addAdviceToMap(
@@ -78,7 +79,7 @@ public class AspectManager {
         return map;
     }
 
-    protected void addAdviceToMap(
+    public void addAdviceToMap(
         String name,
         Advice advice,
         Map<String, List<Advice>> map
@@ -89,23 +90,43 @@ public class AspectManager {
     }
 
     protected void loadAdvice() {
-        this.app.getClassesByAnnotation(Aspect.class)
-            .stream()
-            .filter(Advice.class::isAssignableFrom)
-            .forEach(
-                adviceClass -> {
-                    Aspect aspect = adviceClass.getAnnotation(Aspect.class);
-                    this.adviceList.add(
-                            new AdviceEntry(
-                                new AspectPointcut(aspect.value()),
-                                this.app.make(
-                                        adviceClass.getName(),
-                                        Advice.class
-                                    )
-                            )
-                        );
-                }
-            );
+        // TODO: 转移到 AnnotationProcessor
+        //        ReflectionsUtils
+        //            .make(Application.getScanPackage())
+        //            .getMethodsAnnotatedWith(Aspect.class)
+        //            .stream()
+        //            .filter(Advice.class::isAssignableFrom)
+        //            .forEach(
+        //                adviceClass -> {
+        //                    Aspect aspect = adviceClass.getAnnotation(Aspect.class);
+        //                    this.adviceList.add(
+        //                            new AdviceEntry(
+        //                                new AspectPointcut(aspect.value()),
+        //                                this.app.make(
+        //                                        adviceClass.getName(),
+        //                                        Advice.class
+        //                                    )
+        //                            )
+        //                        );
+        //                }
+        //            );
+        //        this.app.getClassesByAnnotation(Aspect.class)
+        //            .stream()
+        //            .filter(Advice.class::isAssignableFrom)
+        //            .forEach(
+        //                adviceClass -> {
+        //                    Aspect aspect = adviceClass.getAnnotation(Aspect.class);
+        //                    this.adviceList.add(
+        //                            new AdviceEntry(
+        //                                new AspectPointcut(aspect.value()),
+        //                                this.app.make(
+        //                                        adviceClass.getName(),
+        //                                        Advice.class
+        //                                    )
+        //                            )
+        //                        );
+        //                }
+        //            );
         this.adviceList.sort(
                 Comparator.comparingInt(AdviceEntry::getOrder).reversed()
             );
