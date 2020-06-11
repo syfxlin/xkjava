@@ -13,6 +13,7 @@ import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.DynamicInterceptor;
 import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.utils.ClassUtils;
+import me.ixk.framework.utils.ParameterNameDiscoverer;
 import net.sf.cglib.proxy.Enhancer;
 
 public class Container {
@@ -469,13 +470,14 @@ public class Container {
 
     protected Object[] injectingParameters(
         Parameter[] parameters,
+        String[] parameterNames,
         Map<String, Object> args
     ) {
         Object[] dependencies = new Object[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
-            if (args.containsKey(parameter.getName())) {
-                dependencies[i] = args.get(parameter.getName());
+            if (args.containsKey(parameterNames[i])) {
+                dependencies[i] = args.get(parameterNames[i]);
             } else {
                 Class<?> _class = parameter.getType();
                 dependencies[i] = this.make(_class.getName(), _class);
@@ -491,7 +493,10 @@ public class Container {
         Map<String, Object> args
     ) {
         Parameter[] parameters = constructor.getParameters();
-        return this.injectingParameters(parameters, args);
+        String[] parameterNames = ParameterNameDiscoverer.getConstructorParamNames(
+            constructor
+        );
+        return this.injectingParameters(parameters, parameterNames, args);
     }
 
     protected Object[] injectingDependencies(
@@ -499,7 +504,10 @@ public class Container {
         Map<String, Object> args
     ) {
         Parameter[] parameters = method.getParameters();
-        return this.injectingParameters(parameters, args);
+        String[] parameterNames = ParameterNameDiscoverer.getMethodParamNames(
+            method
+        );
+        return this.injectingParameters(parameters, parameterNames, args);
     }
 
     protected Object injectingProperties(Object instance) {

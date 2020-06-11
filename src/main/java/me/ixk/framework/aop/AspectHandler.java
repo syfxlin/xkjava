@@ -13,6 +13,8 @@ public class AspectHandler {
 
     protected Object[] args;
 
+    protected int currAspectIndex;
+
     protected List<Advice> aspects;
 
     protected Advice aspect = null;
@@ -24,16 +26,26 @@ public class AspectHandler {
         Method method,
         MethodProxy methodProxy,
         Object[] args,
+        int currAspectIndex,
         List<Advice> aspects
     ) {
         this.target = target;
         this.method = method;
         this.methodProxy = methodProxy;
         this.args = args;
-        if (!aspects.isEmpty()) {
-            this.aspect = aspects.remove(0);
-        }
+        this.currAspectIndex = currAspectIndex;
         this.aspects = aspects;
+        if (this.hasNextAspect()) {
+            this.aspect = this.getNextAspect();
+        }
+    }
+
+    protected boolean hasNextAspect() {
+        return this.aspects.size() > currAspectIndex;
+    }
+
+    protected Advice getNextAspect() {
+        return this.aspects.get(currAspectIndex++);
     }
 
     public Object invokeAspect() throws Throwable {
@@ -61,7 +73,7 @@ public class AspectHandler {
     public Object invokeProcess(Object[] args) throws Throwable {
         // Before
         this.aspect.before(this.makeJoinPoint());
-        if (!this.aspects.isEmpty()) {
+        if (this.hasNextAspect()) {
             return this.invokeNext();
         }
         return this.methodProxy.invokeSuper(
@@ -76,6 +88,7 @@ public class AspectHandler {
             this.method,
             this.methodProxy,
             this.args,
+            currAspectIndex,
             this.aspects
         );
         return handler.invokeAspect();

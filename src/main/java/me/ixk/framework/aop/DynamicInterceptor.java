@@ -27,6 +27,7 @@ public class DynamicInterceptor implements MethodInterceptor {
                 method,
                 methodProxy,
                 objects,
+                0,
                 aspects.get(method.getName())
             );
             return handler.invokeAspect();
