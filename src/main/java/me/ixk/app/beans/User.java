@@ -7,5 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class User {
     protected String name;
-    protected String age;
+    protected int age;
 }

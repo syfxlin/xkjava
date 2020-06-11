@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.security.SecureRandom;
 import java.util.*;
 
-public class Helper {
+public abstract class Helper {
     protected static final String BASE_STRING =
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     protected static final SecureRandom RANDOM = new SecureRandom();

@@ -1,5 +1,6 @@
 package me.ixk.framework.ioc;
 
+import cn.hutool.core.convert.Convert;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
@@ -11,7 +12,7 @@ import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.DynamicInterceptor;
 import me.ixk.framework.exceptions.ContainerException;
-import me.ixk.framework.utils.ClassUtil;
+import me.ixk.framework.utils.ClassUtils;
 import net.sf.cglib.proxy.Enhancer;
 
 public class Container {
@@ -466,29 +467,46 @@ public class Container {
         return this.injectingProperties(instance);
     }
 
-    protected Object[] injectingDependencies(
-        Constructor<?> constructor,
+    protected Object[] injectingParameters(
+        Parameter[] parameters,
         Map<String, Object> args
     ) {
-        Parameter[] parameters = constructor.getParameters();
         Object[] dependencies = new Object[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
             if (args.containsKey(parameter.getName())) {
                 dependencies[i] = args.get(parameter.getName());
-                continue;
+            } else {
+                Class<?> _class = parameter.getType();
+                dependencies[i] = this.make(_class.getName(), _class);
             }
-            Class<?> _class = parameter.getType();
-            dependencies[i] = this.make(_class.getName(), _class);
+            dependencies[i] =
+                Convert.convert(parameter.getType(), dependencies[i]);
         }
         return dependencies;
+    }
+
+    protected Object[] injectingDependencies(
+        Constructor<?> constructor,
+        Map<String, Object> args
+    ) {
+        Parameter[] parameters = constructor.getParameters();
+        return this.injectingParameters(parameters, args);
+    }
+
+    protected Object[] injectingDependencies(
+        Method method,
+        Map<String, Object> args
+    ) {
+        Parameter[] parameters = method.getParameters();
+        return this.injectingParameters(parameters, args);
     }
 
     protected Object injectingProperties(Object instance) {
         if (instance == null) {
             return null;
         }
-        Field[] fields = ClassUtil.getUserClass(instance).getDeclaredFields();
+        Field[] fields = ClassUtils.getUserClass(instance).getDeclaredFields();
         for (Field field : fields) {
             Autowired autowired = field.getAnnotation(Autowired.class);
             if (autowired == null) {
@@ -516,25 +534,6 @@ public class Container {
             field.setAccessible(originAccessible);
         }
         return instance;
-    }
-
-    protected Object[] injectingDependencies(
-        Method method,
-        Map<String, Object> args
-    ) {
-        Parameter[] parameters = method.getParameters();
-        Object[] dependencies = new Object[parameters.length];
-        for (int i = 0; i < parameters.length; i++) {
-            Parameter parameter = parameters[i];
-            if (args.containsKey(parameter.getName())) {
-                // TODO: 类型转换
-                dependencies[i] = args.get(parameter.getName());
-                continue;
-            }
-            Class<?> _class = parameter.getType();
-            dependencies[i] = this.make(_class.getName(), _class);
-        }
-        return dependencies;
     }
 
     public Object make(String _abstract) {

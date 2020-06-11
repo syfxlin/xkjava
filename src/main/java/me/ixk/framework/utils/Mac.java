@@ -3,7 +3,7 @@ package me.ixk.framework.utils;
 import java.nio.charset.StandardCharsets;
 import javax.crypto.spec.SecretKeySpec;
 
-public class Mac {
+public abstract class Mac {
 
     protected static String byteArrayToHexString(byte[] b) {
         StringBuilder hs = new StringBuilder();

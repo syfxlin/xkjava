@@ -1,14 +1,13 @@
 package me.ixk.framework.utils;
 
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collection;
 import org.reflections.scanners.*;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Collection;
-
-public class ReflectionsUtils {
+public abstract class ReflectionsUtils {
 
     public static org.reflections.Reflections make(String _package) {
         return make(ClasspathHelper.forPackage(_package));

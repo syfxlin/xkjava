@@ -1,11 +1,12 @@
 package me.ixk.framework.utils;
 
+import me.ixk.framework.exceptions.LoadConfigException;
+import me.ixk.framework.ioc.Application;
+
 import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.exceptions.LoadConfigException;
-import me.ixk.framework.ioc.Application;
 
 public class Config {
     protected static Map<String, Map<String, Object>> config;
@@ -13,7 +14,7 @@ public class Config {
     @SuppressWarnings("unchecked")
     public Config(Application app) {
         config = new ConcurrentHashMap<>();
-        Set<Class<?>> classes = ClassUtil.getPackageClass("me.ixk.app.config");
+        Set<Class<?>> classes = ClassUtils.getPackageClass("me.ixk.app.config");
         for (Class<?> _class : classes) {
             if (
                 Modifier.isInterface(_class.getModifiers()) ||

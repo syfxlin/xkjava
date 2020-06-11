@@ -7,14 +7,40 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.stream.Collectors;
 
-public class ClassUtil {
+public abstract class ClassUtils {
     public static final String FILE_PROTOCOL = "file";
 
     public static final String JAR_PROTOCOL = "jar";
+
+    private static final Map<Class<?>, Class<?>> primitiveWrapperTypeMap = new IdentityHashMap<>(
+        8
+    );
+
+    private static final Map<Class<?>, Class<?>> primitiveTypeToWrapperMap = new IdentityHashMap<>(
+        8
+    );
+
+    static {
+        primitiveWrapperTypeMap.put(Boolean.class, boolean.class);
+        primitiveWrapperTypeMap.put(Byte.class, byte.class);
+        primitiveWrapperTypeMap.put(Character.class, char.class);
+        primitiveWrapperTypeMap.put(Double.class, double.class);
+        primitiveWrapperTypeMap.put(Float.class, float.class);
+        primitiveWrapperTypeMap.put(Integer.class, int.class);
+        primitiveWrapperTypeMap.put(Long.class, long.class);
+        primitiveWrapperTypeMap.put(Short.class, short.class);
+        primitiveWrapperTypeMap.put(Void.class, void.class);
+
+        for (Map.Entry<Class<?>, Class<?>> entry : primitiveWrapperTypeMap.entrySet()) {
+            primitiveTypeToWrapperMap.put(entry.getValue(), entry.getKey());
+        }
+    }
 
     public static ClassLoader getClassLoader() {
         return Thread.currentThread().getContextClassLoader();
@@ -50,7 +76,7 @@ public class ClassUtil {
                     .getJarFile()
                     .stream()
                     .filter(jarEntry -> jarEntry.getName().endsWith(".class"))
-                    .map(ClassUtil::getClassByJar)
+                    .map(ClassUtils::getClassByJar)
                     .collect(Collectors.toSet());
             }
             return Collections.emptySet();
@@ -98,5 +124,32 @@ public class ClassUtil {
             }
         }
         return clazz;
+    }
+
+    public static boolean isAssignable(Class<?> lhsType, Class<?> rhsType) {
+        Assert.notNull(lhsType, "Left-hand side type must not be null");
+        Assert.notNull(rhsType, "Right-hand side type must not be null");
+        if (lhsType.isAssignableFrom(rhsType)) {
+            return true;
+        }
+        if (lhsType.isPrimitive()) {
+            Class<?> resolvedPrimitive = primitiveWrapperTypeMap.get(rhsType);
+            return (lhsType == resolvedPrimitive);
+        } else {
+            Class<?> resolvedWrapper = primitiveTypeToWrapperMap.get(rhsType);
+            return (
+                resolvedWrapper != null &&
+                lhsType.isAssignableFrom(resolvedWrapper)
+            );
+        }
+    }
+
+    public static boolean isAssignableValue(Class<?> type, Object value) {
+        Assert.notNull(type, "Type must not be null");
+        return (
+            value != null
+                ? isAssignable(type, value.getClass())
+                : !type.isPrimitive()
+        );
     }
 }

@@ -8,7 +8,7 @@ import javax.validation.Validator;
 import lombok.Data;
 import org.hibernate.validator.HibernateValidator;
 
-public class Validation {
+public abstract class Validation {
     protected static Validator validator = javax
         .validation.Validation.byProvider(HibernateValidator.class)
         .configure()

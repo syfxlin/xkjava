@@ -24,7 +24,7 @@ public class IndexController {
 
     //    @Middleware("auth")
     @GetMapping("/controller")
-    public String index(Request request, User user) {
+    public String index(Request request, User user, int age, String name) {
         Cookie.forever(new SetCookie("key", "value"));
 
         Map<String, Object> map = new ConcurrentHashMap<>();
