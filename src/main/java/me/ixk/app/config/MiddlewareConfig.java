@@ -4,10 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.annotations.Configuration;
 import me.ixk.framework.config.AbstractConfig;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.middleware.*;
 
+@Configuration(name = "middleware")
 public class MiddlewareConfig extends AbstractConfig {
 
     public MiddlewareConfig(Application app) {
@@ -29,10 +31,5 @@ public class MiddlewareConfig extends AbstractConfig {
 
     public List<Class<? extends Middleware>> globalMiddleware() {
         return Arrays.asList(EncryptCookies.class, AddQueuedCookies.class);
-    }
-
-    @Override
-    public String configName() {
-        return "middleware";
     }
 }

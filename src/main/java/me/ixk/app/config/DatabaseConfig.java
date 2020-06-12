@@ -4,9 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.annotations.Configuration;
 import me.ixk.framework.config.AbstractConfig;
 import me.ixk.framework.ioc.Application;
 
+@Configuration(name = "database")
 public class DatabaseConfig extends AbstractConfig {
 
     public DatabaseConfig(Application app) {
@@ -27,10 +29,5 @@ public class DatabaseConfig extends AbstractConfig {
 
     private List<String> mapperPackages() {
         return Arrays.asList("me.ixk.app.mapper");
-    }
-
-    @Override
-    public String configName() {
-        return "database";
     }
 }

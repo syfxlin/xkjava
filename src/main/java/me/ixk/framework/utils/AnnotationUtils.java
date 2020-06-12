@@ -1,12 +1,13 @@
 package me.ixk.framework.utils;
 
+import cn.hutool.core.annotation.AnnotationUtil;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.Map;
 import me.ixk.framework.annotations.AliasFor;
 
-public abstract class AnnotationUtils {
+public abstract class AnnotationUtils extends AnnotationUtil {
 
     public static <T extends Annotation> T getAnnotation(
         Field field,
@@ -42,7 +43,7 @@ public abstract class AnnotationUtils {
         }
         Class<? extends Annotation> annotationClass = annotation.annotationType();
         Map<String, Object> memberValues = getMemberValues(annotation);
-        Method[] methodValues = annotationClass.getMethods();
+        Method[] methodValues = annotationClass.getDeclaredMethods();
         for (Method method : methodValues) {
             if (method.getAnnotation(AliasFor.class) == null) {
                 continue;

@@ -2,7 +2,7 @@ package me.ixk.framework.utils;
 
 import java.nio.charset.StandardCharsets;
 
-public abstract class Base64 {
+public abstract class Base64 extends cn.hutool.core.codec.Base64 {
 
     public static String encode(String data) {
         return encode(data.getBytes(StandardCharsets.ISO_8859_1));
@@ -13,14 +13,14 @@ public abstract class Base64 {
     }
 
     public static String decode(String data) {
-        return decode(data.getBytes(StandardCharsets.ISO_8859_1));
-    }
-
-    public static String decode(byte[] data) {
         return new String(
-            java.util.Base64.getDecoder().decode(data),
+            decode(data.getBytes(StandardCharsets.ISO_8859_1)),
             StandardCharsets.ISO_8859_1
         );
+    }
+
+    public static byte[] decode(byte[] data) {
+        return java.util.Base64.getDecoder().decode(data);
     }
 
     public static String encodeUrlSafe(String data) {

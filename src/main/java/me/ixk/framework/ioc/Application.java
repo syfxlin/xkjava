@@ -1,15 +1,23 @@
 package me.ixk.framework.ioc;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.annotations.ComponentScan;
 import me.ixk.framework.bootstrap.*;
 import me.ixk.framework.exceptions.ApplicationException;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.kernel.ProviderManager;
+import me.ixk.framework.utils.AnnotationUtils;
 
+@ComponentScan(basePackages = { "me.ixk.app" })
 public class Application extends Container {
-    protected static String[] scanPackage = new String[] { "me.ixk.app" };
+    protected static List<String> scanPackage = new ArrayList<>();
+
+    protected Map<String, Map<String, Object>> config = new ConcurrentHashMap<>();
 
     protected List<Class<? extends Bootstrap>> bootstraps = Arrays.asList(
         LoadEnvironmentVariables.class,
@@ -30,7 +38,9 @@ public class Application extends Container {
 
     protected BootCallback bootedCallback = null;
 
-    private Application() {}
+    private Application() {
+        this.loadPackageScanAnnotation();
+    }
 
     private static class Inner {
         private static final Application INSTANCE = new Application();
@@ -40,7 +50,7 @@ public class Application extends Container {
         return Inner.INSTANCE;
     }
 
-    public static Application create(String[] _package) {
+    public static Application create(List<String> _package) {
         scanPackage = _package;
         return Inner.INSTANCE;
     }
@@ -127,11 +137,28 @@ public class Application extends Container {
         this.bootedCallback = callback;
     }
 
-    public static String[] getScanPackage() {
+    public static List<String> getScanPackage() {
         return scanPackage;
     }
 
-    public static void setScanPackage(String[] scanPackage) {
+    public static void setScanPackage(List<String> scanPackage) {
         Application.scanPackage = scanPackage;
+    }
+
+    public Map<String, Map<String, Object>> getConfig() {
+        return config;
+    }
+
+    public void setConfig(Map<String, Map<String, Object>> config) {
+        this.config = config;
+    }
+
+    public void loadPackageScanAnnotation() {
+        scanPackage.add("me.ixk.framework");
+        ComponentScan componentScan = AnnotationUtils.getAnnotation(
+            Application.class,
+            ComponentScan.class
+        );
+        scanPackage.addAll(Arrays.asList(componentScan.basePackages()));
     }
 }

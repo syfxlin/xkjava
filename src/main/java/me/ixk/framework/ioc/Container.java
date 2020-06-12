@@ -639,7 +639,7 @@ public class Container {
     ) {
         Object object = this.make(target[0], Object.class, newArgs);
         Method[] methods = Arrays
-            .stream(object.getClass().getMethods())
+            .stream(object.getClass().getDeclaredMethods())
             .filter(m -> m.getName().equals(target[1]))
             .toArray(Method[]::new);
         if (methods.length == 0) {

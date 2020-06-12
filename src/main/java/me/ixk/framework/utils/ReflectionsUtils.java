@@ -14,7 +14,7 @@ import org.reflections.util.ConfigurationBuilder;
 public abstract class ReflectionsUtils {
 
     public static Reflections make() {
-        return make(Application.getScanPackage());
+        return make(Application.getScanPackage().toArray(new String[0]));
     }
 
     public static Reflections make(Class<?> _class) {

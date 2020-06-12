@@ -5,10 +5,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.METHOD)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RequestMapping {
+public @interface Configuration {
+    @AliasFor("name")
     String value() default "";
 
-    RequestMethod[] method() default RequestMethod.GET;
+    @AliasFor("value")
+    String name() default "";
 }

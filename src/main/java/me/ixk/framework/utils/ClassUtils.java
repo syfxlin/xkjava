@@ -1,5 +1,7 @@
 package me.ixk.framework.utils;
 
+import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.ClassUtil;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
@@ -14,7 +16,7 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.stream.Collectors;
 
-public abstract class ClassUtils {
+public abstract class ClassUtils extends ClassUtil {
     public static final String FILE_PROTOCOL = "file";
 
     public static final String JAR_PROTOCOL = "jar";
@@ -128,7 +130,10 @@ public abstract class ClassUtils {
     }
 
     public static boolean isAssignable(Class<?> lhsType, Class<?> rhsType) {
-        Assert.notNull(lhsType, "Left-hand side type must not be null");
+        cn.hutool.core.lang.Assert.notNull(
+            lhsType,
+            "Left-hand side type must not be null"
+        );
         Assert.notNull(rhsType, "Right-hand side type must not be null");
         if (lhsType.isAssignableFrom(rhsType)) {
             return true;
@@ -143,15 +148,6 @@ public abstract class ClassUtils {
                 lhsType.isAssignableFrom(resolvedWrapper)
             );
         }
-    }
-
-    public static boolean isAssignableValue(Class<?> type, Object value) {
-        Assert.notNull(type, "Type must not be null");
-        return (
-            value != null
-                ? isAssignable(type, value.getClass())
-                : !type.isPrimitive()
-        );
     }
 
     public static <T> Class<?> getGenericClass(Class<T> _class) {

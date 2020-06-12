@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.apache.ibatis.session.TransactionIsolationLevel;
 
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Transactional {
     TransactionIsolationLevel isolation() default TransactionIsolationLevel.READ_COMMITTED;

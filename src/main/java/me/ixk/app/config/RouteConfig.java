@@ -3,9 +3,11 @@ package me.ixk.app.config;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.app.route.WebRoute;
+import me.ixk.framework.annotations.Configuration;
 import me.ixk.framework.config.AbstractConfig;
 import me.ixk.framework.ioc.Application;
 
+@Configuration(name = "route")
 public class RouteConfig extends AbstractConfig {
 
     public RouteConfig(Application app) {
@@ -19,10 +21,5 @@ public class RouteConfig extends AbstractConfig {
         map.put("web", WebRoute.class);
 
         return map;
-    }
-
-    @Override
-    public String configName() {
-        return "route";
     }
 }

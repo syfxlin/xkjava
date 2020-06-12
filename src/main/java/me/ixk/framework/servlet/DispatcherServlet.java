@@ -29,6 +29,11 @@ public class DispatcherServlet extends HttpServlet {
         super.init();
     }
 
+    @Override
+    public void destroy() {
+        super.destroy();
+    }
+
     /**
      * HttpServer Start -> Load Shared Environment -> DispatcherServlet -> Load Single Environment
      *

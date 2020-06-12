@@ -1,49 +1,17 @@
 package me.ixk.framework.utils;
 
-import java.lang.reflect.Modifier;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.exceptions.LoadConfigException;
 import me.ixk.framework.ioc.Application;
 
 public class Config {
-    protected static Map<String, Map<String, Object>> config;
+    protected Application app;
 
-    @SuppressWarnings("unchecked")
     public Config(Application app) {
-        config = new ConcurrentHashMap<>();
-        Set<Class<? extends me.ixk.framework.config.Config>> classes = ReflectionsUtils
-            .make()
-            .getSubTypesOf(me.ixk.framework.config.Config.class);
-        for (Class<? extends me.ixk.framework.config.Config> _class : classes) {
-            if (
-                Modifier.isInterface(_class.getModifiers()) ||
-                Modifier.isAbstract(_class.getModifiers())
-            ) {
-                continue;
-            }
-            try {
-                Object instance = _class
-                    .getConstructor(Application.class)
-                    .newInstance(app);
-                config.put(
-                    (String) _class.getMethod("configName").invoke(instance),
-                    (Map<String, Object>) _class
-                        .getMethod("config")
-                        .invoke(instance)
-                );
-            } catch (Exception e) {
-                throw new LoadConfigException(
-                    "Load [" + _class.getSimpleName() + "] config failed",
-                    e
-                );
-            }
-        }
+        this.app = app;
     }
 
     public Map<String, Map<String, Object>> all() {
-        return config;
+        return this.app.getConfig();
     }
 
     public Object get(String name) {
@@ -51,7 +19,7 @@ public class Config {
     }
 
     public Object get(String name, Object _default) {
-        return Helper.dataGet(config, name, _default);
+        return Helper.dataGet(this.app.getConfig(), name, _default);
     }
 
     public <T> T get(String name, Object _default, Class<T> returnType) {
