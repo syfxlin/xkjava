@@ -13,3 +13,4 @@
 -   @Bootstrap
 -   @Provider
 -   注解关联
+-   ObjectInitProcessor

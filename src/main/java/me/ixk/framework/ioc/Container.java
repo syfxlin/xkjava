@@ -35,326 +35,39 @@ public class Container {
         this.aliases = new ConcurrentHashMap<>();
     }
 
-    /* bind String, String */
+    /* base */
 
-    public Container bind(String _abstract) {
-        return this.bind(_abstract, _abstract);
+    public Map<String, Object> getGlobalArgs() {
+        return globalArgs;
     }
 
-    public Container bind(String _abstract, String concrete) {
-        return this.bind(_abstract, concrete, false);
+    public void setGlobalArgs(Map<String, Object> globalArgs) {
+        this.resetGlobalArgs = this.globalArgs;
+        this.globalArgs = globalArgs;
     }
 
-    public Container bind(String _abstract, String concrete, boolean shared) {
-        return this.bind(_abstract, concrete, shared, null);
+    public void resetGlobalArgs() {
+        this.globalArgs = this.resetGlobalArgs;
     }
 
-    public Container bind(String _abstract, String concrete, String alias) {
-        return this.bind(_abstract, concrete, false, alias);
+    public void clearGlobalArgs() {
+        this.globalArgs = new ConcurrentHashMap<>();
     }
 
-    public Container bind(
-        String _abstract,
-        String concrete,
-        boolean shared,
-        String alias
-    ) {
-        return this.bind(_abstract, concrete, shared, alias, false);
-    }
-
-    public Container bind(
-        String _abstract,
-        String concrete,
-        boolean shared,
-        String alias,
-        boolean overwrite
-    ) {
-        String[] abstractAlias =
-            this.getAbstractAndAliasByAlias(_abstract, alias);
-        _abstract = abstractAlias[0];
-        alias = abstractAlias[1];
-        if (concrete == null) {
-            concrete = _abstract;
+    public Container alias(String alias, String _abstract) {
+        if (_abstract.equals(alias)) {
+            return this;
         }
-        String finalConcrete = concrete;
-        return this.bind(
-                _abstract,
-                (Container container, Map<String, Object> args) ->
-                    container.build(finalConcrete, args),
-                shared,
-                alias,
-                overwrite
-            );
-    }
-
-    /* bind String, Concrete */
-
-    public Container bind(String _abstract, Concrete concrete) {
-        return this.bind(_abstract, concrete, false);
-    }
-
-    public Container bind(String _abstract, Concrete concrete, boolean shared) {
-        return this.bind(_abstract, concrete, shared, null);
-    }
-
-    public Container bind(String _abstract, Concrete concrete, String alias) {
-        return this.bind(_abstract, concrete, false, alias);
-    }
-
-    public Container bind(
-        String _abstract,
-        Concrete concrete,
-        boolean shared,
-        String alias
-    ) {
-        return this.bind(_abstract, concrete, shared, alias, false);
-    }
-
-    public Container bind(
-        String _abstract,
-        Concrete concrete,
-        boolean shared,
-        String alias,
-        boolean overwrite
-    ) {
-        this.setBinding(_abstract, concrete, shared, overwrite);
-        if (alias != null) {
-            this.alias(alias, _abstract);
-        }
+        this.aliases.put(alias, _abstract);
         return this;
     }
 
-    /* bind Class, Class */
-
-    public Container bind(Class<?> _abstract) {
-        return this.bind(_abstract, _abstract, false, null, false);
+    public boolean has(String _abstract) {
+        return this.hasBinding(_abstract);
     }
 
-    public Container bind(Class<?> _abstract, Class<?> concrete) {
-        return this.bind(_abstract, concrete, false, null, false);
-    }
-
-    public Container bind(
-        Class<?> _abstract,
-        Class<?> concrete,
-        boolean shared
-    ) {
-        return this.bind(_abstract, concrete, shared, null, false);
-    }
-
-    public Container bind(
-        Class<?> _abstract,
-        Class<?> concrete,
-        boolean shared,
-        String alias
-    ) {
-        return this.bind(_abstract, concrete, shared, alias, false);
-    }
-
-    public Container bind(
-        Class<?> _abstract,
-        Class<?> concrete,
-        boolean shared,
-        String alias,
-        boolean overwrite
-    ) {
-        return this.bind(
-                _abstract.getName(),
-                concrete.getName(),
-                shared,
-                alias,
-                overwrite
-            );
-    }
-
-    /* bind Class, Concrete */
-
-    public Container bind(Class<?> _abstract, Concrete concrete) {
-        return this.bind(_abstract, concrete, false);
-    }
-
-    public Container bind(
-        Class<?> _abstract,
-        Concrete concrete,
-        boolean shared
-    ) {
-        return this.bind(_abstract, concrete, shared, null);
-    }
-
-    public Container bind(Class<?> _abstract, Concrete concrete, String alias) {
-        return this.bind(_abstract, concrete, false, alias);
-    }
-
-    public Container bind(
-        Class<?> _abstract,
-        Concrete concrete,
-        boolean shared,
-        String alias
-    ) {
-        return this.bind(_abstract, concrete, shared, alias, false);
-    }
-
-    public Container bind(
-        Class<?> _abstract,
-        Concrete concrete,
-        boolean shared,
-        String alias,
-        boolean overwrite
-    ) {
-        return this.bind(
-                _abstract.getName(),
-                concrete,
-                shared,
-                alias,
-                overwrite
-            );
-    }
-
-    /* singleton String, String */
-
-    public Container singleton(String _abstract) {
-        return this.singleton(_abstract, _abstract);
-    }
-
-    public Container singleton(String _abstract, String concrete) {
-        return this.singleton(_abstract, concrete, null);
-    }
-
-    public Container singleton(
-        String _abstract,
-        String concrete,
-        String alias
-    ) {
-        return this.singleton(_abstract, concrete, alias, false);
-    }
-
-    public Container singleton(
-        String _abstract,
-        String concrete,
-        String alias,
-        boolean overwrite
-    ) {
-        return this.bind(_abstract, concrete, true, alias, overwrite);
-    }
-
-    /* singleton String, Concrete */
-
-    public Container singleton(String _abstract, Concrete concrete) {
-        return this.singleton(_abstract, concrete, null);
-    }
-
-    public Container singleton(
-        String _abstract,
-        Concrete concrete,
-        String alias
-    ) {
-        return this.singleton(_abstract, concrete, alias, false);
-    }
-
-    public Container singleton(
-        String _abstract,
-        Concrete concrete,
-        String alias,
-        boolean overwrite
-    ) {
-        return this.bind(_abstract, concrete, true, alias, overwrite);
-    }
-
-    /* singleton Class, Class */
-
-    public Container singleton(Class<?> _abstract) {
-        return this.singleton(_abstract, _abstract);
-    }
-
-    public Container singleton(Class<?> _abstract, Class<?> concrete) {
-        return this.singleton(_abstract, concrete, null);
-    }
-
-    public Container singleton(
-        Class<?> _abstract,
-        Class<?> concrete,
-        String alias
-    ) {
-        return this.singleton(_abstract, concrete, alias, false);
-    }
-
-    public Container singleton(
-        Class<?> _abstract,
-        Class<?> concrete,
-        String alias,
-        boolean overwrite
-    ) {
-        return this.bind(_abstract, concrete, true, alias, overwrite);
-    }
-
-    /* singleton Class, Concrete */
-
-    public Container singleton(Class<?> _abstract, Concrete concrete) {
-        return this.singleton(_abstract, concrete, null);
-    }
-
-    public Container singleton(
-        Class<?> _abstract,
-        Concrete concrete,
-        String alias
-    ) {
-        return this.singleton(_abstract, concrete, alias, false);
-    }
-
-    public Container singleton(
-        Class<?> _abstract,
-        Concrete concrete,
-        String alias,
-        boolean overwrite
-    ) {
-        return this.bind(_abstract, concrete, true, alias, overwrite);
-    }
-
-    /* instance String, Object */
-
-    public Container instance(String _abstract, Object instance) {
-        return this.instance(_abstract, instance, null);
-    }
-
-    public Container instance(String _abstract, Object instance, String alias) {
-        String[] abstractAlias =
-            this.getAbstractAndAliasByAlias(_abstract, alias);
-        _abstract = abstractAlias[0];
-        alias = abstractAlias[1];
-        // 解决动态注入
-        try {
-            instance =
-                AutowireUtils.resolveAutowiringValue(
-                    instance,
-                    Class.forName(_abstract)
-                );
-        } catch (ClassNotFoundException e) {
-            // no code
-        }
-        Object finalInstance = instance;
-        this.instances.put(_abstract, finalInstance);
-        this.bind(
-                _abstract,
-                (container, args) -> finalInstance,
-                true,
-                alias,
-                true
-            );
-        return this;
-    }
-
-    /* instance Class, Object */
-
-    public Container instance(Class<?> _abstract, Object instance) {
-        return this.instance(_abstract.getName(), instance, null);
-    }
-
-    public Container instance(
-        Class<?> _abstract,
-        Object instance,
-        String alias
-    ) {
-        return this.instance(_abstract.getName(), instance, alias);
+    public boolean has(Class<?> _abstract) {
+        return this.hasBinding(_abstract.getName());
     }
 
     protected void setBinding(
@@ -386,11 +99,6 @@ public class Container {
     protected Binding getBinding(String _abstract) {
         _abstract = this.getAbstractByAlias(_abstract);
         String finalAbstract = _abstract;
-        //        if (binding == null) {
-        //            throw new RuntimeException(
-        //                "Target [" + _abstract + "] is not binding"
-        //            );
-        //        }
         // 自动创建binding
         return this.bindings.getOrDefault(
                 _abstract,
@@ -422,71 +130,6 @@ public class Container {
 
     protected String getAbstractByAlias(String alias) {
         return this.aliases.getOrDefault(alias, alias);
-    }
-
-    public Object build(Concrete concrete, Map<String, Object> args) {
-        try {
-            return concrete.invoke(this, args);
-        } catch (Throwable e) {
-            throw new ContainerException("Instance build failed", e);
-        }
-    }
-
-    public Object build(String _class, Map<String, Object> args) {
-        try {
-            return this.build(Class.forName(_class), args);
-        } catch (ClassNotFoundException e) {
-            throw new ContainerException("Instance build failed", e);
-        }
-    }
-
-    public Object build(Class<?> _class, Map<String, Object> args) {
-        Map<String, List<Advice>> map = null;
-        if (this.instances.containsKey(AspectManager.class.getName())) {
-            try {
-                map =
-                    (
-                        (AspectManager) this.instances.get(
-                                AspectManager.class.getName()
-                            )
-                    ).matches(_class);
-            } catch (Throwable e) {
-                throw new ContainerException(
-                    "Instance build failed (Aspect matches)",
-                    e
-                );
-            }
-        }
-        Constructor<?>[] constructors = _class.getDeclaredConstructors();
-        Object instance = null;
-        if (constructors.length == 1) {
-            Constructor<?> constructor = constructors[0];
-            Object[] dependencies =
-                this.injectingDependencies(constructor, args);
-            try {
-                if (map == null || map.isEmpty()) {
-                    instance = constructor.newInstance(dependencies);
-                } else {
-                    Enhancer enhancer = new Enhancer();
-                    enhancer.setSuperclass(_class);
-                    //                    enhancer.setInterfaces(constructor.getParameterTypes());
-                    enhancer.setCallback(new DynamicInterceptor(map));
-                    instance =
-                        enhancer.create(
-                            constructor.getParameterTypes(),
-                            dependencies
-                        );
-                }
-            } catch (Exception e) {
-                throw new ContainerException("Instantiated object failed", e);
-            }
-        } else {
-            // 不允许构造器重载
-            throw new RuntimeException(
-                "The bound instance must have only one constructor"
-            );
-        }
-        return this.injectingProperties(instance);
     }
 
     protected Object[] injectingParameters(
@@ -568,15 +211,103 @@ public class Container {
         return instance;
     }
 
-    public Object make(String _abstract) {
-        return this.make(_abstract, Object.class);
+    /* doing */
+
+    protected Container doBind(
+        String _abstract,
+        Concrete concrete,
+        boolean shared,
+        String alias,
+        boolean overwrite
+    ) {
+        this.setBinding(_abstract, concrete, shared, overwrite);
+        if (alias != null) {
+            this.alias(alias, _abstract);
+        }
+        return this;
     }
 
-    public <T> T make(String _abstract, Class<T> returnType) {
-        return this.make(_abstract, returnType, this.globalArgs);
+    protected Container doInstance(
+        String _abstract,
+        Object instance,
+        String alias
+    ) {
+        String[] abstractAlias =
+            this.getAbstractAndAliasByAlias(_abstract, alias);
+        _abstract = abstractAlias[0];
+        alias = abstractAlias[1];
+        // 解决动态注入
+        try {
+            instance =
+                AutowireUtils.resolveAutowiringValue(
+                    instance,
+                    Class.forName(_abstract)
+                );
+        } catch (ClassNotFoundException e) {
+            // no code
+        }
+        Object finalInstance = instance;
+        this.instances.put(_abstract, finalInstance);
+        this.bind(
+                _abstract,
+                (container, args) -> finalInstance,
+                true,
+                alias,
+                true
+            );
+        return this;
     }
 
-    public <T> T make(
+    protected Object doBuild(Class<?> _class, Map<String, Object> args) {
+        Map<String, List<Advice>> map = null;
+        if (this.instances.containsKey(AspectManager.class.getName())) {
+            try {
+                map =
+                    (
+                        (AspectManager) this.instances.get(
+                                AspectManager.class.getName()
+                            )
+                    ).matches(_class);
+            } catch (Throwable e) {
+                throw new ContainerException(
+                    "Instance build failed (Aspect matches)",
+                    e
+                );
+            }
+        }
+        Constructor<?>[] constructors = _class.getDeclaredConstructors();
+        Object instance = null;
+        if (constructors.length == 1) {
+            Constructor<?> constructor = constructors[0];
+            Object[] dependencies =
+                this.injectingDependencies(constructor, args);
+            try {
+                if (map == null || map.isEmpty()) {
+                    instance = constructor.newInstance(dependencies);
+                } else {
+                    Enhancer enhancer = new Enhancer();
+                    enhancer.setSuperclass(_class);
+                    //                    enhancer.setInterfaces(constructor.getParameterTypes());
+                    enhancer.setCallback(new DynamicInterceptor(map));
+                    instance =
+                        enhancer.create(
+                            constructor.getParameterTypes(),
+                            dependencies
+                        );
+                }
+            } catch (Exception e) {
+                throw new ContainerException("Instantiated object failed", e);
+            }
+        } else {
+            // 不允许构造器重载
+            throw new RuntimeException(
+                "The bound instance must have only one constructor"
+            );
+        }
+        return this.injectingProperties(instance);
+    }
+
+    protected <T> T doMake(
         String _abstract,
         Class<T> returnType,
         Map<String, Object> args
@@ -601,39 +332,40 @@ public class Container {
         return Convert.convert(returnType, instance);
     }
 
-    public <T> T make(Class<T> _abstract) {
-        return this.make(_abstract.getName(), _abstract, this.globalArgs);
-    }
-
-    public <T> T make(Class<T> _abstract, Map<String, Object> args) {
-        return this.make(_abstract.getName(), _abstract, args);
-    }
-
-    public Container alias(String alias, String _abstract) {
-        if (_abstract.equals(alias)) {
-            return this;
+    protected void doRemove(String _abstract) {
+        String alias = _abstract;
+        _abstract = this.getAbstractByAlias(_abstract);
+        for (Map.Entry<String, String> entry : this.aliases.entrySet()) {
+            if (entry.getKey().equals(alias)) {
+                this.aliases.remove(entry.getKey());
+                break;
+            } else if (entry.getValue().equals(_abstract)) {
+                this.aliases.remove(entry.getValue());
+                break;
+            }
         }
-        this.aliases.put(alias, _abstract);
-        return this;
+        this.bindings.remove(_abstract);
+        this.instances.remove(_abstract);
     }
 
-    public boolean has(String _abstract) {
-        return this.hasBinding(_abstract);
-    }
-
-    public boolean has(Class<?> _abstract) {
-        return this.hasBinding(_abstract.getName());
-    }
-
-    public <T> T call(
-        String[] target,
+    protected <T> T callMethod(
+        Object object,
+        Method method,
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        return this.call(target, returnType, args, this.globalArgs);
+        Object[] dependencies = this.injectingDependencies(method, args);
+        try {
+            return Convert.convert(
+                returnType,
+                method.invoke(object, dependencies)
+            );
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new ContainerException("Method call failed", e);
+        }
     }
 
-    public <T> T call(
+    protected <T> T callArrayMethod(
         String[] target,
         Class<T> returnType,
         Map<String, Object> args,
@@ -651,14 +383,417 @@ public class Container {
                 "The called method cannot be overloaded"
             );
         }
-        return Convert.convert(
-            returnType,
-            this.callMethod(object, methods[0], args)
-        );
+        return this.callMethod(object, methods[0], returnType, args);
     }
+
+    public <T> T callArrayFormTypes(
+        String[] target,
+        Class<?>[] paramTypes,
+        Class<T> returnType,
+        Map<String, Object> args,
+        Map<String, Object> newArgs
+    ) {
+        Object object = this.make(target[0], Object.class, newArgs);
+        Method method = null;
+        try {
+            method = object.getClass().getMethod(target[1], paramTypes);
+        } catch (NoSuchMethodException e) {
+            throw new ContainerException(
+                "Corresponding methods not found in the specified class",
+                e
+            );
+        }
+        return this.callMethod(object, method, returnType, args);
+    }
+
+    /* bind String, String */
+
+    public Container bind(String _abstract) {
+        return this.bind(_abstract, _abstract, false, null, false);
+    }
+
+    public Container bind(String _abstract, String concrete) {
+        return this.bind(_abstract, concrete, false, null, false);
+    }
+
+    public Container bind(String _abstract, String concrete, boolean shared) {
+        return this.bind(_abstract, concrete, shared, null, false);
+    }
+
+    public Container bind(String _abstract, String concrete, String alias) {
+        return this.bind(_abstract, concrete, false, alias, false);
+    }
+
+    public Container bind(
+        String _abstract,
+        String concrete,
+        boolean shared,
+        String alias
+    ) {
+        return this.bind(_abstract, concrete, shared, alias, false);
+    }
+
+    /* bind final String, String */
+    public Container bind(
+        String _abstract,
+        String concrete,
+        boolean shared,
+        String alias,
+        boolean overwrite
+    ) {
+        String[] abstractAlias =
+            this.getAbstractAndAliasByAlias(_abstract, alias);
+        _abstract = abstractAlias[0];
+        alias = abstractAlias[1];
+        if (concrete == null) {
+            concrete = _abstract;
+        }
+        String finalConcrete = concrete;
+        return this.bind(
+                _abstract,
+                (Container container, Map<String, Object> args) ->
+                    container.build(finalConcrete, args),
+                shared,
+                alias,
+                overwrite
+            );
+    }
+
+    /* bind String, Concrete */
+
+    public Container bind(String _abstract, Concrete concrete) {
+        return this.bind(_abstract, concrete, false, null, false);
+    }
+
+    public Container bind(String _abstract, Concrete concrete, boolean shared) {
+        return this.bind(_abstract, concrete, shared, null, false);
+    }
+
+    public Container bind(String _abstract, Concrete concrete, String alias) {
+        return this.bind(_abstract, concrete, false, alias, false);
+    }
+
+    public Container bind(
+        String _abstract,
+        Concrete concrete,
+        boolean shared,
+        String alias
+    ) {
+        return this.bind(_abstract, concrete, shared, alias, false);
+    }
+
+    /* bind final String, Concrete */
+    public Container bind(
+        String _abstract,
+        Concrete concrete,
+        boolean shared,
+        String alias,
+        boolean overwrite
+    ) {
+        return this.doBind(_abstract, concrete, shared, alias, overwrite);
+    }
+
+    /* bind Class, Class */
+
+    public Container bind(Class<?> _abstract) {
+        return this.bind(_abstract, _abstract, false, null, false);
+    }
+
+    public Container bind(Class<?> _abstract, Class<?> concrete) {
+        return this.bind(_abstract, concrete, false, null, false);
+    }
+
+    public Container bind(
+        Class<?> _abstract,
+        Class<?> concrete,
+        boolean shared
+    ) {
+        return this.bind(_abstract, concrete, shared, null, false);
+    }
+
+    public Container bind(
+        Class<?> _abstract,
+        Class<?> concrete,
+        boolean shared,
+        String alias
+    ) {
+        return this.bind(_abstract, concrete, shared, alias, false);
+    }
+
+    /* bind final Class, Class */
+    public Container bind(
+        Class<?> _abstract,
+        Class<?> concrete,
+        boolean shared,
+        String alias,
+        boolean overwrite
+    ) {
+        return this.bind(
+                _abstract.getName(),
+                concrete.getName(),
+                shared,
+                alias,
+                overwrite
+            );
+    }
+
+    /* bind Class, Concrete */
+
+    public Container bind(Class<?> _abstract, Concrete concrete) {
+        return this.bind(_abstract, concrete, false, null, false);
+    }
+
+    public Container bind(
+        Class<?> _abstract,
+        Concrete concrete,
+        boolean shared
+    ) {
+        return this.bind(_abstract, concrete, shared, null, false);
+    }
+
+    public Container bind(Class<?> _abstract, Concrete concrete, String alias) {
+        return this.bind(_abstract, concrete, false, alias, false);
+    }
+
+    public Container bind(
+        Class<?> _abstract,
+        Concrete concrete,
+        boolean shared,
+        String alias
+    ) {
+        return this.bind(_abstract, concrete, shared, alias, false);
+    }
+
+    /* bind final Class, Concrete */
+    public Container bind(
+        Class<?> _abstract,
+        Concrete concrete,
+        boolean shared,
+        String alias,
+        boolean overwrite
+    ) {
+        return this.bind(
+                _abstract.getName(),
+                concrete,
+                shared,
+                alias,
+                overwrite
+            );
+    }
+
+    /* singleton String, String */
+
+    public Container singleton(String _abstract) {
+        return this.singleton(_abstract, _abstract, null, false);
+    }
+
+    public Container singleton(String _abstract, String concrete) {
+        return this.singleton(_abstract, concrete, null, false);
+    }
+
+    public Container singleton(
+        String _abstract,
+        String concrete,
+        String alias
+    ) {
+        return this.singleton(_abstract, concrete, alias, false);
+    }
+
+    /* singleton final String, String */
+    public Container singleton(
+        String _abstract,
+        String concrete,
+        String alias,
+        boolean overwrite
+    ) {
+        return this.bind(_abstract, concrete, true, alias, overwrite);
+    }
+
+    /* singleton String, Concrete */
+
+    public Container singleton(String _abstract, Concrete concrete) {
+        return this.singleton(_abstract, concrete, null, false);
+    }
+
+    public Container singleton(
+        String _abstract,
+        Concrete concrete,
+        String alias
+    ) {
+        return this.singleton(_abstract, concrete, alias, false);
+    }
+
+    /* singleton final String, Concrete */
+    public Container singleton(
+        String _abstract,
+        Concrete concrete,
+        String alias,
+        boolean overwrite
+    ) {
+        return this.bind(_abstract, concrete, true, alias, overwrite);
+    }
+
+    /* singleton Class, Class */
+
+    public Container singleton(Class<?> _abstract) {
+        return this.singleton(_abstract, _abstract, null, false);
+    }
+
+    public Container singleton(Class<?> _abstract, Class<?> concrete) {
+        return this.singleton(_abstract, concrete, null, false);
+    }
+
+    public Container singleton(
+        Class<?> _abstract,
+        Class<?> concrete,
+        String alias
+    ) {
+        return this.singleton(_abstract, concrete, alias, false);
+    }
+
+    /* singleton final Class, Class */
+    public Container singleton(
+        Class<?> _abstract,
+        Class<?> concrete,
+        String alias,
+        boolean overwrite
+    ) {
+        return this.bind(_abstract, concrete, true, alias, overwrite);
+    }
+
+    /* singleton Class, Concrete */
+
+    public Container singleton(Class<?> _abstract, Concrete concrete) {
+        return this.singleton(_abstract, concrete, null, false);
+    }
+
+    public Container singleton(
+        Class<?> _abstract,
+        Concrete concrete,
+        String alias
+    ) {
+        return this.singleton(_abstract, concrete, alias, false);
+    }
+
+    /* singleton final Class, Concrete */
+    public Container singleton(
+        Class<?> _abstract,
+        Concrete concrete,
+        String alias,
+        boolean overwrite
+    ) {
+        return this.bind(_abstract, concrete, true, alias, overwrite);
+    }
+
+    /* instance String, Object */
+
+    public Container instance(String _abstract, Object instance) {
+        return this.instance(_abstract, instance, null);
+    }
+
+    /* instance final String, Object */
+    public Container instance(String _abstract, Object instance, String alias) {
+        return this.doInstance(_abstract, instance, alias);
+    }
+
+    /* instance Class, Object */
+
+    public Container instance(Class<?> _abstract, Object instance) {
+        return this.instance(_abstract.getName(), instance, null);
+    }
+
+    /* instance final Class, Object */
+    public Container instance(
+        Class<?> _abstract,
+        Object instance,
+        String alias
+    ) {
+        return this.instance(_abstract.getName(), instance, alias);
+    }
+
+    /* build Concrete */
+
+    public Object build(Concrete concrete, Map<String, Object> args) {
+        try {
+            return concrete.invoke(this, args);
+        } catch (Throwable e) {
+            throw new ContainerException("Instance build failed", e);
+        }
+    }
+
+    /* build String */
+
+    public Object build(String _class, Map<String, Object> args) {
+        try {
+            return this.build(Class.forName(_class), args);
+        } catch (ClassNotFoundException e) {
+            throw new ContainerException("Instance build failed", e);
+        }
+    }
+
+    /* build Class */
+
+    public Object build(Class<?> _class, Map<String, Object> args) {
+        return this.doBuild(_class, args);
+    }
+
+    /* make String */
+
+    public Object make(String _abstract) {
+        return this.make(_abstract, Object.class);
+    }
+
+    public <T> T make(String _abstract, Class<T> returnType) {
+        return this.make(_abstract, returnType, this.globalArgs);
+    }
+
+    public <T> T make(
+        String _abstract,
+        Class<T> returnType,
+        Map<String, Object> args
+    ) {
+        return this.doMake(_abstract, returnType, args);
+    }
+
+    /* make Class */
+
+    public <T> T make(Class<T> _abstract) {
+        return this.make(_abstract.getName(), _abstract, this.globalArgs);
+    }
+
+    public <T> T make(Class<T> _abstract, Map<String, Object> args) {
+        return this.make(_abstract.getName(), _abstract, args);
+    }
+
+    /* call String[] */
 
     public <T> T call(String[] target, Class<T> returnType) {
         return this.call(target, returnType, this.globalArgs);
+    }
+
+    public <T> T call(
+        String[] target,
+        Class<T> returnType,
+        Map<String, Object> args
+    ) {
+        return this.call(target, returnType, args, this.globalArgs);
+    }
+
+    public <T> T call(
+        String[] target,
+        Class<T> returnType,
+        Map<String, Object> args,
+        Map<String, Object> newArgs
+    ) {
+        return this.callArrayMethod(target, returnType, args, newArgs);
+    }
+
+    public <T> T call(
+        String[] target,
+        Class<?>[] paramTypes,
+        Class<T> returnType
+    ) {
+        return this.call(target, paramTypes, returnType, this.globalArgs);
     }
 
     public <T> T call(
@@ -677,28 +812,19 @@ public class Container {
         Map<String, Object> args,
         Map<String, Object> newArgs
     ) {
-        Object object = this.make(target[0], Object.class, newArgs);
-        Method method = null;
-        try {
-            method = object.getClass().getMethod(target[1], paramTypes);
-        } catch (NoSuchMethodException e) {
-            throw new ContainerException(
-                "Corresponding methods not found in the specified class",
-                e
+        return this.callArrayFormTypes(
+                target,
+                paramTypes,
+                returnType,
+                args,
+                newArgs
             );
-        }
-        return Convert.convert(
-            returnType,
-            this.callMethod(object, method, args)
-        );
     }
 
-    public <T> T call(
-        String[] target,
-        Class<?>[] paramTypes,
-        Class<T> returnType
-    ) {
-        return this.call(target, paramTypes, returnType, this.globalArgs);
+    /* call String */
+
+    public <T> T call(String target, Class<T> returnType) {
+        return this.call(target, returnType, this.globalArgs);
     }
 
     public <T> T call(
@@ -718,8 +844,12 @@ public class Container {
         return this.call(target.split("@"), returnType, args, newArgs);
     }
 
-    public <T> T call(String target, Class<T> returnType) {
-        return this.call(target, returnType, this.globalArgs);
+    public <T> T call(
+        String target,
+        Class<?>[] paramTypes,
+        Class<T> returnType
+    ) {
+        return this.call(target, paramTypes, returnType, this.globalArgs);
     }
 
     public <T> T call(
@@ -747,13 +877,7 @@ public class Container {
             );
     }
 
-    public <T> T call(
-        String target,
-        Class<?>[] paramTypes,
-        Class<T> returnType
-    ) {
-        return this.call(target, paramTypes, returnType, this.globalArgs);
-    }
+    /* call Class, Method */
 
     public <T> T call(Class<?> _class, Method method, Class<T> returnType) {
         return this.call(_class, method, returnType, this.globalArgs);
@@ -775,11 +899,15 @@ public class Container {
         Map<String, Object> args,
         Map<String, Object> newArgs
     ) {
-        return Convert.convert(
-            returnType,
-            this.callMethod(this.make(_class, newArgs), method, args)
-        );
+        return this.callMethod(
+                this.make(_class, newArgs),
+                method,
+                returnType,
+                args
+            );
     }
+
+    /* call Method */
 
     public <T> T call(Method method, Class<T> returnType) {
         return this.call(method, returnType, this.globalArgs);
@@ -808,20 +936,15 @@ public class Container {
             );
     }
 
-    protected Object callMethod(
-        Object object,
-        Method method,
-        Map<String, Object> args
-    ) {
-        Object[] dependencies = this.injectingDependencies(method, args);
-        try {
-            return method.invoke(object, dependencies);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new ContainerException("Method call failed", e);
-        }
+    public void remove(String _abstract) {
+        this.doRemove(_abstract);
     }
 
-    // Get
+    public void remove(Class<?> _abstract) {
+        this.remove(_abstract.getName());
+    }
+
+    /* can remove */
     protected Stream<? extends Class<?>> getClassesFromBinding() {
         return this.bindings.keySet()
             .stream()
@@ -850,42 +973,5 @@ public class Container {
             .filter(superClass::isAssignableFrom)
             .filter(_class -> !_class.equals(superClass))
             .collect(Collectors.toSet());
-    }
-
-    public void remove(String _abstract) {
-        String alias = _abstract;
-        _abstract = this.getAbstractByAlias(_abstract);
-        for (Map.Entry<String, String> entry : this.aliases.entrySet()) {
-            if (entry.getKey().equals(alias)) {
-                this.aliases.remove(entry.getKey());
-                break;
-            } else if (entry.getValue().equals(_abstract)) {
-                this.aliases.remove(entry.getValue());
-                break;
-            }
-        }
-        this.bindings.remove(_abstract);
-        this.instances.remove(_abstract);
-    }
-
-    public void remove(Class<?> _abstract) {
-        this.remove(_abstract.getName());
-    }
-
-    public Map<String, Object> getGlobalArgs() {
-        return globalArgs;
-    }
-
-    public void setGlobalArgs(Map<String, Object> globalArgs) {
-        this.resetGlobalArgs = this.globalArgs;
-        this.globalArgs = globalArgs;
-    }
-
-    public void resetGlobalArgs() {
-        this.globalArgs = this.resetGlobalArgs;
-    }
-
-    public void clearGlobalArgs() {
-        this.globalArgs = new ConcurrentHashMap<>();
     }
 }
