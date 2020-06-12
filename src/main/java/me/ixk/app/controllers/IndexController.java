@@ -2,22 +2,27 @@ package me.ixk.app.controllers;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.servlet.http.HttpServletRequest;
 import me.ixk.app.annotations.Log;
 import me.ixk.app.beans.User;
 import me.ixk.app.entity.RegisterUser;
 import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.annotations.*;
-import me.ixk.framework.facades.Auth;
 import me.ixk.framework.facades.View;
 import me.ixk.framework.http.Request;
 
 @Controller
 public class IndexController {
     @Autowired
-    public UsersServiceImpl usersService;
+    public Request request;
+
+    @Autowired
+    private HttpServletRequest httpServletRequest;
+
+    private UsersServiceImpl usersService;
 
     public IndexController(UsersServiceImpl usersService) {
-        //
+        this.usersService = usersService;
     }
 
     @Log
@@ -30,7 +35,7 @@ public class IndexController {
         registerUser.setEmail("syfxlin@gmail.com");
         registerUser.setPassword("123456");
         registerUser.setPasswordConfirmed("123456");
-        Auth.register(registerUser);
+        //        Auth.register(registerUser);
         Map<String, Object> map = new ConcurrentHashMap<>();
         map.put("text", "String");
         return View.make("index", map).render();

@@ -9,12 +9,9 @@ public class Cors implements Middleware {
     public Response handle(Request request, Runner next) {
         return next
             .handle(request)
-            .setHeader(
-                "Access-Control-Allow-Origin",
-                request.getHeader("origin")
-            )
-            .setHeader("Access-Control-Allow-Credentials", "true")
-            .setHeader("Access-Control-Allow-Headers", "*")
-            .setHeader("Access-Control-Allow-Methods", "*");
+            .header("Access-Control-Allow-Origin", request.getHeader("origin"))
+            .header("Access-Control-Allow-Credentials", "true")
+            .header("Access-Control-Allow-Headers", "*")
+            .header("Access-Control-Allow-Methods", "*");
     }
 }

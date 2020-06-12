@@ -6,6 +6,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import me.ixk.framework.factory.ObjectFactory;
 import me.ixk.framework.http.CookieManager;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
@@ -17,6 +18,7 @@ import me.ixk.framework.route.RouteManager;
 public class DispatcherServlet extends HttpServlet {
     protected Application app;
 
+    @Deprecated
     public DispatcherServlet() {
         super();
         this.app = Application.get();
@@ -49,9 +51,37 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     protected void beforeDispatch(Request request, Response response) {
-        this.app.instance(DispatcherServlet.class, this, "dispatcherServlet");
-        this.app.instance(Request.class, request, "request");
-        this.app.instance(Response.class, response, "response");
+        this.app.instance(
+                DispatcherServlet.class,
+                (ObjectFactory<DispatcherServlet>) () -> this,
+                "dispatcherServlet"
+            );
+        this.app.instance(
+                HttpServlet.class,
+                (ObjectFactory<DispatcherServlet>) () -> this,
+                "httpServlet"
+            );
+
+        this.app.instance(
+                Request.class,
+                (ObjectFactory<Request>) () -> request,
+                "request"
+            );
+        this.app.instance(
+                HttpServletRequest.class,
+                (ObjectFactory<Request>) () -> request,
+                "httpServletRequest"
+            );
+        this.app.instance(
+                Response.class,
+                (ObjectFactory<Response>) () -> response,
+                "response"
+            );
+        this.app.instance(
+                HttpServletResponse.class,
+                (ObjectFactory<Response>) () -> response,
+                "httpServletResponse"
+            );
         Cookie[] cookies = request.getCookies();
         this.app.make(CookieManager.class)
             .refresh(cookies == null ? new Cookie[0] : cookies);
@@ -66,8 +96,11 @@ public class DispatcherServlet extends HttpServlet {
 
     protected void afterDispatch(Request request, Response response) {
         this.app.remove(DispatcherServlet.class);
+        this.app.remove(HttpServlet.class);
         this.app.remove(Request.class);
+        this.app.remove(HttpServletRequest.class);
         this.app.remove(Response.class);
+        this.app.remove(HttpServletResponse.class);
         this.app.make(CookieManager.class).refresh(new Cookie[0]);
         this.app.make(SessionManager.class).refresh(null, null);
         this.app.make(Auth.class).refresh();

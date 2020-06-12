@@ -12,6 +12,7 @@ import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.DynamicInterceptor;
 import me.ixk.framework.exceptions.ContainerException;
+import me.ixk.framework.utils.AutowireUtils;
 import me.ixk.framework.utils.ClassUtils;
 import me.ixk.framework.utils.ParameterNameDiscoverer;
 import net.sf.cglib.proxy.Enhancer;
@@ -559,18 +560,21 @@ public class Container {
     ) {
         _abstract = this.getAbstractByAlias(_abstract);
         Binding binding = this.getBinding(_abstract);
-        if (binding.isShared() && this.instances.containsKey(_abstract)) {
-            return returnType.cast(this.instances.get(_abstract));
-        }
         Object instance = null;
-        try {
-            instance = binding.getConcrete().invoke(this, args);
-        } catch (Throwable e) {
-            throw new ContainerException("Instance make failed", e);
+        if (binding.isShared() && this.instances.containsKey(_abstract)) {
+            instance = this.instances.get(_abstract);
+        } else {
+            try {
+                instance = binding.getConcrete().invoke(this, args);
+            } catch (Throwable e) {
+                throw new ContainerException("Instance make failed", e);
+            }
+            if (binding.isShared()) {
+                this.instances.put(_abstract, instance);
+            }
         }
-        if (binding.isShared()) {
-            this.instances.put(_abstract, instance);
-        }
+        // 解决动态注入
+        instance = AutowireUtils.resolveAutowiringValue(instance, returnType);
         return returnType.cast(instance);
     }
 

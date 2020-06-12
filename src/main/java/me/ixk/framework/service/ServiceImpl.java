@@ -31,7 +31,9 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
     protected Log log = LogFactory.getLog(getClass());
 
     protected Class<M> mapperClass = (Class<M>) (
-        (ParameterizedType) this.getClass().getGenericSuperclass()
+        (ParameterizedType) me
+            .ixk.framework.utils.ClassUtils.getUserClass(this)
+            .getGenericSuperclass()
     ).getActualTypeArguments()[0];
 
     protected MybatisPlus mybatisPlus = Application

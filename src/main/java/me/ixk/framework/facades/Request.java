@@ -541,8 +541,8 @@ public class Request extends AbstractFacade {
         return make().recoverNewSession(key);
     }
 
-    public static me.ixk.framework.http.Request removeAttribute(String name) {
-        return make().removeAttribute(name);
+    public static void removeAttribute(String name) {
+        make().removeAttribute(name);
     }
 
     public static me.ixk.framework.http.Request removeEventListener(
@@ -564,11 +564,8 @@ public class Request extends AbstractFacade {
         return make().setAsyncSupported(supported);
     }
 
-    public static me.ixk.framework.http.Request setAttribute(
-        String name,
-        Object value
-    ) {
-        return make().setAttribute(name, value);
+    public static void setAttribute(String name, Object value) {
+        make().setAttribute(name, value);
     }
 
     public static me.ixk.framework.http.Request setAttributes(
@@ -583,11 +580,9 @@ public class Request extends AbstractFacade {
         return make().setAuthentication(authentication);
     }
 
-    public static me.ixk.framework.http.Request setCharacterEncoding(
-        String encoding
-    )
+    public static void setCharacterEncoding(String encoding)
         throws UnsupportedEncodingException {
-        return make().setCharacterEncoding(encoding);
+        make().setCharacterEncoding(encoding);
     }
 
     public static me.ixk.framework.http.Request setCharacterEncodingUnchecked(
@@ -760,17 +755,13 @@ public class Request extends AbstractFacade {
         return make().getParts();
     }
 
-    public static me.ixk.framework.http.Request login(
-        String username,
-        String password
-    )
+    public static void login(String username, String password)
         throws ServletException {
-        return make().login(username, password);
+        make().login(username, password);
     }
 
-    public static me.ixk.framework.http.Request logout()
-        throws ServletException {
-        return make().logout();
+    public static void logout() throws ServletException {
+        make().logout();
     }
 
     public static me.ixk.framework.http.Request mergeQueryParameters(

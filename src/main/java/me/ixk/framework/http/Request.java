@@ -26,11 +26,16 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.Attributes;
 import org.eclipse.jetty.util.MultiMap;
 
-public class Request {
+public class Request implements HttpServletRequest {
     protected org.eclipse.jetty.server.Request _base;
     protected String _body;
     protected JsonNode _parseBody = null;
     protected Map<String, Cookie> _cookies;
+
+    @Deprecated
+    public Request() {
+        // only used cglib
+    }
 
     public Request(org.eclipse.jetty.server.Request request) {
         this._base = request;
@@ -309,6 +314,7 @@ public class Request {
         return this;
     }
 
+    @Override
     public AsyncContext getAsyncContext() {
         return _base.getAsyncContext();
     }
@@ -317,10 +323,12 @@ public class Request {
         return _base.getHttpChannelState();
     }
 
+    @Override
     public Object getAttribute(String name) {
         return _base.getAttribute(name);
     }
 
+    @Override
     public Enumeration<String> getAttributeNames() {
         return _base.getAttributeNames();
     }
@@ -333,10 +341,12 @@ public class Request {
         return _base.getAuthentication();
     }
 
+    @Override
     public String getAuthType() {
         return _base.getAuthType();
     }
 
+    @Override
     public String getCharacterEncoding() {
         return _base.getCharacterEncoding();
     }
@@ -345,10 +355,12 @@ public class Request {
         return _base.getHttpChannel();
     }
 
+    @Override
     public int getContentLength() {
         return _base.getContentLength();
     }
 
+    @Override
     public long getContentLengthLong() {
         return _base.getContentLengthLong();
     }
@@ -357,6 +369,7 @@ public class Request {
         return _base.getContentRead();
     }
 
+    @Override
     public String getContentType() {
         return _base.getContentType();
     }
@@ -365,10 +378,12 @@ public class Request {
         return _base.getContext();
     }
 
+    @Override
     public String getContextPath() {
         return _base.getContextPath();
     }
 
+    @Override
     public Cookie[] getCookies() {
         Cookie[] cookies = _base.getCookies();
         if (cookies == null) {
@@ -377,22 +392,27 @@ public class Request {
         return cookies;
     }
 
+    @Override
     public long getDateHeader(String name) {
         return _base.getDateHeader(name);
     }
 
+    @Override
     public DispatcherType getDispatcherType() {
         return _base.getDispatcherType();
     }
 
+    @Override
     public String getHeader(String name) {
         return _base.getHeader(name);
     }
 
+    @Override
     public Enumeration<String> getHeaderNames() {
         return _base.getHeaderNames();
     }
 
+    @Override
     public Enumeration<String> getHeaders(String name) {
         return _base.getHeaders(name);
     }
@@ -401,50 +421,62 @@ public class Request {
         return _base.getInputState();
     }
 
+    @Override
     public ServletInputStream getInputStream() throws IOException {
         return _base.getInputStream();
     }
 
+    @Override
     public int getIntHeader(String name) {
         return _base.getIntHeader(name);
     }
 
+    @Override
     public Locale getLocale() {
         return _base.getLocale();
     }
 
+    @Override
     public Enumeration<Locale> getLocales() {
         return _base.getLocales();
     }
 
+    @Override
     public String getLocalAddr() {
         return _base.getLocalAddr();
     }
 
+    @Override
     public String getLocalName() {
         return _base.getLocalName();
     }
 
+    @Override
     public int getLocalPort() {
         return _base.getLocalPort();
     }
 
+    @Override
     public String getMethod() {
         return _base.getMethod();
     }
 
+    @Override
     public String getParameter(String name) {
         return _base.getParameter(name);
     }
 
+    @Override
     public Map<String, String[]> getParameterMap() {
         return _base.getParameterMap();
     }
 
+    @Override
     public Enumeration<String> getParameterNames() {
         return _base.getParameterNames();
     }
 
+    @Override
     public String[] getParameterValues(String name) {
         return _base.getParameterValues(name);
     }
@@ -468,14 +500,17 @@ public class Request {
         return this;
     }
 
+    @Override
     public String getPathInfo() {
         return _base.getPathInfo();
     }
 
+    @Override
     public String getPathTranslated() {
         return _base.getPathTranslated();
     }
 
+    @Override
     public String getProtocol() {
         return _base.getProtocol();
     }
@@ -488,14 +523,17 @@ public class Request {
         return _base.getQueryEncoding();
     }
 
+    @Override
     public String getQueryString() {
         return _base.getQueryString();
     }
 
+    @Override
     public BufferedReader getReader() {
         return new BufferedReader(new StringReader(this._body));
     }
 
+    @Override
     public String getRealPath(String path) {
         return _base.getRealPath(path);
     }
@@ -504,34 +542,42 @@ public class Request {
         return _base.getRemoteInetSocketAddress();
     }
 
+    @Override
     public String getRemoteAddr() {
         return _base.getRemoteAddr();
     }
 
+    @Override
     public String getRemoteHost() {
         return _base.getRemoteHost();
     }
 
+    @Override
     public int getRemotePort() {
         return _base.getRemotePort();
     }
 
+    @Override
     public String getRemoteUser() {
         return _base.getRemoteUser();
     }
 
+    @Override
     public RequestDispatcher getRequestDispatcher(String path) {
         return _base.getRequestDispatcher(path);
     }
 
+    @Override
     public String getRequestedSessionId() {
         return _base.getRequestedSessionId();
     }
 
+    @Override
     public String getRequestURI() {
         return _base.getRequestURI();
     }
 
+    @Override
     public StringBuffer getRequestURL() {
         return _base.getRequestURL();
     }
@@ -544,18 +590,22 @@ public class Request {
         return _base.getRootURL();
     }
 
+    @Override
     public String getScheme() {
         return _base.getScheme();
     }
 
+    @Override
     public String getServerName() {
         return _base.getServerName();
     }
 
+    @Override
     public int getServerPort() {
         return _base.getServerPort();
     }
 
+    @Override
     public ServletContext getServletContext() {
         return _base.getServletContext();
     }
@@ -564,6 +614,7 @@ public class Request {
         return _base.getServletName();
     }
 
+    @Override
     public String getServletPath() {
         return _base.getServletPath();
     }
@@ -572,14 +623,17 @@ public class Request {
         return _base.getServletResponse();
     }
 
+    @Override
     public String changeSessionId() {
         return _base.changeSessionId();
     }
 
+    @Override
     public HttpSession getSession() {
         return _base.getSession();
     }
 
+    @Override
     public HttpSession getSession(boolean create) {
         return _base.getSession(create);
     }
@@ -608,6 +662,7 @@ public class Request {
         return _base.getUserIdentityScope();
     }
 
+    @Override
     public Principal getUserPrincipal() {
         return _base.getUserPrincipal();
     }
@@ -616,30 +671,37 @@ public class Request {
         return _base.isHandled();
     }
 
+    @Override
     public boolean isAsyncStarted() {
         return _base.isAsyncStarted();
     }
 
+    @Override
     public boolean isAsyncSupported() {
         return _base.isAsyncSupported();
     }
 
+    @Override
     public boolean isRequestedSessionIdFromCookie() {
         return _base.isRequestedSessionIdFromCookie();
     }
 
+    @Override
     public boolean isRequestedSessionIdFromUrl() {
         return _base.isRequestedSessionIdFromUrl();
     }
 
+    @Override
     public boolean isRequestedSessionIdFromURL() {
         return _base.isRequestedSessionIdFromURL();
     }
 
+    @Override
     public boolean isRequestedSessionIdValid() {
         return _base.isRequestedSessionIdValid();
     }
 
+    @Override
     public boolean isSecure() {
         return _base.isSecure();
     }
@@ -649,6 +711,7 @@ public class Request {
         return this;
     }
 
+    @Override
     public boolean isUserInRole(String role) {
         return _base.isUserInRole(role);
     }
@@ -657,9 +720,9 @@ public class Request {
         return _base.recoverNewSession(key);
     }
 
-    public Request removeAttribute(String name) {
+    @Override
+    public void removeAttribute(String name) {
         _base.removeAttribute(name);
-        return this;
     }
 
     public Request removeEventListener(EventListener listener) {
@@ -677,9 +740,9 @@ public class Request {
         return this;
     }
 
-    public Request setAttribute(String name, Object value) {
+    @Override
+    public void setAttribute(String name, Object value) {
         _base.setAttribute(name, value);
-        return this;
     }
 
     public Request setAttributes(Attributes attributes) {
@@ -692,10 +755,10 @@ public class Request {
         return this;
     }
 
-    public Request setCharacterEncoding(String encoding)
+    @Override
+    public void setCharacterEncoding(String encoding)
         throws UnsupportedEncodingException {
         _base.setCharacterEncoding(encoding);
-        return this;
     }
 
     public Request setCharacterEncodingUnchecked(String encoding) {
@@ -833,10 +896,12 @@ public class Request {
         return this;
     }
 
+    @Override
     public AsyncContext startAsync() throws IllegalStateException {
         return _base.startAsync();
     }
 
+    @Override
     public AsyncContext startAsync(
         ServletRequest servletRequest,
         ServletResponse servletResponse
@@ -845,32 +910,36 @@ public class Request {
         return _base.startAsync(servletRequest, servletResponse);
     }
 
+    @Override
     public String toString() {
         return _base.toString();
     }
 
+    @Override
     public boolean authenticate(HttpServletResponse response)
         throws IOException, ServletException {
         return _base.authenticate(response);
     }
 
+    @Override
     public Part getPart(String name) throws IOException, ServletException {
         return _base.getPart(name);
     }
 
+    @Override
     public Collection<Part> getParts() throws IOException, ServletException {
         return _base.getParts();
     }
 
-    public Request login(String username, String password)
+    @Override
+    public void login(String username, String password)
         throws ServletException {
         _base.login(username, password);
-        return this;
     }
 
-    public Request logout() throws ServletException {
+    @Override
+    public void logout() throws ServletException {
         _base.logout();
-        return this;
     }
 
     public Request mergeQueryParameters(
@@ -881,6 +950,7 @@ public class Request {
         return this;
     }
 
+    @Override
     public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass)
         throws IOException, ServletException {
         return _base.upgrade(handlerClass);

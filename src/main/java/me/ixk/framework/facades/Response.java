@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
 import me.ixk.framework.http.SetCookie;
 import org.eclipse.jetty.http.HttpContent;
 import org.eclipse.jetty.http.HttpFields;
@@ -183,6 +184,14 @@ public class Response extends AbstractFacade {
         return make().addCookies(cookies);
     }
 
+    public static List<SetCookie> getCookies() {
+        return make().getCookies();
+    }
+
+    public static me.ixk.framework.http.Response pushCookieToHeader() {
+        return make().pushCookieToHeader();
+    }
+
     public static me.ixk.framework.http.Response setHeaders(
         HttpContent httpContent
     ) {
@@ -278,18 +287,26 @@ public class Response extends AbstractFacade {
         make().sendRedirect(location);
     }
 
-    public static me.ixk.framework.http.Response setDateHeader(
-        String name,
-        long date
-    ) {
-        return make().setDateHeader(name, date);
+    public static void setDateHeader(String name, long date) {
+        make().setDateHeader(name, date);
     }
 
-    public static me.ixk.framework.http.Response addDateHeader(
+    public static me.ixk.framework.http.Response dateHeader(
         String name,
         long date
     ) {
-        return make().addDateHeader(name, date);
+        return make().dateHeader(name, date);
+    }
+
+    public static void addDateHeader(String name, long date) {
+        make().addDateHeader(name, date);
+    }
+
+    public static me.ixk.framework.http.Response aDateHeader(
+        String name,
+        long date
+    ) {
+        return make().aDateHeader(name, date);
     }
 
     public static me.ixk.framework.http.Response setHeader(
@@ -299,11 +316,8 @@ public class Response extends AbstractFacade {
         return make().setHeader(name, value);
     }
 
-    public static me.ixk.framework.http.Response setHeader(
-        String name,
-        String value
-    ) {
-        return make().setHeader(name, value);
+    public static void setHeader(String name, String value) {
+        make().setHeader(name, value);
     }
 
     public static Collection<String> getHeaderNames() {
@@ -318,33 +332,45 @@ public class Response extends AbstractFacade {
         return make().getHeaders(name);
     }
 
-    public static me.ixk.framework.http.Response addHeader(
+    public static void addHeader(String name, String value) {
+        make().addHeader(name, value);
+    }
+
+    public static me.ixk.framework.http.Response aHeader(
         String name,
         String value
     ) {
-        return make().addHeader(name, value);
+        return make().aHeader(name, value);
     }
 
-    public static me.ixk.framework.http.Response setIntHeader(
+    public static void setIntHeader(String name, int value) {
+        make().setIntHeader(name, value);
+    }
+
+    public static me.ixk.framework.http.Response intHeader(
         String name,
         int value
     ) {
-        return make().setIntHeader(name, value);
+        return make().intHeader(name, value);
     }
 
-    public static me.ixk.framework.http.Response addIntHeader(
+    public static void addIntHeader(String name, int value) {
+        make().addIntHeader(name, value);
+    }
+
+    public static me.ixk.framework.http.Response aIntHeader(
         String name,
         int value
     ) {
-        return make().addIntHeader(name, value);
+        return make().aIntHeader(name, value);
     }
 
-    public static me.ixk.framework.http.Response setStatus(int sc) {
-        return make().setStatus(sc);
+    public static void setStatus(int sc) {
+        make().setStatus(sc);
     }
 
-    public static me.ixk.framework.http.Response setStatus(int sc, String sm) {
-        return make().setStatus(sc, sm);
+    public static void setStatus(int sc, String sm) {
+        make().setStatus(sc, sm);
     }
 
     public static me.ixk.framework.http.Response setStatusWithReason(
@@ -374,8 +400,12 @@ public class Response extends AbstractFacade {
         return make().getWriter();
     }
 
-    public static me.ixk.framework.http.Response setContentLength(int len) {
-        return make().setContentLength(len);
+    public static void setContentLength(int len) {
+        make().setContentLength(len);
+    }
+
+    public static me.ixk.framework.http.Response contentLength(int len) {
+        return make().contentLength(len);
     }
 
     public static long getContentLength() {
@@ -401,39 +431,54 @@ public class Response extends AbstractFacade {
         return make().setLongContentLength(len);
     }
 
-    public static me.ixk.framework.http.Response setContentLengthLong(
+    public static void setContentLengthLong(long length) {
+        make().setContentLengthLong(length);
+    }
+
+    public static me.ixk.framework.http.Response contentLengthLong(
         long length
     ) {
-        return make().setContentLengthLong(length);
+        return make().contentLengthLong(length);
     }
 
-    public static me.ixk.framework.http.Response setCharacterEncoding(
+    public static void setCharacterEncoding(String encoding) {
+        make().setCharacterEncoding(encoding);
+    }
+
+    public static me.ixk.framework.http.Response characterEncoding(
         String encoding
     ) {
-        return make().setCharacterEncoding(encoding);
+        return make().characterEncoding(encoding);
     }
 
-    public static me.ixk.framework.http.Response setContentType(
+    public static void setContentType(String contentType) {
+        make().setContentType(contentType);
+    }
+
+    public static me.ixk.framework.http.Response contentType(
         String contentType
     ) {
-        return make().setContentType(contentType);
+        return make().contentType(contentType);
     }
 
-    public static me.ixk.framework.http.Response setBufferSize(int size) {
-        return make().setBufferSize(size);
+    public static void setBufferSize(int size) {
+        make().setBufferSize(size);
+    }
+
+    public static me.ixk.framework.http.Response bufferSize(int size) {
+        return make().bufferSize(size);
     }
 
     public static int getBufferSize() {
         return make().getBufferSize();
     }
 
-    public static me.ixk.framework.http.Response flushBuffer()
-        throws IOException {
-        return make().flushBuffer();
+    public static void flushBuffer() throws IOException {
+        make().flushBuffer();
     }
 
-    public static me.ixk.framework.http.Response reset() {
-        return make().reset();
+    public static void reset() {
+        make().reset();
     }
 
     public static me.ixk.framework.http.Response reset(
@@ -446,16 +491,20 @@ public class Response extends AbstractFacade {
         return make().resetForForward();
     }
 
-    public static me.ixk.framework.http.Response resetBuffer() {
-        return make().resetBuffer();
+    public static void resetBuffer() {
+        make().resetBuffer();
     }
 
     public static boolean isCommitted() {
         return make().isCommitted();
     }
 
-    public static me.ixk.framework.http.Response setLocale(Locale locale) {
-        return make().setLocale(locale);
+    public static void setLocale(Locale locale) {
+        make().setLocale(locale);
+    }
+
+    public static me.ixk.framework.http.Response locale(Locale locale) {
+        return make().locale(locale);
     }
 
     public static Locale getLocale() {
@@ -488,11 +537,7 @@ public class Response extends AbstractFacade {
         return make().setOriginResponse(response);
     }
 
-    public List<SetCookie> getCookies() {
-        return make().getCookies();
-    }
-
-    public me.ixk.framework.http.Response pushCookieToHeader() {
-        return make().pushCookieToHeader();
+    public static void addCookie(Cookie cookie) {
+        make().addCookie(cookie);
     }
 }

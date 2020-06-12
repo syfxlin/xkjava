@@ -22,13 +22,13 @@ public class ResponseProcessor {
             return ((Responsable) result).toResponse(request, response, result);
         } else if (result instanceof Renderable) {
             return response
-                .setContentType("text/html")
+                .contentType("text/html")
                 .content(((Renderable) result).render());
         } else if (result instanceof String) {
             return response.content(result.toString());
         } else {
             return response
-                .setContentType("application/json")
+                .contentType("application/json")
                 .content(JSON.stringify(result));
         }
     }
