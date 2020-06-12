@@ -8,5 +8,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Order {
+    @AliasFor("order")
     int value() default 0;
+
+    @AliasFor("value")
+    int order() default 0;
 }

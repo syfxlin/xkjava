@@ -13,4 +13,6 @@ public @interface Bean {
 
     @AliasFor("value")
     String[] name() default {  };
+
+    boolean bindType() default false;
 }

@@ -2,6 +2,7 @@ package me.ixk.framework.utils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.util.Arrays;
 import java.util.Map;
 import me.ixk.framework.annotations.AliasFor;
 
@@ -47,11 +48,7 @@ public abstract class AnnotationUtils {
                 continue;
             }
             String name = method.getName();
-            if (
-                method
-                    .getDefaultValue()
-                    .equals(memberValues.get(method.getName()))
-            ) {
+            if (isDefaultValue(method, memberValues)) {
                 AliasFor aliasFor = method.getAnnotation(AliasFor.class);
                 String alias = aliasFor.value();
                 if (aliasFor.annotation() != Annotation.class) {
@@ -94,6 +91,22 @@ public abstract class AnnotationUtils {
             return (Map<String, Object>) field.get(invocationHandler);
         } catch (Exception e) {
             throw new RuntimeException("Get annotation member values failed");
+        }
+    }
+
+    public static boolean isDefaultValue(
+        Method method,
+        Map<String, Object> memberValues
+    ) {
+        return isDefaultValue(method, memberValues.get(method.getName()));
+    }
+
+    public static boolean isDefaultValue(Method method, Object value) {
+        Object defaultValue = method.getDefaultValue();
+        if (method.getReturnType().isArray()) {
+            return Arrays.equals((Object[]) defaultValue, (Object[]) value);
+        } else {
+            return defaultValue.equals(value);
         }
     }
 }

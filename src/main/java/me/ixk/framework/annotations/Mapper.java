@@ -7,6 +7,11 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
+@Scope(ScopeType.PROTOTYPE)
 public @interface Mapper {
+    @AliasFor("name")
     String[] value() default {  };
+
+    @AliasFor("value")
+    String[] name() default {  };
 }

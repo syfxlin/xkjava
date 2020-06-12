@@ -1,15 +1,16 @@
 package me.ixk.app.config;
 
-import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.annotations.processor.*;
 import me.ixk.framework.config.AbstractConfig;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.providers.*;
+
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AppConfig extends AbstractConfig {
 

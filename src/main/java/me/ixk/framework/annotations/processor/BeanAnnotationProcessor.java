@@ -2,29 +2,14 @@ package me.ixk.framework.annotations.processor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import me.ixk.framework.annotations.*;
+import me.ixk.framework.annotations.Scope;
+import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.AnnotationUtils;
 
 public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
-    protected List<Class<? extends Annotation>> notSharedAnnotations = Arrays.asList(
-        Repository.class,
-        Service.class,
-        Mapper.class
-    );
-
-    protected List<Class<? extends Annotation>> aliasAnnotations = Arrays.asList(
-        Bean.class,
-        Component.class,
-        Controller.class,
-        Repository.class,
-        Service.class,
-        Mapper.class
-    );
 
     public BeanAnnotationProcessor(Application app) {
         super(app);
@@ -55,48 +40,40 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         Class<? extends Annotation> annotation,
         Method method
     ) {
-        boolean isShared = !this.notSharedAnnotations.contains(annotation);
+        Scope scope = annotation.getAnnotation(Scope.class);
+        boolean isShared =
+            scope == null || scope.value() == ScopeType.SINGLETON;
         if (method.isAnnotationPresent(Scope.class)) {
             isShared =
-                AnnotationUtils
-                    .getAnnotation(method, Scope.class)
-                    .value()
-                    .equals("singleton");
+                AnnotationUtils.getAnnotation(method, Scope.class).value() ==
+                ScopeType.SINGLETON;
         }
         String name = method.getName();
         Class<?> _class = method.getReturnType();
-        if (this.aliasAnnotations.contains(annotation)) {
-            Annotation anno = AnnotationUtils.getAnnotation(method, annotation);
-            this.app.bind(
-                    _class,
-                    (container, args) ->
-                        method.invoke(
-                            container.make(method.getDeclaringClass())
-                        ),
-                    isShared
-                );
-            for (String n : (String[]) Objects.requireNonNull(
-                AnnotationUtils.getAnnotationValue(anno, "value")
-            )) {
+        Annotation anno = AnnotationUtils.getAnnotation(method, annotation);
+        Boolean bindType = (Boolean) AnnotationUtils.getAnnotationValue(
+            anno,
+            "bindType"
+        );
+        this.app.bind(
+                name,
+                (container, args) ->
+                    method.invoke(container.make(method.getDeclaringClass())),
+                isShared,
+                bindType == null || !bindType ? null : _class.getName()
+            );
+        Object names = AnnotationUtils.getAnnotationValue(anno, "name");
+        if (names != null) {
+            for (String n : (String[]) names) {
                 this.app.bind(
-                        _class,
+                        n,
                         (container, args) ->
                             method.invoke(
                                 container.make(method.getDeclaringClass())
                             ),
-                        isShared,
-                        n
+                        isShared
                     );
             }
-        } else {
-            this.app.bind(
-                    name,
-                    (container, args) ->
-                        method.invoke(
-                            container.make(method.getDeclaringClass())
-                        ),
-                    isShared
-                );
         }
     }
 
@@ -104,24 +81,21 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         Class<? extends Annotation> annotation,
         Class<?> _class
     ) {
-        boolean isShared = !this.notSharedAnnotations.contains(annotation);
+        Scope scope = annotation.getAnnotation(Scope.class);
+        boolean isShared =
+            scope == null || scope.value() == ScopeType.SINGLETON;
         if (_class.isAnnotationPresent(Scope.class)) {
             isShared =
-                AnnotationUtils
-                    .getAnnotation(_class, Scope.class)
-                    .value()
-                    .equals("singleton");
+                AnnotationUtils.getAnnotation(_class, Scope.class).value() ==
+                ScopeType.SINGLETON;
         }
-        if (this.aliasAnnotations.contains(annotation)) {
-            Annotation anno = AnnotationUtils.getAnnotation(_class, annotation);
-            this.app.bind(_class, _class, isShared);
-            for (String name : (String[]) Objects.requireNonNull(
-                AnnotationUtils.getAnnotationValue(anno, "value")
-            )) {
+        Annotation anno = AnnotationUtils.getAnnotation(_class, annotation);
+        this.app.bind(_class, _class, isShared);
+        Object names = AnnotationUtils.getAnnotationValue(anno, "name");
+        if (names != null) {
+            for (String name : (String[]) names) {
                 this.app.bind(_class, _class, isShared, name);
             }
-        } else {
-            this.app.bind(_class, _class, isShared);
         }
     }
 }
