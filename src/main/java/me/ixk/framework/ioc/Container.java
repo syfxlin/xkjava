@@ -27,6 +27,8 @@ public class Container {
 
     protected Map<String, Object> globalArgs = new ConcurrentHashMap<>();
 
+    protected Map<String, Object> resetGlobalArgs;
+
     public Container() {
         this.bindings = new ConcurrentHashMap<>();
         this.instances = new ConcurrentHashMap<>();
@@ -868,10 +870,15 @@ public class Container {
     }
 
     public void setGlobalArgs(Map<String, Object> globalArgs) {
+        this.resetGlobalArgs = this.globalArgs;
         this.globalArgs = globalArgs;
     }
 
     public void resetGlobalArgs() {
+        this.globalArgs = this.resetGlobalArgs;
+    }
+
+    public void clearGlobalArgs() {
         this.globalArgs = new ConcurrentHashMap<>();
     }
 }

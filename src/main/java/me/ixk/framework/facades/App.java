@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
-import me.ixk.framework.ioc.Application;
 import me.ixk.framework.ioc.BootCallback;
 import me.ixk.framework.ioc.Concrete;
 import me.ixk.framework.ioc.Container;
@@ -13,8 +12,8 @@ import me.ixk.framework.kernel.ProviderManager;
 
 public class App extends AbstractFacade {
 
-    public static Application boot() {
-        return app.boot();
+    public static void boot(Class<?> primarySource, String... args) {
+        app.boot(primarySource, args);
     }
 
     public static ProviderManager getProviderManager() {
@@ -539,5 +538,9 @@ public class App extends AbstractFacade {
 
     public static void resetGlobalArgs() {
         app.resetGlobalArgs();
+    }
+
+    public static void clearGlobalArgs() {
+        app.clearGlobalArgs();
     }
 }

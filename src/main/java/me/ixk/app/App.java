@@ -1,12 +1,12 @@
 package me.ixk.app;
 
-import cn.hutool.core.util.ObjectUtil;
+import me.ixk.framework.annotations.ComponentScan;
+import me.ixk.framework.ioc.Application;
 
+@ComponentScan(basePackages = { "me.ixk.app" })
 public class App {
 
     public static void main(String[] args) {
-        System.out.println(
-            ObjectUtil.equal(new String[] { "123" }, new String[] { "123" })
-        );
+        Application.create().boot(App.class, args);
     }
 }

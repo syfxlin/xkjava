@@ -158,7 +158,7 @@ public class RouteCollector {
                     Application app = Application.get();
                     app.setGlobalArgs(request.all());
                     Object result = app.call(finalHandler, Object.class);
-                    app.resetGlobalArgs();
+                    app.clearGlobalArgs();
                     return result;
                 }
             );

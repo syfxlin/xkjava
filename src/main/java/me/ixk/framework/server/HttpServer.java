@@ -1,6 +1,6 @@
 package me.ixk.framework.server;
 
-import me.ixk.framework.ioc.Application;
+import java.io.File;
 import me.ixk.framework.kernel.ErrorHandler;
 import me.ixk.framework.servlet.DispatcherServlet;
 import org.eclipse.jetty.server.Server;
@@ -11,32 +11,39 @@ import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 
-import java.io.File;
-
 public class HttpServer {
+    private final Server server;
 
-    public static void main(String[] args) {
+    private HttpServer() {
         String rootDir = System.getProperty("user.dir");
         String resource = rootDir + File.separator + "public";
         int port = 8090;
 
-        Server server = buildServer(port, resource);
+        this.server = this.buildServer(port, resource);
+    }
 
-        Application.createAndBoot();
+    public static HttpServer create() {
+        return new HttpServer();
+    }
 
+    public void start() {
         try {
-            server.start();
+            this.server.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
         try {
-            server.join();
+            this.server.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    public static Server buildServer(int port, String resource) {
+    public Server getJettyServer() {
+        return server;
+    }
+
+    private Server buildServer(int port, String resource) {
         Server server = new Server();
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(port);

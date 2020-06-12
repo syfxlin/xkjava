@@ -50,9 +50,13 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     protected void dispatch(Request request, Response response) {
-        this.beforeDispatch(request, response);
-        this.doDispatch(request, response);
-        this.afterDispatch(request, response);
+        try {
+            this.beforeDispatch(request, response);
+            this.doDispatch(request, response);
+        } finally {
+            // 确保请求出错时能清空请求周期注入的实例
+            this.afterDispatch(request, response);
+        }
     }
 
     protected void beforeDispatch(Request request, Response response) {

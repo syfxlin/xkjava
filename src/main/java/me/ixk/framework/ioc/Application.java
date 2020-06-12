@@ -11,11 +11,15 @@ import me.ixk.framework.bootstrap.*;
 import me.ixk.framework.exceptions.ApplicationException;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.kernel.ProviderManager;
+import me.ixk.framework.server.HttpServer;
 import me.ixk.framework.utils.AnnotationUtils;
 
-@ComponentScan(basePackages = { "me.ixk.app" })
 public class Application extends Container {
-    protected static List<String> scanPackage = new ArrayList<>();
+    protected List<String> scanPackage = new ArrayList<>();
+
+    protected Class<?> primarySource;
+
+    protected String[] args;
 
     protected Map<String, Map<String, Object>> config = new ConcurrentHashMap<>();
 
@@ -38,20 +42,13 @@ public class Application extends Container {
 
     protected BootCallback bootedCallback = null;
 
-    private Application() {
-        this.loadPackageScanAnnotation();
-    }
+    private Application() {}
 
     private static class Inner {
         private static final Application INSTANCE = new Application();
     }
 
     public static Application create() {
-        return Inner.INSTANCE;
-    }
-
-    public static Application create(List<String> _package) {
-        scanPackage = _package;
         return Inner.INSTANCE;
     }
 
@@ -63,11 +60,18 @@ public class Application extends Container {
         return Inner.INSTANCE;
     }
 
-    public static Application createAndBoot() {
-        return create().boot();
+    public static void createAndBoot(Class<?> primarySource, String... args) {
+        create().boot(primarySource, args);
     }
 
-    public Application boot() {
+    public void boot(Class<?> primarySource, String... args) {
+        HttpServer server = HttpServer.create();
+        this.instance(HttpServer.class, server, "server");
+        this.primarySource = primarySource;
+        this.args = args;
+
+        this.load();
+
         if (this.bootingCallback != null) {
             this.bootedCallback.invoke(this);
         }
@@ -79,7 +83,11 @@ public class Application extends Container {
         }
 
         this.booted = true;
-        return this;
+        server.start();
+    }
+
+    protected void load() {
+        this.loadPackageScanAnnotation();
     }
 
     protected void bootstrap() {
@@ -137,12 +145,12 @@ public class Application extends Container {
         this.bootedCallback = callback;
     }
 
-    public static List<String> getScanPackage() {
-        return scanPackage;
+    public List<String> getScanPackage() {
+        return this.scanPackage;
     }
 
-    public static void setScanPackage(List<String> scanPackage) {
-        Application.scanPackage = scanPackage;
+    public void setScanPackage(List<String> scanPackage) {
+        this.scanPackage = scanPackage;
     }
 
     public Map<String, Map<String, Object>> getConfig() {
@@ -156,7 +164,7 @@ public class Application extends Container {
     public void loadPackageScanAnnotation() {
         scanPackage.add("me.ixk.framework");
         ComponentScan componentScan = AnnotationUtils.getAnnotation(
-            Application.class,
+            this.primarySource,
             ComponentScan.class
         );
         scanPackage.addAll(Arrays.asList(componentScan.basePackages()));
