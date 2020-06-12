@@ -28,6 +28,7 @@ public class AppConfig extends AbstractConfig {
         map.put("locale", this.env.get("app.locale", "zh_CN"));
         map.put("env", this.env.get("app.env", "production"));
         map.put("url", this.env.get("app.url", "http://localhost"));
+        map.put("port", this.env.get("app.port", "8080"));
         map.put("asset_url", this.env.get("app.asset.url", ""));
         map.put("key", this.env.get("app.key"));
         map.put("cipher", this.env.get("app.cipher", "AES/CBC/PKCS5PADDING"));

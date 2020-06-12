@@ -160,7 +160,7 @@ public class Request implements HttpServletRequest {
         if (this._parseBody == null) {
             return JSON.convertToNode(_base.getParameter(name));
         }
-        return Helper.dataGet(this._parseBody, name, null);
+        return Helper.dataGet(this._parseBody, name, null, JsonNode.class);
     }
 
     public JsonNode input(String name, JsonNode _default) {

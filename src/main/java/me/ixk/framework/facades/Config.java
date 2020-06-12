@@ -21,11 +21,11 @@ public class Config extends AbstractFacade {
     }
 
     public static <T> T get(String name, Class<T> returnType) {
-        return returnType.cast(get(name));
+        return make().get(name, null, returnType);
     }
 
     public static <T> T get(String name, Object _default, Class<T> returnType) {
-        return returnType.cast(get(name, _default));
+        return make().get(name, _default, returnType);
     }
 
     public static void set(String name, Object value) {

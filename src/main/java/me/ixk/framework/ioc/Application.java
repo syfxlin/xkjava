@@ -65,8 +65,6 @@ public class Application extends Container {
     }
 
     public void boot(Class<?> primarySource, String... args) {
-        HttpServer server = HttpServer.create();
-        this.instance(HttpServer.class, server, "server");
         this.primarySource = primarySource;
         this.args = args;
 
@@ -83,7 +81,8 @@ public class Application extends Container {
         }
 
         this.booted = true;
-        server.start();
+
+        this.startServer();
     }
 
     protected void load() {
@@ -113,6 +112,13 @@ public class Application extends Container {
                     }
                 }
             );
+    }
+
+    protected void startServer() {
+        // 启动Jetty
+        HttpServer server = HttpServer.create();
+        this.instance(HttpServer.class, server, "server");
+        server.start();
     }
 
     public ProviderManager getProviderManager() {

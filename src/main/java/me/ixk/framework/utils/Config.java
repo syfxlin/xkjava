@@ -1,5 +1,6 @@
 package me.ixk.framework.utils;
 
+import cn.hutool.core.convert.Convert;
 import java.util.Map;
 import me.ixk.framework.ioc.Application;
 
@@ -23,7 +24,7 @@ public class Config {
     }
 
     public <T> T get(String name, Object _default, Class<T> returnType) {
-        return returnType.cast(this.get(name, _default));
+        return Convert.convert(returnType, this.get(name, _default));
     }
 
     protected void setItem(String name, Object value) {

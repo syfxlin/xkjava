@@ -1,6 +1,7 @@
 package me.ixk.framework.server;
 
 import java.io.File;
+import me.ixk.framework.facades.Config;
 import me.ixk.framework.kernel.ErrorHandler;
 import me.ixk.framework.servlet.DispatcherServlet;
 import org.eclipse.jetty.server.Server;
@@ -17,9 +18,8 @@ public class HttpServer {
     private HttpServer() {
         String rootDir = System.getProperty("user.dir");
         String resource = rootDir + File.separator + "public";
-        int port = 8090;
-
-        this.server = this.buildServer(port, resource);
+        this.server =
+            this.buildServer(Config.get("app.port", Integer.class), resource);
     }
 
     public static HttpServer create() {

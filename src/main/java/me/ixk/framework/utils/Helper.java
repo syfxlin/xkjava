@@ -1,5 +1,6 @@
 package me.ixk.framework.utils;
 
+import cn.hutool.core.convert.Convert;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -13,7 +14,7 @@ public abstract class Helper {
     protected static final SecureRandom RANDOM = new SecureRandom();
 
     public static JsonNode dataGet(JsonNode target, String key) {
-        return dataGet(target, key, null);
+        return dataGet(target, key, null, JsonNode.class);
     }
 
     public static JsonNode dataGet(
@@ -26,7 +27,7 @@ public abstract class Helper {
     }
 
     public static JsonNode dataGet(JsonNode target, String[] keys) {
-        return dataGet(target, keys, null);
+        return dataGet(target, keys, null, JsonNode.class);
     }
 
     public static JsonNode dataGet(
@@ -51,7 +52,8 @@ public abstract class Helper {
                         JsonNode element = dataGet(
                             object.get(itemKey),
                             subKeys,
-                            null
+                            null,
+                            JsonNode.class
                         );
                         if (element != null) {
                             array.add(element);
@@ -60,7 +62,12 @@ public abstract class Helper {
                 } else if (target.isArray()) {
                     ArrayNode array1 = (ArrayNode) target;
                     for (JsonNode item : array1) {
-                        JsonNode element = dataGet(item, subKeys, null);
+                        JsonNode element = dataGet(
+                            item,
+                            subKeys,
+                            null,
+                            JsonNode.class
+                        );
                         if (element != null) {
                             array.add(element);
                         }
@@ -99,21 +106,48 @@ public abstract class Helper {
 
     public static Object dataGet(Object target, String key, Object _default) {
         String[] keys = key.split("\\.");
-        return dataGet(target, keys, _default);
+        return dataGet(target, keys, _default, Object.class);
     }
 
     public static Object dataGet(Object target, String[] keys) {
-        return dataGet(target, keys, null);
+        return dataGet(target, keys, null, Object.class);
+    }
+
+    public static <T> T dataGet(
+        Object target,
+        String key,
+        Class<T> returnType
+    ) {
+        return dataGet(target, key, null, returnType);
+    }
+
+    public static <T> T dataGet(
+        Object target,
+        String key,
+        T _default,
+        Class<T> returnType
+    ) {
+        String[] keys = key.split("\\.");
+        return dataGet(target, keys, _default, returnType);
+    }
+
+    public static <T> T dataGet(
+        Object target,
+        String[] keys,
+        Class<T> returnType
+    ) {
+        return dataGet(target, keys, null, returnType);
     }
 
     @SuppressWarnings("unchecked")
-    public static Object dataGet(
+    public static <T> T dataGet(
         Object target,
         String[] keys,
-        Object _default
+        T _default,
+        Class<T> returnType
     ) {
         if (keys == null) {
-            return target;
+            return Convert.convert(returnType, target);
         }
         for (int i = 0; i < keys.length; i++) {
             if (keys[i].equals("*")) {
@@ -125,7 +159,8 @@ public abstract class Helper {
                         Object element = dataGet(
                             object.get(itemKey),
                             subKeys,
-                            null
+                            null,
+                            returnType
                         );
                         if (element != null) {
                             array.add(element);
@@ -134,13 +169,18 @@ public abstract class Helper {
                 } else if (target instanceof List) {
                     List<Object> array1 = (List<Object>) target;
                     for (Object item : array1) {
-                        Object element = dataGet(item, subKeys, null);
+                        Object element = dataGet(
+                            item,
+                            subKeys,
+                            null,
+                            returnType
+                        );
                         if (element != null) {
                             array.add(element);
                         }
                     }
                 }
-                return array;
+                return Convert.convert(returnType, array);
             } else if (target instanceof List) {
                 List<Object> array = (List<Object>) target;
                 int index = Integer.parseInt(keys[i]);
@@ -164,7 +204,7 @@ public abstract class Helper {
         if (target == null) {
             return _default;
         }
-        return target;
+        return Convert.convert(returnType, target);
     }
 
     public static String strRandom() {

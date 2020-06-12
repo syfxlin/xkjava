@@ -598,7 +598,7 @@ public class Container {
         if (binding.isShared()) {
             this.instances.put(_abstract, instance);
         }
-        return returnType.cast(instance);
+        return Convert.convert(returnType, instance);
     }
 
     public <T> T make(Class<T> _abstract) {
@@ -651,7 +651,10 @@ public class Container {
                 "The called method cannot be overloaded"
             );
         }
-        return returnType.cast(this.callMethod(object, methods[0], args));
+        return Convert.convert(
+            returnType,
+            this.callMethod(object, methods[0], args)
+        );
     }
 
     public <T> T call(String[] target, Class<T> returnType) {
@@ -684,7 +687,10 @@ public class Container {
                 e
             );
         }
-        return returnType.cast(this.callMethod(object, method, args));
+        return Convert.convert(
+            returnType,
+            this.callMethod(object, method, args)
+        );
     }
 
     public <T> T call(
@@ -769,7 +775,8 @@ public class Container {
         Map<String, Object> args,
         Map<String, Object> newArgs
     ) {
-        return returnType.cast(
+        return Convert.convert(
+            returnType,
             this.callMethod(this.make(_class, newArgs), method, args)
         );
     }

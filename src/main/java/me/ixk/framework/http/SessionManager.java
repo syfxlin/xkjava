@@ -1,5 +1,6 @@
 package me.ixk.framework.http;
 
+import cn.hutool.core.convert.Convert;
 import java.util.Enumeration;
 import java.util.List;
 import javax.servlet.ServletContext;
@@ -49,7 +50,7 @@ public class SessionManager {
         if (result == null) {
             return _default;
         }
-        return returnType.cast(result);
+        return Convert.convert(returnType, result);
     }
 
     public void put(String name, Object value) {
