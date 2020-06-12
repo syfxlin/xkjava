@@ -12,6 +12,7 @@ import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.DynamicInterceptor;
 import me.ixk.framework.exceptions.ContainerException;
+import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.AutowireUtils;
 import me.ixk.framework.utils.ClassUtils;
 import me.ixk.framework.utils.ParameterNameDiscoverer;
@@ -318,8 +319,25 @@ public class Container {
             this.getAbstractAndAliasByAlias(_abstract, alias);
         _abstract = abstractAlias[0];
         alias = abstractAlias[1];
-        this.instances.put(_abstract, instance);
-        this.bind(_abstract, (container, args) -> instance, true, alias, true);
+        // 解决动态注入
+        try {
+            instance =
+                AutowireUtils.resolveAutowiringValue(
+                    instance,
+                    Class.forName(_abstract)
+                );
+        } catch (ClassNotFoundException e) {
+            // no code
+        }
+        Object finalInstance = instance;
+        this.instances.put(_abstract, finalInstance);
+        this.bind(
+                _abstract,
+                (container, args) -> finalInstance,
+                true,
+                alias,
+                true
+            );
         return this;
     }
 
@@ -517,7 +535,10 @@ public class Container {
         }
         Field[] fields = ClassUtils.getUserClass(instance).getDeclaredFields();
         for (Field field : fields) {
-            Autowired autowired = field.getAnnotation(Autowired.class);
+            Autowired autowired = AnnotationUtils.getAnnotation(
+                field,
+                Autowired.class
+            );
             if (autowired == null) {
                 continue;
             }
@@ -526,10 +547,10 @@ public class Container {
                 dependency = this.make(autowired.name());
             } else {
                 Class<?> autowiredClass = null;
-                if (autowired.value() == Class.class) {
+                if (autowired.type() == Class.class) {
                     autowiredClass = field.getType();
                 } else {
-                    autowiredClass = autowired.value();
+                    autowiredClass = autowired.type();
                 }
                 dependency = this.make(autowiredClass);
             }
@@ -569,12 +590,12 @@ public class Container {
             } catch (Throwable e) {
                 throw new ContainerException("Instance make failed", e);
             }
-            if (binding.isShared()) {
-                this.instances.put(_abstract, instance);
-            }
         }
         // 解决动态注入
         instance = AutowireUtils.resolveAutowiringValue(instance, returnType);
+        if (binding.isShared()) {
+            this.instances.put(_abstract, instance);
+        }
         return returnType.cast(instance);
     }
 

@@ -69,7 +69,7 @@ public class DispatcherServlet extends HttpServlet {
             );
         this.app.instance(
                 HttpServletRequest.class,
-                (ObjectFactory<Request>) () -> request,
+                (ObjectFactory<HttpServletRequest>) () -> request,
                 "httpServletRequest"
             );
         this.app.instance(
@@ -79,7 +79,7 @@ public class DispatcherServlet extends HttpServlet {
             );
         this.app.instance(
                 HttpServletResponse.class,
-                (ObjectFactory<Response>) () -> response,
+                (ObjectFactory<HttpServletResponse>) () -> response,
                 "httpServletResponse"
             );
         Cookie[] cookies = request.getCookies();

@@ -8,5 +8,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Aspect {
+    @AliasFor("pointcut")
     String value() default "";
+
+    @AliasFor("value")
+    String pointcut() default "";
 }

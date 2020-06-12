@@ -38,10 +38,7 @@ public abstract class AutowireUtils {
         Object autowiringValue,
         Class<?> requiredType
     ) {
-        if (
-            autowiringValue instanceof ObjectFactory &&
-            !requiredType.isInstance(autowiringValue)
-        ) {
+        if (autowiringValue instanceof ObjectFactory) {
             ObjectFactory<?> factory = (ObjectFactory<?>) autowiringValue;
             if (
                 autowiringValue instanceof Serializable &&

@@ -16,7 +16,7 @@ public class IndexController {
     @Autowired
     public Request request;
 
-    @Autowired
+    @Autowired("request")
     private HttpServletRequest httpServletRequest;
 
     private UsersServiceImpl usersService;
@@ -45,5 +45,10 @@ public class IndexController {
     @GetMapping("/login")
     public me.ixk.framework.view.View login() {
         return View.make("login");
+    }
+
+    @Bean(name = "user")
+    public User getUser() {
+        return new User("syfxlin", 20);
     }
 }

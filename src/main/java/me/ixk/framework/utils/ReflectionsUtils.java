@@ -5,12 +5,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import me.ixk.framework.ioc.Application;
 import org.reflections.Reflections;
 import org.reflections.scanners.*;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
 public abstract class ReflectionsUtils {
+
+    public static Reflections make() {
+        return make(Application.getScanPackage());
+    }
+
+    public static Reflections make(Class<?> _class) {
+        return make(ClasspathHelper.forClass(_class));
+    }
 
     public static Reflections make(String _package) {
         return make(ClasspathHelper.forPackage(_package));

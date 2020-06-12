@@ -1,14 +1,16 @@
 package me.ixk.framework.annotations.processor;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Set;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.route.AnnotationRouteDefinition;
 import me.ixk.framework.route.RouteManager;
+import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Helper;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Set;
 
 public class RouteAnnotationProcessor extends AbstractAnnotationProcessor {
 
@@ -33,7 +35,7 @@ public class RouteAnnotationProcessor extends AbstractAnnotationProcessor {
         Set<Method> methods =
             this.reflections.getMethodsAnnotatedWith(annotation);
         for (Method method : methods) {
-            Annotation a = method.getAnnotation(annotation);
+            Annotation a = AnnotationUtils.getAnnotation(method, annotation);
             if (a == null) {
                 continue;
             }

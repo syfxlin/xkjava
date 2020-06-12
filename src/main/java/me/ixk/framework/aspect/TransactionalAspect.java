@@ -6,6 +6,7 @@ import me.ixk.framework.aop.AbstractAdvice;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 import me.ixk.framework.exceptions.TransactionalException;
 import me.ixk.framework.ioc.Application;
+import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MybatisPlus;
 
 @Aspect("@annotation(me.ixk.framework.annotations.Transactional)")
@@ -16,9 +17,10 @@ public class TransactionalAspect extends AbstractAdvice {
         final MybatisPlus mybatisPlus = Application
             .get()
             .make(MybatisPlus.class);
-        final Transactional transactional = joinPoint
-            .getMethod()
-            .getAnnotation(Transactional.class);
+        final Transactional transactional = AnnotationUtils.getAnnotation(
+            joinPoint.getMethod(),
+            Transactional.class
+        );
         try {
             mybatisPlus.startManagedSession(transactional.isolation());
             Object result = joinPoint.proceed();

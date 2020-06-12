@@ -8,8 +8,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Autowired {
+    Class<?> type() default Class.class;
 
-    Class<?> value() default Class.class;
+    @AliasFor("name")
+    String value() default "";
 
+    @AliasFor("value")
     String name() default "";
 }

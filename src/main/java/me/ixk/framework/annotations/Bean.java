@@ -8,5 +8,9 @@ import java.lang.annotation.Target;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Bean {
-    String[] value() default {};
+    @AliasFor("name")
+    String[] value() default {  };
+
+    @AliasFor("value")
+    String[] name() default {  };
 }

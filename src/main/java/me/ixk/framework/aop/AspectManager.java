@@ -1,13 +1,14 @@
 package me.ixk.framework.aop;
 
+import me.ixk.framework.annotations.Order;
+import me.ixk.framework.ioc.Application;
+import me.ixk.framework.utils.AnnotationUtils;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotations.Order;
-import me.ixk.framework.ioc.Application;
 
 public class AspectManager {
     protected Application app;
@@ -28,7 +29,10 @@ public class AspectManager {
         public AdviceEntry(AspectPointcut pointcut, Advice advice) {
             this.pointcut = pointcut;
             this.advice = advice;
-            Order order = advice.getClass().getAnnotation(Order.class);
+            Order order = AnnotationUtils.getAnnotation(
+                advice.getClass(),
+                Order.class
+            );
             if (order != null) {
                 this.order = order.value();
             } else {
@@ -87,48 +91,5 @@ public class AspectManager {
         List<Advice> list = map.getOrDefault(name, new ArrayList<>());
         list.add(advice);
         map.put(name, list);
-    }
-
-    protected void loadAdvice() {
-        // TODO: 转移到 AnnotationProcessor
-        //        ReflectionsUtils
-        //            .make(Application.getScanPackage())
-        //            .getMethodsAnnotatedWith(Aspect.class)
-        //            .stream()
-        //            .filter(Advice.class::isAssignableFrom)
-        //            .forEach(
-        //                adviceClass -> {
-        //                    Aspect aspect = adviceClass.getAnnotation(Aspect.class);
-        //                    this.adviceList.add(
-        //                            new AdviceEntry(
-        //                                new AspectPointcut(aspect.value()),
-        //                                this.app.make(
-        //                                        adviceClass.getName(),
-        //                                        Advice.class
-        //                                    )
-        //                            )
-        //                        );
-        //                }
-        //            );
-        //        this.app.getClassesByAnnotation(Aspect.class)
-        //            .stream()
-        //            .filter(Advice.class::isAssignableFrom)
-        //            .forEach(
-        //                adviceClass -> {
-        //                    Aspect aspect = adviceClass.getAnnotation(Aspect.class);
-        //                    this.adviceList.add(
-        //                            new AdviceEntry(
-        //                                new AspectPointcut(aspect.value()),
-        //                                this.app.make(
-        //                                        adviceClass.getName(),
-        //                                        Advice.class
-        //                                    )
-        //                            )
-        //                        );
-        //                }
-        //            );
-        this.adviceList.sort(
-                Comparator.comparingInt(AdviceEntry::getOrder).reversed()
-            );
     }
 }

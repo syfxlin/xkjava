@@ -12,6 +12,6 @@ public abstract class AbstractAnnotationProcessor
 
     public AbstractAnnotationProcessor(Application app) {
         this.app = app;
-        this.reflections = ReflectionsUtils.make(Application.getScanPackage());
+        this.reflections = ReflectionsUtils.make();
     }
 }
