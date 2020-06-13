@@ -18,14 +18,9 @@ public class Auth {
 
     protected boolean viaRemember = false;
 
-    protected UsersServiceImpl usersService = Application
+    protected final UsersServiceImpl usersService = Application
         .get()
         .make(UsersServiceImpl.class);
-
-    public void refresh() {
-        this.user = null;
-        this.viaRemember = false;
-    }
 
     public Result register(RegisterUser user) {
         Validation.Result result = Validation.validate(user);

@@ -47,8 +47,6 @@ public class AppConfig extends AbstractConfig {
     private List<Class<? extends Provider>> providers() {
         return Arrays.asList(
             AspectProvider.class,
-            CookieManagerProvider.class,
-            SessionManagerProvider.class,
             DataSourceProvider.class,
             MybatisPlusProvider.class,
             ThymeleafProvider.class,
@@ -56,7 +54,6 @@ public class AppConfig extends AbstractConfig {
             EncryptionProvider.class,
             HashProvider.class,
             JwtProvider.class,
-            AuthProvider.class,
             // App
             AppProvider.class,
             RouteProvider.class

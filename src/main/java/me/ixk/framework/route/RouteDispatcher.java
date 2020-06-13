@@ -6,9 +6,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RouteDispatcher {
-    protected Map<String, Map<String, RouteHandler>> staticRoutes;
+    protected final Map<String, Map<String, RouteHandler>> staticRoutes;
 
-    protected Map<String, MergeRouteData> variableRoutes;
+    protected final Map<String, MergeRouteData> variableRoutes;
 
     public RouteDispatcher(RouteCollector routeCollector) {
         this.staticRoutes = routeCollector.getStaticRoutes();
@@ -78,6 +78,7 @@ public class RouteDispatcher {
             return new RouteResult();
         }
         int index;
+        //noinspection StatementWithEmptyBody
         for (index = 1; matcher.group(index) == null; index++);
         RouteData routeData = mergeRouteData.getRouteMap().get(index - 1);
         Map<String, String> routeParams = new ConcurrentHashMap<>();

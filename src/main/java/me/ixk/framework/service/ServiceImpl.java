@@ -7,14 +7,6 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.*;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
-import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.MybatisPlus;
 import org.apache.ibatis.binding.MapperMethod;
@@ -26,17 +18,26 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 
+import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 @SuppressWarnings("unchecked")
 public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
-    protected Log log = LogFactory.getLog(getClass());
+    protected final Log log = LogFactory.getLog(getClass());
 
-    protected Class<M> mapperClass = (Class<M>) (
+    protected final Class<M> mapperClass = (Class<M>) (
         (ParameterizedType) me
             .ixk.framework.utils.ClassUtils.getUserClass(this)
             .getGenericSuperclass()
     ).getActualTypeArguments()[0];
 
-    protected MybatisPlus mybatisPlus = Application
+    protected final MybatisPlus mybatisPlus = Application
         .get()
         .make(MybatisPlus.class);
 
@@ -45,7 +46,7 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
         return mybatisPlus.getMapper(mapperClass);
     }
 
-    protected Class<?> entityClass = currentModelClass();
+    protected final Class<?> entityClass = currentModelClass();
 
     /**
      * 判断数据库操作是否成功

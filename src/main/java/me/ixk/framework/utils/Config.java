@@ -1,11 +1,12 @@
 package me.ixk.framework.utils;
 
 import cn.hutool.core.convert.Convert;
-import java.util.Map;
 import me.ixk.framework.ioc.Application;
 
+import java.util.Map;
+
 public class Config {
-    protected Application app;
+    protected final Application app;
 
     public Config(Application app) {
         this.app = app;

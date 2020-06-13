@@ -1,18 +1,19 @@
 package me.ixk.framework.kernel;
 
+import me.ixk.framework.exceptions.ProviderException;
+import me.ixk.framework.ioc.Application;
+import me.ixk.framework.providers.Provider;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import me.ixk.framework.exceptions.ProviderException;
-import me.ixk.framework.ioc.Application;
-import me.ixk.framework.providers.Provider;
 
 public class ProviderManager {
-    protected Application app;
+    protected final Application app;
 
-    protected Map<String, Provider> providers;
+    protected final Map<String, Provider> providers;
 
     public ProviderManager(Application app) {
         this.app = app;
@@ -59,7 +60,7 @@ public class ProviderManager {
     }
 
     public Provider register(String provider, boolean force) {
-        Provider result = null;
+        Provider result;
         if (!force && (result = this.getProvider(provider)) != null) {
             return result;
         }

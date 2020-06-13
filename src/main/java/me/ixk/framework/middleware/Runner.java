@@ -1,18 +1,19 @@
 package me.ixk.framework.middleware;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.ResponseProcessor;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
 public class Runner {
-    protected Handler handler;
+    protected final Handler handler;
 
     protected Response response;
 
-    protected Queue<Middleware> middleware;
+    protected final Queue<Middleware> middleware;
 
     public Runner(Handler handler, List<Middleware> middleware) {
         this(handler, (Queue<Middleware>) new LinkedList<>(middleware));

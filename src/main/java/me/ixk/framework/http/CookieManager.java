@@ -9,7 +9,12 @@ public class CookieManager {
 
     protected Map<String, SetCookie> _cookies;
 
-    public void refresh(Cookie[] cookies) {
+    @Deprecated
+    public CookieManager() {
+        // only used cglib
+    }
+
+    public CookieManager(Cookie[] cookies) {
         this._requestCookies = new ConcurrentHashMap<>();
         for (Cookie cookie : cookies) {
             this._requestCookies.put(cookie.getName(), cookie);

@@ -1,13 +1,14 @@
 package me.ixk.framework.aop;
 
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+
 public class DynamicInterceptor implements MethodInterceptor {
-    protected Map<String, List<Advice>> aspects;
+    protected final Map<String, List<Advice>> aspects;
 
     public DynamicInterceptor(Map<String, List<Advice>> aspects) {
         this.aspects = aspects;

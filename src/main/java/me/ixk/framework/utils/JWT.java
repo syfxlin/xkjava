@@ -15,7 +15,7 @@ public class JWT {
 
     protected Map<String, String> defaultPayload;
 
-    protected static Map<String, String> supported;
+    protected static final Map<String, String> supported;
 
     static {
         supported = new ConcurrentHashMap<>();

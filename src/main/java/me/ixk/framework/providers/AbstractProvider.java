@@ -3,7 +3,7 @@ package me.ixk.framework.providers;
 import me.ixk.framework.ioc.Application;
 
 public abstract class AbstractProvider implements Provider {
-    protected Application app;
+    protected final Application app;
 
     protected boolean booted = false;
 

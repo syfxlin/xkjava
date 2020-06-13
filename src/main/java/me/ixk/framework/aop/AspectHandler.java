@@ -1,21 +1,22 @@
 package me.ixk.framework.aop;
 
-import java.lang.reflect.Method;
-import java.util.List;
 import net.sf.cglib.proxy.MethodProxy;
 
+import java.lang.reflect.Method;
+import java.util.List;
+
 public class AspectHandler {
-    protected Object target;
+    protected final Object target;
 
-    protected Method method;
+    protected final Method method;
 
-    protected MethodProxy methodProxy;
+    protected final MethodProxy methodProxy;
 
-    protected Object[] args;
+    protected final Object[] args;
 
     protected int currAspectIndex;
 
-    protected List<Advice> aspects;
+    protected final List<Advice> aspects;
 
     protected Advice aspect = null;
 

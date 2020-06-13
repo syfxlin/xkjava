@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 
 public class Crypt {
-    protected byte[] key;
+    protected final byte[] key;
 
     protected Cipher cipher;
 

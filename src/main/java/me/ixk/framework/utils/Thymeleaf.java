@@ -1,7 +1,5 @@
 package me.ixk.framework.utils;
 
-import java.util.Map;
-import javax.servlet.ServletContext;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.ioc.Application;
@@ -11,8 +9,11 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
+import javax.servlet.ServletContext;
+import java.util.Map;
+
 public class Thymeleaf {
-    protected TemplateEngine templateEngine;
+    protected final TemplateEngine templateEngine;
 
     public Thymeleaf(ServletContext servletContext) {
         ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();

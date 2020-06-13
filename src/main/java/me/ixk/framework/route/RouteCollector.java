@@ -1,11 +1,5 @@
 package me.ixk.framework.route;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import me.ixk.framework.exceptions.RouteCollectorException;
 import me.ixk.framework.facades.Response;
 import me.ixk.framework.facades.View;
@@ -16,14 +10,21 @@ import me.ixk.framework.middleware.Runner;
 import me.ixk.framework.utils.Helper;
 import org.eclipse.jetty.http.HttpMethod;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
 public class RouteCollector {
-    protected Map<String, Map<String, RouteHandler>> staticRoutes;
+    protected final Map<String, Map<String, RouteHandler>> staticRoutes;
 
-    protected Map<String, List<RouteData>> variableRoutes;
+    protected final Map<String, List<RouteData>> variableRoutes;
 
-    protected RouteParser routeParser;
+    protected final RouteParser routeParser;
 
-    protected RouteGenerator routeGenerator;
+    protected final RouteGenerator routeGenerator;
 
     protected String routeGroupPrefix = "";
 

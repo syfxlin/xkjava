@@ -48,7 +48,7 @@ public class ResponseReason {
         reasonMap.put(415, "Unsupported Media Type");
         reasonMap.put(416, "Range Not Satisfiable");
         reasonMap.put(417, "Expectation Failed");
-        reasonMap.put(418, "I\'m a teapot");
+        reasonMap.put(418, "I'm a teapot");
         reasonMap.put(421, "Misdirected Request");
         reasonMap.put(422, "Unprocessable Entity");
         reasonMap.put(423, "Locked");

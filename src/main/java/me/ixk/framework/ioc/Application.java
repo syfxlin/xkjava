@@ -1,11 +1,5 @@
 package me.ixk.framework.ioc;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.ComponentScan;
 import me.ixk.framework.bootstrap.*;
 import me.ixk.framework.exceptions.ApplicationException;
@@ -13,6 +7,13 @@ import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.kernel.ProviderManager;
 import me.ixk.framework.server.HttpServer;
 import me.ixk.framework.utils.AnnotationUtils;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Application extends Container {
     protected List<String> scanPackage = new ArrayList<>();
@@ -23,7 +24,7 @@ public class Application extends Container {
 
     protected Map<String, Map<String, Object>> config = new ConcurrentHashMap<>();
 
-    protected List<Class<? extends Bootstrap>> bootstraps = Arrays.asList(
+    protected final List<Class<? extends Bootstrap>> bootstraps = Arrays.asList(
         LoadEnvironmentVariables.class,
         LoadConfiguration.class,
         RegisterFacades.class,

@@ -1,22 +1,26 @@
 package me.ixk.framework.servlet;
 
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.factory.ObjectFactory;
 import me.ixk.framework.http.CookieManager;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SessionManager;
 import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.DispatcherRequestAttributes;
 import me.ixk.framework.kernel.Auth;
 import me.ixk.framework.route.RouteManager;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+import static me.ixk.framework.ioc.RequestContext.*;
+
 public class DispatcherServlet extends HttpServlet {
-    protected Application app;
+    protected final Application app;
 
     @Deprecated
     public DispatcherServlet() {
@@ -60,43 +64,81 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     protected void beforeDispatch(Request request, Response response) {
+        DispatcherRequestAttributes attributes = new DispatcherRequestAttributes();
+        attributes.setDispatcherServlet(this);
+        attributes.setHttpServlet(this);
+        attributes.setRequest(request);
+        attributes.setHttpServletRequest(request);
+        attributes.setResponse(response);
+        attributes.setHttpServletResponse(response);
+        Cookie[] cookies = request.getCookies();
+        attributes.setCookieManager(
+            new CookieManager(cookies == null ? new Cookie[0] : cookies)
+        );
+        attributes.setSessionManager(
+            new SessionManager(
+                request.getSession(),
+                request.getSessionManager()
+            )
+        );
+        attributes.setAuth(new Auth());
+        setRequestAttributes(attributes);
+
         this.app.instance(
                 DispatcherServlet.class,
-                (ObjectFactory<DispatcherServlet>) () -> this,
+                (ObjectFactory<DispatcherServlet>) () ->
+                    currentRequestAttributes()
+                        .getObject(DispatcherServlet.class),
                 "dispatcherServlet"
             );
         this.app.instance(
                 HttpServlet.class,
-                (ObjectFactory<DispatcherServlet>) () -> this,
+                (ObjectFactory<HttpServlet>) () ->
+                    currentRequestAttributes().getObject(HttpServlet.class),
                 "httpServlet"
             );
 
         this.app.instance(
                 Request.class,
-                (ObjectFactory<Request>) () -> request,
+                (ObjectFactory<Request>) () ->
+                    currentRequestAttributes().getObject(Request.class),
                 "request"
             );
         this.app.instance(
                 HttpServletRequest.class,
-                (ObjectFactory<HttpServletRequest>) () -> request,
+                (ObjectFactory<HttpServletRequest>) () ->
+                    currentRequestAttributes()
+                        .getObject(HttpServletRequest.class),
                 "httpServletRequest"
             );
         this.app.instance(
                 Response.class,
-                (ObjectFactory<Response>) () -> response,
+                (ObjectFactory<Response>) () ->
+                    currentRequestAttributes().getObject(Response.class),
                 "response"
             );
         this.app.instance(
                 HttpServletResponse.class,
-                (ObjectFactory<HttpServletResponse>) () -> response,
+                (ObjectFactory<HttpServletResponse>) () ->
+                    currentRequestAttributes()
+                        .getObject(HttpServletResponse.class),
                 "httpServletResponse"
             );
-        Cookie[] cookies = request.getCookies();
-        this.app.make(CookieManager.class)
-            .refresh(cookies == null ? new Cookie[0] : cookies);
-        this.app.make(SessionManager.class)
-            .refresh(request.getSession(), request.getSessionManager());
-        this.app.make(Auth.class).refresh();
+        this.app.instance(
+                CookieManager.class,
+                (ObjectFactory<CookieManager>) () ->
+                    currentRequestAttributes().getObject(CookieManager.class)
+            );
+        this.app.instance(
+                SessionManager.class,
+                (ObjectFactory<SessionManager>) () ->
+                    currentRequestAttributes().getObject(SessionManager.class)
+            );
+        this.app.instance(
+                Auth.class,
+                (ObjectFactory<Auth>) () ->
+                    currentRequestAttributes().getObject(Auth.class)
+            );
     }
 
     protected void doDispatch(Request request, Response response) {
@@ -110,8 +152,9 @@ public class DispatcherServlet extends HttpServlet {
         this.app.remove(HttpServletRequest.class);
         this.app.remove(Response.class);
         this.app.remove(HttpServletResponse.class);
-        this.app.make(CookieManager.class).refresh(new Cookie[0]);
-        this.app.make(SessionManager.class).refresh(null, null);
-        this.app.make(Auth.class).refresh();
+        this.app.make(CookieManager.class);
+        this.app.make(SessionManager.class);
+        this.app.make(Auth.class);
+        resetRequestAttributes();
     }
 }

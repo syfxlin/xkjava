@@ -11,9 +11,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class AspectManager {
-    protected Application app;
+    protected final Application app;
 
-    protected static List<AdviceEntry> adviceList = new ArrayList<>();
+    protected static final List<AdviceEntry> adviceList = new ArrayList<>();
 
     public static void addAdvice(AspectPointcut pointcut, Advice advice) {
         adviceList.add(new AdviceEntry(pointcut, advice));

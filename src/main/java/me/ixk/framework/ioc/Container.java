@@ -1,33 +1,37 @@
 package me.ixk.framework.ioc;
 
 import cn.hutool.core.convert.Convert;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.DynamicInterceptor;
 import me.ixk.framework.exceptions.ContainerException;
+import me.ixk.framework.factory.AfterInitProcessor;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.AutowireUtils;
 import me.ixk.framework.utils.ClassUtils;
 import me.ixk.framework.utils.ParameterNameDiscoverer;
 import net.sf.cglib.proxy.Enhancer;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public class Container {
-    protected Map<String, Binding> bindings;
+    protected final Map<String, Binding> bindings;
 
-    protected Map<String, Object> instances;
+    protected final Map<String, Object> instances;
 
-    protected Map<String, String> aliases;
+    protected final Map<String, String> aliases;
 
     protected Map<String, Object> globalArgs = new ConcurrentHashMap<>();
 
     protected Map<String, Object> resetGlobalArgs;
+
+    protected List<AfterInitProcessor> afterInitProcessors = new ArrayList<>();
 
     public Container() {
         this.bindings = new ConcurrentHashMap<>();
@@ -52,6 +56,22 @@ public class Container {
 
     public void clearGlobalArgs() {
         this.globalArgs = new ConcurrentHashMap<>();
+    }
+
+    public List<AfterInitProcessor> getAfterInitProcessors() {
+        return afterInitProcessors;
+    }
+
+    public void setAfterInitProcessors(
+        List<AfterInitProcessor> afterInitProcessors
+    ) {
+        this.afterInitProcessors = afterInitProcessors;
+    }
+
+    public void addObjectAfterInitProcessor(
+        AfterInitProcessor afterInitProcessor
+    ) {
+        this.afterInitProcessors.add(afterInitProcessor);
     }
 
     public Container alias(String alias, String _abstract) {
@@ -191,7 +211,7 @@ public class Container {
             if (!autowired.name().equals("")) {
                 dependency = this.make(autowired.name());
             } else {
-                Class<?> autowiredClass = null;
+                Class<?> autowiredClass;
                 if (autowired.type() == Class.class) {
                     autowiredClass = field.getType();
                 } else {
@@ -276,7 +296,7 @@ public class Container {
             }
         }
         Constructor<?>[] constructors = _class.getDeclaredConstructors();
-        Object instance = null;
+        Object instance;
         if (constructors.length == 1) {
             Constructor<?> constructor = constructors[0];
             Object[] dependencies =
@@ -307,6 +327,16 @@ public class Container {
         return this.injectingProperties(instance);
     }
 
+    protected Object doAfterProcessor(Object instance, Class<?> returnType) {
+        for (AfterInitProcessor processor : this.getAfterInitProcessors()) {
+            instance = processor.process(instance, returnType);
+            if (instance == null) {
+                return null;
+            }
+        }
+        return instance;
+    }
+
     protected <T> T doMake(
         String _abstract,
         Class<T> returnType,
@@ -314,7 +344,7 @@ public class Container {
     ) {
         _abstract = this.getAbstractByAlias(_abstract);
         Binding binding = this.getBinding(_abstract);
-        Object instance = null;
+        Object instance;
         if (binding.isShared() && this.instances.containsKey(_abstract)) {
             instance = this.instances.get(_abstract);
         } else {
@@ -326,9 +356,10 @@ public class Container {
         }
         // 解决动态注入
         instance = AutowireUtils.resolveAutowiringValue(instance, returnType);
-        if (binding.isShared()) {
+        if (binding.isShared() && !this.instances.containsKey(_abstract)) {
             this.instances.put(_abstract, instance);
         }
+        instance = this.doAfterProcessor(instance, returnType);
         return Convert.convert(returnType, instance);
     }
 
@@ -394,7 +425,7 @@ public class Container {
         Map<String, Object> newArgs
     ) {
         Object object = this.make(target[0], Object.class, newArgs);
-        Method method = null;
+        Method method;
         try {
             method = object.getClass().getMethod(target[1], paramTypes);
         } catch (NoSuchMethodException e) {

@@ -6,9 +6,9 @@ import org.reflections.Reflections;
 
 public abstract class AbstractAnnotationProcessor
     implements AnnotationProcessor {
-    protected Application app;
+    protected final Application app;
 
-    protected Reflections reflections;
+    protected final Reflections reflections;
 
     public AbstractAnnotationProcessor(Application app) {
         this.app = app;

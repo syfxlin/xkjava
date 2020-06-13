@@ -1,15 +1,16 @@
 package me.ixk.framework.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 import lombok.Data;
 import org.hibernate.validator.HibernateValidator;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 public abstract class Validation {
-    protected static Validator validator = javax
+    protected static final Validator validator = javax
         .validation.Validation.byProvider(HibernateValidator.class)
         .configure()
         .failFast(false)

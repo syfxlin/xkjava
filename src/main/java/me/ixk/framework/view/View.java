@@ -1,15 +1,16 @@
 package me.ixk.framework.view;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.http.Renderable;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.Thymeleaf;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class View implements Renderable {
     protected String view = "";
 
-    protected Map<String, Object> data = new ConcurrentHashMap<>();
+    protected final Map<String, Object> data = new ConcurrentHashMap<>();
 
     protected FilterCallback filterCallback = null;
 

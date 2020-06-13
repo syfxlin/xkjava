@@ -1,17 +1,18 @@
 package me.ixk.framework.annotations.processor;
 
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.Configuration;
 import me.ixk.framework.config.Config;
 import me.ixk.framework.exceptions.LoadConfigException;
 import me.ixk.framework.ioc.Application;
 
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class ConfigurationAnnotationProcessor
     extends AbstractAnnotationProcessor {
-    protected Map<String, Map<String, Object>> config;
+    protected final Map<String, Map<String, Object>> config;
 
     public ConfigurationAnnotationProcessor(Application app) {
         super(app);

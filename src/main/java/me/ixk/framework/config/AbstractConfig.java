@@ -4,8 +4,8 @@ import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.Environment;
 
 public abstract class AbstractConfig implements Config {
-    protected Application app;
-    protected Environment env;
+    protected final Application app;
+    protected final Environment env;
 
     public AbstractConfig(Application app) {
         this.app = app;

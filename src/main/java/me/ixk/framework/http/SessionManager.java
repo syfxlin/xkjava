@@ -11,7 +11,12 @@ public class SessionManager {
     HttpSession _session;
     org.eclipse.jetty.server.SessionManager _sessionManager;
 
-    public void refresh(
+    @Deprecated
+    public SessionManager() {
+        // only used cglib
+    }
+
+    public SessionManager(
         HttpSession session,
         org.eclipse.jetty.server.SessionManager sessionManager
     ) {

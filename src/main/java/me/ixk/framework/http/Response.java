@@ -1,12 +1,5 @@
 package me.ixk.framework.http;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.exceptions.ResponseException;
 import me.ixk.framework.utils.JSON;
 import org.eclipse.jetty.http.HttpContent;
@@ -14,10 +7,18 @@ import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.server.HttpOutput;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class Response implements HttpServletResponse {
     protected org.eclipse.jetty.server.Response _base;
 
-    protected List<SetCookie> _cookies = new ArrayList<>();
+    protected final List<SetCookie> _cookies = new ArrayList<>();
 
     @Deprecated
     public Response() {

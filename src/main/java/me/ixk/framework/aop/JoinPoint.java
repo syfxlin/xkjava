@@ -1,10 +1,11 @@
 package me.ixk.framework.aop;
 
-import java.lang.reflect.Method;
 import net.sf.cglib.proxy.MethodProxy;
 
+import java.lang.reflect.Method;
+
 public class JoinPoint {
-    protected AspectHandler handler;
+    protected final AspectHandler handler;
 
     protected Object[] args;
 

@@ -1,8 +1,5 @@
 package me.ixk.app.controllers;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.servlet.http.HttpServletRequest;
 import me.ixk.app.annotations.Log;
 import me.ixk.app.beans.User;
 import me.ixk.app.entity.RegisterUser;
@@ -10,6 +7,10 @@ import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.facades.View;
 import me.ixk.framework.http.Request;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
 public class IndexController {
@@ -19,7 +20,7 @@ public class IndexController {
     @Autowired("request")
     private HttpServletRequest httpServletRequest;
 
-    private UsersServiceImpl usersService;
+    private final UsersServiceImpl usersService;
 
     public IndexController(UsersServiceImpl usersService) {
         this.usersService = usersService;
@@ -38,12 +39,17 @@ public class IndexController {
         //        Auth.register(registerUser);
         Map<String, Object> map = new ConcurrentHashMap<>();
         map.put("text", "String");
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return View.make("index", map).render();
     }
 
     @Middleware("guest")
     @GetMapping("/login")
-    public me.ixk.framework.view.View login() {
+    public me.ixk.framework.view.View login(Request request) {
         return View.make("login");
     }
 

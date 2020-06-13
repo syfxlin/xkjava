@@ -1,9 +1,5 @@
 package me.ixk.framework.route;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.exceptions.RouteCollectorException;
 import me.ixk.framework.facades.Config;
@@ -12,6 +8,11 @@ import me.ixk.framework.http.Response;
 import me.ixk.framework.http.ResponseProcessor;
 import me.ixk.framework.middleware.Middleware;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class RouteManager {
     public static RouteCollector route;
 
@@ -19,11 +20,11 @@ public class RouteManager {
 
     public static Map<String, Class<? extends Middleware>> routeMiddleware;
 
-    public static List<AnnotationRouteDefinition> annotationRouteDefinitions = new ArrayList<>();
+    public static final List<AnnotationRouteDefinition> annotationRouteDefinitions = new ArrayList<>();
 
-    public static Map<String, AnnotationMiddlewareDefinition> annotationMiddlewareDefinitions = new ConcurrentHashMap<>();
+    public static final Map<String, AnnotationMiddlewareDefinition> annotationMiddlewareDefinitions = new ConcurrentHashMap<>();
 
-    protected RouteDispatcher dispatcher;
+    protected final RouteDispatcher dispatcher;
 
     @SuppressWarnings("unchecked")
     public RouteManager() {

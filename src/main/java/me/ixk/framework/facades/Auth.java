@@ -10,10 +10,6 @@ public class Auth extends AbstractFacade {
         return app.make(me.ixk.framework.kernel.Auth.class);
     }
 
-    public static void refresh() {
-        make().refresh();
-    }
-
     public static me.ixk.framework.kernel.Auth.Result register(
         RegisterUser user
     ) {

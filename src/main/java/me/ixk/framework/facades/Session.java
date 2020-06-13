@@ -12,13 +12,6 @@ public class Session extends AbstractFacade {
         return app.make(SessionManager.class);
     }
 
-    public static void refresh(
-        HttpSession session,
-        org.eclipse.jetty.server.SessionManager sessionManager
-    ) {
-        make().refresh(session, sessionManager);
-    }
-
     public static HttpSession getSession() {
         return make().getSession();
     }
