@@ -2,24 +2,30 @@ package me.ixk.framework.ioc;
 
 import cn.hutool.core.convert.Convert;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.DynamicInterceptor;
 import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.factory.AfterInitProcessor;
-import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.ioc.injector.DefaultMethodInjector;
+import me.ixk.framework.ioc.injector.DefaultParameterInjector;
+import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
 import me.ixk.framework.utils.AutowireUtils;
-import me.ixk.framework.utils.ClassUtils;
-import me.ixk.framework.utils.ParameterNameDiscoverer;
 import net.sf.cglib.proxy.Enhancer;
 
 public class Container {
+    protected final ParameterInjector parameterInjector = new DefaultParameterInjector();
+    protected final PropertyInjector propertyInjector = new DefaultPropertyInjector();
+    protected final MethodInjector methodInjector = new DefaultMethodInjector();
+
     protected final Map<String, Binding> bindings;
 
     protected final Map<String, Object> instances;
@@ -151,115 +157,6 @@ public class Container {
         return this.aliases.getOrDefault(alias, alias);
     }
 
-    protected Object[] injectingParameters(
-        Parameter[] parameters,
-        String[] parameterNames,
-        Map<String, Object> args
-    ) {
-        Object[] dependencies = new Object[parameters.length];
-        for (int i = 0; i < parameters.length; i++) {
-            Parameter parameter = parameters[i];
-            if (
-                args.containsKey(parameter.getType().getName()) ||
-                args.containsKey(
-                    parameterNames[i] != null
-                        ? parameterNames[i]
-                        : parameter.getName()
-                )
-            ) {
-                dependencies[i] = args.get(parameterNames[i]);
-            } else {
-                Class<?> _class = parameter.getType();
-                dependencies[i] = this.make(_class.getName(), _class);
-            }
-            dependencies[i] =
-                Convert.convert(parameter.getType(), dependencies[i]);
-        }
-        return dependencies;
-    }
-
-    protected Object[] injectingDependencies(
-        Constructor<?> constructor,
-        Map<String, Object> args
-    ) {
-        Parameter[] parameters = constructor.getParameters();
-        String[] parameterNames = ParameterNameDiscoverer.getConstructorParamNames(
-            constructor
-        );
-        return this.injectingParameters(parameters, parameterNames, args);
-    }
-
-    protected Object[] injectingDependencies(
-        Method method,
-        Map<String, Object> args
-    ) {
-        Parameter[] parameters = method.getParameters();
-        String[] parameterNames = ParameterNameDiscoverer.getMethodParamNames(
-            method
-        );
-        return this.injectingParameters(parameters, parameterNames, args);
-    }
-
-    protected Object injectingProperties(Object instance) {
-        if (instance == null) {
-            return null;
-        }
-        Field[] fields = ClassUtils.getUserClass(instance).getDeclaredFields();
-        for (Field field : fields) {
-            Autowired autowired = AnnotationUtils.getAnnotation(
-                field,
-                Autowired.class
-            );
-            if (autowired == null) {
-                continue;
-            }
-            Object dependency;
-            if (!autowired.name().equals("")) {
-                dependency = this.make(autowired.name());
-            } else {
-                Class<?> autowiredClass;
-                if (autowired.type() == Class.class) {
-                    autowiredClass = field.getType();
-                } else {
-                    autowiredClass = autowired.type();
-                }
-                dependency = this.make(autowiredClass);
-            }
-            boolean originAccessible = field.isAccessible();
-            field.setAccessible(true);
-            try {
-                field.set(instance, dependency);
-            } catch (IllegalAccessException e) {
-                throw new ContainerException("Object field setting failed", e);
-            }
-            field.setAccessible(originAccessible);
-        }
-        return instance;
-    }
-
-    protected Object injectingMethod(Object instance) {
-        if (instance == null) {
-            return null;
-        }
-        Set<Method> methods = ClassUtils.getMethods(instance);
-        for (Method method : methods) {
-            Autowired autowired = AnnotationUtils.getAnnotation(
-                method,
-                Autowired.class
-            );
-            if (autowired == null) {
-                continue;
-            }
-            this.callMethod(
-                    instance,
-                    method,
-                    instance.getClass(),
-                    this.globalArgs
-                );
-        }
-        return instance;
-    }
-
     /* doing */
 
     protected Container doBind(
@@ -329,7 +226,7 @@ public class Container {
         if (constructors.length == 1) {
             Constructor<?> constructor = constructors[0];
             Object[] dependencies =
-                this.injectingDependencies(constructor, args);
+                this.parameterInjector.inject(this, constructor, args);
             try {
                 if (map == null || map.isEmpty()) {
                     instance = constructor.newInstance(dependencies);
@@ -353,8 +250,8 @@ public class Container {
                 "The bound instance must have only one constructor"
             );
         }
-        instance = this.injectingProperties(instance);
-        return this.injectingMethod(instance);
+        instance = this.propertyInjector.inject(this, instance, args);
+        return this.methodInjector.inject(this, instance, args);
     }
 
     protected Object doAfterProcessor(Object instance, Class<?> returnType) {
@@ -415,7 +312,8 @@ public class Container {
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        Object[] dependencies = this.injectingDependencies(method, args);
+        Object[] dependencies =
+            this.parameterInjector.inject(this, method, args);
         try {
             return Convert.convert(
                 returnType,
@@ -426,16 +324,15 @@ public class Container {
         }
     }
 
-    protected <T> T callArrayMethod(
-        String[] target,
+    protected <T> T callObjectMethod(
+        Object instance,
+        String methodName,
         Class<T> returnType,
-        Map<String, Object> args,
-        Map<String, Object> newArgs
+        Map<String, Object> args
     ) {
-        Object object = this.make(target[0], Object.class, newArgs);
         Method[] methods = Arrays
-            .stream(object.getClass().getMethods())
-            .filter(m -> m.getName().equals(target[1]))
+            .stream(instance.getClass().getMethods())
+            .filter(m -> m.getName().equals(methodName))
             .toArray(Method[]::new);
         if (methods.length == 0) {
             throw new RuntimeException("The specified method was not found");
@@ -444,10 +341,20 @@ public class Container {
                 "The called method cannot be overloaded"
             );
         }
-        return this.callMethod(object, methods[0], returnType, args);
+        return this.callMethod(instance, methods[0], returnType, args);
     }
 
-    public <T> T callArrayFormTypes(
+    protected <T> T callArrayMethod(
+        String[] target,
+        Class<T> returnType,
+        Map<String, Object> args,
+        Map<String, Object> newArgs
+    ) {
+        Object object = this.make(target[0], Object.class, newArgs);
+        return this.callObjectMethod(object, target[1], returnType, args);
+    }
+
+    protected <T> T callArrayFormTypes(
         String[] target,
         Class<?>[] paramTypes,
         Class<T> returnType,
@@ -960,12 +867,7 @@ public class Container {
         Map<String, Object> args,
         Map<String, Object> newArgs
     ) {
-        return this.callMethod(
-                this.make(_class, newArgs),
-                method,
-                returnType,
-                args
-            );
+        return this.call(this.make(_class, newArgs), method, returnType, args);
     }
 
     /* call Method */
@@ -997,12 +899,55 @@ public class Container {
             );
     }
 
+    /* call Object, Method */
+
+    public <T> T call(Object instance, Method method, Class<T> returnType) {
+        return this.call(instance, method, returnType, this.globalArgs);
+    }
+
+    public <T> T call(
+        Object instance,
+        Method method,
+        Class<T> returnType,
+        Map<String, Object> args
+    ) {
+        return this.callMethod(instance, method, returnType, args);
+    }
+
+    public <T> T call(Object instance, String methodName, Class<T> returnType) {
+        return this.call(instance, methodName, returnType, this.globalArgs);
+    }
+
+    public <T> T call(
+        Object instance,
+        String methodName,
+        Class<T> returnType,
+        Map<String, Object> args
+    ) {
+        return this.callObjectMethod(instance, methodName, returnType, args);
+    }
+
     public void remove(String _abstract) {
         this.doRemove(_abstract);
     }
 
     public void remove(Class<?> _abstract) {
         this.remove(_abstract.getName());
+    }
+
+    public Object[] parameterInjector(
+        Executable method,
+        Map<String, Object> args
+    ) {
+        return this.parameterInjector.inject(this, method, args);
+    }
+
+    public Object propertyInjector(Object instance, Map<String, Object> args) {
+        return this.propertyInjector.inject(this, instance, args);
+    }
+
+    public Object methodInjector(Object instance, Map<String, Object> args) {
+        return this.methodInjector.inject(this, instance, args);
     }
 
     /* can remove */

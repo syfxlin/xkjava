@@ -19,7 +19,7 @@ public abstract class ParameterNameDiscoverer {
         return getParameterNames(constructor);
     }
 
-    private static String[] getParameterNames(final Executable method) {
+    public static String[] getParameterNames(final Executable method) {
         final String[] paramNames = new String[method.getParameterTypes()
             .length];
         final String className = ClassUtils

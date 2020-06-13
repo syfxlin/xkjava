@@ -144,24 +144,17 @@ public class RequestContext implements Attributes {
         this.setObject(Auth.class, auth);
     }
 
-    public void setHandler(String handler) {
-        this.setAttribute("handler", handler);
+    public void setHandler(Class<?> controllerType, String methodName) {
+        this.setAttribute("controllerType", controllerType);
+        this.setAttribute("controllerMethod", methodName);
     }
 
-    public String getHandler() {
-        return this.getAttribute("handler", String.class);
-    }
-
-    public Class<?> getController() {
-        try {
-            return Class.forName(this.getHandler().split("@")[0]);
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
+    public Class<?> getControllerType() {
+        return this.getAttribute("controllerType", Class.class);
     }
 
     public String getControllerMethod() {
-        return this.getHandler().split("@")[1];
+        return this.getAttribute("controllerMethod", String.class);
     }
 
     @Override
