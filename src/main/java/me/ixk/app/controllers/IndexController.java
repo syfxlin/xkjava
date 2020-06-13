@@ -28,6 +28,11 @@ public class IndexController {
         this.usersService = usersService;
     }
 
+    @PostConstruct
+    public void init() {
+        System.out.println("Init Controller");
+    }
+
     @Log
     @GetMapping("/controller")
     @Transactional

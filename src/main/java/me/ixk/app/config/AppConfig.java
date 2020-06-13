@@ -65,6 +65,7 @@ public class AppConfig extends AbstractConfig {
             BeanAnnotationProcessor.class,
             AspectAnnotationProcessor.class,
             ExceptionHandlerAnnotationProcessor.class,
+            PreAndPostAnnotationProcessor.class,
             RouteAnnotationProcessor.class,
             MiddlewareAnnotationProcessor.class
         );

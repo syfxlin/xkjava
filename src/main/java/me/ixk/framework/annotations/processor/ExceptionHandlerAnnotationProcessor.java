@@ -1,13 +1,12 @@
 package me.ixk.framework.annotations.processor;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import me.ixk.framework.annotations.Controller;
 import me.ixk.framework.annotations.ControllerAdvice;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.kernel.ExceptionHandlerResolver;
-import me.ixk.framework.utils.AnnotationUtils;
 
 public class ExceptionHandlerAnnotationProcessor
     extends AbstractAnnotationProcessor {
@@ -19,11 +18,9 @@ public class ExceptionHandlerAnnotationProcessor
     @Override
     public void process() {
         Map<Class<?>, ExceptionHandlerResolver> handlerResolvers = new LinkedHashMap<>();
-        Set<Class<?>> controllerAdvices =
-            this.reflections.getTypesAnnotatedWith(ControllerAdvice.class);
-        for (Class<?> adviceType : AnnotationUtils.sortByOrderAnnotation(
-            controllerAdvices
-        )) {
+        List<Class<?>> controllerAdvices =
+            this.getTypesAnnotatedWith(ControllerAdvice.class);
+        for (Class<?> adviceType : controllerAdvices) {
             ExceptionHandlerResolver resolver = new ExceptionHandlerResolver(
                 adviceType
             );
@@ -37,8 +34,8 @@ public class ExceptionHandlerAnnotationProcessor
             );
 
         Map<Class<?>, ExceptionHandlerResolver> controllerResolvers = new LinkedHashMap<>();
-        Set<Class<?>> controllers =
-            this.reflections.getTypesAnnotatedWith(Controller.class);
+        List<Class<?>> controllers =
+            this.getTypesAnnotatedWith(Controller.class);
         for (Class<?> controller : controllers) {
             ExceptionHandlerResolver resolver = new ExceptionHandlerResolver(
                 controller

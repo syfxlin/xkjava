@@ -8,11 +8,17 @@ import me.ixk.framework.annotations.AliasFor;
 import me.ixk.framework.annotations.Order;
 
 public abstract class AnnotationUtils extends AnnotationUtil {
-    private static final Comparator<Class<?>> ORDER_ANNOTATION_COMPARATOR = (c1, c2) -> {
-        Order o1 = getAnnotation(c1, Order.class);
-        Order o2 = getAnnotation(c2, Order.class);
-        int i1 = o1 == null ? 0 : o1.value();
-        int i2 = o2 == null ? 0 : o2.value();
+    private static final Comparator<Object> ORDER_ANNOTATION_COMPARATOR = (o1, o2) -> {
+        Order or1 = null, or2 = null;
+        if (o1 instanceof Class && o2 instanceof Class) {
+            or1 = getAnnotation((Class<?>) o1, Order.class);
+            or2 = getAnnotation((Class<?>) o2, Order.class);
+        } else if (o1 instanceof Method && o2 instanceof Method) {
+            or1 = getAnnotation((Method) o1, Order.class);
+            or2 = getAnnotation((Method) o1, Order.class);
+        }
+        int i1 = or1 == null ? 0 : or1.value();
+        int i2 = or2 == null ? 0 : or2.value();
         return i1 - i2;
     };
 
@@ -118,18 +124,25 @@ public abstract class AnnotationUtils extends AnnotationUtil {
         }
     }
 
-    public static List<Class<?>> sortByOrderAnnotation(Set<Class<?>> classes) {
-        List<Class<?>> list = new ArrayList<>(classes);
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static List sortByOrderAnnotation(Set classes) {
+        List list = new ArrayList(classes);
         list.sort(ORDER_ANNOTATION_COMPARATOR);
         return list;
     }
 
-    public static List<Class<?>> sortByOrderAnnotation(List<Class<?>> classes) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static List sortByOrderAnnotation(List classes) {
         classes.sort(ORDER_ANNOTATION_COMPARATOR);
         return classes;
     }
 
     public static Class<?>[] sortByOrderAnnotation(Class<?>[] classes) {
+        Arrays.sort(classes, ORDER_ANNOTATION_COMPARATOR);
+        return classes;
+    }
+
+    public static Method[] sortByOrderAnnotation(Method[] classes) {
         Arrays.sort(classes, ORDER_ANNOTATION_COMPARATOR);
         return classes;
     }

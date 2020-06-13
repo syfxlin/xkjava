@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import me.ixk.framework.annotations.PreDestroy;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.DynamicInterceptor;
@@ -18,7 +19,9 @@ import me.ixk.framework.factory.AfterInitProcessor;
 import me.ixk.framework.ioc.injector.DefaultMethodInjector;
 import me.ixk.framework.ioc.injector.DefaultParameterInjector;
 import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
+import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.AutowireUtils;
+import me.ixk.framework.utils.ClassUtils;
 import net.sf.cglib.proxy.Enhancer;
 
 public class Container {
@@ -182,6 +185,8 @@ public class Container {
             this.getAbstractAndAliasByAlias(_abstract, alias);
         _abstract = abstractAlias[0];
         alias = abstractAlias[1];
+        // 处理 Set 注入和方法
+        instance = this.methodInjector.inject(this, instance, this.globalArgs);
         // 解决动态注入
         try {
             instance =
@@ -293,6 +298,20 @@ public class Container {
     protected void doRemove(String _abstract) {
         String alias = _abstract;
         _abstract = this.getAbstractByAlias(_abstract);
+
+        Object instance = this.make(_abstract);
+        Set<Method> methods = ClassUtils.getMethods(instance);
+        for (Method method : methods) {
+            // init 方法
+            PreDestroy postConstruct = AnnotationUtils.getAnnotation(
+                method,
+                PreDestroy.class
+            );
+            if (postConstruct != null) {
+                this.call(instance, method, Object.class, this.globalArgs);
+            }
+        }
+
         for (Map.Entry<String, String> entry : this.aliases.entrySet()) {
             if (entry.getKey().equals(alias)) {
                 this.aliases.remove(entry.getKey());

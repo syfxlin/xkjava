@@ -23,14 +23,10 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
             List.class
         );
         for (Class<? extends Annotation> annotation : beanAnnotations) {
-            for (Class<?> _class : this.reflections.getTypesAnnotatedWith(
-                    annotation
-                )) {
+            for (Class<?> _class : this.getTypesAnnotatedWith(annotation)) {
                 this.processAnnotation(annotation, _class);
             }
-            for (Method method : this.reflections.getMethodsAnnotatedWith(
-                    annotation
-                )) {
+            for (Method method : this.getMethodsAnnotatedWith(annotation)) {
                 this.processAnnotation(annotation, method);
             }
         }

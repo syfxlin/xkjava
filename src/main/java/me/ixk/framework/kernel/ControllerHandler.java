@@ -73,7 +73,7 @@ public class ControllerHandler implements Handler {
                         request,
                         controllerResolvers.entrySet()
                     );
-            if (result != null) {
+            if (!result.equals(NO_RESOLVER)) {
                 return result;
             }
         }

@@ -1,8 +1,8 @@
 package me.ixk.framework.annotations.processor;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.Configuration;
 import me.ixk.framework.config.Config;
@@ -27,8 +27,8 @@ public class ConfigurationAnnotationProcessor
 
     @SuppressWarnings("unchecked")
     private void processAnnotationConfig() {
-        Set<Class<?>> classes =
-            this.reflections.getTypesAnnotatedWith(Configuration.class);
+        List<Class<?>> classes =
+            this.getTypesAnnotatedWith(Configuration.class);
         for (Class<?> _class : classes) {
             String name = AnnotationUtils
                 .getAnnotation(_class, Configuration.class)

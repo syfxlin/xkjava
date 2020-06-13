@@ -4,8 +4,7 @@
 
 -   @PostConstruct
 -   @PreDestroy
--   @ControllerAdvice
--   @ExceptionHandler
+-   @ControllerAdvice（不完整）
 -   @Application
 -   @ConfigurationProperties
 -   @Value
@@ -13,4 +12,3 @@
 -   @Bootstrap
 -   @Provider
 -   注解关联
--   ObjectInitProcessor
