@@ -1,6 +1,6 @@
 package me.ixk.framework.ioc;
 
-public interface RequestAttributes {
+public interface Attributes {
     Object getAttribute(String name);
     void setAttribute(String name, Object attribute);
     void removeAttribute(String name);

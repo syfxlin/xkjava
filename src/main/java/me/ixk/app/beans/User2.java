@@ -1,3 +1,6 @@
 package me.ixk.app.beans;
 
-public class User2 {}
+import me.ixk.framework.annotations.Bean;
+
+@Bean
+public class User2 extends User {}

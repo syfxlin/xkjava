@@ -1,6 +1,12 @@
 package me.ixk.framework.ioc;
 
 import cn.hutool.core.convert.Convert;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
@@ -12,13 +18,6 @@ import me.ixk.framework.utils.AutowireUtils;
 import me.ixk.framework.utils.ClassUtils;
 import me.ixk.framework.utils.ParameterNameDiscoverer;
 import net.sf.cglib.proxy.Enhancer;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Container {
     protected final Map<String, Binding> bindings;
@@ -160,7 +159,13 @@ public class Container {
         Object[] dependencies = new Object[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
-            if (args.containsKey(parameterNames[i])) {
+            if (
+                args.containsKey(
+                    parameterNames[i] != null
+                        ? parameterNames[i]
+                        : parameter.getName()
+                )
+            ) {
                 dependencies[i] = args.get(parameterNames[i]);
             } else {
                 Class<?> _class = parameter.getType();
@@ -227,6 +232,26 @@ public class Container {
                 throw new ContainerException("Object field setting failed", e);
             }
             field.setAccessible(originAccessible);
+        }
+        return instance;
+    }
+
+    protected Object injectingMethod(Object instance) {
+        if (instance == null) {
+            return null;
+        }
+        Set<Method> methods = ClassUtils.getMethods(instance);
+        for (Method method : methods) {
+            Autowired autowired = method.getAnnotation(Autowired.class);
+            if (autowired == null) {
+                continue;
+            }
+            this.callMethod(
+                    instance,
+                    method,
+                    instance.getClass(),
+                    this.globalArgs
+                );
         }
         return instance;
     }
@@ -324,7 +349,8 @@ public class Container {
                 "The bound instance must have only one constructor"
             );
         }
-        return this.injectingProperties(instance);
+        instance = this.injectingProperties(instance);
+        return this.injectingMethod(instance);
     }
 
     protected Object doAfterProcessor(Object instance, Class<?> returnType) {
@@ -404,7 +430,7 @@ public class Container {
     ) {
         Object object = this.make(target[0], Object.class, newArgs);
         Method[] methods = Arrays
-            .stream(object.getClass().getDeclaredMethods())
+            .stream(object.getClass().getMethods())
             .filter(m -> m.getName().equals(target[1]))
             .toArray(Method[]::new);
         if (methods.length == 0) {

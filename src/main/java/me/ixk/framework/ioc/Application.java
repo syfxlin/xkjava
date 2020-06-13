@@ -1,5 +1,11 @@
 package me.ixk.framework.ioc;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.ComponentScan;
 import me.ixk.framework.bootstrap.*;
 import me.ixk.framework.exceptions.ApplicationException;
@@ -8,17 +14,10 @@ import me.ixk.framework.kernel.ProviderManager;
 import me.ixk.framework.server.HttpServer;
 import me.ixk.framework.utils.AnnotationUtils;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class Application extends Container {
     protected List<String> scanPackage = new ArrayList<>();
 
-    protected Class<?> primarySource;
+    protected Class<?>[] primarySource;
 
     protected String[] args;
 
@@ -62,10 +61,18 @@ public class Application extends Container {
     }
 
     public static void createAndBoot(Class<?> primarySource, String... args) {
+        create().boot(new Class[] { primarySource }, args);
+    }
+
+    public static void createAndBoot(Class<?>[] primarySource, String... args) {
         create().boot(primarySource, args);
     }
 
     public void boot(Class<?> primarySource, String... args) {
+        boot(new Class[] { primarySource }, args);
+    }
+
+    public void boot(Class<?>[] primarySource, String... args) {
         this.primarySource = primarySource;
         this.args = args;
 
@@ -88,6 +95,12 @@ public class Application extends Container {
 
     protected void load() {
         this.loadPackageScanAnnotation();
+
+        this.instance(Application.class, this, "app");
+
+        ApplicationContext applicationContext = new ApplicationContext();
+        ApplicationContext.setAttributes(applicationContext);
+        this.instance(ApplicationContext.class, applicationContext, "context");
     }
 
     protected void bootstrap() {
@@ -170,10 +183,15 @@ public class Application extends Container {
 
     public void loadPackageScanAnnotation() {
         scanPackage.add("me.ixk.framework");
-        ComponentScan componentScan = AnnotationUtils.getAnnotation(
-            this.primarySource,
-            ComponentScan.class
-        );
-        scanPackage.addAll(Arrays.asList(componentScan.basePackages()));
+        for (Class<?> source : this.primarySource) {
+            scanPackage.add(source.getPackageName());
+            ComponentScan componentScan = AnnotationUtils.getAnnotation(
+                source,
+                ComponentScan.class
+            );
+            if (componentScan != null) {
+                scanPackage.addAll(Arrays.asList(componentScan.basePackages()));
+            }
+        }
     }
 }

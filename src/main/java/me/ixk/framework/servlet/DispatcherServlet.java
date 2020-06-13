@@ -1,25 +1,23 @@
 package me.ixk.framework.servlet;
 
-import me.ixk.framework.factory.ObjectFactory;
-import me.ixk.framework.http.CookieManager;
-import me.ixk.framework.http.Request;
-import me.ixk.framework.http.Response;
-import me.ixk.framework.http.SessionManager;
-import me.ixk.framework.ioc.Application;
-import me.ixk.framework.ioc.DispatcherRequestAttributes;
-import me.ixk.framework.kernel.Auth;
-import me.ixk.framework.route.RouteManager;
+import static me.ixk.framework.ioc.RequestContext.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import me.ixk.framework.factory.ObjectFactory;
+import me.ixk.framework.http.CookieManager;
+import me.ixk.framework.http.Request;
+import me.ixk.framework.http.Response;
+import me.ixk.framework.http.SessionManager;
+import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.RequestContext;
+import me.ixk.framework.kernel.Auth;
+import me.ixk.framework.route.RouteManager;
 
-import static me.ixk.framework.ioc.RequestContext.*;
-
-public class DispatcherServlet extends HttpServlet {
+public class DispatcherServlet extends FrameworkServlet {
     protected final Application app;
 
     @Deprecated
@@ -38,21 +36,7 @@ public class DispatcherServlet extends HttpServlet {
         super.destroy();
     }
 
-    /**
-     * HttpServer Start -> Load Shared Environment -> DispatcherServlet -> Load Single Environment
-     *
-     * DispatcherServlet -> Middleware -> Handler => Controller@Method
-     */
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
-        Request request = new Request((org.eclipse.jetty.server.Request) req);
-        Response response = new Response(
-            (org.eclipse.jetty.server.Response) resp
-        );
-        this.dispatch(request, response);
-    }
-
     protected void dispatch(Request request, Response response) {
         try {
             this.beforeDispatch(request, response);
@@ -64,25 +48,26 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     protected void beforeDispatch(Request request, Response response) {
-        DispatcherRequestAttributes attributes = new DispatcherRequestAttributes();
-        attributes.setDispatcherServlet(this);
-        attributes.setHttpServlet(this);
-        attributes.setRequest(request);
-        attributes.setHttpServletRequest(request);
-        attributes.setResponse(response);
-        attributes.setHttpServletResponse(response);
+        // 利用 ThreadLocal 实现线程安全
+        RequestContext requestContext = new RequestContext();
+        requestContext.setDispatcherServlet(this);
+        requestContext.setHttpServlet(this);
+        requestContext.setRequest(request);
+        requestContext.setHttpServletRequest(request);
+        requestContext.setResponse(response);
+        requestContext.setHttpServletResponse(response);
         Cookie[] cookies = request.getCookies();
-        attributes.setCookieManager(
+        requestContext.setCookieManager(
             new CookieManager(cookies == null ? new Cookie[0] : cookies)
         );
-        attributes.setSessionManager(
+        requestContext.setSessionManager(
             new SessionManager(
                 request.getSession(),
                 request.getSessionManager()
             )
         );
-        attributes.setAuth(new Auth());
-        setRequestAttributes(attributes);
+        requestContext.setAuth(new Auth());
+        setRequestAttributes(requestContext);
 
         this.app.instance(
                 DispatcherServlet.class,

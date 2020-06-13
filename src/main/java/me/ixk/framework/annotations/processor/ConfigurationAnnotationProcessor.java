@@ -1,14 +1,14 @@
 package me.ixk.framework.annotations.processor;
 
-import me.ixk.framework.annotations.Configuration;
-import me.ixk.framework.config.Config;
-import me.ixk.framework.exceptions.LoadConfigException;
-import me.ixk.framework.ioc.Application;
-
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.annotations.Configuration;
+import me.ixk.framework.config.Config;
+import me.ixk.framework.exceptions.LoadConfigException;
+import me.ixk.framework.ioc.Application;
+import me.ixk.framework.utils.ClassUtils;
 
 public class ConfigurationAnnotationProcessor
     extends AbstractAnnotationProcessor {
@@ -53,7 +53,7 @@ public class ConfigurationAnnotationProcessor
                 try {
                     Object object = _class.getConstructor().newInstance();
                     Map<String, Object> item = new ConcurrentHashMap<>();
-                    for (Method method : _class.getDeclaredMethods()) {
+                    for (Method method : ClassUtils.getMethods(_class)) {
                         item.put(method.getName(), method.invoke(object));
                     }
 

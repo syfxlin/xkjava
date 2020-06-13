@@ -4,15 +4,13 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ClassUtil;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.stream.Collectors;
 
@@ -121,9 +119,9 @@ public abstract class ClassUtils extends ClassUtil {
 
     public static Class<?> getUserClass(Class<?> clazz) {
         if (clazz.getName().contains("$$")) {
-            Class<?> superclass = clazz.getSuperclass();
-            if (superclass != null && superclass != Object.class) {
-                return superclass;
+            Class<?> superClass = clazz.getSuperclass();
+            if (superClass != null && superClass != Object.class) {
+                return superClass;
             }
         }
         return clazz;
@@ -156,7 +154,53 @@ public abstract class ClassUtils extends ClassUtil {
 
     public static <T> Class<?> getGenericClass(Class<T> _class, int index) {
         return (Class<?>) (
-            (ParameterizedType) _class.getGenericSuperclass()
+            (ParameterizedType) getUserClass(_class).getGenericSuperclass()
         ).getActualTypeArguments()[index];
+    }
+
+    public static Set<Class<?>> getInterfaces(Object instance) {
+        return getInterfaces(instance.getClass());
+    }
+
+    public static Set<Class<?>> getInterfaces(Class<?> _class) {
+        Set<Class<?>> set = new HashSet<>();
+        getInterfaces(_class, set);
+        return set;
+    }
+
+    private static void getInterfaces(Class<?> _class, Set<Class<?>> set) {
+        _class = getUserClass(_class);
+        Class<?>[] interfaces = _class.getInterfaces();
+        set.addAll(Arrays.asList(interfaces));
+        Class<?> superClass = _class.getSuperclass();
+        if (superClass != null && superClass != Object.class) {
+            getInterfaces(superClass, set);
+        }
+    }
+
+    public static Set<Method> getMethods(Object instance) {
+        return getMethods(instance.getClass());
+    }
+
+    public static Set<Method> getMethods(Class<?> _class) {
+        _class = getUserClass(_class);
+        Set<Method> methods = new HashSet<>();
+        for (Method method : _class.getMethods()) {
+            switch (method.getName()) {
+                case "getClass":
+                case "hashCode":
+                case "equals":
+                case "clone":
+                case "toString":
+                case "notify":
+                case "notifyAll":
+                case "wait":
+                case "finalize":
+                    continue;
+                default:
+                    methods.add(method);
+            }
+        }
+        return methods;
     }
 }
