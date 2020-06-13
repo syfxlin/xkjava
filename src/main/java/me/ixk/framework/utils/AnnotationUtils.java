@@ -3,11 +3,18 @@ package me.ixk.framework.utils;
 import cn.hutool.core.annotation.AnnotationUtil;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 import me.ixk.framework.annotations.AliasFor;
+import me.ixk.framework.annotations.Order;
 
 public abstract class AnnotationUtils extends AnnotationUtil {
+    private static final Comparator<Class<?>> ORDER_ANNOTATION_COMPARATOR = (c1, c2) -> {
+        Order o1 = getAnnotation(c1, Order.class);
+        Order o2 = getAnnotation(c2, Order.class);
+        int i1 = o1 == null ? 0 : o1.value();
+        int i2 = o2 == null ? 0 : o2.value();
+        return i1 - i2;
+    };
 
     public static <T extends Annotation> T getAnnotation(
         Field field,
@@ -109,5 +116,21 @@ public abstract class AnnotationUtils extends AnnotationUtil {
         } else {
             return defaultValue.equals(value);
         }
+    }
+
+    public static List<Class<?>> sortByOrderAnnotation(Set<Class<?>> classes) {
+        List<Class<?>> list = new ArrayList<>(classes);
+        list.sort(ORDER_ANNOTATION_COMPARATOR);
+        return list;
+    }
+
+    public static List<Class<?>> sortByOrderAnnotation(List<Class<?>> classes) {
+        classes.sort(ORDER_ANNOTATION_COMPARATOR);
+        return classes;
+    }
+
+    public static Class<?>[] sortByOrderAnnotation(Class<?>[] classes) {
+        Arrays.sort(classes, ORDER_ANNOTATION_COMPARATOR);
+        return classes;
     }
 }

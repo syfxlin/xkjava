@@ -64,6 +64,7 @@ public class AppConfig extends AbstractConfig {
         return Arrays.asList(
             BeanAnnotationProcessor.class,
             AspectAnnotationProcessor.class,
+            ExceptionHandlerAnnotationProcessor.class,
             RouteAnnotationProcessor.class,
             MiddlewareAnnotationProcessor.class
         );
@@ -77,7 +78,8 @@ public class AppConfig extends AbstractConfig {
             Repository.class,
             Service.class,
             Mapper.class,
-            Aspect.class
+            Aspect.class,
+            ControllerAdvice.class
         );
     }
 }

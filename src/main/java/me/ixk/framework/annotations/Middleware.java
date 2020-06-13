@@ -14,5 +14,5 @@ public @interface Middleware {
     @AliasFor("value")
     String name() default "";
 
-    Class<? extends me.ixk.framework.middleware.Middleware> middleware() default me.ixk.framework.middleware.Middleware.class;
+    Class<? extends me.ixk.framework.middleware.Middleware>[] middleware() default me.ixk.framework.middleware.Middleware.class;
 }

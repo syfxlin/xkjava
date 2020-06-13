@@ -160,6 +160,7 @@ public class Container {
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
             if (
+                args.containsKey(parameter.getType().getName()) ||
                 args.containsKey(
                     parameterNames[i] != null
                         ? parameterNames[i]
@@ -242,7 +243,10 @@ public class Container {
         }
         Set<Method> methods = ClassUtils.getMethods(instance);
         for (Method method : methods) {
-            Autowired autowired = method.getAnnotation(Autowired.class);
+            Autowired autowired = AnnotationUtils.getAnnotation(
+                method,
+                Autowired.class
+            );
             if (autowired == null) {
                 continue;
             }

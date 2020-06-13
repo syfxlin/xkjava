@@ -7,24 +7,26 @@ import java.util.concurrent.ConcurrentHashMap;
  * 存储 Application 内容的 Context，线程非安全，数据是共享的
  */
 public class ApplicationContext implements Attributes {
-    private static Attributes applicationAttributes;
+    private static ApplicationContext applicationAttributes;
 
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
+
+    public static ApplicationContext create() {
+        ApplicationContext applicationContext = new ApplicationContext();
+        setAttributes(applicationContext);
+        return applicationContext;
+    }
 
     public static void resetAttributes() {
         applicationAttributes = null;
     }
 
-    public static void setAttributes(Attributes attributes) {
+    public static void setAttributes(ApplicationContext attributes) {
         applicationAttributes = attributes;
     }
 
-    public static Attributes getAttributes() {
+    public static ApplicationContext getAttributes() {
         return applicationAttributes;
-    }
-
-    public static <T> T getAttributes(Class<T> _class) {
-        return _class.cast(applicationAttributes);
     }
 
     @Override

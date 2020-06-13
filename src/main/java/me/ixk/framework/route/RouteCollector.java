@@ -1,21 +1,20 @@
 package me.ixk.framework.route;
 
-import me.ixk.framework.exceptions.RouteCollectorException;
-import me.ixk.framework.facades.Response;
-import me.ixk.framework.facades.View;
-import me.ixk.framework.ioc.Application;
-import me.ixk.framework.middleware.Handler;
-import me.ixk.framework.middleware.Middleware;
-import me.ixk.framework.middleware.Runner;
-import me.ixk.framework.utils.Helper;
-import org.eclipse.jetty.http.HttpMethod;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import me.ixk.framework.exceptions.RouteCollectorException;
+import me.ixk.framework.facades.Response;
+import me.ixk.framework.facades.View;
+import me.ixk.framework.kernel.ControllerHandler;
+import me.ixk.framework.middleware.Handler;
+import me.ixk.framework.middleware.Middleware;
+import me.ixk.framework.middleware.Runner;
+import me.ixk.framework.utils.Helper;
+import org.eclipse.jetty.http.HttpMethod;
 
 public class RouteCollector {
     protected final Map<String, Map<String, RouteHandler>> staticRoutes;
@@ -151,17 +150,10 @@ public class RouteCollector {
 
     public void addRoute(String[] httpMethod, String route, String handler) {
         this.registerAnnotationMiddleware(handler);
-        String finalHandler = Helper.routeHandler(handler);
         this.addRoute(
                 httpMethod,
                 route,
-                request -> {
-                    Application app = Application.get();
-                    app.setGlobalArgs(request.all());
-                    Object result = app.call(finalHandler, Object.class);
-                    app.clearGlobalArgs();
-                    return result;
-                }
+                new ControllerHandler(Helper.routeHandler(handler))
             );
     }
 

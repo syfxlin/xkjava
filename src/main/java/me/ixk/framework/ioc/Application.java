@@ -14,14 +14,15 @@ import me.ixk.framework.kernel.ProviderManager;
 import me.ixk.framework.server.HttpServer;
 import me.ixk.framework.utils.AnnotationUtils;
 
-public class Application extends Container {
-    protected List<String> scanPackage = new ArrayList<>();
-
+/**
+ * Application 继承自 IoC Container，本身存储一般的是实例和实例的绑定
+ * 如果要存储配置文件，和一些无关实例的字段，应该使用 ApplicationContext，可以直接使用 ApplicationContext 的静态方法
+ * 或者使用 Application.get().getContext() 获取
+ */
+public class Application extends Container implements Attributes {
     protected Class<?>[] primarySource;
 
     protected String[] args;
-
-    protected Map<String, Map<String, Object>> config = new ConcurrentHashMap<>();
 
     protected final List<Class<? extends Bootstrap>> bootstraps = Arrays.asList(
         LoadEnvironmentVariables.class,
@@ -42,7 +43,14 @@ public class Application extends Container {
 
     protected BootCallback bootedCallback = null;
 
-    private Application() {}
+    protected ApplicationContext context;
+
+    private Application() {
+        this.context = ApplicationContext.create();
+
+        this.instance(Application.class, this, "app");
+        this.instance(ApplicationContext.class, this.context, "context");
+    }
 
     private static class Inner {
         private static final Application INSTANCE = new Application();
@@ -95,12 +103,6 @@ public class Application extends Container {
 
     protected void load() {
         this.loadPackageScanAnnotation();
-
-        this.instance(Application.class, this, "app");
-
-        ApplicationContext applicationContext = new ApplicationContext();
-        ApplicationContext.setAttributes(applicationContext);
-        this.instance(ApplicationContext.class, applicationContext, "context");
     }
 
     protected void bootstrap() {
@@ -165,23 +167,8 @@ public class Application extends Container {
         this.bootedCallback = callback;
     }
 
-    public List<String> getScanPackage() {
-        return this.scanPackage;
-    }
-
-    public void setScanPackage(List<String> scanPackage) {
-        this.scanPackage = scanPackage;
-    }
-
-    public Map<String, Map<String, Object>> getConfig() {
-        return config;
-    }
-
-    public void setConfig(Map<String, Map<String, Object>> config) {
-        this.config = config;
-    }
-
     public void loadPackageScanAnnotation() {
+        List<String> scanPackage = this.getScanPackage();
         scanPackage.add("me.ixk.framework");
         for (Class<?> source : this.primarySource) {
             scanPackage.add(source.getPackageName());
@@ -193,5 +180,57 @@ public class Application extends Container {
                 scanPackage.addAll(Arrays.asList(componentScan.basePackages()));
             }
         }
+    }
+
+    public ApplicationContext getContext() {
+        return context;
+    }
+
+    public void setContext(ApplicationContext context) {
+        this.context = context;
+    }
+
+    @Override
+    public Object getAttribute(String name) {
+        return this.context.getAttribute(name);
+    }
+
+    @Override
+    public void setAttribute(String name, Object attribute) {
+        this.context.setAttribute(name, attribute);
+    }
+
+    @Override
+    public void removeAttribute(String name) {
+        this.context.removeAttribute(name);
+    }
+
+    @Override
+    public String[] getAttributeNames() {
+        return this.context.getAttributeNames();
+    }
+
+    /* Quick get set context attribute */
+
+    public List<String> getScanPackage() {
+        return this.context.getOrDefaultAttribute(
+                "scanPackage",
+                new ArrayList<>()
+            );
+    }
+
+    public void setScanPackage(List<String> scanPackage) {
+        this.context.setAttribute("scanPackage", scanPackage);
+    }
+
+    public Map<String, Map<String, Object>> getConfig() {
+        return this.context.getOrDefaultAttribute(
+                "config",
+                new ConcurrentHashMap<>()
+            );
+    }
+
+    public void setConfig(Map<String, Map<String, Object>> config) {
+        this.context.setAttribute("config", config);
     }
 }

@@ -5,13 +5,13 @@ import me.ixk.framework.middleware.Middleware;
 public class AnnotationMiddlewareDefinition {
     protected String value;
 
-    protected Class<? extends Middleware> middleware;
+    protected Class<? extends Middleware>[] middleware;
 
     protected String handler;
 
     public AnnotationMiddlewareDefinition(
         String value,
-        Class<? extends Middleware> middleware,
+        Class<? extends Middleware>[] middleware,
         String handler
     ) {
         this.value = value;
@@ -31,11 +31,11 @@ public class AnnotationMiddlewareDefinition {
         this.value = value;
     }
 
-    public Class<? extends Middleware> getMiddleware() {
+    public Class<? extends Middleware>[] getMiddleware() {
         return middleware;
     }
 
-    public void setMiddleware(Class<? extends Middleware> middleware) {
+    public void setMiddleware(Class<? extends Middleware>[] middleware) {
         this.middleware = middleware;
     }
 

@@ -5,7 +5,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.TYPE)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Provider {
+public @interface ExceptionHandler {
+    @AliasFor("exception")
+    Class<? extends Throwable>[] value() default {  };
+
+    @AliasFor("value")
+    Class<? extends Throwable>[] exception() default {  };
 }

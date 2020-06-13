@@ -1,20 +1,25 @@
 package me.ixk.framework.servlet;
 
-import static me.ixk.framework.ioc.RequestContext.*;
+import static me.ixk.framework.ioc.RequestContext.currentAttributes;
+import static me.ixk.framework.ioc.RequestContext.resetAttributes;
 
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import me.ixk.framework.exceptions.DispatchServletException;
+import me.ixk.framework.exceptions.Exception;
 import me.ixk.framework.factory.ObjectFactory;
-import me.ixk.framework.http.CookieManager;
-import me.ixk.framework.http.Request;
-import me.ixk.framework.http.Response;
-import me.ixk.framework.http.SessionManager;
+import me.ixk.framework.http.*;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.ioc.RequestContext;
 import me.ixk.framework.kernel.Auth;
+import me.ixk.framework.kernel.ExceptionHandlerResolver;
 import me.ixk.framework.route.RouteManager;
 
 public class DispatcherServlet extends FrameworkServlet {
@@ -41,15 +46,18 @@ public class DispatcherServlet extends FrameworkServlet {
         try {
             this.beforeDispatch(request, response);
             this.doDispatch(request, response);
+        } catch (Throwable e) {
+            if (!this.processException(e, request, response)) {
+                throw e;
+            }
         } finally {
-            // 确保请求出错时能清空请求周期注入的实例
             this.afterDispatch(request, response);
         }
     }
 
     protected void beforeDispatch(Request request, Response response) {
         // 利用 ThreadLocal 实现线程安全
-        RequestContext requestContext = new RequestContext();
+        RequestContext requestContext = RequestContext.create();
         requestContext.setDispatcherServlet(this);
         requestContext.setHttpServlet(this);
         requestContext.setRequest(request);
@@ -67,62 +75,56 @@ public class DispatcherServlet extends FrameworkServlet {
             )
         );
         requestContext.setAuth(new Auth());
-        setRequestAttributes(requestContext);
 
         this.app.instance(
                 DispatcherServlet.class,
                 (ObjectFactory<DispatcherServlet>) () ->
-                    currentRequestAttributes()
-                        .getObject(DispatcherServlet.class),
+                    currentAttributes().getDispatcherServlet(),
                 "dispatcherServlet"
             );
         this.app.instance(
                 HttpServlet.class,
                 (ObjectFactory<HttpServlet>) () ->
-                    currentRequestAttributes().getObject(HttpServlet.class),
+                    currentAttributes().getHttpServlet(),
                 "httpServlet"
             );
 
         this.app.instance(
                 Request.class,
-                (ObjectFactory<Request>) () ->
-                    currentRequestAttributes().getObject(Request.class),
+                (ObjectFactory<Request>) () -> currentAttributes().getRequest(),
                 "request"
             );
         this.app.instance(
                 HttpServletRequest.class,
                 (ObjectFactory<HttpServletRequest>) () ->
-                    currentRequestAttributes()
-                        .getObject(HttpServletRequest.class),
+                    currentAttributes().getHttpServletRequest(),
                 "httpServletRequest"
             );
         this.app.instance(
                 Response.class,
                 (ObjectFactory<Response>) () ->
-                    currentRequestAttributes().getObject(Response.class),
+                    currentAttributes().getResponse(),
                 "response"
             );
         this.app.instance(
                 HttpServletResponse.class,
                 (ObjectFactory<HttpServletResponse>) () ->
-                    currentRequestAttributes()
-                        .getObject(HttpServletResponse.class),
+                    currentAttributes().getHttpServletResponse(),
                 "httpServletResponse"
             );
         this.app.instance(
                 CookieManager.class,
                 (ObjectFactory<CookieManager>) () ->
-                    currentRequestAttributes().getObject(CookieManager.class)
+                    currentAttributes().getCookieManager()
             );
         this.app.instance(
                 SessionManager.class,
                 (ObjectFactory<SessionManager>) () ->
-                    currentRequestAttributes().getObject(SessionManager.class)
+                    currentAttributes().getSessionManager()
             );
         this.app.instance(
                 Auth.class,
-                (ObjectFactory<Auth>) () ->
-                    currentRequestAttributes().getObject(Auth.class)
+                (ObjectFactory<Auth>) () -> currentAttributes().getAuth()
             );
     }
 
@@ -137,9 +139,87 @@ public class DispatcherServlet extends FrameworkServlet {
         this.app.remove(HttpServletRequest.class);
         this.app.remove(Response.class);
         this.app.remove(HttpServletResponse.class);
-        this.app.make(CookieManager.class);
-        this.app.make(SessionManager.class);
-        this.app.make(Auth.class);
-        resetRequestAttributes();
+        this.app.remove(CookieManager.class);
+        this.app.remove(SessionManager.class);
+        this.app.remove(Auth.class);
+        resetAttributes();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected boolean processException(
+        Throwable exception,
+        Request request,
+        Response response
+    ) {
+        Map<Class<?>, ExceptionHandlerResolver> controllerResolvers =
+            this.app.getAttribute(
+                    "controllerExceptionHandlerResolvers",
+                    Map.class
+                );
+        if (
+            controllerResolvers.containsKey(currentAttributes().getController())
+        ) {
+            if (
+                this.processException(
+                        exception,
+                        request,
+                        response,
+                        controllerResolvers.entrySet()
+                    )
+            ) {
+                return true;
+            }
+        }
+        Map<Class<?>, ExceptionHandlerResolver> handlerResolvers =
+            this.app.getAttribute("adviceExceptionHandlerResolvers", Map.class);
+        return this.processException(
+                exception,
+                request,
+                response,
+                handlerResolvers.entrySet()
+            );
+    }
+
+    protected boolean processException(
+        Throwable exception,
+        Request request,
+        Response response,
+        Set<Map.Entry<Class<?>, ExceptionHandlerResolver>> entrySet
+    ) {
+        for (Map.Entry<Class<?>, ExceptionHandlerResolver> entry : entrySet) {
+            try {
+                Method method = entry.getValue().resolveMethod(exception);
+                if (method != null) {
+                    // 绑定可能注入的异常
+                    Map<String, Object> args = new ConcurrentHashMap<>();
+                    args.put("exception", exception);
+                    args.put(exception.getClass().getName(), exception);
+                    args.put(Throwable.class.getName(), exception);
+                    args.put(java.lang.Exception.class.getName(), exception);
+                    args.put(Exception.class.getName(), exception);
+                    // 重置响应
+                    response.reset();
+                    // 获取返回值
+                    Object result =
+                        this.app.call(
+                                entry.getKey(),
+                                method,
+                                Object.class,
+                                args
+                            );
+                    // 转换到 Response
+                    ResponseProcessor.toResponse(request, response, result);
+                    // Response 预处理
+                    ResponseProcessor.dispatchResponse(response);
+                    return true;
+                }
+            } catch (Throwable e) {
+                throw new DispatchServletException(
+                    "Process ExceptionHandlerResolver failed",
+                    e
+                );
+            }
+        }
+        return false;
     }
 }

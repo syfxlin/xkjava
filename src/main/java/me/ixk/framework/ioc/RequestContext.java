@@ -16,26 +16,32 @@ import me.ixk.framework.servlet.DispatcherServlet;
  * 存储 Request 请求内容的 Context，线程安全
  */
 public class RequestContext implements Attributes {
-    private static final ThreadLocal<Attributes> requestAttributes = new ThreadLocal<>();
+    private static final ThreadLocal<RequestContext> requestAttributes = new ThreadLocal<>();
 
-    private static final ThreadLocal<Attributes> inheritableRequestAttributes = new InheritableThreadLocal<>();
+    private static final ThreadLocal<RequestContext> inheritableRequestAttributes = new InheritableThreadLocal<>();
 
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
-    public static void resetRequestAttributes() {
+    public static RequestContext create() {
+        RequestContext requestContext = new RequestContext();
+        setAttributes(requestContext);
+        return requestContext;
+    }
+
+    public static void resetAttributes() {
         requestAttributes.remove();
     }
 
-    public static void setRequestAttributes(Attributes attributes) {
-        setRequestAttributes(attributes, false);
+    public static void setAttributes(RequestContext attributes) {
+        setAttributes(attributes, false);
     }
 
-    public static void setRequestAttributes(
-        Attributes attributes,
+    public static void setAttributes(
+        RequestContext attributes,
         boolean inheritable
     ) {
         if (attributes == null) {
-            resetRequestAttributes();
+            resetAttributes();
         } else {
             if (inheritable) {
                 inheritableRequestAttributes.set(attributes);
@@ -47,29 +53,23 @@ public class RequestContext implements Attributes {
         }
     }
 
-    public static Attributes getRequestAttributes() {
-        Attributes attributes = requestAttributes.get();
+    public static RequestContext getAttributes() {
+        RequestContext attributes = requestAttributes.get();
         if (attributes == null) {
             attributes = inheritableRequestAttributes.get();
         }
         return attributes;
     }
 
-    public static Attributes currentRequestAttributes()
+    public static RequestContext currentAttributes()
         throws IllegalStateException {
-        Attributes attributes = getRequestAttributes();
+        RequestContext attributes = getAttributes();
         if (attributes == null) {
             throw new NullPointerException(
                 "Current request attributes is null"
             );
         }
         return attributes;
-    }
-
-    public static <T extends Attributes> T currentRequestAttributes(
-        Class<T> _class
-    ) {
-        return _class.cast(currentRequestAttributes());
     }
 
     public DispatcherServlet getDispatcherServlet() {
@@ -142,6 +142,26 @@ public class RequestContext implements Attributes {
 
     public void setAuth(Auth auth) {
         this.setObject(Auth.class, auth);
+    }
+
+    public void setHandler(String handler) {
+        this.setAttribute("handler", handler);
+    }
+
+    public String getHandler() {
+        return this.getAttribute("handler", String.class);
+    }
+
+    public Class<?> getController() {
+        try {
+            return Class.forName(this.getHandler().split("@")[0]);
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
+
+    public String getControllerMethod() {
+        return this.getHandler().split("@")[1];
     }
 
     @Override

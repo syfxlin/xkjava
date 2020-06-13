@@ -5,10 +5,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import me.ixk.app.annotations.Log;
 import me.ixk.app.beans.User;
-import me.ixk.app.beans.User2;
 import me.ixk.app.entity.RegisterUser;
 import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.annotations.*;
+import me.ixk.framework.exceptions.Exception;
+import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.facades.View;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.ioc.Application;
@@ -51,8 +52,8 @@ public class IndexController {
     @Middleware("guest")
     @GetMapping("/login")
     public me.ixk.framework.view.View login(Request request) {
-        User2 user = Application.get().make(User2.class);
-        return View.make("login");
+        //        return View.make("login");
+        throw new Exception();
     }
 
     @Bean(name = "user")
@@ -63,5 +64,10 @@ public class IndexController {
     @Autowired
     public void setApplication(Application application) {
         this.getUser();
+    }
+
+    @ExceptionHandler(value = HttpException.class)
+    public String exception() {
+        return "controller";
     }
 }

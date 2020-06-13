@@ -21,4 +21,14 @@ public interface Attributes {
     default <T> void removeObject(Class<T> _class) {
         this.removeAttribute(_class.getName());
     }
+
+    @SuppressWarnings("unchecked")
+    default <T> T getOrDefaultAttribute(String name, T attribute) {
+        Object result = this.getAttribute(name);
+        if (result == null) {
+            this.setAttribute(name, attribute);
+            return attribute;
+        }
+        return (T) result;
+    }
 }
