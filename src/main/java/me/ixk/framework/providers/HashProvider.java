@@ -1,8 +1,12 @@
 package me.ixk.framework.providers;
 
+import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.Hash;
 
+@Provider
+@Order(Order.HIGHEST_PRECEDENCE + 7)
 public class HashProvider extends AbstractProvider {
 
     public HashProvider(Application app) {

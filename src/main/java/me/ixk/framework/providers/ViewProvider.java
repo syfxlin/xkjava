@@ -1,8 +1,12 @@
 package me.ixk.framework.providers;
 
+import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.view.View;
 
+@Provider
+@Order(Order.HIGHEST_PRECEDENCE + 5)
 public class ViewProvider extends AbstractProvider {
 
     public ViewProvider(Application app) {

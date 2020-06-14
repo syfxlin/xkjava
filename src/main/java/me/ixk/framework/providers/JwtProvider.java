@@ -1,11 +1,15 @@
 package me.ixk.framework.providers;
 
 import java.util.Map;
+import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.Base64;
 import me.ixk.framework.utils.JWT;
 
+@Provider
+@Order(Order.HIGHEST_PRECEDENCE + 8)
 public class JwtProvider extends AbstractProvider {
 
     public JwtProvider(Application app) {

@@ -3,12 +3,16 @@ package me.ixk.framework.annotations.processor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
+import me.ixk.framework.annotations.AnnotationProcessor;
+import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.AnnotationUtils;
 
+@AnnotationProcessor
+@Order(Order.HIGHEST_PRECEDENCE + 1)
 public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
 
     public BeanAnnotationProcessor(Application app) {

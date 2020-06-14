@@ -3,11 +3,15 @@ package me.ixk.framework.annotations.processor;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.Controller;
 import me.ixk.framework.annotations.ControllerAdvice;
+import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.kernel.ExceptionHandlerResolver;
 
+@AnnotationProcessor
+@Order(Order.HIGHEST_PRECEDENCE + 3)
 public class ExceptionHandlerAnnotationProcessor
     extends AbstractAnnotationProcessor {
 

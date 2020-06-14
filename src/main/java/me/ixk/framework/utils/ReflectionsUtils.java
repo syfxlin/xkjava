@@ -1,5 +1,7 @@
 package me.ixk.framework.utils;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,5 +54,23 @@ public abstract class ReflectionsUtils {
 
     public static Reflections make(URL... urls) {
         return make(Arrays.asList(urls));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<Class<?>> getTypesAnnotatedWith(
+        Class<? extends Annotation> annotation
+    ) {
+        return (List<Class<?>>) AnnotationUtils.sortByOrderAnnotation(
+            make().getTypesAnnotatedWith(annotation)
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<Method> getMethodsAnnotatedWith(
+        Class<? extends Annotation> annotation
+    ) {
+        return (List<Method>) AnnotationUtils.sortByOrderAnnotation(
+            make().getMethodsAnnotatedWith(annotation)
+        );
     }
 }

@@ -8,9 +8,15 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Order {
+    int HIGHEST_PRECEDENCE = Integer.MIN_VALUE;
+
+    int MEDIUM_PRECEDENCE = 0;
+
+    int LOWEST_PRECEDENCE = Integer.MAX_VALUE;
+
     @AliasFor("order")
-    int value() default 0;
+    int value() default LOWEST_PRECEDENCE;
 
     @AliasFor("value")
-    int order() default 0;
+    int order() default LOWEST_PRECEDENCE;
 }

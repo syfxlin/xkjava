@@ -1,14 +1,13 @@
 package me.ixk.framework.aop;
 
-import me.ixk.framework.annotations.Order;
-import me.ixk.framework.ioc.Application;
-import me.ixk.framework.utils.AnnotationUtils;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.annotations.Order;
+import me.ixk.framework.ioc.Application;
+import me.ixk.framework.utils.AnnotationUtils;
 
 public class AspectManager {
     protected final Application app;
@@ -36,7 +35,7 @@ public class AspectManager {
             if (order != null) {
                 this.order = order.value();
             } else {
-                this.order = 0;
+                this.order = Order.LOWEST_PRECEDENCE;
             }
         }
 

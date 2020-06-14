@@ -1,14 +1,13 @@
 package me.ixk.framework.ioc;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.ComponentScan;
+import me.ixk.framework.annotations.processor.BootstrapAnnotationProcessor;
 import me.ixk.framework.bootstrap.*;
-import me.ixk.framework.exceptions.ApplicationException;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.kernel.ProviderManager;
 import me.ixk.framework.server.HttpServer;
@@ -106,28 +105,10 @@ public class Application extends Container implements Attributes {
     }
 
     protected void bootstrap() {
-        this.bootstraps.forEach(
-                bootstrap -> {
-                    try {
-                        bootstrap
-                            .getConstructor(Application.class)
-                            .newInstance(this)
-                            .boot();
-                    } catch (
-                        InstantiationException
-                        | IllegalAccessException
-                        | InvocationTargetException
-                        | NoSuchMethodException e
-                    ) {
-                        throw new ApplicationException(
-                            "Target [" +
-                            bootstrap.getSimpleName() +
-                            "] bootstrap error",
-                            e
-                        );
-                    }
-                }
-            );
+        BootstrapAnnotationProcessor processor = new BootstrapAnnotationProcessor(
+            this
+        );
+        processor.process();
     }
 
     protected void startServer() {

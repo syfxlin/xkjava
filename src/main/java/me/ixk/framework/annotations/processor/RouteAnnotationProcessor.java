@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 import me.ixk.framework.annotations.*;
+import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.route.AnnotationRouteDefinition;
@@ -11,6 +12,8 @@ import me.ixk.framework.route.RouteManager;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Helper;
 
+@AnnotationProcessor
+@Order(Order.HIGHEST_PRECEDENCE + 5)
 public class RouteAnnotationProcessor extends AbstractAnnotationProcessor {
 
     public RouteAnnotationProcessor(Application app) {

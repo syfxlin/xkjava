@@ -17,8 +17,8 @@ public abstract class AnnotationUtils extends AnnotationUtil {
             or1 = getAnnotation((Method) o1, Order.class);
             or2 = getAnnotation((Method) o1, Order.class);
         }
-        int i1 = or1 == null ? 0 : or1.value();
-        int i2 = or2 == null ? 0 : or2.value();
+        int i1 = or1 == null ? Order.LOWEST_PRECEDENCE : or1.value();
+        int i2 = or2 == null ? Order.LOWEST_PRECEDENCE : or2.value();
         return i1 - i2;
     };
 

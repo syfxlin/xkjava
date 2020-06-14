@@ -6,12 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.*;
-import me.ixk.framework.annotations.processor.*;
-import me.ixk.framework.annotations.processor.AnnotationProcessor;
 import me.ixk.framework.config.AbstractConfig;
 import me.ixk.framework.ioc.Application;
-import me.ixk.framework.providers.*;
-import me.ixk.framework.providers.Provider;
 
 @Configuration(name = "app")
 public class AppConfig extends AbstractConfig {
@@ -36,39 +32,8 @@ public class AppConfig extends AbstractConfig {
         map.put("jwt.algo", this.env.get("app.jwt", "HS256"));
         map.put("jwt.default_payload", new ConcurrentHashMap<String, String>());
 
-        map.put("providers", this.providers());
-
-        map.put("annotation_processors", this.annotationProcessors());
-
         map.put("bean_annotations", this.beanAnnotations());
         return map;
-    }
-
-    private List<Class<? extends Provider>> providers() {
-        return Arrays.asList(
-            AspectProvider.class,
-            DataSourceProvider.class,
-            MybatisPlusProvider.class,
-            ThymeleafProvider.class,
-            ViewProvider.class,
-            EncryptionProvider.class,
-            HashProvider.class,
-            JwtProvider.class,
-            // App
-            AppProvider.class,
-            RouteProvider.class
-        );
-    }
-
-    private List<Class<? extends AnnotationProcessor>> annotationProcessors() {
-        return Arrays.asList(
-            BeanAnnotationProcessor.class,
-            AspectAnnotationProcessor.class,
-            ExceptionHandlerAnnotationProcessor.class,
-            PreAndPostAnnotationProcessor.class,
-            RouteAnnotationProcessor.class,
-            MiddlewareAnnotationProcessor.class
-        );
     }
 
     private List<Class<? extends Annotation>> beanAnnotations() {

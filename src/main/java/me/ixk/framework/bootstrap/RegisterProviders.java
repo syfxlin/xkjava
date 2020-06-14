@@ -1,10 +1,12 @@
 package me.ixk.framework.bootstrap;
 
-import java.util.List;
-import me.ixk.framework.facades.Config;
+import me.ixk.framework.annotations.Bootstrap;
+import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotations.processor.ProviderAnnotationProcessor;
 import me.ixk.framework.ioc.Application;
-import me.ixk.framework.kernel.ProviderManager;
 
+@Bootstrap
+@Order(Order.HIGHEST_PRECEDENCE + 5)
 public class RegisterProviders extends AbstractBootstrap {
 
     public RegisterProviders(Application app) {
@@ -12,15 +14,10 @@ public class RegisterProviders extends AbstractBootstrap {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void boot() {
-        ProviderManager providerManager = new ProviderManager(this.app);
-        this.app.setProviderManager(providerManager);
-        this.app.instance(
-                ProviderManager.class,
-                providerManager,
-                "providerManager"
-            );
-        providerManager.registers(Config.get("app.providers", List.class));
+        ProviderAnnotationProcessor processor = new ProviderAnnotationProcessor(
+            this.app
+        );
+        processor.process();
     }
 }

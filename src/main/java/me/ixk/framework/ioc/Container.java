@@ -946,6 +946,24 @@ public class Container {
         return this.callObjectMethod(instance, methodName, returnType, args);
     }
 
+    public <T> T call(Class<?> _class, String methodName, Class<T> returnType) {
+        return this.call(_class, methodName, returnType, this.globalArgs);
+    }
+
+    public <T> T call(
+        Class<?> _class,
+        String methodName,
+        Class<T> returnType,
+        Map<String, Object> args
+    ) {
+        return this.callObjectMethod(
+                this.make(_class, args),
+                methodName,
+                returnType,
+                args
+            );
+    }
+
     public void remove(String _abstract) {
         this.doRemove(_abstract);
     }

@@ -1,10 +1,14 @@
 package me.ixk.framework.providers;
 
+import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.Base64;
 import me.ixk.framework.utils.Crypt;
 
+@Provider
+@Order(Order.HIGHEST_PRECEDENCE + 6)
 public class EncryptionProvider extends AbstractProvider {
 
     public EncryptionProvider(Application app) {

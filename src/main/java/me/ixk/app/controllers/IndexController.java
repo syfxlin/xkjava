@@ -46,11 +46,6 @@ public class IndexController {
         //        Auth.register(registerUser);
         Map<String, Object> map = new ConcurrentHashMap<>();
         map.put("text", "String");
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         return View.make("index", map).render();
     }
 
