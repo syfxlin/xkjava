@@ -1,27 +1,18 @@
 package me.ixk.framework.utils;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
-import me.ixk.framework.exceptions.LoadEnvironmentFileException;
+import me.ixk.framework.ioc.Application;
 
 public class Environment {
-    protected static Properties property;
+    protected final Application app;
 
-    public Environment(String path) {
-        property = new Properties();
-        try {
-            property.load(this.getClass().getResourceAsStream(path));
-        } catch (IOException e) {
-            throw new LoadEnvironmentFileException(
-                "Load environment [" + path + "] failed",
-                e
-            );
-        }
+    public Environment(Application app) {
+        this.app = app;
     }
 
     public Properties all() {
-        return property;
+        return this.app.getEnvironment();
     }
 
     public String get(String key) {
@@ -29,7 +20,7 @@ public class Environment {
     }
 
     public String get(String key, String _default) {
-        return property.getProperty(key, _default);
+        return this.app.getEnvironment().getProperty(key, _default);
     }
 
     public void set(Map<String, String> values) {
@@ -39,11 +30,11 @@ public class Environment {
     }
 
     public void set(String key, String value) {
-        property.setProperty(key, value);
+        this.app.getEnvironment().setProperty(key, value);
     }
 
     public boolean has(String key) {
-        return property.containsKey(key);
+        return this.app.getEnvironment().containsKey(key);
     }
 
     public void push(String key, String value) {

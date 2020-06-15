@@ -240,6 +240,7 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
      * @since 3.3.0
      * @deprecated 3.3.1 后面我打算移除掉 {@link #executeBatch(Collection, int, BiConsumer)} }.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     protected boolean executeBatch(Consumer<SqlSession> consumer) {
         SqlSessionFactory sqlSessionFactory = SqlHelper.sqlSessionFactory(

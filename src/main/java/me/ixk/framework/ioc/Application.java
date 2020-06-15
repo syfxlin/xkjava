@@ -1,9 +1,6 @@
 package me.ixk.framework.ioc;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.ComponentScan;
 import me.ixk.framework.annotations.processor.BootstrapAnnotationProcessor;
@@ -213,5 +210,13 @@ public class Application extends Container implements Attributes {
 
     public void setConfig(Map<String, Map<String, Object>> config) {
         this.context.setAttribute("config", config);
+    }
+
+    public Properties getEnvironment() {
+        return this.context.getOrDefaultAttribute("env", new Properties());
+    }
+
+    public void setEnvironment(Properties properties) {
+        this.context.setAttribute("env", properties);
     }
 }

@@ -41,7 +41,7 @@ public class DefaultPropertyInjector implements PropertyInjector {
                 }
                 dependency = container.make(autowiredClass);
             }
-            boolean originAccessible = field.isAccessible();
+            boolean originAccessible = field.canAccess(dependency);
             field.setAccessible(true);
             try {
                 field.set(instance, dependency);

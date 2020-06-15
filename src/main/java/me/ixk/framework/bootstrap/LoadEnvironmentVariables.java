@@ -1,7 +1,10 @@
 package me.ixk.framework.bootstrap;
 
+import java.io.IOException;
+import java.util.Properties;
 import me.ixk.framework.annotations.Bootstrap;
 import me.ixk.framework.annotations.Order;
+import me.ixk.framework.exceptions.LoadEnvironmentFileException;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.Environment;
 
@@ -15,10 +18,18 @@ public class LoadEnvironmentVariables extends AbstractBootstrap {
 
     @Override
     public void boot() {
-        this.app.instance(
-                Environment.class,
-                new Environment("/application.properties"),
-                "env"
+        Properties property = new Properties();
+        try {
+            property.load(
+                this.getClass().getResourceAsStream("/application.properties")
             );
+        } catch (IOException e) {
+            throw new LoadEnvironmentFileException(
+                "Load environment [application.properties] failed",
+                e
+            );
+        }
+        this.app.setAttribute("env", property);
+        this.app.instance(Environment.class, new Environment(this.app), "env");
     }
 }

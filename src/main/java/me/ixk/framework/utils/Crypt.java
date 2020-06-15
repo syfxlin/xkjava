@@ -10,6 +10,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 
 public class Crypt {
     protected final byte[] key;
@@ -57,7 +58,7 @@ public class Crypt {
     public String decrypt(String encrypted) {
         try {
             ObjectNode payload = JSON.parseObject(Base64.decode(encrypted));
-            if (!this.vaild(payload)) {
+            if (!this.vaild(Objects.requireNonNull(payload))) {
                 return null;
             }
             IvParameterSpec iv = new IvParameterSpec(

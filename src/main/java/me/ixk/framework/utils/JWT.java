@@ -2,10 +2,7 @@ package me.ixk.framework.utils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JWT {
@@ -117,8 +114,8 @@ public class JWT {
         mergePayload.putAll(payload);
 
         List<String> segments = new ArrayList<>();
-        segments.add(Base64.encode(JSON.stringify(header)));
-        segments.add(Base64.encode(JSON.stringify(mergePayload)));
+        segments.add(Base64.encode(Objects.requireNonNull(JSON.stringify(header))));
+        segments.add(Base64.encode(Objects.requireNonNull(JSON.stringify(mergePayload))));
         String sign = this.sign(String.join(".", segments), false, key, algo);
         segments.add(sign);
         return String.join(".", segments);

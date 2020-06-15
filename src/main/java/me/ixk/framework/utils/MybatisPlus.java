@@ -2,17 +2,16 @@ package me.ixk.framework.utils;
 
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;
+import java.sql.Connection;
+import java.util.List;
+import java.util.Map;
+import javax.sql.DataSource;
 import me.ixk.framework.exceptions.MybatisPlusException;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.BatchResult;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.*;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.util.List;
-import java.util.Map;
 
 public class MybatisPlus {
     protected final SqlSessionManager sessionManager;
@@ -187,10 +186,12 @@ public class MybatisPlus {
             .selectList(statement, parameter, rowBounds);
     }
 
+    @SuppressWarnings("rawtypes")
     public void select(String statement, ResultHandler handler) {
         this.getSessionManager().select(statement, handler);
     }
 
+    @SuppressWarnings("rawtypes")
     public void select(
         String statement,
         Object parameter,
@@ -199,6 +200,7 @@ public class MybatisPlus {
         this.getSessionManager().select(statement, parameter, handler);
     }
 
+    @SuppressWarnings("rawtypes")
     public void select(
         String statement,
         Object parameter,

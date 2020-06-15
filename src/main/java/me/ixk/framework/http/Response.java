@@ -290,11 +290,13 @@ public class Response implements HttpServletResponse {
         return _base.encodeRedirectURL(url);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public String encodeUrl(String url) {
         return _base.encodeUrl(url);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public String encodeRedirectUrl(String url) {
         return _base.encodeRedirectUrl(url);
@@ -423,6 +425,7 @@ public class Response implements HttpServletResponse {
         _base.setStatus(sc);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setStatus(int sc, String sm) {
         _base.setStatus(sc, sm);

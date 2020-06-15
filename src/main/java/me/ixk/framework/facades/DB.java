@@ -159,10 +159,12 @@ public class DB extends AbstractFacade {
         return make().selectList(statement, parameter, rowBounds);
     }
 
+    @SuppressWarnings("rawtypes")
     public void select(String statement, ResultHandler handler) {
         make().select(statement, handler);
     }
 
+    @SuppressWarnings("rawtypes")
     public void select(
         String statement,
         Object parameter,
@@ -171,6 +173,7 @@ public class DB extends AbstractFacade {
         make().select(statement, parameter, handler);
     }
 
+    @SuppressWarnings("rawtypes")
     public void select(
         String statement,
         Object parameter,

@@ -1,5 +1,6 @@
 package me.ixk.framework.aop;
 
+@SuppressWarnings("EmptyMethod")
 public interface Advice {
     void before(JoinPoint joinPoint);
 

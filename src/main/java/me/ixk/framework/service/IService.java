@@ -20,6 +20,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("DanglingJavadoc")
 public interface IService<T> {
     /**
      * 默认批次提交数量
