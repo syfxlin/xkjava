@@ -20,7 +20,7 @@ IoC 容器可以自定义注入器，默认的注入器可以支持大部分场�
 
 添加了很多同 Spring 的注解，不过有一些小改动，注解大部分都支持通过 @Order 进行排序，同时注解也可以使用 @AliasFor 使用别名，同时提供一个通用的注解处理抽象类，如果需要处理自定义注解可以通过继承该类快速实现。
 
-ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf 渲染，路由是参考 FastRoute 制作的，HttpServer 采用 Jetty，参数验证使用的是 HibernateValidator（由于后续才引入的 HuTool，就懒得改了），类型转换器和一些其他工具使用的是 HuTool。
+ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf 渲染，路由是参考 FastRoute 制作的，HttpServer 采用 Jetty，参数验证使用的是 HibernateValidator（由于后续才引入的 HuTool，就懒得改了），类型转换器和一些其他工具使用的是 HuTool，数据源使用的是 HikariCP，JSON 库采用的是 Jackson，由于 Java 默认不会保留参数名称，加编译选项在我这出现时好时坏的情况，所以本项目直接采用了 ASM 来获取参数名称。
 
 支持 AspectJ 切面，需要经过 IoC 容器处理后才能生效，同时需要实现 Advice 接口，可以直接继承自 AbstractAdvice，从容器中 Make 或者 Call，以及绑定到容器的 Bean 都可以注入切面。切面实现使用的是 Cglib。
 
