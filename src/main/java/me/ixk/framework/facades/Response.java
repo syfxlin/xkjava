@@ -13,6 +13,7 @@ import me.ixk.framework.http.SetCookie;
 import org.eclipse.jetty.http.*;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.HttpOutput;
+import org.eclipse.jetty.util.Callback;
 
 public class Response extends AbstractFacade {
 
@@ -561,5 +562,31 @@ public class Response extends AbstractFacade {
         boolean etag
     ) {
         return make().putHeaders(content, contentLength, etag);
+    }
+
+    public static me.ixk.framework.http.Response reopen() {
+        return make().reopen();
+    }
+
+    public static me.ixk.framework.http.Response errorClose() {
+        return make().errorClose();
+    }
+
+    public static boolean isStreaming() {
+        return make().isStreaming();
+    }
+
+    public static boolean isWritingOrStreaming() {
+        return make().isWritingOrStreaming();
+    }
+
+    public static me.ixk.framework.http.Response completeOutput(
+        Callback callback
+    ) {
+        return make().completeOutput(callback);
+    }
+
+    public static me.ixk.framework.http.Response resetContent() {
+        return make().resetContent();
     }
 }

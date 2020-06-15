@@ -13,6 +13,7 @@ import me.ixk.framework.utils.JSON;
 import org.eclipse.jetty.http.*;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.HttpOutput;
+import org.eclipse.jetty.util.Callback;
 
 public class Response implements HttpServletResponse {
     protected org.eclipse.jetty.server.Response _base;
@@ -653,6 +654,34 @@ public class Response implements HttpServletResponse {
         boolean etag
     ) {
         _base.putHeaders(content, contentLength, etag);
+        return this;
+    }
+
+    public Response reopen() {
+        _base.reopen();
+        return this;
+    }
+
+    public Response errorClose() {
+        _base.errorClose();
+        return this;
+    }
+
+    public boolean isStreaming() {
+        return _base.isStreaming();
+    }
+
+    public boolean isWritingOrStreaming() {
+        return _base.isWritingOrStreaming();
+    }
+
+    public Response completeOutput(Callback callback) {
+        _base.completeOutput(callback);
+        return this;
+    }
+
+    public Response resetContent() {
+        _base.resetContent();
         return this;
     }
 }

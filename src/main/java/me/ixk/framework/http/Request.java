@@ -976,4 +976,32 @@ public class Request implements HttpServletRequest {
         this._base = request;
         return this;
     }
+
+    public Request enterSession(HttpSession s) {
+        _base.enterSession(s);
+        return this;
+    }
+
+    public ContextHandler.Context getErrorContext() {
+        return _base.getErrorContext();
+    }
+
+    public Request onCompleted() {
+        _base.onCompleted();
+        return this;
+    }
+
+    public Request onResponseCommit() {
+        _base.onResponseCommit();
+        return this;
+    }
+
+    public HttpSession getSession(SessionHandler sessionHandler) {
+        return _base.getSession(sessionHandler);
+    }
+
+    public Request setAsyncAttributes() {
+        _base.setAsyncAttributes();
+        return this;
+    }
 }

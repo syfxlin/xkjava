@@ -804,4 +804,28 @@ public class Request extends AbstractFacade {
     ) {
         return make().setOriginRequest(request);
     }
+
+    public static me.ixk.framework.http.Request enterSession(HttpSession s) {
+        return make().enterSession(s);
+    }
+
+    public static ContextHandler.Context getErrorContext() {
+        return make().getErrorContext();
+    }
+
+    public static me.ixk.framework.http.Request onCompleted() {
+        return make().onCompleted();
+    }
+
+    public static me.ixk.framework.http.Request onResponseCommit() {
+        return make().onResponseCommit();
+    }
+
+    public static HttpSession getSession(SessionHandler sessionHandler) {
+        return make().getSession(sessionHandler);
+    }
+
+    public static me.ixk.framework.http.Request setAsyncAttributes() {
+        return make().setAsyncAttributes();
+    }
 }
