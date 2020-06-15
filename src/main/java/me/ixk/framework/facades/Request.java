@@ -11,12 +11,11 @@ import java.util.regex.Pattern;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.http.Cookie;
-import org.eclipse.jetty.http.HttpFields;
-import org.eclipse.jetty.http.HttpMethod;
-import org.eclipse.jetty.http.HttpURI;
-import org.eclipse.jetty.http.HttpVersion;
+import org.eclipse.jetty.http.*;
 import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.util.Attributes;
 import org.eclipse.jetty.util.MultiMap;
 
@@ -177,7 +176,7 @@ public class Request extends AbstractFacade {
         return make().getHttpFields();
     }
 
-    public static HttpInput<?> getHttpInput() {
+    public static HttpInput getHttpInput() {
         return make().getHttpInput();
     }
 
@@ -185,10 +184,6 @@ public class Request extends AbstractFacade {
         EventListener listener
     ) {
         return make().addEventListener(listener);
-    }
-
-    public static me.ixk.framework.http.Request extractParameters() {
-        return make().extractParameters();
     }
 
     public static me.ixk.framework.http.Request extractFormParameters(
@@ -229,7 +224,7 @@ public class Request extends AbstractFacade {
         return make().getCharacterEncoding();
     }
 
-    public static HttpChannel<?> getHttpChannel() {
+    public static HttpChannel getHttpChannel() {
         return make().getHttpChannel();
     }
 
@@ -421,7 +416,7 @@ public class Request extends AbstractFacade {
         return make().getRequestURL();
     }
 
-    public static org.eclipse.jetty.server.Response getResponse() {
+    public static Response getResponse() {
         return make().getResponse();
     }
 
@@ -469,16 +464,12 @@ public class Request extends AbstractFacade {
         return make().getSession(create);
     }
 
-    public static SessionManager getSessionManager() {
-        return make().getSessionManager();
-    }
-
     public static long getTimeStamp() {
         return make().getTimeStamp();
     }
 
-    public static HttpURI getUri() {
-        return make().getUri();
+    public static HttpURI getHttpURI() {
+        return make().getHttpURI();
     }
 
     public static UserIdentity getUserIdentity() {
@@ -537,10 +528,6 @@ public class Request extends AbstractFacade {
         return make().isUserInRole(role);
     }
 
-    public static HttpSession recoverNewSession(Object key) {
-        return make().recoverNewSession(key);
-    }
-
     public static void removeAttribute(String name) {
         make().removeAttribute(name);
     }
@@ -551,17 +538,11 @@ public class Request extends AbstractFacade {
         return make().removeEventListener(listener);
     }
 
-    public static me.ixk.framework.http.Request saveNewSession(
-        Object key,
-        HttpSession session
-    ) {
-        return make().saveNewSession(key, session);
-    }
-
     public static me.ixk.framework.http.Request setAsyncSupported(
-        boolean supported
+        boolean supported,
+        String source
     ) {
-        return make().setAsyncSupported(supported);
+        return make().setAsyncSupported(supported, source);
     }
 
     public static void setAttribute(String name, Object value) {
@@ -627,11 +608,8 @@ public class Request extends AbstractFacade {
         return make().setHandled(h);
     }
 
-    public static me.ixk.framework.http.Request setMethod(
-        HttpMethod httpMethod,
-        String method
-    ) {
-        return make().setMethod(httpMethod, method);
+    public static me.ixk.framework.http.Request setMethod(String method) {
+        return make().setMethod(method);
     }
 
     public static boolean isHead() {
@@ -678,22 +656,8 @@ public class Request extends AbstractFacade {
         return make().setRequestedSessionIdFromCookie(requestedSessionIdCookie);
     }
 
-    public static me.ixk.framework.http.Request setRequestURI(
-        String requestURI
-    ) {
-        return make().setRequestURI(requestURI);
-    }
-
     public static me.ixk.framework.http.Request setScheme(String scheme) {
         return make().setScheme(scheme);
-    }
-
-    public static me.ixk.framework.http.Request setServerName(String host) {
-        return make().setServerName(host);
-    }
-
-    public static me.ixk.framework.http.Request setServerPort(int port) {
-        return make().setServerPort(port);
     }
 
     public static me.ixk.framework.http.Request setServletPath(
@@ -708,18 +672,12 @@ public class Request extends AbstractFacade {
         return make().setSession(session);
     }
 
-    public static me.ixk.framework.http.Request setSessionManager(
-        SessionManager sessionManager
-    ) {
-        return make().setSessionManager(sessionManager);
-    }
-
     public static me.ixk.framework.http.Request setTimeStamp(long ts) {
         return make().setTimeStamp(ts);
     }
 
-    public static me.ixk.framework.http.Request setUri(HttpURI uri) {
-        return make().setUri(uri);
+    public static me.ixk.framework.http.Request setHttpURI(HttpURI uri) {
+        return make().setHttpURI(uri);
     }
 
     public static me.ixk.framework.http.Request setUserIdentityScope(
@@ -765,10 +723,69 @@ public class Request extends AbstractFacade {
     }
 
     public static me.ixk.framework.http.Request mergeQueryParameters(
+        String oldQuery,
         String newQuery,
         boolean updateQueryString
     ) {
-        return make().mergeQueryParameters(newQuery, updateQueryString);
+        return make()
+            .mergeQueryParameters(oldQuery, newQuery, updateQueryString);
+    }
+
+    public static HttpFields getTrailers() {
+        return make().getTrailers();
+    }
+
+    public static boolean isPush() {
+        return make().isPush();
+    }
+
+    public static boolean isPushSupported() {
+        return make().isPushSupported();
+    }
+
+    public static PushBuilder getPushBuilder() {
+        return make().getPushBuilder();
+    }
+
+    public static SessionHandler getSessionHandler() {
+        return make().getSessionHandler();
+    }
+
+    public static String getOriginalURI() {
+        return make().getOriginalURI();
+    }
+
+    public static me.ixk.framework.http.Request setMetaData(
+        MetaData.Request request
+    ) {
+        return make().setMetaData(request);
+    }
+
+    public static MetaData.Request getMetaData() {
+        return make().getMetaData();
+    }
+
+    public static boolean hasMetaData() {
+        return make().hasMetaData();
+    }
+
+    public static me.ixk.framework.http.Request setURIPathQuery(
+        String requestURI
+    ) {
+        return make().setURIPathQuery(requestURI);
+    }
+
+    public static me.ixk.framework.http.Request setAuthority(
+        String host,
+        int port
+    ) {
+        return make().setAuthority(host, port);
+    }
+
+    public static me.ixk.framework.http.Request setSessionHandler(
+        SessionHandler sessionHandler
+    ) {
+        return make().setSessionHandler(sessionHandler);
     }
 
     public static <T extends HttpUpgradeHandler> T upgrade(

@@ -1,5 +1,9 @@
 package me.ixk.framework.route;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.exceptions.RouteCollectorException;
 import me.ixk.framework.facades.Config;
@@ -7,11 +11,6 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.ResponseProcessor;
 import me.ixk.framework.middleware.Middleware;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class RouteManager {
     public static RouteCollector route;
@@ -83,7 +82,7 @@ public class RouteManager {
     ) {
         RouteResult routeResult = dispatcher.dispatch(
             request.getMethod(),
-            request.getUri().getPath()
+            request.getHttpURI().getPath()
         );
 
         // 修改 Request 中的 Path 参数
@@ -99,7 +98,7 @@ public class RouteManager {
                 throw new HttpException(
                     404,
                     "Not Found",
-                    "The URI \"" + request.getUri() + "\" was not found."
+                    "The URI \"" + request.getHttpURI() + "\" was not found."
                 );
             case METHOD_NOT_ALLOWED:
                 throw new HttpException(

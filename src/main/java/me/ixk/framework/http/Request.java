@@ -15,14 +15,11 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import me.ixk.framework.utils.Helper;
 import me.ixk.framework.utils.JSON;
-import org.eclipse.jetty.http.HttpFields;
-import org.eclipse.jetty.http.HttpMethod;
-import org.eclipse.jetty.http.HttpURI;
-import org.eclipse.jetty.http.HttpVersion;
+import org.eclipse.jetty.http.*;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.Response;
-import org.eclipse.jetty.server.SessionManager;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.util.Attributes;
 import org.eclipse.jetty.util.MultiMap;
 
@@ -211,16 +208,16 @@ public class Request implements HttpServletRequest {
     }
 
     public String path() {
-        return _base.getUri().getPath();
+        return _base.getHttpURI().getPath();
     }
 
     public String url() {
-        HttpURI uri = _base.getUri();
+        HttpURI uri = _base.getHttpURI();
         return uri.getScheme() + "://" + uri.getAuthority() + uri.getPath();
     }
 
     public String fullUrl() {
-        return _base.getUri().toString();
+        return _base.getHttpURI().toString();
     }
 
     public String method() {
@@ -236,11 +233,11 @@ public class Request implements HttpServletRequest {
     }
 
     public boolean pattern(String regex) {
-        return Pattern.matches(regex, _base.getUri().getPath());
+        return Pattern.matches(regex, _base.getHttpURI().getPath());
     }
 
     public boolean pattern(Pattern pattern) {
-        return pattern.matcher(_base.getUri().getPath()).matches();
+        return pattern.matcher(_base.getHttpURI().getPath()).matches();
     }
 
     public boolean ajax() {
@@ -295,17 +292,12 @@ public class Request implements HttpServletRequest {
         return _base.getHttpFields();
     }
 
-    public HttpInput<?> getHttpInput() {
+    public HttpInput getHttpInput() {
         return _base.getHttpInput();
     }
 
     public Request addEventListener(EventListener listener) {
         _base.addEventListener(listener);
-        return this;
-    }
-
-    public Request extractParameters() {
-        _base.extractParameters();
         return this;
     }
 
@@ -351,7 +343,7 @@ public class Request implements HttpServletRequest {
         return _base.getCharacterEncoding();
     }
 
-    public HttpChannel<?> getHttpChannel() {
+    public HttpChannel getHttpChannel() {
         return _base.getHttpChannel();
     }
 
@@ -638,16 +630,12 @@ public class Request implements HttpServletRequest {
         return _base.getSession(create);
     }
 
-    public org.eclipse.jetty.server.SessionManager getSessionManager() {
-        return _base.getSessionManager();
-    }
-
     public long getTimeStamp() {
         return _base.getTimeStamp();
     }
 
-    public HttpURI getUri() {
-        return _base.getUri();
+    public HttpURI getHttpURI() {
+        return _base.getHttpURI();
     }
 
     public UserIdentity getUserIdentity() {
@@ -716,10 +704,6 @@ public class Request implements HttpServletRequest {
         return _base.isUserInRole(role);
     }
 
-    public HttpSession recoverNewSession(Object key) {
-        return _base.recoverNewSession(key);
-    }
-
     @Override
     public void removeAttribute(String name) {
         _base.removeAttribute(name);
@@ -730,13 +714,8 @@ public class Request implements HttpServletRequest {
         return this;
     }
 
-    public Request saveNewSession(Object key, HttpSession session) {
-        _base.saveNewSession(key, session);
-        return this;
-    }
-
-    public Request setAsyncSupported(boolean supported) {
-        _base.setAsyncSupported(supported);
+    public Request setAsyncSupported(boolean supported, String source) {
+        _base.setAsyncSupported(supported, source);
         return this;
     }
 
@@ -800,8 +779,8 @@ public class Request implements HttpServletRequest {
         return this;
     }
 
-    public Request setMethod(HttpMethod httpMethod, String method) {
-        _base.setMethod(httpMethod, method);
+    public Request setMethod(String method) {
+        _base.setMethod(method);
         return this;
     }
 
@@ -846,23 +825,8 @@ public class Request implements HttpServletRequest {
         return this;
     }
 
-    public Request setRequestURI(String requestURI) {
-        _base.setRequestURI(requestURI);
-        return this;
-    }
-
     public Request setScheme(String scheme) {
         _base.setScheme(scheme);
-        return this;
-    }
-
-    public Request setServerName(String host) {
-        _base.setServerName(host);
-        return this;
-    }
-
-    public Request setServerPort(int port) {
-        _base.setServerPort(port);
         return this;
     }
 
@@ -876,18 +840,13 @@ public class Request implements HttpServletRequest {
         return this;
     }
 
-    public Request setSessionManager(SessionManager sessionManager) {
-        _base.setSessionManager(sessionManager);
-        return this;
-    }
-
     public Request setTimeStamp(long ts) {
         _base.setTimeStamp(ts);
         return this;
     }
 
-    public Request setUri(HttpURI uri) {
-        _base.setUri(uri);
+    public Request setHttpURI(HttpURI uri) {
+        _base.setHttpURI(uri);
         return this;
     }
 
@@ -943,10 +902,63 @@ public class Request implements HttpServletRequest {
     }
 
     public Request mergeQueryParameters(
+        String oldQuery,
         String newQuery,
         boolean updateQueryString
     ) {
-        _base.mergeQueryParameters(newQuery, updateQueryString);
+        _base.mergeQueryParameters(oldQuery, newQuery, updateQueryString);
+        return this;
+    }
+
+    public HttpFields getTrailers() {
+        return _base.getTrailers();
+    }
+
+    public boolean isPush() {
+        return _base.isPush();
+    }
+
+    public boolean isPushSupported() {
+        return _base.isPushSupported();
+    }
+
+    public PushBuilder getPushBuilder() {
+        return _base.getPushBuilder();
+    }
+
+    public SessionHandler getSessionHandler() {
+        return _base.getSessionHandler();
+    }
+
+    public String getOriginalURI() {
+        return _base.getOriginalURI();
+    }
+
+    public Request setMetaData(MetaData.Request request) {
+        _base.setMetaData(request);
+        return this;
+    }
+
+    public MetaData.Request getMetaData() {
+        return _base.getMetaData();
+    }
+
+    public boolean hasMetaData() {
+        return _base.hasMetaData();
+    }
+
+    public Request setURIPathQuery(String requestURI) {
+        _base.setURIPathQuery(requestURI);
+        return this;
+    }
+
+    public Request setAuthority(String host, int port) {
+        _base.setAuthority(host, port);
+        return this;
+    }
+
+    public Request setSessionHandler(SessionHandler sessionHandler) {
+        _base.setSessionHandler(sessionHandler);
         return this;
     }
 

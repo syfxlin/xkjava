@@ -7,7 +7,7 @@ import me.ixk.framework.servlet.DispatcherServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.server.session.HashSessionIdManager;
+import org.eclipse.jetty.server.session.DefaultSessionIdManager;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
@@ -71,7 +71,7 @@ public class HttpServer {
         servletContextHandler.setResourceBase(resource + "/..");
 
         server.setHandler(servletContextHandler);
-        server.setSessionIdManager(new HashSessionIdManager());
+        server.setSessionIdManager(new DefaultSessionIdManager(server));
 
         return server;
     }

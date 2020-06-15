@@ -1,19 +1,18 @@
 package me.ixk.framework.http;
 
-import me.ixk.framework.exceptions.ResponseException;
-import me.ixk.framework.utils.JSON;
-import org.eclipse.jetty.http.HttpContent;
-import org.eclipse.jetty.http.HttpFields;
-import org.eclipse.jetty.http.HttpHeader;
-import org.eclipse.jetty.server.HttpOutput;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import me.ixk.framework.exceptions.ResponseException;
+import me.ixk.framework.utils.JSON;
+import org.eclipse.jetty.http.*;
+import org.eclipse.jetty.server.HttpChannel;
+import org.eclipse.jetty.server.HttpOutput;
 
 public class Response implements HttpServletResponse {
     protected org.eclipse.jetty.server.Response _base;
@@ -215,18 +214,8 @@ public class Response implements HttpServletResponse {
 
     /* =========================== */
 
-    public Response setHeaders(HttpContent httpContent) {
-        _base.setHeaders(httpContent);
-        return this;
-    }
-
     public HttpOutput getHttpOutput() {
         return _base.getHttpOutput();
-    }
-
-    public Response setHttpOutput(HttpOutput out) {
-        _base.setHttpOutput(out);
-        return this;
     }
 
     public boolean isIncluding() {
@@ -551,11 +540,6 @@ public class Response implements HttpServletResponse {
         _base.reset();
     }
 
-    public Response reset(boolean preserveCookies) {
-        _base.reset(preserveCookies);
-        return this;
-    }
-
     public Response resetForForward() {
         _base.resetForForward();
         return this;
@@ -632,5 +616,43 @@ public class Response implements HttpServletResponse {
                 cookie.isHttpOnly(),
                 cookie.getVersion()
             );
+    }
+
+    public HttpChannel getHttpChannel() {
+        return _base.getHttpChannel();
+    }
+
+    public void addCookie(HttpCookie cookie) {
+        _base.addCookie(cookie);
+    }
+
+    public void replaceCookie(HttpCookie cookie) {
+        _base.replaceCookie(cookie);
+    }
+
+    public boolean isContentComplete(long written) {
+        return _base.isContentComplete(written);
+    }
+
+    public Response setTrailers(Supplier<HttpFields> trailers) {
+        _base.setTrailers(trailers);
+        return this;
+    }
+
+    public Supplier<HttpFields> getTrailers() {
+        return _base.getTrailers();
+    }
+
+    public MetaData.Response getCommittedMetaData() {
+        return _base.getCommittedMetaData();
+    }
+
+    public Response putHeaders(
+        HttpContent content,
+        long contentLength,
+        boolean etag
+    ) {
+        _base.putHeaders(content, contentLength, etag);
+        return this;
     }
 }

@@ -156,8 +156,16 @@ public class Container {
         return new String[] { _abstract, inAlias };
     }
 
-    protected String getAbstractByAlias(String alias) {
-        return this.aliases.getOrDefault(alias, alias);
+    protected String getAbstractByAlias(String name) {
+        String _abstract = name;
+        String resolved;
+        do {
+            resolved = this.aliases.get(_abstract);
+            if (resolved != null) {
+                _abstract = resolved;
+            }
+        } while (resolved != null);
+        return _abstract;
     }
 
     /* doing */
@@ -281,7 +289,7 @@ public class Container {
             instance = this.instances.get(_abstract);
         } else {
             try {
-                instance = binding.getConcrete().invoke(this, args);
+                instance = binding.getConcrete().getObject(this, args);
             } catch (Throwable e) {
                 throw new ContainerException("Instance make failed", e);
             }
@@ -702,7 +710,7 @@ public class Container {
 
     public Object build(Concrete concrete, Map<String, Object> args) {
         try {
-            return concrete.invoke(this, args);
+            return concrete.getObject(this, args);
         } catch (Throwable e) {
             throw new ContainerException("Instance build failed", e);
         }

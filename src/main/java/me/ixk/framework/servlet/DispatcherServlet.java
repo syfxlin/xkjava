@@ -61,10 +61,7 @@ public class DispatcherServlet extends FrameworkServlet {
             new CookieManager(cookies == null ? new Cookie[0] : cookies)
         );
         requestContext.setSessionManager(
-            new SessionManager(
-                request.getSession(),
-                request.getSessionManager()
-            )
+            new SessionManager(request.getSession())
         );
         requestContext.setAuth(new Auth());
 

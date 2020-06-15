@@ -9,19 +9,14 @@ import me.ixk.framework.utils.Helper;
 
 public class SessionManager {
     HttpSession _session;
-    org.eclipse.jetty.server.SessionManager _sessionManager;
 
     @Deprecated
     public SessionManager() {
         // only used cglib
     }
 
-    public SessionManager(
-        HttpSession session,
-        org.eclipse.jetty.server.SessionManager sessionManager
-    ) {
+    public SessionManager(HttpSession session) {
         this._session = session;
-        this._sessionManager = sessionManager;
     }
 
     public HttpSession getSession() {
@@ -30,16 +25,6 @@ public class SessionManager {
 
     public void setSession(HttpSession _session) {
         this._session = _session;
-    }
-
-    public org.eclipse.jetty.server.SessionManager getSessionManager() {
-        return _sessionManager;
-    }
-
-    public void setSessionManager(
-        org.eclipse.jetty.server.SessionManager _sessionManager
-    ) {
-        this._sessionManager = _sessionManager;
     }
 
     public boolean has(String name) {

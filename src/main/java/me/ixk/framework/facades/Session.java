@@ -20,16 +20,6 @@ public class Session extends AbstractFacade {
         make().setSession(_session);
     }
 
-    public static org.eclipse.jetty.server.SessionManager getSessionManager() {
-        return make().getSessionManager();
-    }
-
-    public static void setSessionManager(
-        org.eclipse.jetty.server.SessionManager _sessionManager
-    ) {
-        make().setSessionManager(_sessionManager);
-    }
-
     public static boolean has(String name) {
         return make().has(name);
     }

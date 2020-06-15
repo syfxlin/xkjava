@@ -6,12 +6,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Supplier;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import me.ixk.framework.http.SetCookie;
-import org.eclipse.jetty.http.HttpContent;
-import org.eclipse.jetty.http.HttpFields;
-import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.*;
+import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.HttpOutput;
 
 public class Response extends AbstractFacade {
@@ -192,18 +192,8 @@ public class Response extends AbstractFacade {
         return make().pushCookieToHeader();
     }
 
-    public static me.ixk.framework.http.Response setHeaders(
-        HttpContent httpContent
-    ) {
-        return make().setHeaders(httpContent);
-    }
-
     public static HttpOutput getHttpOutput() {
         return make().getHttpOutput();
-    }
-
-    public static me.ixk.framework.http.Response setHttpOutput(HttpOutput out) {
-        return make().setHttpOutput(out);
     }
 
     public static boolean isIncluding() {
@@ -481,12 +471,6 @@ public class Response extends AbstractFacade {
         make().reset();
     }
 
-    public static me.ixk.framework.http.Response reset(
-        boolean preserveCookies
-    ) {
-        return make().reset(preserveCookies);
-    }
-
     public static me.ixk.framework.http.Response resetForForward() {
         return make().resetForForward();
     }
@@ -539,5 +523,43 @@ public class Response extends AbstractFacade {
 
     public static void addCookie(Cookie cookie) {
         make().addCookie(cookie);
+    }
+
+    public static HttpChannel getHttpChannel() {
+        return make().getHttpChannel();
+    }
+
+    public static void addCookie(HttpCookie cookie) {
+        make().addCookie(cookie);
+    }
+
+    public static void replaceCookie(HttpCookie cookie) {
+        make().replaceCookie(cookie);
+    }
+
+    public static boolean isContentComplete(long written) {
+        return make().isContentComplete(written);
+    }
+
+    public static me.ixk.framework.http.Response setTrailers(
+        Supplier<HttpFields> trailers
+    ) {
+        return make().setTrailers(trailers);
+    }
+
+    public static Supplier<HttpFields> getTrailers() {
+        return make().getTrailers();
+    }
+
+    public static MetaData.Response getCommittedMetaData() {
+        return make().getCommittedMetaData();
+    }
+
+    public static me.ixk.framework.http.Response putHeaders(
+        HttpContent content,
+        long contentLength,
+        boolean etag
+    ) {
+        return make().putHeaders(content, contentLength, etag);
     }
 }
