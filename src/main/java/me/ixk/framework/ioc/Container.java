@@ -1,39 +1,39 @@
 package me.ixk.framework.ioc;
 
 import cn.hutool.core.convert.Convert;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import me.ixk.framework.annotations.PreDestroy;
+import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.DynamicInterceptor;
 import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.factory.AfterInitProcessor;
+import me.ixk.framework.factory.ObjectFactory;
 import me.ixk.framework.ioc.injector.DefaultMethodInjector;
 import me.ixk.framework.ioc.injector.DefaultParameterInjector;
 import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
-import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.AutowireUtils;
-import me.ixk.framework.utils.ClassUtils;
 import net.sf.cglib.proxy.Enhancer;
 
-public class Container {
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class Container implements Attributes {
     protected final ParameterInjector parameterInjector = new DefaultParameterInjector();
     protected final PropertyInjector propertyInjector = new DefaultPropertyInjector();
     protected final MethodInjector methodInjector = new DefaultMethodInjector();
 
-    protected final Map<String, Binding> bindings;
+    protected final Map<String, Binding> bindings = new ConcurrentHashMap<>();
 
-    protected final Map<String, Object> instances;
+    protected final Map<String, String> aliases = new ConcurrentHashMap<>();
 
-    protected final Map<String, String> aliases;
+    protected final Map<String, Object> instance = new ConcurrentHashMap<>();
 
     protected Map<String, Object> globalArgs = new ConcurrentHashMap<>();
 
@@ -41,13 +41,56 @@ public class Container {
 
     protected List<AfterInitProcessor> afterInitProcessors = new ArrayList<>();
 
-    public Container() {
-        this.bindings = new ConcurrentHashMap<>();
-        this.instances = new ConcurrentHashMap<>();
-        this.aliases = new ConcurrentHashMap<>();
+    /* base */
+
+    @Override
+    public boolean hasAttribute(String name) {
+        return this.instance.containsKey(name);
     }
 
-    /* base */
+    @Override
+    public Object getAttribute(String name) {
+        return this.instance.get(name);
+    }
+
+    @Override
+    public void setAttribute(String name, Object attribute) {
+        this.instance.put(name, attribute);
+    }
+
+    @Override
+    public void removeAttribute(String name) {
+        this.instance.remove(name);
+    }
+
+    @Override
+    public String[] getAttributeNames() {
+        return this.instance.keySet().toArray(new String[0]);
+    }
+
+    public ParameterInjector getParameterInjector() {
+        return parameterInjector;
+    }
+
+    public PropertyInjector getPropertyInjector() {
+        return propertyInjector;
+    }
+
+    public MethodInjector getMethodInjector() {
+        return methodInjector;
+    }
+
+    public void createRequestContext() {
+        RequestContext.create();
+    }
+
+    public void removeRequestContext() {
+        RequestContext.removeAttributes();
+    }
+
+    public RequestContext getRequestContext() {
+        return RequestContext.currentAttributes();
+    }
 
     public Map<String, Object> getGlobalArgs() {
         return globalArgs;
@@ -101,27 +144,31 @@ public class Container {
     protected void setBinding(
         String _abstract,
         String concrete,
-        boolean shared,
+        ScopeType scopeType,
         boolean overwrite
     ) {
         _abstract = this.getAbstractByAlias(_abstract);
         Concrete concrete1 = (container, args) ->
             container.build(concrete, args);
-        this.setBinding(_abstract, concrete1, shared, overwrite);
+        this.setBinding(_abstract, concrete1, scopeType, overwrite);
     }
 
     protected void setBinding(
         String _abstract,
         Concrete concrete,
-        boolean shared,
+        ScopeType scopeType,
         boolean overwrite
     ) {
-        if (!overwrite && shared && this.bindings.containsKey(_abstract)) {
+        if (
+            !overwrite &&
+            scopeType.isShared() &&
+            this.bindings.containsKey(_abstract)
+        ) {
             throw new RuntimeException(
                 "Target [" + _abstract + "] is a singleton and has been bind"
             );
         }
-        this.bindings.put(_abstract, new Binding(concrete, shared));
+        this.bindings.put(_abstract, new Binding(concrete, scopeType));
     }
 
     protected Binding getBinding(String _abstract) {
@@ -132,7 +179,7 @@ public class Container {
                 _abstract,
                 new Binding(
                     (container, args) -> container.build(finalAbstract, args),
-                    false
+                    ScopeType.PROTOTYPE
                 )
             );
     }
@@ -173,11 +220,11 @@ public class Container {
     protected Container doBind(
         String _abstract,
         Concrete concrete,
-        boolean shared,
+        ScopeType scopeType,
         String alias,
         boolean overwrite
     ) {
-        this.setBinding(_abstract, concrete, shared, overwrite);
+        this.setBinding(_abstract, concrete, scopeType, overwrite);
         if (alias != null) {
             this.alias(alias, _abstract);
         }
@@ -187,7 +234,8 @@ public class Container {
     protected Container doInstance(
         String _abstract,
         Object instance,
-        String alias
+        String alias,
+        ScopeType scopeType
     ) {
         String[] abstractAlias =
             this.getAbstractAndAliasByAlias(_abstract, alias);
@@ -195,22 +243,16 @@ public class Container {
         alias = abstractAlias[1];
         // 处理 Set 注入和方法
         instance = this.methodInjector.inject(this, instance, this.globalArgs);
-        // 解决动态注入
-        try {
-            instance =
-                AutowireUtils.resolveAutowiringValue(
-                    instance,
-                    Class.forName(_abstract)
-                );
-        } catch (ClassNotFoundException e) {
-            // no code
+        if (scopeType.isRequest()) {
+            this.getRequestContext().setAttribute(_abstract, instance);
+        } else {
+            this.setAttribute(_abstract, instance);
         }
         Object finalInstance = instance;
-        this.instances.put(_abstract, finalInstance);
         this.bind(
                 _abstract,
                 (container, args) -> finalInstance,
-                true,
+                scopeType,
                 alias,
                 true
             );
@@ -219,11 +261,11 @@ public class Container {
 
     protected Object doBuild(Class<?> _class, Map<String, Object> args) {
         Map<String, List<Advice>> map = null;
-        if (this.instances.containsKey(AspectManager.class.getName())) {
+        if (this.hasAttribute(AspectManager.class.getName())) {
             try {
                 map =
                     (
-                        (AspectManager) this.instances.get(
+                        (AspectManager) this.getAttribute(
                                 AspectManager.class.getName()
                             )
                     ).matches(_class);
@@ -285,8 +327,17 @@ public class Container {
         _abstract = this.getAbstractByAlias(_abstract);
         Binding binding = this.getBinding(_abstract);
         Object instance;
-        if (binding.isShared() && this.instances.containsKey(_abstract)) {
-            instance = this.instances.get(_abstract);
+        ScopeType scopeType = binding.getType();
+        if (
+            scopeType.isRequest() &&
+            this.getRequestContext().hasAttribute(_abstract)
+        ) {
+            String final_abstract = _abstract;
+            instance =
+                (ObjectFactory<Object>) () ->
+                    this.getRequestContext().getAttribute(final_abstract);
+        } else if (binding.isShared() && this.hasAttribute(_abstract)) {
+            instance = this.getAttribute(_abstract);
         } else {
             try {
                 instance = binding.getConcrete().getObject(this, args);
@@ -296,30 +347,23 @@ public class Container {
         }
         // 解决动态注入
         instance = AutowireUtils.resolveAutowiringValue(instance, returnType);
-        if (binding.isShared() && !this.instances.containsKey(_abstract)) {
-            this.instances.put(_abstract, instance);
-        }
         instance = this.doAfterProcessor(instance, returnType);
-        return Convert.convert(returnType, instance);
+        instance = Convert.convert(returnType, instance);
+        if (scopeType.isRequest()) {
+            if (!this.getRequestContext().hasAttribute(_abstract)) {
+                this.getRequestContext().setAttribute(_abstract, instance);
+            }
+        } else if (scopeType.isShared()) {
+            if (!this.hasAttribute(_abstract)) {
+                this.setAttribute(_abstract, instance);
+            }
+        }
+        return returnType.cast(instance);
     }
 
     protected void doRemove(String _abstract) {
         String alias = _abstract;
         _abstract = this.getAbstractByAlias(_abstract);
-
-        Object instance = this.make(_abstract);
-        Set<Method> methods = ClassUtils.getMethods(instance);
-        for (Method method : methods) {
-            // init 方法
-            PreDestroy postConstruct = AnnotationUtils.getAnnotation(
-                method,
-                PreDestroy.class
-            );
-            if (postConstruct != null) {
-                this.call(instance, method, Object.class, this.globalArgs);
-            }
-        }
-
         for (Map.Entry<String, String> entry : this.aliases.entrySet()) {
             if (entry.getKey().equals(alias)) {
                 this.aliases.remove(entry.getKey());
@@ -330,7 +374,7 @@ public class Container {
             }
         }
         this.bindings.remove(_abstract);
-        this.instances.remove(_abstract);
+        this.removeAttribute(_abstract);
     }
 
     protected <T> T callMethod(
@@ -404,35 +448,51 @@ public class Container {
     /* bind String, String */
 
     public Container bind(String _abstract) {
-        return this.bind(_abstract, _abstract, false, null, false);
+        return this.bind(
+                _abstract,
+                _abstract,
+                ScopeType.PROTOTYPE,
+                null,
+                false
+            );
     }
 
     public Container bind(String _abstract, String concrete) {
-        return this.bind(_abstract, concrete, false, null, false);
-    }
-
-    public Container bind(String _abstract, String concrete, boolean shared) {
-        return this.bind(_abstract, concrete, shared, null, false);
-    }
-
-    public Container bind(String _abstract, String concrete, String alias) {
-        return this.bind(_abstract, concrete, false, alias, false);
+        return this.bind(_abstract, concrete, ScopeType.PROTOTYPE, null, false);
     }
 
     public Container bind(
         String _abstract,
         String concrete,
-        boolean shared,
+        ScopeType scopeType
+    ) {
+        return this.bind(_abstract, concrete, scopeType, null, false);
+    }
+
+    public Container bind(String _abstract, String concrete, String alias) {
+        return this.bind(
+                _abstract,
+                concrete,
+                ScopeType.PROTOTYPE,
+                alias,
+                false
+            );
+    }
+
+    public Container bind(
+        String _abstract,
+        String concrete,
+        ScopeType scopeType,
         String alias
     ) {
-        return this.bind(_abstract, concrete, shared, alias, false);
+        return this.bind(_abstract, concrete, scopeType, alias, false);
     }
 
     /* bind final String, String */
     public Container bind(
         String _abstract,
         String concrete,
-        boolean shared,
+        ScopeType scopeType,
         String alias,
         boolean overwrite
     ) {
@@ -448,7 +508,7 @@ public class Container {
                 _abstract,
                 (Container container, Map<String, Object> args) ->
                     container.build(finalConcrete, args),
-                shared,
+                scopeType,
                 alias,
                 overwrite
             );
@@ -457,76 +517,92 @@ public class Container {
     /* bind String, Concrete */
 
     public Container bind(String _abstract, Concrete concrete) {
-        return this.bind(_abstract, concrete, false, null, false);
-    }
-
-    public Container bind(String _abstract, Concrete concrete, boolean shared) {
-        return this.bind(_abstract, concrete, shared, null, false);
-    }
-
-    public Container bind(String _abstract, Concrete concrete, String alias) {
-        return this.bind(_abstract, concrete, false, alias, false);
+        return this.bind(_abstract, concrete, ScopeType.PROTOTYPE, null, false);
     }
 
     public Container bind(
         String _abstract,
         Concrete concrete,
-        boolean shared,
+        ScopeType scopeType
+    ) {
+        return this.bind(_abstract, concrete, scopeType, null, false);
+    }
+
+    public Container bind(String _abstract, Concrete concrete, String alias) {
+        return this.bind(
+                _abstract,
+                concrete,
+                ScopeType.PROTOTYPE,
+                alias,
+                false
+            );
+    }
+
+    public Container bind(
+        String _abstract,
+        Concrete concrete,
+        ScopeType scopeType,
         String alias
     ) {
-        return this.bind(_abstract, concrete, shared, alias, false);
+        return this.bind(_abstract, concrete, scopeType, alias, false);
     }
 
     /* bind final String, Concrete */
     public Container bind(
         String _abstract,
         Concrete concrete,
-        boolean shared,
+        ScopeType scopeType,
         String alias,
         boolean overwrite
     ) {
-        return this.doBind(_abstract, concrete, shared, alias, overwrite);
+        return this.doBind(_abstract, concrete, scopeType, alias, overwrite);
     }
 
     /* bind Class, Class */
 
     public Container bind(Class<?> _abstract) {
-        return this.bind(_abstract, _abstract, false, null, false);
+        return this.bind(
+                _abstract,
+                _abstract,
+                ScopeType.PROTOTYPE,
+                null,
+                false
+            );
     }
 
     public Container bind(Class<?> _abstract, Class<?> concrete) {
-        return this.bind(_abstract, concrete, false, null, false);
+        return this.bind(_abstract, concrete, ScopeType.PROTOTYPE, null, false);
     }
 
     public Container bind(
         Class<?> _abstract,
         Class<?> concrete,
-        boolean shared
+        ScopeType scopeType
     ) {
-        return this.bind(_abstract, concrete, shared, null, false);
+        return this.bind(_abstract, concrete, scopeType, null, false);
     }
 
     public Container bind(
         Class<?> _abstract,
         Class<?> concrete,
-        boolean shared,
+        ScopeType scopeType,
         String alias
     ) {
-        return this.bind(_abstract, concrete, shared, alias, false);
+        return this.bind(_abstract, concrete, scopeType, alias, false);
     }
 
     /* bind final Class, Class */
     public Container bind(
         Class<?> _abstract,
         Class<?> concrete,
-        boolean shared,
+        ScopeType scopeType,
         String alias,
         boolean overwrite
     ) {
         return this.bind(
                 _abstract.getName(),
                 concrete.getName(),
-                shared,
+                scopeType,
                 alias,
                 overwrite
             );
@@ -535,42 +611,48 @@ public class Container {
     /* bind Class, Concrete */
 
     public Container bind(Class<?> _abstract, Concrete concrete) {
-        return this.bind(_abstract, concrete, false, null, false);
+        return this.bind(_abstract, concrete, ScopeType.PROTOTYPE, null, false);
     }
 
     public Container bind(
         Class<?> _abstract,
         Concrete concrete,
-        boolean shared
+        ScopeType scopeType
     ) {
-        return this.bind(_abstract, concrete, shared, null, false);
+        return this.bind(_abstract, concrete, scopeType, null, false);
     }
 
     public Container bind(Class<?> _abstract, Concrete concrete, String alias) {
-        return this.bind(_abstract, concrete, false, alias, false);
+        return this.bind(
+                _abstract,
+                concrete,
+                ScopeType.PROTOTYPE,
+                alias,
+                false
+            );
     }
 
     public Container bind(
         Class<?> _abstract,
         Concrete concrete,
-        boolean shared,
+        ScopeType scopeType,
         String alias
     ) {
-        return this.bind(_abstract, concrete, shared, alias, false);
+        return this.bind(_abstract, concrete, scopeType, alias, false);
     }
 
     /* bind final Class, Concrete */
     public Container bind(
         Class<?> _abstract,
         Concrete concrete,
-        boolean shared,
+        ScopeType scopeType,
         String alias,
         boolean overwrite
     ) {
         return this.bind(
                 _abstract.getName(),
                 concrete,
-                shared,
+                scopeType,
                 alias,
                 overwrite
             );
@@ -601,7 +683,13 @@ public class Container {
         String alias,
         boolean overwrite
     ) {
-        return this.bind(_abstract, concrete, true, alias, overwrite);
+        return this.bind(
+                _abstract,
+                concrete,
+                ScopeType.SINGLETON,
+                alias,
+                overwrite
+            );
     }
 
     /* singleton String, Concrete */
@@ -625,7 +713,13 @@ public class Container {
         String alias,
         boolean overwrite
     ) {
-        return this.bind(_abstract, concrete, true, alias, overwrite);
+        return this.bind(
+                _abstract,
+                concrete,
+                ScopeType.SINGLETON,
+                alias,
+                overwrite
+            );
     }
 
     /* singleton Class, Class */
@@ -653,7 +747,13 @@ public class Container {
         String alias,
         boolean overwrite
     ) {
-        return this.bind(_abstract, concrete, true, alias, overwrite);
+        return this.bind(
+                _abstract,
+                concrete,
+                ScopeType.SINGLETON,
+                alias,
+                overwrite
+            );
     }
 
     /* singleton Class, Concrete */
@@ -677,33 +777,85 @@ public class Container {
         String alias,
         boolean overwrite
     ) {
-        return this.bind(_abstract, concrete, true, alias, overwrite);
+        return this.bind(
+                _abstract,
+                concrete,
+                ScopeType.SINGLETON,
+                alias,
+                overwrite
+            );
     }
 
     /* instance String, Object */
 
     public Container instance(String _abstract, Object instance) {
-        return this.instance(_abstract, instance, null);
+        return this.instance(_abstract, instance, null, ScopeType.SINGLETON);
+    }
+
+    public Container instance(
+        String _abstract,
+        Object instance,
+        ScopeType scopeType
+    ) {
+        return this.instance(_abstract, instance, null, scopeType);
     }
 
     /* instance final String, Object */
+
     public Container instance(String _abstract, Object instance, String alias) {
-        return this.doInstance(_abstract, instance, alias);
+        return this.doInstance(_abstract, instance, alias, ScopeType.SINGLETON);
+    }
+
+    public Container instance(
+        String _abstract,
+        Object instance,
+        String alias,
+        ScopeType scopeType
+    ) {
+        return this.doInstance(_abstract, instance, alias, scopeType);
     }
 
     /* instance Class, Object */
 
     public Container instance(Class<?> _abstract, Object instance) {
-        return this.instance(_abstract.getName(), instance, null);
+        return this.instance(
+                _abstract.getName(),
+                instance,
+                null,
+                ScopeType.SINGLETON
+            );
+    }
+
+    public Container instance(
+        Class<?> _abstract,
+        Object instance,
+        ScopeType scopeType
+    ) {
+        return this.instance(_abstract.getName(), instance, null, scopeType);
     }
 
     /* instance final Class, Object */
+
     public Container instance(
         Class<?> _abstract,
         Object instance,
         String alias
     ) {
-        return this.instance(_abstract.getName(), instance, alias);
+        return this.instance(
+                _abstract.getName(),
+                instance,
+                alias,
+                ScopeType.SINGLETON
+            );
+    }
+
+    public Container instance(
+        Class<?> _abstract,
+        Object instance,
+        String alias,
+        ScopeType scopeType
+    ) {
+        return this.instance(_abstract.getName(), instance, alias, scopeType);
     }
 
     /* build Concrete */
@@ -993,36 +1145,5 @@ public class Container {
 
     public Object methodInjector(Object instance, Map<String, Object> args) {
         return this.methodInjector.inject(this, instance, args);
-    }
-
-    /* can remove */
-    protected Stream<? extends Class<?>> getClassesFromBinding() {
-        return this.bindings.keySet()
-            .stream()
-            .map(
-                name -> {
-                    try {
-                        return Class.forName(name);
-                    } catch (Throwable e) {
-                        return null;
-                    }
-                }
-            )
-            .filter(Objects::nonNull);
-    }
-
-    public Set<Class<?>> getClassesByAnnotation(
-        Class<? extends Annotation> annotation
-    ) {
-        return this.getClassesFromBinding()
-            .filter(_class -> _class.isAnnotationPresent(annotation))
-            .collect(Collectors.toSet());
-    }
-
-    public Set<Class<?>> getClassesBySuper(Class<?> superClass) {
-        return this.getClassesFromBinding()
-            .filter(superClass::isAssignableFrom)
-            .filter(_class -> !_class.equals(superClass))
-            .collect(Collectors.toSet());
     }
 }

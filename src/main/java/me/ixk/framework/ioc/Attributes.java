@@ -1,6 +1,7 @@
 package me.ixk.framework.ioc;
 
 public interface Attributes {
+    boolean hasAttribute(String name);
     Object getAttribute(String name);
     void setAttribute(String name, Object attribute);
     void removeAttribute(String name);

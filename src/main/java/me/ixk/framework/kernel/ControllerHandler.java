@@ -1,7 +1,5 @@
 package me.ixk.framework.kernel;
 
-import static me.ixk.framework.ioc.RequestContext.currentAttributes;
-
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +33,7 @@ public class ControllerHandler implements Handler {
     @Override
     public Object handle(Request request) {
         // 将控制器信息注入 RequestContext
-        RequestContext context = RequestContext.currentAttributes();
+        RequestContext context = this.app.getRequestContext();
         context.setHandler(this.controllerClass, this.methodName);
         try {
             Object controller = this.app.make(this.controllerClass);
@@ -64,7 +62,7 @@ public class ControllerHandler implements Handler {
                 );
         if (
             controllerResolvers.containsKey(
-                currentAttributes().getControllerType()
+                this.app.getRequestContext().getControllerType()
             )
         ) {
             Object result =

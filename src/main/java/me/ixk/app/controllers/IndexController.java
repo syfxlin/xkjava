@@ -1,16 +1,11 @@
 package me.ixk.app.controllers;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import me.ixk.app.annotations.Log;
 import me.ixk.app.beans.User;
-import me.ixk.app.entity.RegisterUser;
 import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.annotations.*;
-import me.ixk.framework.exceptions.Exception;
 import me.ixk.framework.exceptions.HttpException;
-import me.ixk.framework.facades.View;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.ioc.Application;
 
@@ -37,23 +32,18 @@ public class IndexController {
     @GetMapping("/controller")
     @Transactional
     public String index(Request request, User user, int age) {
-        RegisterUser registerUser = new RegisterUser();
-        registerUser.setUsername("syfxlin2");
-        registerUser.setNickname("nickname");
-        registerUser.setEmail("syfxlin@gmail.com");
-        registerUser.setPassword("123456");
-        registerUser.setPasswordConfirmed("123456");
-        //        Auth.register(registerUser);
-        Map<String, Object> map = new ConcurrentHashMap<>();
-        map.put("text", "String");
-        return View.make("index", map).render();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return this.request.query("age");
     }
 
     @Middleware("guest")
     @GetMapping("/login")
-    public me.ixk.framework.view.View login(Request request) {
-        //        return View.make("login");
-        throw new Exception();
+    public String login(Request request) {
+        return this.request.query("age");
     }
 
     @Bean(name = "user")

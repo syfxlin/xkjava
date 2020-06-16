@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.ComponentScan;
 import me.ixk.framework.annotations.processor.BootstrapAnnotationProcessor;
-import me.ixk.framework.bootstrap.*;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.kernel.ProviderManager;
 import me.ixk.framework.server.HttpServer;
@@ -20,15 +19,6 @@ public class Application extends Container implements Attributes {
 
     protected String[] args;
 
-    protected final List<Class<? extends Bootstrap>> bootstraps = Arrays.asList(
-        LoadEnvironmentVariables.class,
-        LoadConfiguration.class,
-        RegisterFacades.class,
-        ProcessAnnotation.class,
-        RegisterProviders.class,
-        BootProviders.class
-    );
-
     protected boolean booted = false;
 
     protected ProviderManager providerManager;
@@ -39,13 +29,8 @@ public class Application extends Container implements Attributes {
 
     protected BootCallback bootedCallback = null;
 
-    protected ApplicationContext context;
-
     private Application() {
-        this.context = ApplicationContext.create();
-
         this.instance(Application.class, this, "app");
-        this.instance(ApplicationContext.class, this.context, "context");
     }
 
     private static class Inner {
@@ -160,63 +145,29 @@ public class Application extends Container implements Attributes {
         }
     }
 
-    public ApplicationContext getContext() {
-        return context;
-    }
-
-    public void setContext(ApplicationContext context) {
-        this.context = context;
-    }
-
-    @Override
-    public Object getAttribute(String name) {
-        return this.context.getAttribute(name);
-    }
-
-    @Override
-    public void setAttribute(String name, Object attribute) {
-        this.context.setAttribute(name, attribute);
-    }
-
-    @Override
-    public void removeAttribute(String name) {
-        this.context.removeAttribute(name);
-    }
-
-    @Override
-    public String[] getAttributeNames() {
-        return this.context.getAttributeNames();
-    }
-
     /* Quick get set context attribute */
 
     public List<String> getScanPackage() {
-        return this.context.getOrDefaultAttribute(
-                "scanPackage",
-                new ArrayList<>()
-            );
+        return this.getOrDefaultAttribute("scanPackage", new ArrayList<>());
     }
 
     public void setScanPackage(List<String> scanPackage) {
-        this.context.setAttribute("scanPackage", scanPackage);
+        this.setAttribute("scanPackage", scanPackage);
     }
 
     public Map<String, Map<String, Object>> getConfig() {
-        return this.context.getOrDefaultAttribute(
-                "config",
-                new ConcurrentHashMap<>()
-            );
+        return this.getOrDefaultAttribute("config", new ConcurrentHashMap<>());
     }
 
     public void setConfig(Map<String, Map<String, Object>> config) {
-        this.context.setAttribute("config", config);
+        this.setAttribute("config", config);
     }
 
     public Properties getEnvironment() {
-        return this.context.getOrDefaultAttribute("env", new Properties());
+        return this.getOrDefaultAttribute("env", new Properties());
     }
 
     public void setEnvironment(Properties properties) {
-        this.context.setAttribute("env", properties);
+        this.setAttribute("env", properties);
     }
 }

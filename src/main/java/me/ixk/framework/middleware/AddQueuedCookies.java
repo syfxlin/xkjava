@@ -1,17 +1,18 @@
 package me.ixk.framework.middleware;
 
-import me.ixk.framework.facades.App;
 import me.ixk.framework.http.CookieManager;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
+import me.ixk.framework.ioc.Application;
 
 public class AddQueuedCookies implements Middleware {
 
     @Override
     public Response handle(Request request, Runner next) {
         Response response = next.handle(request);
-        SetCookie[] cookies = App
+        SetCookie[] cookies = Application
+            .get()
             .make(CookieManager.class)
             .getQueues()
             .values()

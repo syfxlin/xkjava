@@ -31,7 +31,7 @@ public class DefaultPropertyInjector implements PropertyInjector {
             }
             Object dependency;
             if (!autowired.name().equals("")) {
-                dependency = container.make(autowired.name());
+                dependency = container.make(autowired.name(), field.getType());
             } else {
                 Class<?> autowiredClass;
                 if (autowired.type() == Class.class) {
