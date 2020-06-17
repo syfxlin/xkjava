@@ -1,6 +1,15 @@
 package me.ixk.framework.ioc;
 
 import cn.hutool.core.convert.Convert;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
@@ -14,16 +23,6 @@ import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
 import me.ixk.framework.utils.AutowireUtils;
 import net.sf.cglib.proxy.Enhancer;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class Container implements Attributes {
     protected final ParameterInjector parameterInjector = new DefaultParameterInjector();
     protected final PropertyInjector propertyInjector = new DefaultPropertyInjector();
@@ -33,7 +32,7 @@ public class Container implements Attributes {
 
     protected final Map<String, String> aliases = new ConcurrentHashMap<>();
 
-    protected final Map<String, Object> instance = new ConcurrentHashMap<>();
+    protected final Map<String, Object> instances = new ConcurrentHashMap<>();
 
     protected Map<String, Object> globalArgs = new ConcurrentHashMap<>();
 
@@ -45,27 +44,27 @@ public class Container implements Attributes {
 
     @Override
     public boolean hasAttribute(String name) {
-        return this.instance.containsKey(name);
+        return this.instances.containsKey(name);
     }
 
     @Override
     public Object getAttribute(String name) {
-        return this.instance.get(name);
+        return this.instances.get(name);
     }
 
     @Override
     public void setAttribute(String name, Object attribute) {
-        this.instance.put(name, attribute);
+        this.instances.put(name, attribute);
     }
 
     @Override
     public void removeAttribute(String name) {
-        this.instance.remove(name);
+        this.instances.remove(name);
     }
 
     @Override
     public String[] getAttributeNames() {
-        return this.instance.keySet().toArray(new String[0]);
+        return this.instances.keySet().toArray(new String[0]);
     }
 
     public ParameterInjector getParameterInjector() {
@@ -139,18 +138,6 @@ public class Container implements Attributes {
 
     public boolean has(Class<?> _abstract) {
         return this.hasBinding(_abstract.getName());
-    }
-
-    protected void setBinding(
-        String _abstract,
-        String concrete,
-        ScopeType scopeType,
-        boolean overwrite
-    ) {
-        _abstract = this.getAbstractByAlias(_abstract);
-        Concrete concrete1 = (container, args) ->
-            container.build(concrete, args);
-        this.setBinding(_abstract, concrete1, scopeType, overwrite);
     }
 
     protected void setBinding(
@@ -259,22 +246,18 @@ public class Container implements Attributes {
         return this;
     }
 
-    protected Object doBuild(Class<?> _class, Map<String, Object> args) {
-        Map<String, List<Advice>> map = null;
-        if (this.hasAttribute(AspectManager.class.getName())) {
-            try {
-                map =
-                    (
-                        (AspectManager) this.getAttribute(
-                                AspectManager.class.getName()
-                            )
-                    ).matches(_class);
-            } catch (Throwable e) {
-                throw new ContainerException(
-                    "Instance build failed (Aspect matches)",
-                    e
-                );
-            }
+    protected synchronized Object doBuild(
+        Class<?> _class,
+        Map<String, Object> args
+    ) {
+        Map<String, List<Advice>> map;
+        try {
+            map = AspectManager.matches(_class);
+        } catch (Throwable e) {
+            throw new ContainerException(
+                "Instance build failed (Aspect matches)",
+                e
+            );
         }
         Constructor<?>[] constructors = _class.getDeclaredConstructors();
         Object instance;
@@ -283,12 +266,11 @@ public class Container implements Attributes {
             Object[] dependencies =
                 this.parameterInjector.inject(this, constructor, args);
             try {
-                if (map == null || map.isEmpty()) {
+                if (map.isEmpty()) {
                     instance = constructor.newInstance(dependencies);
                 } else {
                     Enhancer enhancer = new Enhancer();
                     enhancer.setSuperclass(_class);
-                    //                    enhancer.setInterfaces(constructor.getParameterTypes());
                     enhancer.setCallback(new DynamicInterceptor(map));
                     instance =
                         enhancer.create(

@@ -12,4 +12,12 @@ public enum ScopeType {
     public boolean isRequest() {
         return this == REQUEST;
     }
+
+    public boolean isSingleton() {
+        return this == SINGLETON;
+    }
+
+    public boolean isPrototype() {
+        return this == PROTOTYPE;
+    }
 }

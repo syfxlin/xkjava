@@ -6,12 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.Order;
-import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.AnnotationUtils;
 
 public class AspectManager {
-    protected final Application app;
-
     protected static final List<AdviceEntry> adviceList = new ArrayList<>();
 
     public static void addAdvice(AspectPointcut pointcut, Advice advice) {
@@ -52,29 +49,21 @@ public class AspectManager {
         }
     }
 
-    public AspectManager(Application app) {
-        this.app = app;
-    }
-
-    public Map<String, List<Advice>> matches(Class<?> _class) {
+    public static Map<String, List<Advice>> matches(Class<?> _class) {
         Map<String, List<Advice>> map = new ConcurrentHashMap<>();
         for (AdviceEntry entry : adviceList) {
             if (entry.getPointcut().matches(_class)) {
                 for (Method method : _class.getMethods()) {
-                    this.addAdviceToMap(
-                            method.getName(),
-                            entry.getAdvice(),
-                            map
-                        );
+                    addAdviceToMap(method.getName(), entry.getAdvice(), map);
                 }
             } else {
                 for (Method method : _class.getMethods()) {
                     if (entry.getPointcut().matches(method)) {
-                        this.addAdviceToMap(
-                                method.getName(),
-                                entry.getAdvice(),
-                                map
-                            );
+                        addAdviceToMap(
+                            method.getName(),
+                            entry.getAdvice(),
+                            map
+                        );
                     }
                 }
             }
@@ -82,7 +71,7 @@ public class AspectManager {
         return map;
     }
 
-    public void addAdviceToMap(
+    public static void addAdviceToMap(
         String name,
         Advice advice,
         Map<String, List<Advice>> map
