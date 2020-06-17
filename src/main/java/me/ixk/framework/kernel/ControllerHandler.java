@@ -4,11 +4,11 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.exceptions.DispatchServletException;
 import me.ixk.framework.exceptions.Exception;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.ioc.Application;
-import me.ixk.framework.ioc.RequestContext;
 import me.ixk.framework.middleware.Handler;
 
 public class ControllerHandler implements Handler {
@@ -33,15 +33,24 @@ public class ControllerHandler implements Handler {
     @Override
     public Object handle(Request request) {
         // 将控制器信息注入 RequestContext
-        RequestContext context = this.app.getRequestContext();
-        context.setHandler(this.controllerClass, this.methodName);
+        this.app.setAttribute(
+                "controllerClass",
+                this.controllerClass,
+                ScopeType.REQUEST
+            );
+        this.app.setAttribute(
+                "controllerMethod",
+                this.methodName,
+                ScopeType.REQUEST
+            );
         try {
             Object controller = this.app.make(this.controllerClass);
-            this.app.setGlobalArgs(request.all());
-            Object result =
-                this.app.call(controller, this.methodName, Object.class);
-            this.app.resetGlobalArgs();
-            return result;
+            return this.app.call(
+                    controller,
+                    this.methodName,
+                    Object.class,
+                    request.all()
+                );
         } catch (Throwable e) {
             // 处理 ExceptionHandler 注解定义的错误处理器
             Object result = this.processException(e, request);
@@ -62,7 +71,7 @@ public class ControllerHandler implements Handler {
                 );
         if (
             controllerResolvers.containsKey(
-                this.app.getRequestContext().getControllerType()
+                this.app.getAttribute("controllerClass", Class.class)
             )
         ) {
             Object result =

@@ -1,4 +1,4 @@
-package me.ixk.framework.newioc;
+package me.ixk.framework.ioc;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

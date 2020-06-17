@@ -1,4 +1,4 @@
-package me.ixk.framework.newioc;
+package me.ixk.framework.ioc;
 
 public enum ContextName {
     APPLICATION("application"),

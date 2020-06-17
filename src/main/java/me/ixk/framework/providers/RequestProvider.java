@@ -1,10 +1,5 @@
 package me.ixk.framework.providers;
 
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import me.ixk.framework.annotations.Order;
-import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.http.CookieManager;
 import me.ixk.framework.http.Request;
@@ -14,8 +9,12 @@ import me.ixk.framework.ioc.Application;
 import me.ixk.framework.kernel.Auth;
 import me.ixk.framework.servlet.DispatcherServlet;
 
-@Provider
-@Order(Order.HIGHEST_PRECEDENCE + 11)
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+// @Provider
+// @Order(Order.HIGHEST_PRECEDENCE + 11)
 public class RequestProvider extends AbstractProvider {
 
     public RequestProvider(Application app) {
@@ -27,52 +26,52 @@ public class RequestProvider extends AbstractProvider {
         this.app.bind(
                 DispatcherServlet.class,
                 DispatcherServlet.class,
-                ScopeType.REQUEST,
-                "dispatcherServlet"
+                "dispatcherServlet",
+                ScopeType.REQUEST
             );
         this.app.bind(
                 HttpServlet.class,
                 HttpServlet.class,
-                ScopeType.REQUEST,
-                "httpServlet"
+                "httpServlet",
+                ScopeType.REQUEST
             );
 
         this.app.bind(
                 Request.class,
                 Request.class,
-                ScopeType.REQUEST,
-                "request"
+                "request",
+                ScopeType.REQUEST
             );
         this.app.bind(
                 HttpServletRequest.class,
                 HttpServletRequest.class,
-                ScopeType.REQUEST,
-                "httpServletRequest"
+                "httpServletRequest",
+                ScopeType.REQUEST
             );
         this.app.bind(
                 Response.class,
                 Response.class,
-                ScopeType.REQUEST,
-                "response"
+                "response",
+                ScopeType.REQUEST
             );
         this.app.bind(
                 HttpServletResponse.class,
                 HttpServletResponse.class,
-                ScopeType.REQUEST,
-                "httpServletResponse"
+                "httpServletResponse",
+                ScopeType.REQUEST
             );
         this.app.bind(
                 CookieManager.class,
                 CookieManager.class,
-                ScopeType.REQUEST,
-                "cookieManager"
+                "cookieManager",
+                ScopeType.REQUEST
             );
         this.app.bind(
                 SessionManager.class,
                 SessionManager.class,
-                ScopeType.REQUEST,
-                "sessionManager"
+                "sessionManager",
+                ScopeType.REQUEST
             );
-        this.app.bind(Auth.class, Auth.class, ScopeType.REQUEST, "auth");
+        this.app.bind(Auth.class, Auth.class, "auth", ScopeType.REQUEST);
     }
 }

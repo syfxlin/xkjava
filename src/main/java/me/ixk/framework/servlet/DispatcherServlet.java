@@ -5,22 +5,27 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.http.CookieManager;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SessionManager;
 import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.ContextName;
 import me.ixk.framework.ioc.RequestContext;
 import me.ixk.framework.kernel.Auth;
 import me.ixk.framework.route.RouteManager;
 
 public class DispatcherServlet extends FrameworkServlet {
     protected final Application app;
+    protected final RequestContext requestContext;
 
     @Deprecated
     public DispatcherServlet() {
         super();
         this.app = Application.get();
+        this.requestContext =
+            (RequestContext) this.app.getContextByName(ContextName.REQUEST);
     }
 
     @Override
@@ -44,22 +49,53 @@ public class DispatcherServlet extends FrameworkServlet {
     }
 
     protected void beforeDispatch(Request request, Response response) {
-        this.app.createRequestContext();
+        this.requestContext.createContext();
 
         Cookie[] cookies = request.getCookies();
-        RequestContext context = this.app.getRequestContext();
-        context.setObject(DispatcherServlet.class, this);
-        context.setObject(HttpServlet.class, this);
-        context.setObject(Request.class, request);
-        context.setObject(HttpServletRequest.class, request);
-        context.setObject(Response.class, response);
-        context.setObject(HttpServletResponse.class, response);
-        context.setObject(CookieManager.class, new CookieManager(cookies));
-        context.setObject(
-            SessionManager.class,
-            new SessionManager(request.getSession())
-        );
-        context.setObject(Auth.class, new Auth());
+        this.app.instance(
+                DispatcherServlet.class,
+                this,
+                "dispatcherServlet",
+                ScopeType.REQUEST
+            );
+        this.app.instance(
+                HttpServlet.class,
+                this,
+                "httpServlet",
+                ScopeType.REQUEST
+            );
+        this.app.instance(Request.class, request, "request", ScopeType.REQUEST);
+        this.app.instance(
+                HttpServletRequest.class,
+                request,
+                "httpServletRequest",
+                ScopeType.REQUEST
+            );
+        this.app.instance(
+                Response.class,
+                response,
+                "response",
+                ScopeType.REQUEST
+            );
+        this.app.instance(
+                HttpServletResponse.class,
+                response,
+                "httpServletResponse",
+                ScopeType.REQUEST
+            );
+        this.app.instance(
+                CookieManager.class,
+                new CookieManager(cookies),
+                "cookieManager",
+                ScopeType.REQUEST
+            );
+        this.app.instance(
+                SessionManager.class,
+                new SessionManager(request.getSession()),
+                "sessionManager",
+                ScopeType.REQUEST
+            );
+        this.app.instance(Auth.class, new Auth(), "auth", ScopeType.REQUEST);
     }
 
     protected void doDispatch(Request request, Response response) {
@@ -67,6 +103,6 @@ public class DispatcherServlet extends FrameworkServlet {
     }
 
     protected void afterDispatch(Request request, Response response) {
-        this.app.removeRequestContext();
+        this.requestContext.removeContext();
     }
 }

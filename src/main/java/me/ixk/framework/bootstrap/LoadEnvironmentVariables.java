@@ -29,7 +29,7 @@ public class LoadEnvironmentVariables extends AbstractBootstrap {
                 e
             );
         }
-        this.app.setAttribute("env", property);
+        this.app.setEnvironment(property);
         this.app.instance(Environment.class, new Environment(this.app), "env");
     }
 }

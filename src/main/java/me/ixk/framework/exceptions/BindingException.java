@@ -1,4 +1,4 @@
-package me.ixk.framework.newioc.exception;
+package me.ixk.framework.exceptions;
 
 public class BindingException extends RuntimeException {
     public BindingException() {

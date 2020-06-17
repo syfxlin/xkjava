@@ -1,9 +1,13 @@
-package me.ixk.framework.newioc;
+package me.ixk.framework.ioc;
 
 import java.util.Map;
 import me.ixk.framework.annotations.ScopeType;
 
 public interface Context {
+    default boolean isCreated() {
+        return true;
+    }
+
     Map<String, String> getAliases();
     Map<String, Binding> getBindings();
 
@@ -20,6 +24,14 @@ public interface Context {
     default boolean hasBinding(String name) {
         name = this.getCanonicalName(name);
         return this.getBindings().containsKey(name);
+    }
+
+    default boolean hasCreated(String name) {
+        Binding binding = this.getBinding(name);
+        if (binding == null) {
+            return false;
+        }
+        return binding.isCreated();
     }
 
     default void removeBinding(String name) {
@@ -81,6 +93,20 @@ public interface Context {
 
     default Object getAttribute(String name) {
         return this.getBinding(name).getInstance();
+    }
+
+    default <T> T getAttribute(String name, Class<T> returnType) {
+        return returnType.cast(this.getAttribute(name));
+    }
+
+    @SuppressWarnings("unchecked")
+    default <T> T getOrDefaultAttribute(String name, T _default) {
+        Binding result = this.getBinding(name);
+        if (result == null) {
+            this.setAttribute(name, _default);
+            return _default;
+        }
+        return (T) result.getInstance();
     }
 
     default void setAttribute(String name, Object attribute) {

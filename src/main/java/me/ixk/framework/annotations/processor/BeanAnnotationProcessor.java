@@ -10,7 +10,7 @@ import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
-import me.ixk.framework.ioc.Concrete;
+import me.ixk.framework.ioc.Wrapper;
 import me.ixk.framework.utils.AnnotationUtils;
 
 @AnnotationProcessor
@@ -50,19 +50,19 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
             anno,
             "bindType"
         );
-        Concrete concrete = (container, args) ->
+        Wrapper wrapper = (container, args) ->
             method.invoke(container.make(method.getDeclaringClass()));
         this.app.bind(
                 name,
-                concrete,
-                scopeType,
+                wrapper,
                 // Method 的 Bean 默认是不绑定 Type 的
-                (bindType == null || !bindType) ? null : _class.getName()
+                (bindType == null || !bindType) ? null : _class.getName(),
+                scopeType
             );
         Object names = AnnotationUtils.getAnnotationValue(anno, "name");
         if (names != null) {
             for (String n : (String[]) names) {
-                this.app.bind(n, concrete, scopeType);
+                this.app.bind(n, wrapper, null, scopeType);
             }
         }
     }
@@ -79,12 +79,12 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         );
         // Class 的 Bean 默认绑定 Type
         if (bindType == null || bindType) {
-            this.app.bind(_class, _class, scopeType);
+            this.app.bind(_class, _class, null, scopeType);
         }
         Object names = AnnotationUtils.getAnnotationValue(anno, "name");
         if (names != null) {
             for (String name : (String[]) names) {
-                this.app.bind(name, _class.getName(), scopeType);
+                this.app.bind(name, _class.getName(), null, scopeType);
             }
         }
     }

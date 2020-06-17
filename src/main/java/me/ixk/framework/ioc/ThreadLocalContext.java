@@ -1,4 +1,4 @@
-package me.ixk.framework.newioc;
+package me.ixk.framework.ioc;
 
 import java.util.Map;
 import me.ixk.framework.annotations.ScopeType;
@@ -7,6 +7,7 @@ public interface ThreadLocalContext extends Context {
     BindingAndAlias getContext();
     void setContext(BindingAndAlias bindingAndAlias);
     void removeContext();
+    boolean isCreated();
 
     default void createContext() {
         this.setContext(new BindingAndAlias());

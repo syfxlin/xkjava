@@ -16,6 +16,6 @@ public class ViewProvider extends AbstractProvider {
 
     @Override
     public void register() {
-        this.app.bind(View.class, View.class, ScopeType.PROTOTYPE, "view");
+        this.app.bind(View.class, View.class, "view", ScopeType.PROTOTYPE);
     }
 }

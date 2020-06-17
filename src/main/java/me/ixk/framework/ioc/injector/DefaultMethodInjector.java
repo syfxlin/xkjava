@@ -1,14 +1,15 @@
 package me.ixk.framework.ioc.injector;
 
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.Set;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.PostConstruct;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.MethodInjector;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.ClassUtils;
+
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.Set;
 
 public class DefaultMethodInjector implements MethodInjector {
 
@@ -29,7 +30,7 @@ public class DefaultMethodInjector implements MethodInjector {
                 Autowired.class
             );
             if (autowired != null) {
-                container.call(instance, method, Object.class, args);
+                container.call(instance, method, Object.class);
             }
 
             // init 方法
@@ -38,7 +39,7 @@ public class DefaultMethodInjector implements MethodInjector {
                 PostConstruct.class
             );
             if (postConstruct != null) {
-                container.call(instance, method, Object.class, args);
+                container.call(instance, method, Object.class);
             }
         }
         return instance;

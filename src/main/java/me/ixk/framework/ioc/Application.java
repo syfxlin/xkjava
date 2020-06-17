@@ -14,7 +14,7 @@ import me.ixk.framework.utils.AnnotationUtils;
  * 如果要存储配置文件，和一些无关实例的字段，应该使用 ApplicationContext，可以直接使用 ApplicationContext 的静态方法
  * 或者使用 Application.get().getContext() 获取
  */
-public class Application extends Container implements Attributes {
+public class Application extends Container {
     protected Class<?>[] primarySource;
 
     protected String[] args;
@@ -30,6 +30,11 @@ public class Application extends Container implements Attributes {
     protected BootCallback bootedCallback = null;
 
     private Application() {
+        ApplicationContext applicationContext = new ApplicationContext();
+        this.registerContext(ContextName.APPLICATION, applicationContext);
+        RequestContext requestContext = new RequestContext();
+        this.registerContext(ContextName.REQUEST, requestContext);
+
         this.instance(Application.class, this, "app");
     }
 
@@ -156,18 +161,21 @@ public class Application extends Container implements Attributes {
     }
 
     public Map<String, Map<String, Object>> getConfig() {
-        return this.getOrDefaultAttribute("config", new ConcurrentHashMap<>());
+        return this.getOrDefaultAttribute(
+                "configAttribute",
+                new ConcurrentHashMap<>()
+            );
     }
 
     public void setConfig(Map<String, Map<String, Object>> config) {
-        this.setAttribute("config", config);
+        this.setAttribute("configAttribute", config);
     }
 
     public Properties getEnvironment() {
-        return this.getOrDefaultAttribute("env", new Properties());
+        return this.getOrDefaultAttribute("envAttribute", new Properties());
     }
 
     public void setEnvironment(Properties properties) {
-        this.setAttribute("env", properties);
+        this.setAttribute("envAttribute", properties);
     }
 }
