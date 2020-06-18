@@ -13,15 +13,14 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import me.ixk.framework.annotations.ScopeType;
-import me.ixk.framework.aop.Advice;
-import me.ixk.framework.aop.DynamicInterceptor;
+import me.ixk.framework.aop.AspectManager;
+import me.ixk.framework.aop.ProxyCreator;
 import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.factory.ObjectFactory;
 import me.ixk.framework.ioc.injector.DefaultMethodInjector;
 import me.ixk.framework.ioc.injector.DefaultParameterInjector;
 import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
 import me.ixk.framework.utils.AutowireUtils;
-import net.sf.cglib.proxy.Enhancer;
 
 public class Container implements Context {
     protected MethodInjector methodInjector = new DefaultMethodInjector();
@@ -328,24 +327,9 @@ public class Container implements Context {
                         this.with.get()
                     );
             try {
-                Map<String, List<Advice>> map = binding.getAdviceMap();
-                if (map == null || map.isEmpty()) {
-                    instance = constructor.newInstance(dependencies);
-                } else {
-                    Enhancer enhancer = new Enhancer();
-                    enhancer.setSuperclass(instanceType);
-                    enhancer.setCallback(new DynamicInterceptor(map));
-                    instance =
-                        enhancer.create(
-                            constructor.getParameterTypes(),
-                            dependencies
-                        );
-                }
+                instance = constructor.newInstance(dependencies);
             } catch (Exception e) {
-                throw new me.ixk.framework.exceptions.ContainerException(
-                    "Instantiated object failed",
-                    e
-                );
+                throw new ContainerException("Instantiated object failed", e);
             }
         } else {
             // 不允许构造器重载
@@ -355,7 +339,16 @@ public class Container implements Context {
         }
         instance =
             this.propertyInjector.inject(this, instance, this.with.get());
-        return this.methodInjector.inject(this, instance, this.with.get());
+        instance = this.methodInjector.inject(this, instance, this.with.get());
+        if (AspectManager.matches(instanceType)) {
+            instance =
+                ProxyCreator.createProxy(
+                    instance,
+                    instanceType,
+                    instanceType.getInterfaces()
+                );
+        }
+        return instance;
     }
 
     /* ===================== doMake ===================== */
@@ -393,10 +386,7 @@ public class Container implements Context {
                 instance =
                     binding.getWrapper().getInstance(this, this.with.get());
             } catch (Throwable e) {
-                throw new me.ixk.framework.exceptions.ContainerException(
-                    "Instance make failed",
-                    e
-                );
+                throw new ContainerException("Instance make failed", e);
             }
         }
         instance = AutowireUtils.resolveAutowiringValue(instance, returnType);

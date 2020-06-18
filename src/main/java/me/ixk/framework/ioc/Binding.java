@@ -1,13 +1,9 @@
 package me.ixk.framework.ioc;
 
 import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
 import me.ixk.framework.annotations.PostConstruct;
 import me.ixk.framework.annotations.PreDestroy;
 import me.ixk.framework.annotations.ScopeType;
-import me.ixk.framework.aop.Advice;
-import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.exceptions.BindingException;
 
 public class Binding {
@@ -19,8 +15,6 @@ public class Binding {
     private String destroyMethodName;
 
     private Wrapper wrapper;
-
-    private Map<String, List<Advice>> adviceMap;
 
     private Object instance = NoCreated.class;
 
@@ -67,7 +61,6 @@ public class Binding {
 
     public void setInstanceType(Class<?> instanceType) {
         this.instanceType = instanceType;
-        this.adviceMap = AspectManager.matches(instanceType);
         for (Method method : instanceType.getDeclaredMethods()) {
             PostConstruct postConstruct = method.getAnnotation(
                 PostConstruct.class
@@ -88,14 +81,6 @@ public class Binding {
 
     public void setWrapper(Wrapper wrapper) {
         this.wrapper = wrapper;
-    }
-
-    public Map<String, List<Advice>> getAdviceMap() {
-        return adviceMap;
-    }
-
-    public void setAdviceMap(Map<String, List<Advice>> adviceMap) {
-        this.adviceMap = adviceMap;
     }
 
     public Object getInstance() {

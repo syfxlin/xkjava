@@ -3,8 +3,6 @@ package me.ixk.framework.aop;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.utils.AnnotationUtils;
 
@@ -49,35 +47,31 @@ public class AspectManager {
         }
     }
 
-    public static Map<String, List<Advice>> matches(Class<?> _class) {
-        Map<String, List<Advice>> map = new ConcurrentHashMap<>();
+    public static boolean matches(Class<?> _class) {
         for (AdviceEntry entry : adviceList) {
             if (entry.getPointcut().matches(_class)) {
-                for (Method method : _class.getMethods()) {
-                    addAdviceToMap(method.getName(), entry.getAdvice(), map);
-                }
-            } else {
-                for (Method method : _class.getMethods()) {
-                    if (entry.getPointcut().matches(method)) {
-                        addAdviceToMap(
-                            method.getName(),
-                            entry.getAdvice(),
-                            map
-                        );
-                    }
-                }
+                return true;
             }
         }
-        return map;
+        return false;
     }
 
-    public static void addAdviceToMap(
-        String name,
-        Advice advice,
-        Map<String, List<Advice>> map
-    ) {
-        List<Advice> list = map.getOrDefault(name, new ArrayList<>());
-        list.add(advice);
-        map.put(name, list);
+    public static boolean matches(Method method) {
+        for (AdviceEntry entry : adviceList) {
+            if (entry.getPointcut().matches(method)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static List<Advice> getAdvices(Method method) {
+        List<Advice> list = new ArrayList<>();
+        for (AdviceEntry entry : adviceList) {
+            if (entry.getPointcut().matches(method)) {
+                list.add(entry.getAdvice());
+            }
+        }
+        return list;
     }
 }

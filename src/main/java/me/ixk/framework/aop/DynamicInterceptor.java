@@ -1,39 +1,39 @@
 package me.ixk.framework.aop;
 
+import java.lang.reflect.Method;
+import java.util.List;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
-
 public class DynamicInterceptor implements MethodInterceptor {
-    protected final Map<String, List<Advice>> aspects;
+    protected final TargetSource targetSource;
 
-    public DynamicInterceptor(Map<String, List<Advice>> aspects) {
-        this.aspects = aspects;
+    public DynamicInterceptor(TargetSource targetSource) {
+        this.targetSource = targetSource;
     }
 
     @Override
     public Object intercept(
         Object o,
         Method method,
-        Object[] objects,
+        Object[] args,
         MethodProxy methodProxy
     )
         throws Throwable {
-        if (this.aspects.containsKey(method.getName())) {
+        List<Advice> advices = this.targetSource.getAdvices(method);
+        Object target = this.targetSource.getTarget();
+        if (advices != null && !advices.isEmpty()) {
             AspectHandler handler = new AspectHandler(
-                o,
+                target,
                 method,
                 methodProxy,
-                objects,
+                args,
                 0,
-                aspects.get(method.getName())
+                advices
             );
             return handler.invokeAspect();
         }
 
-        return methodProxy.invokeSuper(o, objects);
+        return methodProxy.invokeSuper(target, args);
     }
 }
