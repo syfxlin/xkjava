@@ -17,7 +17,6 @@ import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.ProxyCreator;
 import me.ixk.framework.exceptions.ContainerException;
-import me.ixk.framework.factory.ObjectFactory;
 import me.ixk.framework.ioc.injector.DefaultMethodInjector;
 import me.ixk.framework.ioc.injector.DefaultParameterInjector;
 import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
@@ -40,6 +39,11 @@ public class Container implements Context {
     }
 
     /* ===================== Base ===================== */
+
+    @Override
+    public boolean matchesScope(ScopeType scopeType) {
+        return true;
+    }
 
     public void registerContext(ContextName name, Context context) {
         this.registerContext(name.getName(), context);
@@ -365,30 +369,20 @@ public class Container implements Context {
         Class<T> returnType
     ) {
         Binding binding = this.getOrDefaultBinding(instanceName);
-        Object instance;
         ScopeType scopeType = binding.getScope();
-        RequestContext requestContext = (RequestContext) this.getContextByName(
-                ContextName.REQUEST
-            );
-        Context applicationContext =
-            this.getContextByName(ContextName.APPLICATION);
-        if (
-            requestContext.isCreated() &&
-            scopeType.isRequest() &&
-            binding.isCreated() &&
-            requestContext.hasBinding(instanceName)
-        ) {
-            instance =
-                (ObjectFactory<Object>) () ->
-                    requestContext.getBinding(instanceName).getInstance();
-        } else if (
-            scopeType.isSingleton() &&
-            binding.isCreated() &&
-            applicationContext.hasBinding(instanceName)
-        ) {
-            instance =
-                applicationContext.getBinding(instanceName).getInstance();
-        } else {
+        Object instance =
+            this.walkContexts(
+                    context -> {
+                        if (
+                            context.matchesScope(scopeType) &&
+                            context.hasInstance(instanceName)
+                        ) {
+                            return context.getInstance(instanceName);
+                        }
+                        return null;
+                    }
+                );
+        if (instance == null) {
             try {
                 instance =
                     binding.getWrapper().getInstance(this, this.with.get());
@@ -398,16 +392,18 @@ public class Container implements Context {
         }
         instance = AutowireUtils.resolveAutowiringValue(instance, returnType);
         instance = Convert.convert(returnType, instance);
-        if (scopeType.isRequest()) {
-            if (!requestContext.hasCreated(instanceName)) {
-                requestContext.getBinding(instanceName).setInstance(instance);
-            }
-        } else if (scopeType.isSingleton()) {
-            if (!applicationContext.hasCreated(instanceName)) {
-                applicationContext
-                    .getBinding(instanceName)
-                    .setInstance(instance);
-            }
+        Object finalInstance = instance;
+        if (scopeType.isShared()) {
+            this.walkContexts(
+                    context -> {
+                        if (
+                            context.matchesScope(scopeType) &&
+                            !context.hasInstance(instanceName)
+                        ) {
+                            context.setInstance(instanceName, finalInstance);
+                        }
+                    }
+                );
         }
         return returnType.cast(instance);
     }

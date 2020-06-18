@@ -4,12 +4,22 @@ import java.util.Map;
 import me.ixk.framework.annotations.ScopeType;
 
 public interface Context {
+    String ATTRIBUTE_PREFIX = "&a-";
+
+    // 基础字段
+    Map<String, String> getAliases();
+    Map<String, Binding> getBindings();
+
+    // 匹配的 ScopeType
+    boolean matchesScope(ScopeType scopeType);
+
+    // 该 Context 是否启动，一般的 Context 只要 new 后就会启动
+    // 但是如果是 ThreadLocal 则需要另行启动
     default boolean isCreated() {
         return true;
     }
 
-    Map<String, String> getAliases();
-    Map<String, Binding> getBindings();
+    /* ====================== binding ======================= */
 
     default Binding getBinding(String name) {
         name = this.getCanonicalName(name);
@@ -24,14 +34,6 @@ public interface Context {
     default boolean hasBinding(String name) {
         name = this.getCanonicalName(name);
         return this.getBindings().containsKey(name);
-    }
-
-    default boolean hasCreated(String name) {
-        Binding binding = this.getBinding(name);
-        if (binding == null) {
-            return false;
-        }
-        return binding.isCreated();
     }
 
     default void removeBinding(String name) {
@@ -63,6 +65,8 @@ public interface Context {
         this.removeBinding(requiredType.getName());
     }
 
+    /* ====================== alias ======================= */
+
     default void registerAlias(String alias, String name) {
         this.getAliases().put(alias, name);
     }
@@ -91,8 +95,11 @@ public interface Context {
         return canonicalName;
     }
 
+    /* ====================== attribute ======================= */
+
+    // attribute 是一种特殊的 binding，也可以认为是已经创建好的单例，attribute 会自动在名称前添加 &a- 前缀用以区分
     default Object getAttribute(String name) {
-        return this.getBinding(name).getInstance();
+        return this.getBinding(ATTRIBUTE_PREFIX + name).getInstance();
     }
 
     default <T> T getAttribute(String name, Class<T> returnType) {
@@ -101,7 +108,7 @@ public interface Context {
 
     @SuppressWarnings("unchecked")
     default <T> T getOrDefaultAttribute(String name, T _default) {
-        Binding result = this.getBinding(name);
+        Binding result = this.getBinding(ATTRIBUTE_PREFIX + name);
         if (result == null) {
             this.setAttribute(name, _default);
             return _default;
@@ -110,14 +117,65 @@ public interface Context {
     }
 
     default void setAttribute(String name, Object attribute) {
-        this.setBinding(name, new Binding(attribute, ScopeType.SINGLETON));
+        this.setBinding(
+                ATTRIBUTE_PREFIX + name,
+                new Binding(attribute, ScopeType.SINGLETON)
+            );
     }
 
     default void removeAttribute(String name) {
-        this.removeBinding(name);
+        this.removeBinding(ATTRIBUTE_PREFIX + name);
     }
 
     default boolean hasAttribute(String name) {
-        return this.hasBinding(name);
+        return this.hasBinding(ATTRIBUTE_PREFIX + name);
+    }
+
+    /* ====================== instance ======================= */
+
+    default Object getInstance(String name) {
+        Binding binding = this.getBinding(name);
+        if (binding == null) {
+            return null;
+        }
+        return binding.getInstance();
+    }
+
+    default void setInstance(String name, Object instance) {
+        Binding binding = this.getBinding(name);
+        if (binding == null) {
+            binding = new Binding(instance, ScopeType.SINGLETON, name);
+            this.setBinding(name, binding);
+        } else {
+            binding.setInstance(instance);
+        }
+    }
+
+    default boolean hasInstance(String name) {
+        Binding binding = this.getBinding(name);
+        if (binding == null) {
+            return false;
+        }
+        return binding.isCreated();
+    }
+
+    default void removeInstance(String name) {
+        this.removeBinding(name);
+    }
+
+    default Object getInstance(Class<?> type) {
+        return this.getInstance(type.getName());
+    }
+
+    default void setInstance(Class<?> type, Object instance) {
+        this.setInstance(type.getName(), instance);
+    }
+
+    default boolean hasInstance(Class<?> type) {
+        return this.hasInstance(type.getName());
+    }
+
+    default void removeInstance(Class<?> type) {
+        this.removeInstance(type.getName());
     }
 }

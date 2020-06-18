@@ -1,5 +1,8 @@
 package me.ixk.framework.ioc;
 
+import me.ixk.framework.annotations.ScopeType;
+import me.ixk.framework.factory.ObjectFactory;
+
 public class RequestContext implements ThreadLocalContext {
     private final ThreadLocal<BindingAndAlias> bindingAndAlias = new InheritableThreadLocal<>();
 
@@ -25,5 +28,21 @@ public class RequestContext implements ThreadLocalContext {
     @Override
     public boolean isCreated() {
         return this.bindingAndAlias.get() != null;
+    }
+
+    @Override
+    public boolean matchesScope(ScopeType scopeType) {
+        return scopeType == ScopeType.REQUEST;
+    }
+
+    @Override
+    public Object getInstance(String name) {
+        return (ObjectFactory<Object>) () -> {
+            Binding binding = this.getBinding(name);
+            if (binding == null) {
+                return null;
+            }
+            return binding.getInstance();
+        };
     }
 }

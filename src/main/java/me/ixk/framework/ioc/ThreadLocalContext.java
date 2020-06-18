@@ -25,6 +25,9 @@ public interface ThreadLocalContext extends Context {
 
     @Override
     default void setAttribute(String name, Object attribute) {
-        this.setBinding(name, new Binding(attribute, ScopeType.REQUEST));
+        this.setBinding(
+                ATTRIBUTE_PREFIX + name,
+                new Binding(attribute, ScopeType.REQUEST)
+            );
     }
 }

@@ -161,21 +161,18 @@ public class Application extends Container {
     }
 
     public Map<String, Map<String, Object>> getConfig() {
-        return this.getOrDefaultAttribute(
-                "configAttribute",
-                new ConcurrentHashMap<>()
-            );
+        return this.getOrDefaultAttribute("config", new ConcurrentHashMap<>());
     }
 
     public void setConfig(Map<String, Map<String, Object>> config) {
-        this.setAttribute("configAttribute", config);
+        this.setAttribute("config", config);
     }
 
     public Properties getEnvironment() {
-        return this.getOrDefaultAttribute("envAttribute", new Properties());
+        return this.getOrDefaultAttribute("env", new Properties());
     }
 
     public void setEnvironment(Properties properties) {
-        this.setAttribute("envAttribute", properties);
+        this.setAttribute("env", properties);
     }
 }
