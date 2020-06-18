@@ -7,7 +7,9 @@ public class ProxyCreator {
     public static Object createProxy(
         Object target,
         Class<?> targetType,
-        Class<?>[] instances
+        Class<?>[] instances,
+        Class<?>[] argsTypes,
+        Object[] args
     ) {
         TargetSource targetSource = new TargetSource(
             target,
@@ -18,6 +20,6 @@ public class ProxyCreator {
         enhancer.setSuperclass(targetSource.getTargetType());
         enhancer.setInterfaces(targetSource.getInterfaces());
         enhancer.setCallback(new DynamicInterceptor(targetSource));
-        return enhancer.create();
+        return enhancer.create(argsTypes, args);
     }
 }

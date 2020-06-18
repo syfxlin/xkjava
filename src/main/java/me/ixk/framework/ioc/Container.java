@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import me.ixk.framework.annotations.ScopeType;
+import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.ProxyCreator;
 import me.ixk.framework.exceptions.ContainerException;
@@ -331,24 +332,30 @@ public class Container implements Context {
             } catch (Exception e) {
                 throw new ContainerException("Instantiated object failed", e);
             }
+            instance =
+                this.propertyInjector.inject(this, instance, this.with.get());
+            instance =
+                this.methodInjector.inject(this, instance, this.with.get());
+            if (
+                !Advice.class.isAssignableFrom(instanceType) &&
+                AspectManager.matches(instanceType)
+            ) {
+                instance =
+                    ProxyCreator.createProxy(
+                        instance,
+                        instanceType,
+                        instanceType.getInterfaces(),
+                        constructor.getParameterTypes(),
+                        dependencies
+                    );
+            }
+            return instance;
         } else {
             // 不允许构造器重载
             throw new RuntimeException(
                 "The bound instance must have only one constructor"
             );
         }
-        instance =
-            this.propertyInjector.inject(this, instance, this.with.get());
-        instance = this.methodInjector.inject(this, instance, this.with.get());
-        if (AspectManager.matches(instanceType)) {
-            instance =
-                ProxyCreator.createProxy(
-                    instance,
-                    instanceType,
-                    instanceType.getInterfaces()
-                );
-        }
-        return instance;
     }
 
     /* ===================== doMake ===================== */

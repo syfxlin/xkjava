@@ -47,13 +47,13 @@ public class AspectPointcut {
 
     public boolean matches(Class<?> target) {
         // 排除注解
-        if (
-            this.pointcutExpression.getPointcutExpression()
-                .indexOf("@annotation") ==
-            0
-        ) {
-            return false;
-        }
+        // if (
+        //     this.pointcutExpression.getPointcutExpression()
+        //         .indexOf("@annotation") ==
+        //     0
+        // ) {
+        //     return false;
+        // }
         return this.pointcutExpression.couldMatchJoinPointsInType(target);
     }
 

@@ -14,7 +14,7 @@ public class DynamicInterceptor implements MethodInterceptor {
 
     @Override
     public Object intercept(
-        Object o,
+        Object object,
         Method method,
         Object[] args,
         MethodProxy methodProxy
@@ -34,6 +34,6 @@ public class DynamicInterceptor implements MethodInterceptor {
             return handler.invokeAspect();
         }
 
-        return methodProxy.invokeSuper(target, args);
+        return methodProxy.invoke(target, args);
     }
 }

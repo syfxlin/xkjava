@@ -1,9 +1,8 @@
 package me.ixk.framework.aop;
 
-import net.sf.cglib.proxy.MethodProxy;
-
 import java.lang.reflect.Method;
 import java.util.List;
+import net.sf.cglib.proxy.MethodProxy;
 
 public class AspectHandler {
     protected final Object target;
@@ -51,7 +50,7 @@ public class AspectHandler {
 
     public Object invokeAspect() throws Throwable {
         if (aspect == null) {
-            return this.methodProxy.invokeSuper(this.target, this.args);
+            return this.methodProxy.invoke(this.target, this.args);
         }
         Object result = null;
         try {
@@ -77,7 +76,7 @@ public class AspectHandler {
         if (this.hasNextAspect()) {
             return this.invokeNext();
         }
-        return this.methodProxy.invokeSuper(
+        return this.methodProxy.invoke(
                 this.target,
                 args.length == 0 ? this.args : args
             );
