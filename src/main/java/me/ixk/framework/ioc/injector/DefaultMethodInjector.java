@@ -1,15 +1,12 @@
 package me.ixk.framework.ioc.injector;
 
+import java.lang.reflect.Method;
+import java.util.Map;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.PostConstruct;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.MethodInjector;
 import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.ClassUtils;
-
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.Set;
 
 public class DefaultMethodInjector implements MethodInjector {
 
@@ -22,7 +19,7 @@ public class DefaultMethodInjector implements MethodInjector {
         if (instance == null) {
             return null;
         }
-        Set<Method> methods = ClassUtils.getMethods(instance);
+        Method[] methods = instance.getClass().getDeclaredMethods();
         for (Method method : methods) {
             // Set 注入
             Autowired autowired = AnnotationUtils.getAnnotation(

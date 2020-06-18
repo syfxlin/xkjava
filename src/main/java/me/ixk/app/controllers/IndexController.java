@@ -42,6 +42,7 @@ public class IndexController {
 
     @Middleware("guest")
     @GetMapping("/login")
+    @Log
     public String login(Request request) {
         return this.request.query("age");
     }
