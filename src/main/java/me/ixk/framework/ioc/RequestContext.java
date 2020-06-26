@@ -2,6 +2,7 @@ package me.ixk.framework.ioc;
 
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.factory.ObjectFactory;
+import me.ixk.framework.utils.AutowireUtils;
 
 public class RequestContext implements ThreadLocalContext {
     private final ThreadLocal<BindingAndAlias> bindingAndAlias = new InheritableThreadLocal<>();
@@ -37,12 +38,20 @@ public class RequestContext implements ThreadLocalContext {
 
     @Override
     public Object getInstance(String name) {
-        return (ObjectFactory<Object>) () -> {
-            Binding binding = this.getBinding(name);
-            if (binding == null) {
-                return null;
-            }
-            return binding.getInstance();
-        };
+        return (ObjectFactory<Object>) () -> this.getInstanceWithout(name);
+    }
+
+    public Object getInstanceWithout(String name) {
+        Binding binding = this.getBinding(name);
+        if (binding == null) {
+            return null;
+        }
+        return binding.getInstance();
+    }
+
+    public <T> T getInstanceProxy(String name, Class<T> returnType) {
+        return returnType.cast(
+            AutowireUtils.proxyObjectFactory(this.getInstance(name), returnType)
+        );
     }
 }

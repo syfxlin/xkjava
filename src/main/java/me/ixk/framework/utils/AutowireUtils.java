@@ -34,6 +34,13 @@ public abstract class AutowireUtils {
         );
     }
 
+    public static Object proxyObjectFactory(
+        Object target,
+        Class<?> requiredType
+    ) {
+        return resolveAutowiringValue(target, requiredType);
+    }
+
     public static Object resolveAutowiringValue(
         Object autowiringValue,
         Class<?> requiredType
@@ -48,7 +55,7 @@ public abstract class AutowireUtils {
                     Proxy.newProxyInstance(
                         requiredType.getClassLoader(),
                         new Class<?>[] { requiredType },
-                        new ObjectFactoryDelegatingInvocationHandler(factory)
+                        new ObjectFactoryDelegatingInterceptor(factory)
                     );
             } else {
                 autowiringValue =
@@ -61,40 +68,8 @@ public abstract class AutowireUtils {
         return autowiringValue;
     }
 
-    @SuppressWarnings("serial")
-    private static class ObjectFactoryDelegatingInvocationHandler
-        implements InvocationHandler, Serializable {
-        private final ObjectFactory<?> objectFactory;
-
-        public ObjectFactoryDelegatingInvocationHandler(
-            ObjectFactory<?> objectFactory
-        ) {
-            this.objectFactory = objectFactory;
-        }
-
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args)
-            throws Throwable {
-            switch (method.getName()) {
-                case "equals":
-                    // Only consider equal when proxies are identical.
-                    return (proxy == args[0]);
-                case "hashCode":
-                    // Use hashCode of proxy.
-                    return System.identityHashCode(proxy);
-                case "toString":
-                    return this.objectFactory.toString();
-            }
-            try {
-                return method.invoke(this.objectFactory.getObject(), args);
-            } catch (InvocationTargetException ex) {
-                throw ex.getTargetException();
-            }
-        }
-    }
-
     private static class ObjectFactoryDelegatingInterceptor
-        implements MethodInterceptor {
+        implements MethodInterceptor, InvocationHandler, Serializable {
         private final ObjectFactory<?> objectFactory;
 
         public ObjectFactoryDelegatingInterceptor(
@@ -122,6 +97,26 @@ public abstract class AutowireUtils {
                     return this.objectFactory.toString();
             }
             return proxy.invoke(this.objectFactory.getObject(), args);
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args)
+            throws Throwable {
+            switch (method.getName()) {
+                case "equals":
+                    // Only consider equal when proxies are identical.
+                    return (proxy == args[0]);
+                case "hashCode":
+                    // Use hashCode of proxy.
+                    return System.identityHashCode(proxy);
+                case "toString":
+                    return this.objectFactory.toString();
+            }
+            try {
+                return method.invoke(this.objectFactory.getObject(), args);
+            } catch (InvocationTargetException ex) {
+                throw ex.getTargetException();
+            }
         }
     }
 }
