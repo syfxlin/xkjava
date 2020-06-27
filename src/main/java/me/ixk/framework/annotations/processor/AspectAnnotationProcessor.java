@@ -1,6 +1,5 @@
 package me.ixk.framework.annotations.processor;
 
-import java.util.List;
 import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.Aspect;
 import me.ixk.framework.annotations.Order;
@@ -10,6 +9,8 @@ import me.ixk.framework.aop.AspectPointcut;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.AnnotationUtils;
+
+import java.util.List;
 
 @AnnotationProcessor
 @Order(Order.HIGHEST_PRECEDENCE + 2)
@@ -21,7 +22,7 @@ public class AspectAnnotationProcessor extends AbstractAnnotationProcessor {
 
     @Override
     public void process() {
-        List<Class<?>> classes = this.getTypesAnnotatedWith(Aspect.class);
+        List<Class<?>> classes = this.getTypesAnnotated(Aspect.class);
         for (Class<?> _class : classes) {
             if (Advice.class.isAssignableFrom(_class)) {
                 Aspect aspect = AnnotationUtils.getAnnotation(

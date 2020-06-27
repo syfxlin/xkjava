@@ -1,9 +1,5 @@
 package me.ixk.framework.annotations.processor;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.List;
 import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Scope;
@@ -12,6 +8,11 @@ import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.ioc.Wrapper;
 import me.ixk.framework.utils.AnnotationUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.List;
 
 @AnnotationProcessor
 @Order(Order.HIGHEST_PRECEDENCE + 1)
@@ -29,10 +30,10 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
             List.class
         );
         for (Class<? extends Annotation> annotation : beanAnnotations) {
-            for (Class<?> _class : this.getTypesAnnotatedWith(annotation)) {
+            for (Class<?> _class : this.getTypesAnnotated(annotation)) {
                 this.processAnnotation(annotation, _class);
             }
-            for (Method method : this.getMethodsAnnotatedWith(annotation)) {
+            for (Method method : this.getMethodsAnnotated(annotation)) {
                 this.processAnnotation(annotation, method);
             }
         }

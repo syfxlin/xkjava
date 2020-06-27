@@ -15,7 +15,7 @@ public class BootstrapAnnotationProcessor extends AbstractAnnotationProcessor {
     @Override
     public void process() {
         List<Class<?>> bootstraps =
-            this.getTypesAnnotatedWith(
+            this.getTypesAnnotated(
                     me.ixk.framework.annotations.Bootstrap.class
                 );
         for (Class<?> bootstrapType : bootstraps) {

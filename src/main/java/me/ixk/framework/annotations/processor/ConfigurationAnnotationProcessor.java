@@ -1,15 +1,16 @@
 package me.ixk.framework.annotations.processor;
 
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.Configuration;
 import me.ixk.framework.config.Config;
 import me.ixk.framework.exceptions.LoadConfigException;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.ClassUtils;
+
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ConfigurationAnnotationProcessor
     extends AbstractAnnotationProcessor {
@@ -28,7 +29,7 @@ public class ConfigurationAnnotationProcessor
     @SuppressWarnings("unchecked")
     private void processAnnotationConfig() {
         List<Class<?>> classes =
-            this.getTypesAnnotatedWith(Configuration.class);
+            this.getTypesAnnotated(Configuration.class);
         for (Class<?> _class : classes) {
             String name = AnnotationUtils
                 .getAnnotation(_class, Configuration.class)

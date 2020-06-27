@@ -1,7 +1,7 @@
 package me.ixk.framework.utils;
 
 import cn.hutool.core.annotation.AnnotationUtil;
-import java.lang.annotation.Annotation;
+import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
 import me.ixk.framework.annotations.AliasFor;
@@ -82,12 +82,27 @@ public abstract class AnnotationUtils extends AnnotationUtil {
     }
 
     public static Object getAnnotationValue(Annotation annotation, String key) {
+        Class<? extends Annotation> annotationType = annotation.annotationType();
         try {
-            return annotation
-                .annotationType()
-                .getMethod(key)
-                .invoke(annotation);
+            return annotationType.getMethod(key).invoke(annotation);
         } catch (Exception e) {
+            for (Annotation item : annotationType.getAnnotations()) {
+                Class<? extends Annotation> itemType = item.annotationType();
+                if (
+                    itemType == Documented.class ||
+                    itemType == Inherited.class ||
+                    itemType == Native.class ||
+                    itemType == Repeatable.class ||
+                    itemType == Retention.class ||
+                    itemType == Target.class
+                ) {
+                    continue;
+                }
+                Object value = getAnnotationValue(item, key);
+                if (value != null) {
+                    return value;
+                }
+            }
             return null;
         }
     }
@@ -145,5 +160,51 @@ public abstract class AnnotationUtils extends AnnotationUtil {
     public static Method[] sortByOrderAnnotation(Method[] classes) {
         Arrays.sort(classes, ORDER_ANNOTATION_COMPARATOR);
         return classes;
+    }
+
+    public static List<Class<?>> getTypesAnnotated(
+        Class<? extends Annotation> annotation
+    ) {
+        return ReflectionsUtils.getTypesAnnotatedWith(annotation);
+    }
+
+    public static List<Method> getMethodsAnnotated(
+        Class<? extends Annotation> annotation
+    ) {
+        return ReflectionsUtils.getMethodsAnnotatedWith(annotation);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<Class<?>> getTypesAnnotatedAndInherit(
+        Class<? extends Annotation> annotation
+    ) {
+        List<Class<?>> list = getTypesAnnotated(annotation);
+        for (Class<?> item : list) {
+            if (item.isAnnotation()) {
+                list.addAll(
+                    getTypesAnnotatedAndInherit(
+                        (Class<? extends Annotation>) item
+                    )
+                );
+            }
+        }
+        return list;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<Method> getMethodAnnotatedAndInherit(
+        Class<? extends Annotation> annotation
+    ) {
+        List<Method> list = getMethodsAnnotated(annotation);
+        for (Class<?> item : getTypesAnnotatedAndInherit(annotation)) {
+            if (item.isAnnotation()) {
+                list.addAll(
+                    getMethodAnnotatedAndInherit(
+                        (Class<? extends Annotation>) item
+                    )
+                );
+            }
+        }
+        return list;
     }
 }

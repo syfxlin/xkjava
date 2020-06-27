@@ -1,10 +1,11 @@
 package me.ixk.framework.annotations.processor;
 
-import java.util.List;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.kernel.ProviderManager;
 import me.ixk.framework.providers.Provider;
+
+import java.util.List;
 
 public class ProviderAnnotationProcessor extends AbstractAnnotationProcessor {
 
@@ -15,7 +16,7 @@ public class ProviderAnnotationProcessor extends AbstractAnnotationProcessor {
     @Override
     public void process() {
         List<Class<?>> providers =
-            this.getTypesAnnotatedWith(
+            this.getTypesAnnotated(
                     me.ixk.framework.annotations.Provider.class
                 );
         for (Class<?> providerType : providers) {
