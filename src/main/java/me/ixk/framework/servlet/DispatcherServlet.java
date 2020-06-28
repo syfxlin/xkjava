@@ -11,8 +11,8 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SessionManager;
 import me.ixk.framework.ioc.Application;
-import me.ixk.framework.ioc.ContextName;
-import me.ixk.framework.ioc.RequestContext;
+import me.ixk.framework.ioc.context.ContextName;
+import me.ixk.framework.ioc.context.RequestContext;
 import me.ixk.framework.kernel.Auth;
 import me.ixk.framework.route.RouteManager;
 
@@ -25,7 +25,9 @@ public class DispatcherServlet extends FrameworkServlet {
         super();
         this.app = Application.get();
         this.requestContext =
-            (RequestContext) this.app.getContextByName(ContextName.REQUEST);
+            (RequestContext) this.app.getContextByName(
+                    ContextName.REQUEST.getName()
+                );
     }
 
     @Override

@@ -4,6 +4,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.ComponentScan;
 import me.ixk.framework.annotations.processor.BootstrapAnnotationProcessor;
+import me.ixk.framework.ioc.context.ApplicationContext;
+import me.ixk.framework.ioc.context.RequestContext;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.kernel.ProviderManager;
 import me.ixk.framework.server.HttpServer;
@@ -31,9 +33,9 @@ public class Application extends Container {
 
     private Application() {
         ApplicationContext applicationContext = new ApplicationContext();
-        this.registerContext(ContextName.APPLICATION, applicationContext);
+        this.registerContext(applicationContext);
         RequestContext requestContext = new RequestContext();
-        this.registerContext(ContextName.REQUEST, requestContext);
+        this.registerContext(requestContext);
 
         this.instance(Application.class, this, "app");
     }

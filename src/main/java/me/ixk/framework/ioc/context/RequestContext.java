@@ -1,11 +1,19 @@
-package me.ixk.framework.ioc;
+package me.ixk.framework.ioc.context;
 
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.factory.ObjectFactory;
+import me.ixk.framework.ioc.Binding;
+import me.ixk.framework.ioc.BindingAndAlias;
+import me.ixk.framework.ioc.ThreadLocalContext;
 import me.ixk.framework.utils.AutowireUtils;
 
 public class RequestContext implements ThreadLocalContext {
     private final ThreadLocal<BindingAndAlias> bindingAndAlias = new InheritableThreadLocal<>();
+
+    @Override
+    public String getName() {
+        return ContextName.REQUEST.getName();
+    }
 
     @Override
     public BindingAndAlias getContext() {

@@ -1,37 +1,33 @@
 package me.ixk.framework.ioc;
 
 import cn.hutool.core.convert.Convert;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.ProxyCreator;
 import me.ixk.framework.exceptions.ContainerException;
+import me.ixk.framework.ioc.context.ContextName;
 import me.ixk.framework.ioc.injector.DefaultMethodInjector;
 import me.ixk.framework.ioc.injector.DefaultParameterInjector;
 import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
 import me.ixk.framework.utils.AutowireUtils;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class Container implements Context {
     protected MethodInjector methodInjector = new DefaultMethodInjector();
     protected ParameterInjector parameterInjector = new DefaultParameterInjector();
     protected PropertyInjector propertyInjector = new DefaultPropertyInjector();
 
-    private final Map<String, Integer> contextNames = new ConcurrentHashMap<>(
-        5
+    private final Map<String, Context> contexts = Collections.synchronizedMap(
+        new LinkedHashMap<>(5)
     );
-    private final List<Context> contexts = new ArrayList<>(5);
 
     private final ThreadLocal<Map<String, Object>> with = new InheritableThreadLocal<>();
 
@@ -42,29 +38,25 @@ public class Container implements Context {
     /* ===================== Base ===================== */
 
     @Override
+    public String getName() {
+        return ContextName.CONTAINER.getName();
+    }
+
+    @Override
     public boolean matchesScope(ScopeType scopeType) {
         return true;
     }
 
-    public void registerContext(ContextName name, Context context) {
-        this.registerContext(name.getName(), context);
-    }
-
-    public void registerContext(String name, Context context) {
-        this.contexts.add(context);
-        this.contextNames.put(name, this.contexts.size() - 1);
-    }
-
-    public void removeContext(ContextName name) {
-        this.removeContext(name.getName());
+    public void registerContext(Context context) {
+        this.contexts.put(context.getName(), context);
     }
 
     public void removeContext(String name) {
-        this.contexts.remove((int) this.contextNames.get(name));
+        this.contexts.remove(name);
     }
 
     protected void walkContexts(Consumer<Context> consumer) {
-        for (Context context : this.contexts) {
+        for (Context context : this.contexts.values()) {
             if (!context.isCreated()) {
                 continue;
             }
@@ -73,7 +65,7 @@ public class Container implements Context {
     }
 
     protected <R> R walkContexts(Function<Context, R> supplier) {
-        for (Context context : this.contexts) {
+        for (Context context : this.contexts.values()) {
             if (!context.isCreated()) {
                 continue;
             }
@@ -85,12 +77,9 @@ public class Container implements Context {
         return null;
     }
 
-    public void registerContexts(Map<String, Context> contextMap) {
-        for (Map.Entry<String, Context> contextEntry : contextMap.entrySet()) {
-            this.registerContext(
-                    contextEntry.getKey(),
-                    contextEntry.getValue()
-                );
+    public void registerContexts(List<Context> contexts) {
+        for (Context context : contexts) {
+            this.registerContext(context);
         }
     }
 
@@ -170,28 +159,12 @@ public class Container implements Context {
     }
 
     public void registerAlias(String alias, String name, String contextName) {
-        if (!this.contextNames.containsKey(contextName)) {
+        if (!this.contexts.containsKey(contextName)) {
             throw new ContainerException(
                 "Target [" + contextName + "] context is not registered"
             );
         }
         this.getContextByName(contextName).registerAlias(alias, name);
-    }
-
-    public void registerAlias(
-        String alias,
-        String name,
-        ContextName contextName
-    ) {
-        this.registerAlias(alias, name, contextName.getName());
-    }
-
-    public void registerAlias(
-        String alias,
-        Class<?> type,
-        ContextName contextName
-    ) {
-        this.registerAlias(alias, type.getName(), contextName.getName());
     }
 
     @Override
@@ -230,22 +203,19 @@ public class Container implements Context {
     }
 
     public Context getContextByName(String contextName) {
-        if (!this.contextNames.containsKey(contextName)) {
+        if (!this.contexts.containsKey(contextName)) {
             return null;
         }
-        return this.contexts.get(this.contextNames.get(contextName));
+        return this.contexts.get(contextName);
     }
 
-    public Context getContextByName(ContextName contextName) {
-        return this.getContextByName(contextName.getName());
-    }
-
-    public ContextName getContextNameByBinding(Binding binding) {
-        if (binding.isRequest()) {
-            return ContextName.REQUEST;
-        } else {
-            return ContextName.APPLICATION;
+    public String getContextNameByBinding(Binding binding) {
+        for (Context context : this.contexts.values()) {
+            if (context.matchesScope(binding.getScope())) {
+                return context.getName();
+            }
         }
+        return null;
     }
 
     public Context getContextByBinding(Binding binding) {
@@ -1066,11 +1036,7 @@ public class Container implements Context {
         this.propertyInjector = propertyInjector;
     }
 
-    public Map<String, Integer> getContextNames() {
-        return contextNames;
-    }
-
-    public List<Context> getContexts() {
+    public Map<String, Context> getContexts() {
         return contexts;
     }
 }

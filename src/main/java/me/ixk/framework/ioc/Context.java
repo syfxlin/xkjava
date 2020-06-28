@@ -9,6 +9,7 @@ public interface Context {
     // 基础字段
     Map<String, String> getAliases();
     Map<String, Binding> getBindings();
+    String getName();
 
     // 匹配的 ScopeType
     boolean matchesScope(ScopeType scopeType);
