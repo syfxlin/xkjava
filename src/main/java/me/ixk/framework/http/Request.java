@@ -119,7 +119,6 @@ public class Request implements HttpServletRequest {
             String[] value = entry.getValue();
             map.put(entry.getKey(), value.length == 1 ? value[0] : value);
         }
-        // TODO: 将类型转换移到指定的方法
         map.putAll(this._cookies);
         try {
             for (Part part : _base.getParts()) {
@@ -139,10 +138,35 @@ public class Request implements HttpServletRequest {
                     map.put(entry.getKey(), entry.getValue());
                 }
             } else {
-                map.put("_body", this._parseBody);
+                map.put("&body", this._parseBody);
             }
         }
         return map;
+    }
+
+    public boolean has(String name) {
+        if (_base.getParameterMap().containsKey(name)) {
+            return true;
+        }
+        if (_cookies.containsKey(name)) {
+            return true;
+        }
+        try {
+            if (_base.getPart(name) != null) {
+                return true;
+            }
+        } catch (IOException | ServletException e) {
+            // no code
+        }
+        if (this._parseBody != null) {
+            if (this._parseBody.isObject()) {
+                ObjectNode object = (ObjectNode) this._parseBody;
+                return object.has(name);
+            } else {
+                return name.equals("&body");
+            }
+        }
+        return false;
     }
 
     public JsonNode input() {
@@ -177,11 +201,6 @@ public class Request implements HttpServletRequest {
                 _base.getQueryParameters().getValue(name, 0),
                 _default
             );
-    }
-
-    public boolean has(String name) {
-        // TODO: unset
-        return false;
     }
 
     public Cookie cookie(String name) {

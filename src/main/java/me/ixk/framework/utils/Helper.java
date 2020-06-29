@@ -3,10 +3,12 @@ package me.ixk.framework.utils;
 import cn.hutool.core.convert.Convert;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.lang.reflect.Method;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Helper {
     protected static final String BASE_STRING =
@@ -14,7 +16,7 @@ public abstract class Helper {
     protected static final SecureRandom RANDOM = new SecureRandom();
 
     public static JsonNode dataGet(JsonNode target, String key) {
-        return dataGet(target, key, null, JsonNode.class);
+        return dataGet(target, key, NullNode.getInstance());
     }
 
     public static JsonNode dataGet(
@@ -27,7 +29,7 @@ public abstract class Helper {
     }
 
     public static JsonNode dataGet(JsonNode target, String[] keys) {
-        return dataGet(target, keys, null, JsonNode.class);
+        return dataGet(target, keys, NullNode.getInstance());
     }
 
     public static JsonNode dataGet(
@@ -205,6 +207,116 @@ public abstract class Helper {
             return _default;
         }
         return Convert.convert(returnType, target);
+    }
+
+    public static void dataSet(JsonNode target, String key, JsonNode value) {
+        String[] keys = key.split("\\.");
+        dataSet(target, keys, value);
+    }
+
+    public static void dataSet(JsonNode target, String[] keys, JsonNode value) {
+        if (target == null) {
+            return;
+        }
+        for (int i = 0; i < keys.length; i++) {
+            if (i != keys.length - 1) {
+                if (target.isObject()) {
+                    ObjectNode node = (ObjectNode) target;
+                    target = node.get(keys[i]);
+                    if (target == null) {
+                        target = JSON.createObject();
+                        node.set(keys[i], target);
+                    }
+                } else if (target.isArray()) {
+                    ArrayNode node = (ArrayNode) target;
+                    int index = Integer.parseInt(keys[i]);
+                    target = node.get(index);
+                    if (target == null) {
+                        target = JSON.createObject();
+                        while (node.size() < index) {
+                            node.addNull();
+                        }
+                        node.insert(index, target);
+                    }
+                } else {
+                    throw new ClassCastException(
+                        "Can not set value to ValueNode"
+                    );
+                }
+            } else {
+                if (target.isObject()) {
+                    ObjectNode object = (ObjectNode) target;
+                    object.set(keys[i], value);
+                } else if (target.isArray()) {
+                    ArrayNode array = (ArrayNode) target;
+                    int index = Integer.parseInt(keys[i]);
+                    while (array.size() < index) {
+                        array.addNull();
+                    }
+                    array.insert(index, value);
+                } else {
+                    throw new ClassCastException(
+                        "Can not set value to ValueNode"
+                    );
+                }
+            }
+        }
+    }
+
+    public static void dataSet(Object target, String key, Object value) {
+        String[] keys = key.split("\\.");
+        dataSet(target, keys, value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void dataSet(Object target, String[] keys, Object value) {
+        if (target == null) {
+            return;
+        }
+        for (int i = 0; i < keys.length; i++) {
+            if (i != keys.length - 1) {
+                if (target instanceof List) {
+                    List<Object> list = (List<Object>) target;
+                    int index = Integer.parseInt(keys[i]);
+                    if (list.size() > index) {
+                        target = list.get(index);
+                    } else {
+                        target = new ConcurrentHashMap<String, Object>();
+                        while (list.size() < index) {
+                            list.add(null);
+                        }
+                        list.add(index, target);
+                    }
+                } else if (target instanceof Map) {
+                    Map<String, Object> map = (Map<String, Object>) target;
+                    target = map.get(keys[i]);
+                    if (target == null) {
+                        target = new ConcurrentHashMap<>();
+                        map.put(keys[i], target);
+                    }
+                } else {
+                    throw new ClassCastException(
+                        "Can not set value to " + target.getClass().getName()
+                    );
+                }
+            } else {
+                if (target instanceof List) {
+                    List<Object> list = (List<Object>) target;
+                    int index = Integer.parseInt(keys[i]);
+                    while (list.size() < index) {
+                        list.add(null);
+                    }
+                    list.add(index, value);
+                } else if (target instanceof Map) {
+                    Map<String, Object> map = (Map<String, Object>) target;
+                    map.put(keys[i], value);
+                } else {
+                    throw new ClassCastException(
+                        "Can not set value to " + target.getClass().getName()
+                    );
+                }
+            }
+        }
     }
 
     public static String strRandom() {

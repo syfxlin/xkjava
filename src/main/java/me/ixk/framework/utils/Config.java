@@ -1,9 +1,8 @@
 package me.ixk.framework.utils;
 
 import cn.hutool.core.convert.Convert;
-import me.ixk.framework.ioc.Application;
-
 import java.util.Map;
+import me.ixk.framework.ioc.Application;
 
 public class Config {
     protected final Application app;
@@ -29,7 +28,7 @@ public class Config {
     }
 
     protected void setItem(String name, Object value) {
-        // TODO: dataSet
+        Helper.dataSet(this.app.getConfig(), name, value);
     }
 
     public void set(String name, Object value) {
