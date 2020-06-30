@@ -17,7 +17,7 @@ public class HashProvider extends AbstractProvider {
     public void register() {
         this.app.singleton(
                 Hash.class,
-                (container, args) -> new Hash(),
+                (container, with) -> new Hash(),
                 "crypt"
             );
     }

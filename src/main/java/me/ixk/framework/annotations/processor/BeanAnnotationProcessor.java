@@ -1,5 +1,9 @@
 package me.ixk.framework.annotations.processor;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.List;
 import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Scope;
@@ -8,11 +12,6 @@ import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.ioc.Wrapper;
 import me.ixk.framework.utils.AnnotationUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.List;
 
 @AnnotationProcessor
 @Order(Order.HIGHEST_PRECEDENCE + 1)
@@ -51,7 +50,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
             anno,
             "bindType"
         );
-        Wrapper wrapper = (container, args) ->
+        Wrapper wrapper = (container, with) ->
             method.invoke(container.make(method.getDeclaringClass()));
         this.app.bind(
                 name,

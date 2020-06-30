@@ -29,10 +29,10 @@ public class Container implements Context {
         new LinkedHashMap<>(5)
     );
 
-    private final ThreadLocal<Map<String, Object>> with = new InheritableThreadLocal<>();
+    private final ThreadLocal<With> with = new InheritableThreadLocal<>();
 
     public Container() {
-        this.with.set(new ConcurrentHashMap<>());
+        this.with.set(new With("", new ConcurrentHashMap<>()));
     }
 
     /* ===================== Base ===================== */
@@ -115,7 +115,7 @@ public class Container implements Context {
         if (binding == null) {
             binding = new Binding(null, ScopeType.PROTOTYPE, name);
             Binding finalBinding = binding;
-            binding.setWrapper((container, args) -> this.doBuild(finalBinding));
+            binding.setWrapper((container, with) -> this.doBuild(finalBinding));
         }
         return binding;
     }
@@ -483,7 +483,7 @@ public class Container implements Context {
     public Container bind(String bindName) {
         return this.bind(
                 bindName,
-                (container, args) -> container.build(bindName)
+                (container, with) -> container.build(bindName)
             );
     }
 
@@ -520,7 +520,7 @@ public class Container implements Context {
     public Container bind(Class<?> bingType) {
         return this.bind(
                 bingType,
-                (container, args) -> container.build(bingType)
+                (container, with) -> container.build(bingType)
             );
     }
 
@@ -585,7 +585,7 @@ public class Container implements Context {
     ) {
         return this.doBind(
                 bindName,
-                (container, args) -> this.build(wrapper),
+                (container, with) -> this.build(wrapper),
                 alias,
                 scopeType,
                 overwrite
@@ -620,7 +620,7 @@ public class Container implements Context {
     ) {
         return this.doBind(
                 bindType.getName(),
-                (container, args) -> this.build(wrapper),
+                (container, with) -> this.build(wrapper),
                 alias,
                 scopeType,
                 overwrite
@@ -813,20 +813,41 @@ public class Container implements Context {
         return this.make(bindName, returnType, this.with.get());
     }
 
+    protected <T> T make(String bindName, Class<T> returnType, With with) {
+        return this.withAndReset(() -> this.doMake(bindName, returnType), with);
+    }
+
     public <T> T make(
         String bindName,
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        return this.withAndReset(() -> this.doMake(bindName, returnType), args);
+        return this.make(bindName, returnType, "", args);
+    }
+
+    public <T> T make(
+        String bindName,
+        Class<T> returnType,
+        String prefix,
+        Map<String, Object> args
+    ) {
+        return this.make(bindName, returnType, new With(prefix, args));
     }
 
     public <T> T make(Class<T> bindType) {
-        return this.make(bindType, this.with.get());
+        return this.make(bindType.getName(), bindType, this.with.get());
     }
 
     public <T> T make(Class<T> bindType, Map<String, Object> args) {
         return this.make(bindType.getName(), bindType, args);
+    }
+
+    public <T> T make(
+        Class<T> bindType,
+        String prefix,
+        Map<String, Object> args
+    ) {
+        return this.make(bindType.getName(), bindType, prefix, args);
     }
 
     /* ====================== remove ======================= */
@@ -855,7 +876,19 @@ public class Container implements Context {
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        return this.withAndReset(() -> this.call(target, returnType), args);
+        return this.call(target, returnType, "", args);
+    }
+
+    public <T> T call(
+        String[] target,
+        Class<T> returnType,
+        String prefix,
+        Map<String, Object> args
+    ) {
+        return this.withAndReset(
+                () -> this.call(target, returnType),
+                new With(prefix, args)
+            );
     }
 
     public <T> T call(
@@ -877,9 +910,19 @@ public class Container implements Context {
         Class<T> returnType,
         Map<String, Object> args
     ) {
+        return this.call(target, paramTypes, returnType, "", args);
+    }
+
+    public <T> T call(
+        String[] target,
+        Class<?>[] paramTypes,
+        Class<T> returnType,
+        String prefix,
+        Map<String, Object> args
+    ) {
         return this.withAndReset(
                 () -> this.call(target, paramTypes, returnType),
-                args
+                new With(prefix, args)
             );
     }
 
@@ -922,9 +965,19 @@ public class Container implements Context {
         Class<T> returnType,
         Map<String, Object> args
     ) {
+        return this.call(type, method, returnType, "", args);
+    }
+
+    public <T> T call(
+        Class<?> type,
+        Method method,
+        Class<T> returnType,
+        String prefix,
+        Map<String, Object> args
+    ) {
         return this.withAndReset(
                 () -> this.callMethod(type, method, returnType),
-                args
+                new With(prefix, args)
             );
     }
 
@@ -950,9 +1003,19 @@ public class Container implements Context {
         Class<T> returnType,
         Map<String, Object> args
     ) {
+        return this.call(instance, method, returnType, "", args);
+    }
+
+    public <T> T call(
+        Object instance,
+        Method method,
+        Class<T> returnType,
+        String prefix,
+        Map<String, Object> args
+    ) {
         return this.withAndReset(
                 () -> this.callMethod(instance, method, returnType),
-                args
+                new With(prefix, args)
             );
     }
 
@@ -966,9 +1029,19 @@ public class Container implements Context {
         Class<T> returnType,
         Map<String, Object> args
     ) {
+        return this.call(instance, methodName, returnType, "", args);
+    }
+
+    public <T> T call(
+        Object instance,
+        String methodName,
+        Class<T> returnType,
+        String prefix,
+        Map<String, Object> args
+    ) {
         return this.withAndReset(
                 () -> this.callMethod(instance, methodName, returnType),
-                args
+                new With(prefix, args)
             );
     }
 
@@ -982,31 +1055,45 @@ public class Container implements Context {
         Class<T> returnType,
         Map<String, Object> args
     ) {
+        return this.call(type, methodName, returnType, "", args);
+    }
+
+    public <T> T call(
+        Class<?> type,
+        String methodName,
+        Class<T> returnType,
+        String prefix,
+        Map<String, Object> args
+    ) {
         return this.withAndReset(
                 () -> this.call(type, methodName, returnType),
-                args
+                new With(prefix, args)
             );
     }
 
     /* ===================================================== */
 
-    public Map<String, Object> getWith() {
+    public With getWith() {
         return this.with.get();
     }
 
     public Container with(Map<String, Object> args) {
-        this.with.set(args);
+        return this.with("", args);
+    }
+
+    public Container with(String prefix, Map<String, Object> args) {
+        this.with.set(new With(prefix, args));
         return this;
     }
 
     public Container resetWith() {
-        this.with.set(new ConcurrentHashMap<>());
+        this.with.set(new With("", new ConcurrentHashMap<>()));
         return this;
     }
 
-    public <T> T withAndReset(Supplier<T> callback, Map<String, Object> args) {
-        Map<String, Object> reset = this.with.get();
-        this.with.set(args);
+    public <T> T withAndReset(Supplier<T> callback, With with) {
+        With reset = this.with.get();
+        this.with.set(with);
         T result = callback.get();
         this.with.set(reset);
         return result;

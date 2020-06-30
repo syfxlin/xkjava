@@ -1,22 +1,18 @@
 package me.ixk.framework.ioc.injector;
 
 import java.lang.reflect.Field;
-import java.util.Map;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.PropertyInjector;
+import me.ixk.framework.ioc.With;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.ClassUtils;
 
 public class DefaultPropertyInjector implements PropertyInjector {
 
     @Override
-    public Object inject(
-        Container container,
-        Object instance,
-        Map<String, Object> args
-    ) {
+    public Object inject(Container container, Object instance, With with) {
         if (instance == null) {
             return null;
         }

@@ -2,12 +2,13 @@ package me.ixk.framework.providers;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import java.util.Map;
-import javax.sql.DataSource;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
+
+import javax.sql.DataSource;
+import java.util.Map;
 
 @Provider
 @Order(Order.HIGHEST_PRECEDENCE + 2)
@@ -28,7 +29,7 @@ public class DataSourceProvider extends AbstractProvider {
         hikariConfig.setPassword(config.get("password"));
         this.app.singleton(
                 DataSource.class,
-                (container, args) -> new HikariDataSource(hikariConfig),
+                (container, with) -> new HikariDataSource(hikariConfig),
                 "dataSource"
             );
     }

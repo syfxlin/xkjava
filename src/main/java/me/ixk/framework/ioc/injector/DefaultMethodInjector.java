@@ -1,20 +1,16 @@
 package me.ixk.framework.ioc.injector;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.MethodInjector;
+import me.ixk.framework.ioc.With;
 import me.ixk.framework.utils.AnnotationUtils;
 
 public class DefaultMethodInjector implements MethodInjector {
 
     @Override
-    public Object inject(
-        Container container,
-        Object instance,
-        Map<String, Object> args
-    ) {
+    public Object inject(Container container, Object instance, With with) {
         if (instance == null) {
             return null;
         }

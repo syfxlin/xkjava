@@ -19,7 +19,7 @@ public class EncryptionProvider extends AbstractProvider {
     public void register() {
         this.app.singleton(
                 Crypt.class,
-                (container, args) ->
+                (container, with) ->
                     new Crypt(
                         Base64.decode(Config.get("app.key", String.class)),
                         Config.get("app.cipher", String.class)

@@ -1,12 +1,13 @@
 package me.ixk.framework.providers;
 
-import java.util.List;
-import javax.sql.DataSource;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.MybatisPlus;
+
+import javax.sql.DataSource;
+import java.util.List;
 
 @Provider
 @Order(Order.HIGHEST_PRECEDENCE + 3)
@@ -25,7 +26,7 @@ public class MybatisPlusProvider extends AbstractProvider {
         );
         this.app.singleton(
                 MybatisPlus.class,
-                (container, args) ->
+                (container, with) ->
                     new MybatisPlus(
                         container.make(DataSource.class),
                         mapperPackages

@@ -18,7 +18,7 @@ public class ThymeleafProvider extends AbstractProvider {
     public void register() {
         this.app.bind(
                 Thymeleaf.class,
-                (container, args) ->
+                (container, with) ->
                     new Thymeleaf(
                         container
                             .make(DispatcherServlet.class)

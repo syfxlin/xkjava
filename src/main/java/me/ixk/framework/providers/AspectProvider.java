@@ -16,7 +16,7 @@ public class AspectProvider extends AbstractProvider {
     public void register() {
         // this.app.singleton(
         //         AspectManager.class,
-        //         (container, args) -> new AspectManager(app),
+        //         (container, with) -> new AspectManager(app),
         //         "aspect"
         //     );
     }
