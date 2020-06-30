@@ -1,5 +1,6 @@
 package me.ixk.app.controllers;
 
+import me.ixk.app.beans.User;
 import me.ixk.framework.annotations.Controller;
 import me.ixk.framework.annotations.GetMapping;
 import me.ixk.framework.annotations.PostMapping;
@@ -13,7 +14,7 @@ public class TestController {
     }
 
     @PostMapping("/post")
-    public String post() {
+    public String post(User user) {
         return "post";
     }
 }

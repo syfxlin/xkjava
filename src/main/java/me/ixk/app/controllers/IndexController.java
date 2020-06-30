@@ -7,7 +7,6 @@ import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.Request;
-import me.ixk.framework.ioc.Application;
 
 @Controller
 public class IndexController {
@@ -45,16 +44,6 @@ public class IndexController {
     @Log
     public String login(Request request) {
         return this.request.query("age");
-    }
-
-    @Bean(name = "user")
-    public User getUser() {
-        return new User("syfxlin", 20);
-    }
-
-    @Autowired
-    public void setApplication(Application application) {
-        this.getUser();
     }
 
     @ExceptionHandler(value = HttpException.class)

@@ -1,6 +1,11 @@
 package me.ixk.app.beans;
 
-import me.ixk.framework.annotations.Bean;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Bean
-public class User2 {}
+@Data
+@NoArgsConstructor
+public class User2 {
+    private String name;
+    private int age;
+}

@@ -32,7 +32,7 @@ public class Container implements Context {
     private final ThreadLocal<With> with = new InheritableThreadLocal<>();
 
     public Container() {
-        this.with.set(new With("", new ConcurrentHashMap<>()));
+        this.with.set(new With(null, new ConcurrentHashMap<>()));
     }
 
     /* ===================== Base ===================== */
@@ -240,6 +240,27 @@ public class Container implements Context {
         if (!overwrite && this.hasBinding(name)) {
             throw new RuntimeException("Target [" + name + "] has been bind");
         }
+    }
+
+    public <T> T getInjectValue(Class<T> type, String name, With with) {
+        Object injectValue;
+        Map<String, Object> withMap = with.getMap();
+        String typeName = type.getName();
+        String concatName = with.concat(name);
+        if (withMap.containsKey(typeName)) {
+            injectValue = withMap.get(typeName);
+        } else if (withMap.containsKey(concatName)) {
+            injectValue = withMap.get(concatName);
+        } else {
+            injectValue =
+                this.make(
+                        type.getName(),
+                        (Class<?>) type,
+                        with.concatPrefix(name),
+                        withMap
+                    );
+        }
+        return Convert.convert(type, injectValue);
     }
 
     /* ===================== doBind ===================== */
@@ -822,7 +843,7 @@ public class Container implements Context {
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        return this.make(bindName, returnType, "", args);
+        return this.make(bindName, returnType, null, args);
     }
 
     public <T> T make(
@@ -876,7 +897,7 @@ public class Container implements Context {
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        return this.call(target, returnType, "", args);
+        return this.call(target, returnType, null, args);
     }
 
     public <T> T call(
@@ -910,7 +931,7 @@ public class Container implements Context {
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        return this.call(target, paramTypes, returnType, "", args);
+        return this.call(target, paramTypes, returnType, null, args);
     }
 
     public <T> T call(
@@ -965,7 +986,7 @@ public class Container implements Context {
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        return this.call(type, method, returnType, "", args);
+        return this.call(type, method, returnType, null, args);
     }
 
     public <T> T call(
@@ -1003,7 +1024,7 @@ public class Container implements Context {
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        return this.call(instance, method, returnType, "", args);
+        return this.call(instance, method, returnType, null, args);
     }
 
     public <T> T call(
@@ -1029,7 +1050,7 @@ public class Container implements Context {
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        return this.call(instance, methodName, returnType, "", args);
+        return this.call(instance, methodName, returnType, null, args);
     }
 
     public <T> T call(
@@ -1055,7 +1076,7 @@ public class Container implements Context {
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        return this.call(type, methodName, returnType, "", args);
+        return this.call(type, methodName, returnType, null, args);
     }
 
     public <T> T call(
@@ -1078,7 +1099,7 @@ public class Container implements Context {
     }
 
     public Container with(Map<String, Object> args) {
-        return this.with("", args);
+        return this.with(null, args);
     }
 
     public Container with(String prefix, Map<String, Object> args) {
@@ -1087,7 +1108,7 @@ public class Container implements Context {
     }
 
     public Container resetWith() {
-        this.with.set(new With("", new ConcurrentHashMap<>()));
+        this.with.set(new With(null, new ConcurrentHashMap<>()));
         return this;
     }
 

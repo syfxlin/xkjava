@@ -1,8 +1,11 @@
 package me.ixk.framework.ioc.injector;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ReflectUtil;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.PropertyInjector;
 import me.ixk.framework.ioc.With;
@@ -16,35 +19,46 @@ public class DefaultPropertyInjector implements PropertyInjector {
         if (instance == null) {
             return null;
         }
-        Field[] fields = ClassUtils.getUserClass(instance).getDeclaredFields();
+        Class<?> instanceClass = ClassUtils.getUserClass(instance);
+        Field[] fields = instanceClass.getDeclaredFields();
         for (Field field : fields) {
             Autowired autowired = AnnotationUtils.getAnnotation(
                 field,
                 Autowired.class
             );
-            if (autowired == null) {
+            PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
+                instanceClass,
+                field.getName()
+            );
+            if (propertyDescriptor == null) {
+                continue;
+            }
+            Method writeMethod = propertyDescriptor.getWriteMethod();
+            if (writeMethod == null && autowired == null) {
                 continue;
             }
             Object dependency;
-            if (!autowired.name().equals("")) {
+            if (autowired != null && !autowired.name().equals("")) {
                 dependency = container.make(autowired.name(), field.getType());
             } else {
                 Class<?> autowiredClass;
-                if (autowired.type() == Class.class) {
+                if (autowired == null || autowired.type() == Class.class) {
                     autowiredClass = field.getType();
                 } else {
                     autowiredClass = autowired.type();
                 }
-                dependency = container.make(autowiredClass);
+                dependency =
+                    container.getInjectValue(
+                        autowiredClass,
+                        field.getName(),
+                        with
+                    );
             }
-            boolean originAccessible = field.canAccess(instance);
-            field.setAccessible(true);
-            try {
-                field.set(instance, dependency);
-            } catch (IllegalAccessException e) {
-                throw new ContainerException("Object field setting failed", e);
+            if (writeMethod != null) {
+                ReflectUtil.invoke(instance, writeMethod, dependency);
+            } else {
+                ReflectUtil.setFieldValue(instance, field, dependency);
             }
-            field.setAccessible(originAccessible);
         }
         return instance;
     }

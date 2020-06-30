@@ -3,20 +3,12 @@ package me.ixk.framework.ioc;
 import java.util.Map;
 
 public class With {
-    private String withPrefix;
+    private final String withPrefix;
 
-    private Map<String, Object> withMap;
+    private final Map<String, Object> withMap;
 
     public With(String withPrefix, Map<String, Object> withMap) {
         this.withPrefix = withPrefix;
-        this.withMap = withMap;
-    }
-
-    public void setPrefix(String withPrefix) {
-        this.withPrefix = withPrefix;
-    }
-
-    public void setMap(Map<String, Object> withMap) {
         this.withMap = withMap;
     }
 
@@ -26,5 +18,21 @@ public class With {
 
     public Map<String, Object> getMap() {
         return withMap;
+    }
+
+    public String concat(String name) {
+        return withPrefix == null || withPrefix.length() == 0
+            ? name
+            : this.withPrefix + "." + name;
+    }
+
+    public String concatPrefix(String name) {
+        return withPrefix == null
+            ? ""
+            : (
+                this.withPrefix.length() == 0
+                    ? name
+                    : this.withPrefix + "." + name
+            );
     }
 }
