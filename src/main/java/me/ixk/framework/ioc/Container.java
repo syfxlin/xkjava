@@ -346,12 +346,8 @@ public class Container implements Context {
                     );
             }
             return instance;
-        } else {
-            // 不允许构造器重载
-            throw new RuntimeException(
-                "The bound instance must have only one constructor"
-            );
         }
+        return null;
     }
 
     /* ===================== doMake ===================== */
