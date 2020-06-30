@@ -372,7 +372,7 @@ public class Request extends AbstractFacade {
         return make().getQueryString();
     }
 
-    public static BufferedReader getReader() {
+    public static BufferedReader getReader() throws IOException {
         return make().getReader();
     }
 

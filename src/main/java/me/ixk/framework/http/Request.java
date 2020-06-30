@@ -2,7 +2,10 @@ package me.ixk.framework.http;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -40,11 +43,22 @@ public class Request implements HttpServletRequest {
     }
 
     protected void initRequest() {
-        try {
-            this._body =
-                _base.getReader().lines().collect(Collectors.joining());
-        } catch (IOException e) {
-            this._body = null;
+        // 如果是 JSON 就解析 JSON，一旦解析后就无法使用 getOutStream
+        String baseType = HttpFields.valueParameters(
+            this._base.getContentType(),
+            null
+        );
+        if (
+            MimeTypes.Type.APPLICATION_JSON.is(baseType) ||
+            MimeTypes.Type.TEXT_JSON.is(baseType)
+        ) {
+            try {
+                this._body =
+                    _base.getReader().lines().collect(Collectors.joining());
+            } catch (IOException e) {
+                this._body = null;
+            }
+            this.parseBody();
         }
         Cookie[] cookies = _base.getCookies();
         this._cookies = new ConcurrentHashMap<>();
@@ -53,7 +67,6 @@ public class Request implements HttpServletRequest {
                 this._cookies.put(cookie.getName(), cookie);
             }
         }
-        this.parseBody();
     }
 
     protected <T> T getOrDefault(T result, T _default) {
@@ -540,8 +553,8 @@ public class Request implements HttpServletRequest {
     }
 
     @Override
-    public BufferedReader getReader() {
-        return new BufferedReader(new StringReader(this._body));
+    public BufferedReader getReader() throws IOException {
+        return _base.getReader();
     }
 
     @Override

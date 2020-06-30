@@ -1,6 +1,7 @@
 package me.ixk.framework.servlet;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -17,6 +18,12 @@ public abstract class FrameworkServlet extends HttpServlet {
         HttpServletRequest req,
         HttpServletResponse resp
     ) {
+        try {
+            req.setCharacterEncoding("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // TODO: unset
+        }
+        resp.setCharacterEncoding("UTF-8");
         Request request = new Request((org.eclipse.jetty.server.Request) req);
         Response response = new Response(
             (org.eclipse.jetty.server.Response) resp
