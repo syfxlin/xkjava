@@ -9,8 +9,8 @@ import me.ixk.framework.annotations.PostMapping;
 @Controller
 public class TestController {
 
-    @GetMapping("/test")
-    public String test() {
+    @GetMapping("/test/{id}")
+    public String test(int id) {
         return "test";
     }
 

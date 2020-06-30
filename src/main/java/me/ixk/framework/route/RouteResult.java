@@ -1,6 +1,7 @@
 package me.ixk.framework.route;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RouteResult {
     protected RouteStatus status = RouteStatus.NOT_FOUND;
@@ -18,9 +19,7 @@ public class RouteResult {
     }
 
     public RouteResult(RouteStatus status, RouteHandler handler, String route) {
-        this.status = status;
-        this.handler = handler;
-        this.route = route;
+        this(status, handler, new ConcurrentHashMap<>(), route);
     }
 
     public RouteResult(

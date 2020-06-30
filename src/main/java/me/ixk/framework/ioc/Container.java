@@ -1,6 +1,7 @@
 package me.ixk.framework.ioc;
 
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.ClassUtil;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -227,7 +228,10 @@ public class Container implements Context {
         Object attribute,
         ScopeType scopeType
     ) {
-        this.setBinding(name, new Binding(attribute, scopeType));
+        this.setBinding(
+                Context.ATTRIBUTE_PREFIX + name,
+                new Binding(attribute, scopeType)
+            );
     }
 
     /* ===================== Base ===================== */
@@ -347,7 +351,7 @@ public class Container implements Context {
             }
             return instance;
         }
-        return null;
+        return ClassUtil.getDefaultValue(instanceType);
     }
 
     /* ===================== doMake ===================== */
@@ -379,8 +383,7 @@ public class Container implements Context {
             }
         }
         instance = AutowireUtils.resolveAutowiringValue(instance, returnType);
-        instance = Convert.convert(returnType, instance);
-        Object finalInstance = instance;
+        T returnInstance = Convert.convert(returnType, instance);
         if (scopeType.isShared()) {
             this.walkContexts(
                     context -> {
@@ -388,12 +391,12 @@ public class Container implements Context {
                             context.matchesScope(scopeType) &&
                             !context.hasInstance(instanceName)
                         ) {
-                            context.setInstance(instanceName, finalInstance);
+                            context.setInstance(instanceName, returnInstance);
                         }
                     }
                 );
         }
-        return returnType.cast(instance);
+        return returnInstance;
     }
 
     /* ===================== doRemove ===================== */

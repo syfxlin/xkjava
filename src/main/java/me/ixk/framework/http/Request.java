@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.servlet.*;
 import javax.servlet.http.*;
+import me.ixk.framework.route.RouteResult;
 import me.ixk.framework.utils.Helper;
 import me.ixk.framework.utils.JSON;
 import org.eclipse.jetty.http.*;
@@ -31,6 +32,7 @@ public class Request implements HttpServletRequest {
     protected String _body;
     protected JsonNode _parseBody = null;
     protected Map<String, Cookie> _cookies;
+    protected RouteResult _route;
 
     @Deprecated
     public Request() {
@@ -67,6 +69,14 @@ public class Request implements HttpServletRequest {
                 this._cookies.put(cookie.getName(), cookie);
             }
         }
+    }
+
+    public RouteResult getRoute() {
+        return _route;
+    }
+
+    public void setRoute(RouteResult route) {
+        this._route = route;
     }
 
     protected <T> T getOrDefault(T result, T _default) {
@@ -132,6 +142,7 @@ public class Request implements HttpServletRequest {
             String[] value = entry.getValue();
             map.put(entry.getKey(), value.length == 1 ? value[0] : value);
         }
+        map.putAll(this._route.getParams());
         map.putAll(this._cookies);
         try {
             for (Part part : _base.getParts()) {
@@ -159,6 +170,9 @@ public class Request implements HttpServletRequest {
 
     public boolean has(String name) {
         if (_base.getParameterMap().containsKey(name)) {
+            return true;
+        }
+        if (_route.getParams().containsKey(name)) {
             return true;
         }
         if (_cookies.containsKey(name)) {
@@ -214,6 +228,18 @@ public class Request implements HttpServletRequest {
                 _base.getQueryParameters().getValue(name, 0),
                 _default
             );
+    }
+
+    public RouteResult route() {
+        return this._route;
+    }
+
+    public String route(String name) {
+        return this._route.getParams().get(name);
+    }
+
+    public String route(String name, String _default) {
+        return this._route.getParams().getOrDefault(name, _default);
     }
 
     public Cookie cookie(String name) {

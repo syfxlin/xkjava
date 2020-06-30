@@ -85,13 +85,8 @@ public class RouteManager {
             request.getHttpURI().getPath()
         );
 
-        // 修改 Request 中的 Path 参数
-        Map<String, String> pathParams;
-        if ((pathParams = routeResult.getParams()) != null) {
-            for (Map.Entry<String, String> entry : pathParams.entrySet()) {
-                request.setAttribute(entry.getKey(), entry.getValue());
-            }
-        }
+        // 将 Route 信息设置到 Request
+        request.setRoute(routeResult);
 
         switch (routeResult.getStatus()) {
             case NOT_FOUND:

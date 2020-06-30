@@ -1,10 +1,8 @@
 package me.ixk.framework.ioc;
 
-import java.lang.reflect.Method;
-import me.ixk.framework.annotations.PostConstruct;
-import me.ixk.framework.annotations.PreDestroy;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.exceptions.BindingException;
+import me.ixk.framework.utils.ClassUtils;
 
 public class Binding {
     private ScopeType scope;
@@ -52,27 +50,23 @@ public class Binding {
     }
 
     public void setInstanceType(String instanceName) {
-        try {
-            this.setInstanceType(Class.forName(instanceName));
-        } catch (ClassNotFoundException e) {
-            // no code
-        }
+        this.setInstanceType(ClassUtils.forName(instanceName));
     }
 
     public void setInstanceType(Class<?> instanceType) {
         this.instanceType = instanceType;
-        for (Method method : instanceType.getDeclaredMethods()) {
-            PostConstruct postConstruct = method.getAnnotation(
-                PostConstruct.class
-            );
-            if (postConstruct != null) {
-                this.initMethodName = method.getName();
-            }
-            PreDestroy preDestroy = method.getAnnotation(PreDestroy.class);
-            if (preDestroy != null) {
-                this.destroyMethodName = method.getName();
-            }
-        }
+        //        for (Method method : instanceType.getDeclaredMethods()) {
+        //            PostConstruct postConstruct = method.getAnnotation(
+        //                PostConstruct.class
+        //            );
+        //            if (postConstruct != null) {
+        //                this.initMethodName = method.getName();
+        //            }
+        //            PreDestroy preDestroy = method.getAnnotation(PreDestroy.class);
+        //            if (preDestroy != null) {
+        //                this.destroyMethodName = method.getName();
+        //            }
+        //        }
     }
 
     public Wrapper getWrapper() {
