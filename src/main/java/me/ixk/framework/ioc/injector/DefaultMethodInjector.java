@@ -22,7 +22,13 @@ public class DefaultMethodInjector implements MethodInjector {
                 Autowired.class
             );
             if (autowired != null) {
-                container.call(instance, method, Object.class);
+                container.call(
+                    instance,
+                    method,
+                    Object.class,
+                    with.getPrefix(),
+                    with.getMap()
+                );
             }
         }
         return instance;

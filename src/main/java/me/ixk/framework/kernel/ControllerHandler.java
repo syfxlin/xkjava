@@ -44,12 +44,14 @@ public class ControllerHandler implements Handler {
                 ScopeType.REQUEST
             );
         try {
-            Object controller = this.app.make(this.controllerClass);
+            Map<String, Object> requestParams = request.all();
+            Object controller =
+                this.app.make(this.controllerClass, requestParams);
             return this.app.call(
                     controller,
                     this.methodName,
                     Object.class,
-                    request.all()
+                    requestParams
                 );
         } catch (Throwable e) {
             // 处理 ExceptionHandler 注解定义的错误处理器
