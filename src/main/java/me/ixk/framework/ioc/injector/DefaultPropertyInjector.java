@@ -2,15 +2,17 @@ package me.ixk.framework.ioc.injector;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ReflectUtil;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.annotations.SkipPropertyAutowired;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.PropertyInjector;
 import me.ixk.framework.ioc.With;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.ClassUtils;
+
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 public class DefaultPropertyInjector implements PropertyInjector {
 
@@ -20,8 +22,16 @@ public class DefaultPropertyInjector implements PropertyInjector {
             return null;
         }
         Class<?> instanceClass = ClassUtils.getUserClass(instance);
+        if (
+            instanceClass.getAnnotation(SkipPropertyAutowired.class) != null
+        ) {
+            return instance;
+        }
         Field[] fields = instanceClass.getDeclaredFields();
         for (Field field : fields) {
+            if (field.getAnnotation(SkipPropertyAutowired.class) != null) {
+                continue;
+            }
             Autowired autowired = AnnotationUtils.getAnnotation(
                 field,
                 Autowired.class
