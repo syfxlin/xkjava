@@ -1,19 +1,22 @@
-package me.ixk.framework.utils;
+package me.ixk.framework.database;
 
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;
-import java.sql.Connection;
-import java.util.List;
-import java.util.Map;
-import javax.sql.DataSource;
-import me.ixk.framework.exceptions.MybatisPlusException;
+import me.ixk.framework.exceptions.SqlSessionException;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.BatchResult;
 import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.ibatis.session.*;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 
-public class MybatisPlus {
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.util.List;
+import java.util.Map;
+
+public class MybatisPlus
+    implements me.ixk.framework.database.SqlSessionManager {
     protected final SqlSessionManager sessionManager;
 
     public MybatisPlus(DataSource dataSource, List<String> mapperPackages) {
@@ -243,7 +246,7 @@ public class MybatisPlus {
         try {
             return type.getConstructor().newInstance();
         } catch (Exception e) {
-            throw new MybatisPlusException("Failed to instantiate Service");
+            throw new SqlSessionException("Failed to instantiate Service");
         }
     }
 

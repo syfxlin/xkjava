@@ -35,11 +35,13 @@ ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf 渲染，路由是参考 
 ## TODO
 
 -   @ControllerAdvice（不完整）
+-   @PostConstruct 和 @PreDestroy（之前有，后续因为重构删掉了）
 -   @Application
 -   @ConfigurationProperties
 -   @Value
 -   @ThreadSafe
--   注解关联
+-   @RequestBody 和 @RequestParam（由于本框架直接使用）
+-   注解组合（不完善）
 
 ## 文档 Doc
 

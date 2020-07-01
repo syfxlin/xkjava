@@ -7,17 +7,6 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.*;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
-import me.ixk.framework.ioc.Application;
-import me.ixk.framework.utils.MybatisPlus;
-import org.apache.ibatis.binding.MapperMethod;
-import org.apache.ibatis.logging.Log;
-import org.apache.ibatis.logging.LogFactory;
-import org.apache.ibatis.reflection.ExceptionUtil;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionUtils;
-
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
@@ -26,6 +15,16 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import me.ixk.framework.database.SqlSessionManager;
+import me.ixk.framework.ioc.Application;
+import org.apache.ibatis.binding.MapperMethod;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
+import org.apache.ibatis.reflection.ExceptionUtil;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 
 @SuppressWarnings("unchecked")
 public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
@@ -37,13 +36,13 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
             .getGenericSuperclass()
     ).getActualTypeArguments()[0];
 
-    protected final MybatisPlus mybatisPlus = Application
+    protected final SqlSessionManager sqlSessionManager = Application
         .get()
-        .make(MybatisPlus.class);
+        .make(SqlSessionManager.class);
 
     @Override
     public M getBaseMapper() {
-        return mybatisPlus.getMapper(mapperClass);
+        return sqlSessionManager.getMapper(mapperClass);
     }
 
     protected final Class<?> entityClass = currentModelClass();

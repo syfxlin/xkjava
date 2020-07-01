@@ -4,27 +4,27 @@ import me.ixk.framework.annotations.Aspect;
 import me.ixk.framework.annotations.Transactional;
 import me.ixk.framework.aop.AbstractAdvice;
 import me.ixk.framework.aop.ProceedingJoinPoint;
+import me.ixk.framework.database.SqlSessionManager;
 import me.ixk.framework.exceptions.TransactionalException;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.MybatisPlus;
 
 @Aspect("@annotation(me.ixk.framework.annotations.Transactional)")
 public class TransactionalAspect extends AbstractAdvice {
 
     @Override
     public Object around(ProceedingJoinPoint joinPoint) {
-        final MybatisPlus mybatisPlus = Application
+        final SqlSessionManager sqlSessionManager = Application
             .get()
-            .make(MybatisPlus.class);
+            .make(SqlSessionManager.class);
         final Transactional transactional = AnnotationUtils.getAnnotation(
             joinPoint.getMethod(),
             Transactional.class
         );
         try {
-            mybatisPlus.startManagedSession(transactional.isolation());
+            sqlSessionManager.startManagedSession(transactional.isolation());
             Object result = joinPoint.proceed();
-            mybatisPlus.commit();
+            sqlSessionManager.commit();
             return result;
         } catch (Throwable t) {
             boolean rollback =
@@ -36,11 +36,11 @@ public class TransactionalAspect extends AbstractAdvice {
                 }
             }
             if (rollback) {
-                mybatisPlus.rollback();
+                sqlSessionManager.rollback();
             }
             throw new TransactionalException("Transactional process error", t);
         } finally {
-            mybatisPlus.close();
+            sqlSessionManager.close();
         }
     }
 }

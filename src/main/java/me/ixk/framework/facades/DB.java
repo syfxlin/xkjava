@@ -3,15 +3,15 @@ package me.ixk.framework.facades;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
-import me.ixk.framework.utils.MybatisPlus;
+import me.ixk.framework.database.SqlSessionManager;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.BatchResult;
 import org.apache.ibatis.session.*;
 
 public class DB extends AbstractFacade {
 
-    protected static MybatisPlus make() {
-        return app.make(MybatisPlus.class);
+    protected static SqlSessionManager make() {
+        return app.make(SqlSessionManager.class);
     }
 
     public void startManagedSession() {

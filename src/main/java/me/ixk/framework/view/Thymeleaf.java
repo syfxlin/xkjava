@@ -1,5 +1,6 @@
-package me.ixk.framework.utils;
+package me.ixk.framework.view;
 
+import java.util.Map;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.ioc.Application;
@@ -9,13 +10,10 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
-import javax.servlet.ServletContext;
-import java.util.Map;
-
-public class Thymeleaf {
+public class Thymeleaf implements TemplateProcessor {
     protected final TemplateEngine templateEngine;
 
-    public Thymeleaf(ServletContext servletContext) {
+    public Thymeleaf() {
         ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
         resolver.setTemplateMode(TemplateMode.HTML);
         resolver.setPrefix("/templates/");
@@ -29,7 +27,7 @@ public class Thymeleaf {
         return this.templateEngine;
     }
 
-    public String process(String template, Map<String, Object> values) {
+    public String process(String templateName, Map<String, Object> values) {
         Application app = Application.get();
         WebContext webContext = new WebContext(
             app.make(Request.class).getOriginRequest(),
@@ -37,6 +35,6 @@ public class Thymeleaf {
             app.make(DispatcherServlet.class).getServletContext()
         );
         webContext.setVariables(values);
-        return this.templateEngine.process(template, webContext);
+        return this.templateEngine.process(templateName, webContext);
     }
 }

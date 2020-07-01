@@ -1,19 +1,19 @@
 package me.ixk.framework.providers;
 
+import java.util.List;
+import javax.sql.DataSource;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
+import me.ixk.framework.database.MybatisPlus;
+import me.ixk.framework.database.SqlSessionManager;
 import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
-import me.ixk.framework.utils.MybatisPlus;
-
-import javax.sql.DataSource;
-import java.util.List;
 
 @Provider
 @Order(Order.HIGHEST_PRECEDENCE + 3)
-public class MybatisPlusProvider extends AbstractProvider {
+public class SqlSessionManagerProvider extends AbstractProvider {
 
-    public MybatisPlusProvider(Application app) {
+    public SqlSessionManagerProvider(Application app) {
         super(app);
     }
 
@@ -25,18 +25,18 @@ public class MybatisPlusProvider extends AbstractProvider {
             List.class
         );
         this.app.singleton(
-                MybatisPlus.class,
+                SqlSessionManager.class,
                 (container, with) ->
                     new MybatisPlus(
                         container.make(DataSource.class),
                         mapperPackages
                     ),
-                "mybatisPlus"
+                "sqlSessionManager"
             );
     }
 
     @Override
     public void boot() {
-        this.app.make(MybatisPlus.class);
+        this.app.make(SqlSessionManager.class);
     }
 }

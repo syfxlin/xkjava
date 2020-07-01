@@ -157,4 +157,9 @@ public class ByteArrayUtf8Writer extends Writer {
     public byte[] getByteArray() {
         return Arrays.copyOf(_buf, _size);
     }
+
+    @Override
+    public String toString() {
+        return new String(_buf, 0, _size);
+    }
 }

@@ -1,11 +1,9 @@
 package me.ixk.framework.view;
 
-import me.ixk.framework.http.Renderable;
-import me.ixk.framework.ioc.Application;
-import me.ixk.framework.utils.Thymeleaf;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.http.Renderable;
+import me.ixk.framework.ioc.Application;
 
 public class View implements Renderable {
     protected String view = "";
@@ -58,7 +56,7 @@ public class View implements Renderable {
     public String render() {
         String html = Application
             .get()
-            .make(Thymeleaf.class)
+            .make(TemplateProcessor.class)
             .process(this.view, this.data);
         if (this.filterCallback != null) {
             html = this.filterCallback.filter(html);

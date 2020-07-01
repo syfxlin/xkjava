@@ -1,5 +1,7 @@
 package me.ixk.app.controllers;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import me.ixk.app.annotations.Log;
 import me.ixk.app.beans.User;
@@ -7,6 +9,7 @@ import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.Request;
+import me.ixk.framework.view.FreeMarker;
 
 @Controller
 public class IndexController {
@@ -44,6 +47,14 @@ public class IndexController {
     @Log
     public String login(Request request) {
         return this.request.query("age");
+    }
+
+    @GetMapping("/free-marker")
+    public String freeMarker() {
+        FreeMarker freeMarker = new FreeMarker();
+        Map<String, Object> map = new ConcurrentHashMap<>();
+        map.put("name", "FreeMarker");
+        return freeMarker.process("index.ftl", map);
     }
 
     @ExceptionHandler(value = HttpException.class)
