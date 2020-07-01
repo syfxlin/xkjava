@@ -1,16 +1,25 @@
 package me.ixk.framework.ioc;
 
+import cn.hutool.core.lang.SimpleCache;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.annotations.PostConstruct;
+import me.ixk.framework.annotations.PreDestroy;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.exceptions.BindingException;
+import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.ClassUtils;
 
 public class Binding {
+    protected static final SimpleCache<Class<?>, BindingCache> BINDING_CACHE = new SimpleCache<>();
+
     private ScopeType scope;
 
     private Class<?> instanceType;
 
-    private String initMethodName;
-    private String destroyMethodName;
+    private final BindingCache bindingCache;
 
     private Wrapper wrapper;
 
@@ -19,6 +28,7 @@ public class Binding {
     public Binding(Wrapper wrapper, ScopeType scope) {
         this.wrapper = wrapper;
         this.scope = scope;
+        this.bindingCache = new BindingCache();
     }
 
     public Binding(Wrapper wrapper, ScopeType scope, String instanceName) {
@@ -55,18 +65,38 @@ public class Binding {
 
     public void setInstanceType(Class<?> instanceType) {
         this.instanceType = instanceType;
-        //        for (Method method : instanceType.getDeclaredMethods()) {
-        //            PostConstruct postConstruct = method.getAnnotation(
-        //                PostConstruct.class
-        //            );
-        //            if (postConstruct != null) {
-        //                this.initMethodName = method.getName();
-        //            }
-        //            PreDestroy preDestroy = method.getAnnotation(PreDestroy.class);
-        //            if (preDestroy != null) {
-        //                this.destroyMethodName = method.getName();
-        //            }
-        //        }
+        if (instanceType != null) {
+            BindingCache cache = BINDING_CACHE.get(instanceType);
+            if (cache != null) {
+                return;
+            }
+            List<Method> autowiredMethods = new ArrayList<>();
+            for (Method method : instanceType.getDeclaredMethods()) {
+                PostConstruct postConstruct = AnnotationUtils.getAnnotation(
+                    method,
+                    PostConstruct.class
+                );
+                if (postConstruct != null) {
+                    bindingCache.setInitMethod(method);
+                }
+                PreDestroy preDestroy = AnnotationUtils.getAnnotation(
+                    method,
+                    PreDestroy.class
+                );
+                if (preDestroy != null) {
+                    bindingCache.setDestroyMethods(method);
+                }
+                Autowired autowired = AnnotationUtils.getAnnotation(
+                    method,
+                    Autowired.class
+                );
+                if (autowired != null) {
+                    autowiredMethods.add(method);
+                }
+            }
+            bindingCache.setAutowiredMethod(autowiredMethods);
+            BINDING_CACHE.put(instanceType, bindingCache);
+        }
     }
 
     public Wrapper getWrapper() {
@@ -104,21 +134,60 @@ public class Binding {
         return this.scope.isRequest();
     }
 
-    public String getInitMethodName() {
-        return initMethodName;
+    public Method getInitMethod() {
+        return bindingCache.getInitMethod();
     }
 
-    public void setInitMethodName(String initMethodName) {
-        this.initMethodName = initMethodName;
+    public void setInitMethod(Method initMethod) {
+        bindingCache.setInitMethod(initMethod);
     }
 
-    public String getDestroyMethodName() {
-        return destroyMethodName;
+    public Method getDestroyMethod() {
+        return bindingCache.getDestroyMethod();
     }
 
-    public void setDestroyMethodName(String destroyMethodName) {
-        this.destroyMethodName = destroyMethodName;
+    public void setDestroyMethod(Method destroyMethod) {
+        bindingCache.setDestroyMethods(destroyMethod);
+    }
+
+    public List<Method> getAutowiredMethods() {
+        return bindingCache.getAutowiredMethods();
+    }
+
+    public void setAutowiredMethods(List<Method> autowiredMethods) {
+        bindingCache.setAutowiredMethod(autowiredMethods);
     }
 
     private static class NoCreated {}
+
+    private static class BindingCache {
+        private Method initMethod;
+        private Method destroyMethod;
+        private List<Method> autowiredMethods;
+        private static final List<Method> EMPTY = new ArrayList<>();
+
+        public Method getInitMethod() {
+            return initMethod;
+        }
+
+        public void setInitMethod(Method initMethod) {
+            this.initMethod = initMethod;
+        }
+
+        public Method getDestroyMethod() {
+            return destroyMethod;
+        }
+
+        public void setDestroyMethods(Method destroyMethod) {
+            this.destroyMethod = destroyMethod;
+        }
+
+        public List<Method> getAutowiredMethods() {
+            return autowiredMethods == null ? EMPTY : autowiredMethods;
+        }
+
+        public void setAutowiredMethod(List<Method> autowiredMethods) {
+            this.autowiredMethods = autowiredMethods;
+        }
+    }
 }

@@ -1,19 +1,16 @@
 package me.ixk.framework.aop;
 
+import cn.hutool.core.lang.SimpleCache;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.utils.AnnotationUtils;
 
 public class AspectManager {
     protected static final List<AdviceEntry> adviceList = new ArrayList<>();
 
-    protected static final Map<Method, List<Advice>> methodCache = new ConcurrentHashMap<>(
-        50
-    );
+    protected static final SimpleCache<Method, List<Advice>> METHOD_CACHE = new SimpleCache<>();
 
     public static void addAdvice(AspectPointcut pointcut, Advice advice) {
         adviceList.add(new AdviceEntry(pointcut, advice));
@@ -72,8 +69,9 @@ public class AspectManager {
     }
 
     public static List<Advice> getAdvices(Method method) {
-        if (methodCache.containsKey(method)) {
-            return methodCache.get(method);
+        List<Advice> cache = METHOD_CACHE.get(method);
+        if (cache != null) {
+            return cache;
         }
         List<Advice> list = new ArrayList<>();
         for (AdviceEntry entry : adviceList) {
@@ -81,7 +79,7 @@ public class AspectManager {
                 list.add(entry.getAdvice());
             }
         }
-        methodCache.put(method, list);
+        METHOD_CACHE.put(method, list);
         return list;
     }
 }

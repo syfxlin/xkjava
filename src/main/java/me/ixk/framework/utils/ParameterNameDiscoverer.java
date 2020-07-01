@@ -1,18 +1,15 @@
 package me.ixk.framework.utils;
 
+import cn.hutool.core.lang.SimpleCache;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.objectweb.asm.*;
 
 public abstract class ParameterNameDiscoverer {
-    protected static final Map<Executable, String[]> methodNameCache = new ConcurrentHashMap<>(
-        50
-    );
+    protected static final SimpleCache<Executable, String[]> PARAMETER_CACHE = new SimpleCache<>();
 
     public static String[] getMethodParamNames(Method method) {
         return getParameterNames(method);
@@ -25,8 +22,9 @@ public abstract class ParameterNameDiscoverer {
     }
 
     public static String[] getParameterNames(final Executable method) {
-        if (methodNameCache.containsKey(method)) {
-            return methodNameCache.get(method);
+        String[] cache = PARAMETER_CACHE.get(method);
+        if (cache != null) {
+            return cache;
         }
         final String[] paramNames = new String[method.getParameterTypes()
             .length];
@@ -110,7 +108,7 @@ public abstract class ParameterNameDiscoverer {
             },
             0
         );
-        methodNameCache.put(method, paramNames);
+        PARAMETER_CACHE.put(method, paramNames);
         return paramNames;
     }
 

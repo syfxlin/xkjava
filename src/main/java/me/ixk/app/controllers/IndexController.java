@@ -57,6 +57,11 @@ public class IndexController {
         return freeMarker.process("index.ftl", map);
     }
 
+    @Autowired
+    public void setRequest(Request request) {
+        System.out.println(request);
+    }
+
     @ExceptionHandler(value = HttpException.class)
     public String exception() {
         return "controller";

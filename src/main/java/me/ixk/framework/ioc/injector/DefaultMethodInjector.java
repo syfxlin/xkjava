@@ -1,13 +1,11 @@
 package me.ixk.framework.ioc.injector;
 
-import me.ixk.framework.annotations.Autowired;
+import java.lang.reflect.Method;
+import java.util.List;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.MethodInjector;
 import me.ixk.framework.ioc.With;
-import me.ixk.framework.utils.AnnotationUtils;
-
-import java.lang.reflect.Method;
 
 public class DefaultMethodInjector
     extends AbstractInjector
@@ -22,22 +20,16 @@ public class DefaultMethodInjector
         if (instance == null) {
             return null;
         }
-        Method[] methods = instance.getClass().getDeclaredMethods();
+        List<Method> methods = binding.getAutowiredMethods();
         for (Method method : methods) {
             // Set 注入
-            Autowired autowired = AnnotationUtils.getAnnotation(
+            container.call(
+                instance,
                 method,
-                Autowired.class
+                Object.class,
+                with.getPrefix(),
+                with.getMap()
             );
-            if (autowired != null) {
-                container.call(
-                    instance,
-                    method,
-                    Object.class,
-                    with.getPrefix(),
-                    with.getMap()
-                );
-            }
         }
         return instance;
     }
