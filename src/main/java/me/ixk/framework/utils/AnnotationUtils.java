@@ -1,6 +1,7 @@
 package me.ixk.framework.utils;
 
 import cn.hutool.core.annotation.AnnotationUtil;
+import cn.hutool.core.util.ReflectUtil;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
@@ -84,7 +85,7 @@ public abstract class AnnotationUtils extends AnnotationUtil {
     public static Object getAnnotationValue(Annotation annotation, String key) {
         Class<? extends Annotation> annotationType = annotation.annotationType();
         try {
-            return annotationType.getMethod(key).invoke(annotation);
+            return ReflectUtil.invoke(annotation, key);
         } catch (Exception e) {
             for (Annotation item : annotationType.getAnnotations()) {
                 Class<? extends Annotation> itemType = item.annotationType();

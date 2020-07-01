@@ -1,16 +1,16 @@
 package me.ixk.framework.annotations.processor;
 
+import cn.hutool.core.util.ReflectUtil;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.Configuration;
 import me.ixk.framework.config.Config;
 import me.ixk.framework.exceptions.LoadConfigException;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.ClassUtils;
-
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ConfigurationAnnotationProcessor
     extends AbstractAnnotationProcessor {
@@ -26,10 +26,8 @@ public class ConfigurationAnnotationProcessor
         this.processAnnotationConfig();
     }
 
-    @SuppressWarnings("unchecked")
     private void processAnnotationConfig() {
-        List<Class<?>> classes =
-            this.getTypesAnnotated(Configuration.class);
+        List<Class<?>> classes = this.getTypesAnnotated(Configuration.class);
         for (Class<?> _class : classes) {
             String name = AnnotationUtils
                 .getAnnotation(_class, Configuration.class)
@@ -38,15 +36,8 @@ public class ConfigurationAnnotationProcessor
             // 如果是 Config 类的子类，即编程化配置的方式，则通过 config 方法读取
             if (Config.class.isAssignableFrom(_class)) {
                 try {
-                    Object instance = _class
-                        .getConstructor(Application.class)
-                        .newInstance(app);
-                    config.put(
-                        name,
-                        (Map<String, Object>) _class
-                            .getMethod("config")
-                            .invoke(instance)
-                    );
+                    Object instance = ReflectUtil.newInstance(_class, app);
+                    config.put(name, ReflectUtil.invoke(instance, "config"));
                 } catch (Exception e) {
                     throw new LoadConfigException(
                         "Load [" + _class.getSimpleName() + "] config failed",
@@ -55,10 +46,13 @@ public class ConfigurationAnnotationProcessor
                 }
             } else {
                 try {
-                    Object object = _class.getConstructor().newInstance();
+                    Object object = ReflectUtil.newInstance(_class);
                     Map<String, Object> item = new ConcurrentHashMap<>();
                     for (Method method : ClassUtils.getMethods(_class)) {
-                        item.put(method.getName(), method.invoke(object));
+                        item.put(
+                            method.getName(),
+                            ReflectUtil.invoke(object, method)
+                        );
                     }
 
                     config.put(name, item);

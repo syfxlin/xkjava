@@ -1,19 +1,18 @@
 package me.ixk.framework.database;
 
+import cn.hutool.core.util.ReflectUtil;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;
-import me.ixk.framework.exceptions.SqlSessionException;
-import org.apache.ibatis.cursor.Cursor;
-import org.apache.ibatis.executor.BatchResult;
-import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.SqlSessionManager;
-import org.apache.ibatis.session.*;
-import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import javax.sql.DataSource;
+import org.apache.ibatis.cursor.Cursor;
+import org.apache.ibatis.executor.BatchResult;
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.*;
+import org.apache.ibatis.session.SqlSessionManager;
+import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 
 public class MybatisPlus
     implements me.ixk.framework.database.SqlSessionManager {
@@ -243,11 +242,7 @@ public class MybatisPlus
     }
 
     public <T> T getService(Class<T> type) {
-        try {
-            return type.getConstructor().newInstance();
-        } catch (Exception e) {
-            throw new SqlSessionException("Failed to instantiate Service");
-        }
+        return ReflectUtil.newInstance(type);
     }
 
     public Connection getConnection() {

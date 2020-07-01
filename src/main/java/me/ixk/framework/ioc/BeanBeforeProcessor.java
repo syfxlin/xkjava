@@ -1,0 +1,8 @@
+package me.ixk.framework.ioc;
+
+/**
+ * 在 Bean 初始化后执行，instance 绑定的 Bean 无法被处理
+ */
+public interface BeanBeforeProcessor {
+    Object process(Object instance, Binding binding);
+}

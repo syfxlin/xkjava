@@ -35,7 +35,7 @@ ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf 渲染，路由是参考 
 ## TODO
 
 -   @ControllerAdvice（不完整）
--   @PostConstruct 和 @PreDestroy（之前有，后续因为重构删掉了）
+-   @PostConstruct 和 @PreDestroy（初步实现，待优化）
 -   @Application
 -   @ConfigurationProperties
 -   @Value

@@ -30,6 +30,11 @@ public class IndexController {
         System.out.println("Init Controller");
     }
 
+    @PreDestroy
+    public void destroy() {
+        System.out.println("Destroy Controller");
+    }
+
     @Log
     @GetMapping("/controller")
     @Transactional

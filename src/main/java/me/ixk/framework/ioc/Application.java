@@ -38,6 +38,8 @@ public class Application extends Container {
         this.registerContext(requestContext);
 
         this.instance(Application.class, this, "app");
+
+        this.registerShutdownHook();
     }
 
     private static class Inner {
@@ -150,6 +152,19 @@ public class Application extends Container {
                 scanPackage.addAll(Arrays.asList(componentScan.basePackages()));
             }
         }
+    }
+
+    protected void registerShutdownHook() {
+        Runtime
+            .getRuntime()
+            .addShutdownHook(
+                new Thread(
+                    () -> {
+                        System.out.println("destroy");
+                        this.destroy();
+                    }
+                )
+            );
     }
 
     /* Quick get set context attribute */

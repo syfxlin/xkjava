@@ -2,8 +2,8 @@ package me.ixk.framework.ioc;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ClassUtil;
+import cn.hutool.core.util.ReflectUtil;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,25 +19,45 @@ import me.ixk.framework.ioc.context.ContextName;
 import me.ixk.framework.ioc.injector.DefaultMethodInjector;
 import me.ixk.framework.ioc.injector.DefaultParameterInjector;
 import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
+import me.ixk.framework.ioc.processor.PostConstructProcessor;
+import me.ixk.framework.ioc.processor.PreDestroyProcessor;
 import me.ixk.framework.utils.AutowireUtils;
 
 public class Container implements Context {
-    protected MethodInjector methodInjector = new DefaultMethodInjector(this);
-    protected ParameterInjector parameterInjector = new DefaultParameterInjector(
+    // 各种注入器
+    private MethodInjector methodInjector = new DefaultMethodInjector(this);
+    private ParameterInjector parameterInjector = new DefaultParameterInjector(
         this
     );
-    protected PropertyInjector propertyInjector = new DefaultPropertyInjector(
+    private PropertyInjector propertyInjector = new DefaultPropertyInjector(
         this
     );
 
+    // 前置处理和后置处理，前置处理在初始化后进行，后置处理在删除前进行
+    private final List<BeanBeforeProcessor> beanBeforeProcessors = Collections.singletonList(
+        new PostConstructProcessor(this)
+    );
+    private final List<BeanAfterProcessor> beanAfterProcessors = Collections.singletonList(
+        new PreDestroyProcessor(this)
+    );
+
+    // Contexts，存储实例和别名的空间
     private final Map<String, Context> contexts = Collections.synchronizedMap(
         new LinkedHashMap<>(5)
     );
 
+    // 注入的临时变量
     private final ThreadLocal<With> with = new InheritableThreadLocal<>();
 
     public Container() {
         this.with.set(new With(null, new ConcurrentHashMap<>()));
+    }
+
+    public void destroy() {
+        while (this.contexts.values().iterator().hasNext()) {
+            Context context = this.contexts.values().iterator().next();
+            this.removeContext(context);
+        }
     }
 
     /* ===================== Base ===================== */
@@ -57,7 +77,17 @@ public class Container implements Context {
     }
 
     public void removeContext(String name) {
-        this.contexts.remove(name);
+        Context context = this.contexts.get(name);
+        this.removeContext(context);
+    }
+
+    public void removeContext(Context context) {
+        if (context.isCreated()) {
+            for (String name : context.getBindings().keySet()) {
+                this.doRemove(name);
+            }
+        }
+        this.contexts.remove(context.getName());
     }
 
     protected void walkContexts(Consumer<Context> consumer) {
@@ -273,7 +303,11 @@ public class Container implements Context {
 
     /* ===================== doBind ===================== */
 
-    private Container doBind(String bindName, Binding binding, String alias) {
+    private synchronized Container doBind(
+        String bindName,
+        Binding binding,
+        String alias
+    ) {
         if (alias != null) {
             this.registerAlias(
                     alias,
@@ -285,7 +319,7 @@ public class Container implements Context {
         return this;
     }
 
-    protected Container doBind(
+    protected synchronized Container doBind(
         String bindName,
         Wrapper wrapper,
         String alias,
@@ -299,7 +333,7 @@ public class Container implements Context {
 
     /* ===================== doInstance ===================== */
 
-    protected Container doInstance(
+    protected synchronized Container doInstance(
         String instanceName,
         Object instance,
         String alias,
@@ -359,6 +393,9 @@ public class Container implements Context {
                         dependencies
                     );
             }
+            for (BeanBeforeProcessor processor : this.beanBeforeProcessors) {
+                processor.process(instance, binding);
+            }
             return instance;
         }
         return ClassUtil.getDefaultValue(instanceType);
@@ -392,7 +429,13 @@ public class Container implements Context {
     /* ===================== doRemove ===================== */
 
     protected synchronized Container doRemove(String name) {
-        this.removeBinding(name);
+        Binding binding = this.getBinding(name);
+        if (binding.isCreated()) {
+            for (BeanAfterProcessor processor : beanAfterProcessors) {
+                processor.process(binding.getInstance(), binding);
+            }
+            this.removeBinding(name);
+        }
         return this;
     }
 
@@ -405,14 +448,10 @@ public class Container implements Context {
     ) {
         Object[] dependencies =
             this.parameterInjector.inject(null, method, this.with.get());
-        try {
-            return Convert.convert(
-                returnType,
-                method.invoke(instance, dependencies)
-            );
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new ContainerException("Method call failed", e);
-        }
+        return Convert.convert(
+            returnType,
+            ReflectUtil.invoke(instance, method, dependencies)
+        );
     }
 
     protected <T> T callMethod(
