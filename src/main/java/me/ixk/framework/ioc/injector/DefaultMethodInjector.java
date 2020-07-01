@@ -1,16 +1,24 @@
 package me.ixk.framework.ioc.injector;
 
-import java.lang.reflect.Method;
 import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.MethodInjector;
 import me.ixk.framework.ioc.With;
 import me.ixk.framework.utils.AnnotationUtils;
 
-public class DefaultMethodInjector implements MethodInjector {
+import java.lang.reflect.Method;
+
+public class DefaultMethodInjector
+    extends AbstractInjector
+    implements MethodInjector {
+
+    public DefaultMethodInjector(Container container) {
+        super(container);
+    }
 
     @Override
-    public Object inject(Container container, Object instance, With with) {
+    public Object inject(Binding binding, Object instance, With with) {
         if (instance == null) {
             return null;
         }

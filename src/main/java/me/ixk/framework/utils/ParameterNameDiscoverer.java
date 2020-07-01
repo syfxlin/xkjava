@@ -5,9 +5,14 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.objectweb.asm.*;
 
 public abstract class ParameterNameDiscoverer {
+    protected static final Map<Executable, String[]> methodNameCache = new ConcurrentHashMap<>(
+        50
+    );
 
     public static String[] getMethodParamNames(Method method) {
         return getParameterNames(method);
@@ -20,6 +25,9 @@ public abstract class ParameterNameDiscoverer {
     }
 
     public static String[] getParameterNames(final Executable method) {
+        if (methodNameCache.containsKey(method)) {
+            return methodNameCache.get(method);
+        }
         final String[] paramNames = new String[method.getParameterTypes()
             .length];
         final String className = ClassUtils
@@ -102,6 +110,7 @@ public abstract class ParameterNameDiscoverer {
             },
             0
         );
+        methodNameCache.put(method, paramNames);
         return paramNames;
     }
 

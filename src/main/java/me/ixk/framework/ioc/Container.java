@@ -22,9 +22,13 @@ import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
 import me.ixk.framework.utils.AutowireUtils;
 
 public class Container implements Context {
-    protected MethodInjector methodInjector = new DefaultMethodInjector();
-    protected ParameterInjector parameterInjector = new DefaultParameterInjector();
-    protected PropertyInjector propertyInjector = new DefaultPropertyInjector();
+    protected MethodInjector methodInjector = new DefaultMethodInjector(this);
+    protected ParameterInjector parameterInjector = new DefaultParameterInjector(
+        this
+    );
+    protected PropertyInjector propertyInjector = new DefaultPropertyInjector(
+        this
+    );
 
     private final Map<String, Context> contexts = Collections.synchronizedMap(
         new LinkedHashMap<>(5)
@@ -307,8 +311,10 @@ public class Container implements Context {
                 "Target [" + instanceName + "] has been bind"
             );
         }
-        instance = this.methodInjector.inject(this, instance, this.with.get());
         binding = new Binding(instance, scopeType, instanceName);
+        instance =
+            this.methodInjector.inject(binding, instance, this.with.get());
+        binding.setInstance(instance);
         this.doBind(instanceName, binding, alias);
         return this;
     }
@@ -323,7 +329,7 @@ public class Container implements Context {
             Constructor<?> constructor = constructors[0];
             Object[] dependencies =
                 this.parameterInjector.inject(
-                        this,
+                        binding,
                         constructor,
                         this.with.get()
                     );
@@ -333,9 +339,13 @@ public class Container implements Context {
                 throw new ContainerException("Instantiated object failed", e);
             }
             instance =
-                this.propertyInjector.inject(this, instance, this.with.get());
+                this.propertyInjector.inject(
+                        binding,
+                        instance,
+                        this.with.get()
+                    );
             instance =
-                this.methodInjector.inject(this, instance, this.with.get());
+                this.methodInjector.inject(binding, instance, this.with.get());
             if (
                 !Advice.class.isAssignableFrom(instanceType) &&
                 AspectManager.matches(instanceType)
@@ -362,18 +372,7 @@ public class Container implements Context {
     ) {
         Binding binding = this.getOrDefaultBinding(instanceName);
         ScopeType scopeType = binding.getScope();
-        Object instance =
-            this.walkContexts(
-                    context -> {
-                        if (
-                            context.matchesScope(scopeType) &&
-                            context.hasInstance(instanceName)
-                        ) {
-                            return context.getInstance(instanceName);
-                        }
-                        return null;
-                    }
-                );
+        Object instance = binding.isCreated() ? binding.getInstance() : null;
         if (instance == null) {
             try {
                 instance =
@@ -385,16 +384,7 @@ public class Container implements Context {
         instance = AutowireUtils.resolveAutowiringValue(instance, returnType);
         T returnInstance = Convert.convert(returnType, instance);
         if (scopeType.isShared()) {
-            this.walkContexts(
-                    context -> {
-                        if (
-                            context.matchesScope(scopeType) &&
-                            !context.hasInstance(instanceName)
-                        ) {
-                            context.setInstance(instanceName, returnInstance);
-                        }
-                    }
-                );
+            binding.setInstance(returnInstance);
         }
         return returnInstance;
     }
@@ -414,7 +404,7 @@ public class Container implements Context {
         Class<T> returnType
     ) {
         Object[] dependencies =
-            this.parameterInjector.inject(this, method, this.with.get());
+            this.parameterInjector.inject(null, method, this.with.get());
         try {
             return Convert.convert(
                 returnType,
