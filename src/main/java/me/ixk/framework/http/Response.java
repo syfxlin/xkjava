@@ -221,6 +221,10 @@ public class Response implements HttpServletResponse {
         return this.setHeaders(headers);
     }
 
+    public Response headers(HttpHeaders headers) {
+        return this.setHeaders(headers);
+    }
+
     public Response setHeaders(Map<Object, String> headers) {
         for (Map.Entry<Object, String> header : headers.entrySet()) {
             Object key = header.getKey();
@@ -228,6 +232,15 @@ public class Response implements HttpServletResponse {
                 _base.setHeader((String) key, header.getValue());
             } else if (key.getClass().isAssignableFrom(HttpHeader.class)) {
                 _base.setHeader((HttpHeader) key, header.getValue());
+            }
+        }
+        return this;
+    }
+
+    public Response setHeaders(HttpHeaders headers) {
+        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+            for (String value : entry.getValue()) {
+                _base.setHeader(entry.getKey(), value);
             }
         }
         return this;
