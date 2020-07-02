@@ -1,5 +1,6 @@
 package me.ixk.framework.utils;
 
+import cn.hutool.core.lang.SimpleCache;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -14,9 +15,15 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
 public abstract class ReflectionsUtils {
+    private static final Reflections GLOBAL_APP_REFLECTIONS = make(
+        Application.get().getScanPackage().toArray(new String[0])
+    );
+
+    private static final SimpleCache<Class<? extends Annotation>, List<Class<?>>> CLASS_ANNOTATION_CACHE = new SimpleCache<>();
+    private static final SimpleCache<Class<? extends Annotation>, List<Method>> METHOD_ANNOTATION_CACHE = new SimpleCache<>();
 
     public static Reflections make() {
-        return make(Application.get().getScanPackage().toArray(new String[0]));
+        return GLOBAL_APP_REFLECTIONS;
     }
 
     public static Reflections make(Class<?> _class) {
@@ -60,8 +67,15 @@ public abstract class ReflectionsUtils {
     public static List<Class<?>> getTypesAnnotatedWith(
         Class<? extends Annotation> annotation
     ) {
-        return (List<Class<?>>) AnnotationUtils.sortByOrderAnnotation(
-            make().getTypesAnnotatedWith(annotation)
+        List<Class<?>> cache = CLASS_ANNOTATION_CACHE.get(annotation);
+        if (cache != null) {
+            return cache;
+        }
+        return CLASS_ANNOTATION_CACHE.put(
+            annotation,
+            (List<Class<?>>) AnnotationUtils.sortByOrderAnnotation(
+                make().getTypesAnnotatedWith(annotation)
+            )
         );
     }
 
@@ -69,8 +83,15 @@ public abstract class ReflectionsUtils {
     public static List<Method> getMethodsAnnotatedWith(
         Class<? extends Annotation> annotation
     ) {
-        return (List<Method>) AnnotationUtils.sortByOrderAnnotation(
-            make().getMethodsAnnotatedWith(annotation)
+        List<Method> cache = METHOD_ANNOTATION_CACHE.get(annotation);
+        if (cache != null) {
+            return cache;
+        }
+        return METHOD_ANNOTATION_CACHE.put(
+            annotation,
+            (List<Method>) AnnotationUtils.sortByOrderAnnotation(
+                make().getMethodsAnnotatedWith(annotation)
+            )
         );
     }
 }
