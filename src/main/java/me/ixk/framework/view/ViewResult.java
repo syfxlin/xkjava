@@ -5,14 +5,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.http.Renderable;
 import me.ixk.framework.ioc.Application;
 
-public class View implements Renderable {
+public class ViewResult implements Renderable {
     protected String view = "";
 
     protected final Map<String, Object> data = new ConcurrentHashMap<>();
 
     protected FilterCallback filterCallback = null;
 
-    public View assign(Map<String, Object> data) {
+    public ViewResult assign(Map<String, Object> data) {
         this.data.putAll(data);
         if (!this.data.containsKey("errors")) {
             this.data.put("errors", new ConcurrentHashMap<>());
@@ -20,23 +20,23 @@ public class View implements Renderable {
         return this;
     }
 
-    public View with(String key, Object value) {
+    public ViewResult with(String key, Object value) {
         this.data.put(key, value);
         return this;
     }
 
-    public View make(String view) {
+    public ViewResult make(String view) {
         this.view = view;
         return this;
     }
 
-    public View make(String view, Map<String, Object> data) {
+    public ViewResult make(String view, Map<String, Object> data) {
         this.view = view;
         this.assign(data);
         return this;
     }
 
-    public View make(
+    public ViewResult make(
         String view,
         Map<String, Object> data,
         FilterCallback filterCallback
@@ -47,7 +47,7 @@ public class View implements Renderable {
         return this;
     }
 
-    public View filter(FilterCallback callback) {
+    public ViewResult filter(FilterCallback callback) {
         this.filterCallback = callback;
         return this;
     }

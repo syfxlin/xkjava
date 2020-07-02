@@ -40,37 +40,43 @@ public class DefaultPropertyInjector
                 field,
                 Autowired.class
             );
-            PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
-                instanceClass,
-                field.getName()
-            );
-            if (propertyDescriptor == null) {
-                continue;
-            }
-            Method writeMethod = propertyDescriptor.getWriteMethod();
-            if (writeMethod == null && autowired == null) {
-                continue;
-            }
-            Object dependency;
-            if (autowired != null && !autowired.name().equals("")) {
-                dependency = container.make(autowired.name(), field.getType());
-            } else {
-                Class<?> autowiredClass;
-                if (autowired == null || autowired.type() == Class.class) {
-                    autowiredClass = field.getType();
-                } else {
-                    autowiredClass = autowired.type();
+            if (autowired == null) {
+                PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
+                    instanceClass,
+                    field.getName()
+                );
+                if (propertyDescriptor == null) {
+                    continue;
                 }
-                dependency =
+                Method writeMethod = propertyDescriptor.getWriteMethod();
+                ReflectUtil.invoke(
+                    instance,
+                    writeMethod,
                     container.getInjectValue(
-                        autowiredClass,
+                        field.getType(),
                         field.getName(),
                         with
-                    );
-            }
-            if (writeMethod != null) {
-                ReflectUtil.invoke(instance, writeMethod, dependency);
+                    )
+                );
             } else {
+                Object dependency;
+                if (!autowired.name().equals("")) {
+                    dependency =
+                        container.make(autowired.name(), field.getType());
+                } else {
+                    Class<?> autowiredClass;
+                    if (autowired.type() == Class.class) {
+                        autowiredClass = field.getType();
+                    } else {
+                        autowiredClass = autowired.type();
+                    }
+                    dependency =
+                        container.getInjectValue(
+                            autowiredClass,
+                            field.getName(),
+                            with
+                        );
+                }
                 ReflectUtil.setFieldValue(instance, field, dependency);
             }
         }

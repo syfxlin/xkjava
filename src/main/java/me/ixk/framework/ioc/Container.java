@@ -3,13 +3,6 @@ package me.ixk.framework.ioc;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
@@ -22,6 +15,14 @@ import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
 import me.ixk.framework.ioc.processor.PostConstructProcessor;
 import me.ixk.framework.ioc.processor.PreDestroyProcessor;
 import me.ixk.framework.utils.AutowireUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class Container implements Context {
     // 各种注入器
@@ -409,7 +410,15 @@ public class Container implements Context {
     ) {
         Binding binding = this.getOrDefaultBinding(instanceName);
         ScopeType scopeType = binding.getScope();
-        Object instance = binding.isCreated() ? binding.getInstance() : null;
+        Object instance =
+            this.walkContexts(
+                    context -> {
+                        if (context.matchesScope(scopeType)) {
+                            return context.getInstance(instanceName);
+                        }
+                        return null;
+                    }
+                );
         if (instance == null) {
             try {
                 instance =
@@ -421,7 +430,16 @@ public class Container implements Context {
         instance = AutowireUtils.resolveAutowiringValue(instance, returnType);
         T returnInstance = Convert.convert(returnType, instance);
         if (scopeType.isShared()) {
-            binding.setInstance(returnInstance);
+            this.walkContexts(
+                    context -> {
+                        if (
+                            context.matchesScope(scopeType) &&
+                            !context.hasInstance(instanceName)
+                        ) {
+                            context.setInstance(instanceName, returnInstance);
+                        }
+                    }
+                );
         }
         return returnInstance;
     }

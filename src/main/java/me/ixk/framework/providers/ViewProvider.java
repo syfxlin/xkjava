@@ -4,7 +4,7 @@ import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.Application;
-import me.ixk.framework.view.View;
+import me.ixk.framework.view.ViewResult;
 
 @Provider
 @Order(Order.HIGHEST_PRECEDENCE + 5)
@@ -16,6 +16,6 @@ public class ViewProvider extends AbstractProvider {
 
     @Override
     public void register() {
-        this.app.bind(View.class, View.class, "view", ScopeType.PROTOTYPE);
+        this.app.bind(ViewResult.class, ViewResult.class, "view", ScopeType.PROTOTYPE);
     }
 }

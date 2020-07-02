@@ -63,7 +63,7 @@ public class IndexController {
     }
 
     @Autowired
-    public void setRequest(Request request) {
+    public void setRequestMethod(Request request) {
         System.out.println(request);
     }
 

@@ -136,7 +136,7 @@ public interface Context {
 
     default Object getInstance(String name) {
         Binding binding = this.getBinding(name);
-        if (binding == null) {
+        if (binding == null || !binding.isCreated()) {
             return null;
         }
         return binding.getInstance();

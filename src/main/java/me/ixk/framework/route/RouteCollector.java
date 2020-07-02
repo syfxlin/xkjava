@@ -1,13 +1,7 @@
 package me.ixk.framework.route;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import me.ixk.framework.exceptions.RouteCollectorException;
-import me.ixk.framework.facades.Response;
+import me.ixk.framework.facades.Resp;
 import me.ixk.framework.facades.View;
 import me.ixk.framework.kernel.ControllerHandler;
 import me.ixk.framework.middleware.Handler;
@@ -15,6 +9,13 @@ import me.ixk.framework.middleware.Middleware;
 import me.ixk.framework.middleware.Runner;
 import me.ixk.framework.utils.Helper;
 import org.eclipse.jetty.http.HttpMethod;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class RouteCollector {
     protected final Map<String, Map<String, RouteHandler>> staticRoutes;
@@ -296,7 +297,7 @@ public class RouteCollector {
     }
 
     public void redirect(String oldRoute, String newRoute, int status) {
-        this.get(oldRoute, request -> Response.redirect(newRoute, status));
+        this.get(oldRoute, request -> Resp.redirect(newRoute, status));
     }
 
     public RouteCollector middleware(Class<? extends Middleware> middleware) {
