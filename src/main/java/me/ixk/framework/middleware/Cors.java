@@ -1,8 +1,12 @@
 package me.ixk.framework.middleware;
 
+import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotations.RouteMiddleware;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 
+@RouteMiddleware(name = "cors")
+@Order(Order.HIGHEST_PRECEDENCE)
 public class Cors implements Middleware {
 
     @Override

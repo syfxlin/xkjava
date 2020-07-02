@@ -1,5 +1,6 @@
 package me.ixk.framework.route;
 
+import cn.hutool.core.util.ReflectUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +17,13 @@ import me.ixk.framework.middleware.Middleware;
 public class RouteManager {
     public static RouteCollector route;
 
-    public static List<Class<? extends Middleware>> globalMiddleware;
+    public static List<Class<? extends Middleware>> globalMiddleware = new ArrayList<>(
+        10
+    );
 
-    public static Map<String, Class<? extends Middleware>> routeMiddleware;
+    public static Map<String, Class<? extends Middleware>> routeMiddleware = new ConcurrentHashMap<>(
+        10
+    );
 
     public static final List<AnnotationRouteDefinition> annotationRouteDefinitions = new ArrayList<>();
 
@@ -28,29 +33,18 @@ public class RouteManager {
 
     @SuppressWarnings("unchecked")
     public RouteManager() {
-        Map<String, Object> middlewareConfig = Config.get(
-            "middleware",
-            Map.class
-        );
         Map<String, Class<? extends RouteDefinition>> routeConfig = Config.get(
             "route",
             Map.class
         );
-        globalMiddleware =
-            (List<Class<? extends Middleware>>) middlewareConfig.get("global");
-        routeMiddleware =
-            (Map<String, Class<? extends Middleware>>) middlewareConfig.get(
-                "route"
-            );
         dispatcher =
             RouteDispatcher.dispatcher(
                 routeCollector -> {
                     route = routeCollector;
                     for (Class<? extends RouteDefinition> _class : routeConfig.values()) {
                         try {
-                            _class
-                                .getConstructor()
-                                .newInstance()
+                            ReflectUtil
+                                .newInstance(_class)
                                 .routes(routeCollector);
                         } catch (Exception e) {
                             throw new RouteCollectorException(

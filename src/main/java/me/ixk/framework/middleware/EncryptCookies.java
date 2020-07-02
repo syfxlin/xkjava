@@ -2,11 +2,15 @@ package me.ixk.framework.middleware;
 
 import java.util.List;
 import javax.servlet.http.Cookie;
+import me.ixk.framework.annotations.GlobalMiddleware;
+import me.ixk.framework.annotations.Order;
 import me.ixk.framework.facades.Crypt;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
 
+@GlobalMiddleware
+@Order(Order.HIGHEST_PRECEDENCE + 1)
 public class EncryptCookies implements Middleware {
 
     @Override

@@ -1,11 +1,15 @@
 package me.ixk.framework.middleware;
 
+import me.ixk.framework.annotations.GlobalMiddleware;
+import me.ixk.framework.annotations.Order;
 import me.ixk.framework.http.CookieManager;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
 import me.ixk.framework.ioc.Application;
 
+@GlobalMiddleware
+@Order(Order.HIGHEST_PRECEDENCE + 2)
 public class AddQueuedCookies implements Middleware {
 
     @Override

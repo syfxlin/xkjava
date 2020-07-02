@@ -1,5 +1,11 @@
 package me.ixk.framework.route;
 
+import cn.hutool.core.util.ReflectUtil;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import me.ixk.framework.exceptions.RouteCollectorException;
 import me.ixk.framework.facades.Resp;
 import me.ixk.framework.facades.View;
@@ -7,15 +13,9 @@ import me.ixk.framework.kernel.ControllerHandler;
 import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.middleware.Middleware;
 import me.ixk.framework.middleware.Runner;
+import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Helper;
 import org.eclipse.jetty.http.HttpMethod;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 public class RouteCollector {
     protected final Map<String, Map<String, RouteHandler>> staticRoutes;
@@ -51,28 +51,14 @@ public class RouteCollector {
         if (RouteManager.globalMiddleware != null) {
             middleware.addAll(RouteManager.globalMiddleware);
         }
+        // 重新排序
+        AnnotationUtils.sortByOrderAnnotation(middleware);
         return (request, response) -> {
             Runner runner = new Runner(
                 handler,
                 middleware
                     .stream()
-                    .map(
-                        ac -> {
-                            try {
-                                return ac.getConstructor().newInstance();
-                            } catch (
-                                InstantiationException
-                                | IllegalAccessException
-                                | InvocationTargetException
-                                | NoSuchMethodException e
-                            ) {
-                                throw new RouteCollectorException(
-                                    "Instantiating middleware failed",
-                                    e
-                                );
-                            }
-                        }
-                    )
+                    .map(ac -> ReflectUtil.newInstance(ac))
                     .collect(Collectors.toList())
             );
             return runner.then(request, response);
@@ -306,7 +292,15 @@ public class RouteCollector {
     }
 
     public RouteCollector middleware(String name) {
-        this.middleware.add(RouteManager.routeMiddleware.get(name));
+        Class<? extends Middleware> middleware = RouteManager.routeMiddleware.get(
+            name
+        );
+        if (middleware == null) {
+            throw new RouteCollectorException(
+                "Middleware [" + name + "] not register"
+            );
+        }
+        this.middleware.add(middleware);
         return this;
     }
 

@@ -1,6 +1,6 @@
 package me.ixk.framework.kernel;
 
-import java.lang.reflect.InvocationTargetException;
+import cn.hutool.core.util.ReflectUtil;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,19 +37,13 @@ public class AnnotationProcessorManager {
 
     protected AnnotationProcessor getProcessorInstance(String name) {
         try {
-            AnnotationProcessor processor = (AnnotationProcessor) Class
-                .forName(name)
-                .getConstructor(Application.class)
-                .newInstance(this.app);
+            AnnotationProcessor processor = (AnnotationProcessor) ReflectUtil.newInstance(
+                Class.forName(name),
+                this.app
+            );
             this.setProcessor(name, processor);
             return processor;
-        } catch (
-            InstantiationException
-            | IllegalAccessException
-            | InvocationTargetException
-            | NoSuchMethodException
-            | ClassNotFoundException e
-        ) {
+        } catch (ClassNotFoundException e) {
             throw new AnnotationProcessorException(
                 "Instantiating annotation processor failed",
                 e
