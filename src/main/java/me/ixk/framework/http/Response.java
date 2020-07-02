@@ -33,55 +33,95 @@ public class Response implements HttpServletResponse {
         return this.text(text, 200, new ConcurrentHashMap<>());
     }
 
+    public Response text(String text, HttpStatus status) {
+        return this.text(text, status, new ConcurrentHashMap<>());
+    }
+
     public Response text(String text, int status) {
         return this.text(text, status, new ConcurrentHashMap<>());
     }
 
-    public Response text(String text, int status, Map<Object, String> headers) {
+    public Response text(
+        String text,
+        HttpStatus status,
+        Map<Object, String> headers
+    ) {
         this.reset();
-        this.setContent(text);
-        this.setStatus(status);
-        this.setHeaders(headers);
-        this.setContentType("text/plain");
+        this.content(text);
+        this.status(status);
+        this.headers(headers);
+        this.contentType("text/plain");
         return this;
+    }
+
+    public Response text(String text, int status, Map<Object, String> headers) {
+        return this.text(text, HttpStatus.valueOf(status), headers);
     }
 
     public Response html(String html) {
         return this.html(html, 200, new ConcurrentHashMap<>());
     }
 
+    public Response html(String html, HttpStatus status) {
+        return this.html(html, status, new ConcurrentHashMap<>());
+    }
+
     public Response html(String html, int status) {
         return this.html(html, status, new ConcurrentHashMap<>());
     }
 
-    public Response html(String html, int status, Map<Object, String> headers) {
+    public Response html(
+        String html,
+        HttpStatus status,
+        Map<Object, String> headers
+    ) {
         this.reset();
-        this.setContent(html);
-        this.setStatus(status);
-        this.setHeaders(headers);
-        this.setContentType("text/html");
+        this.content(html);
+        this.status(status);
+        this.headers(headers);
+        this.contentType("text/html");
         return this;
     }
 
+    public Response html(String html, int status, Map<Object, String> headers) {
+        return this.html(html, HttpStatus.valueOf(status), headers);
+    }
+
     public Response json(Object data) {
-        return this.json(data, 200, new ConcurrentHashMap<>());
+        return this.json(data, HttpStatus.OK, new ConcurrentHashMap<>());
+    }
+
+    public Response json(Object data, HttpStatus status) {
+        return this.json(data, status, new ConcurrentHashMap<>());
     }
 
     public Response json(Object data, int status) {
         return this.json(data, status, new ConcurrentHashMap<>());
     }
 
-    public Response json(Object data, int status, Map<Object, String> headers) {
+    public Response json(
+        Object data,
+        HttpStatus status,
+        Map<Object, String> headers
+    ) {
         this.reset();
-        this.setContent(JSON.stringify(data));
-        this.setStatus(status);
-        this.setHeaders(headers);
-        this.setContentType("application/json");
+        this.content(JSON.stringify(data));
+        this.status(status);
+        this.headers(headers);
+        this.contentType("application/json");
         return this;
     }
 
+    public Response json(Object data, int status, Map<Object, String> headers) {
+        return this.json(data, HttpStatus.valueOf(status), headers);
+    }
+
     public Response redirect(String url) {
-        return this.redirect(url, 302, new ConcurrentHashMap<>());
+        return this.redirect(url, HttpStatus.FOUND);
+    }
+
+    public Response redirect(String url, HttpStatus status) {
+        return this.redirect(url, status, new ConcurrentHashMap<>());
     }
 
     public Response redirect(String url, int status) {
@@ -90,26 +130,46 @@ public class Response implements HttpServletResponse {
 
     public Response redirect(
         String url,
-        int status,
+        HttpStatus status,
         Map<Object, String> headers
     ) {
         this.reset();
-        this.setHeaders(headers);
-        this.sendRedirect(status, url);
+        this.headers(headers);
+        this.sendRedirect(status.getValue(), url);
         return this;
     }
 
+    public Response redirect(
+        String url,
+        int status,
+        Map<Object, String> headers
+    ) {
+        return this.redirect(url, HttpStatus.valueOf(status), headers);
+    }
+
     public void error(String message) {
-        this.error(message, 200, new ConcurrentHashMap<>());
+        this.error(message, HttpStatus.OK);
+    }
+
+    public void error(String message, HttpStatus status) {
+        this.error(message, status, new ConcurrentHashMap<>());
     }
 
     public void error(String message, int status) {
         this.error(message, status, new ConcurrentHashMap<>());
     }
 
-    public void error(String message, int status, Map<Object, String> headers) {
+    public void error(
+        String message,
+        HttpStatus status,
+        Map<Object, String> headers
+    ) {
         this.reset();
-        this.setHeaders(headers).sendError(status, message);
+        this.setHeaders(headers).sendError(status.getValue(), message);
+    }
+
+    public void error(String message, int status, Map<Object, String> headers) {
+        this.error(message, HttpStatus.valueOf(status), headers);
     }
 
     public void processing() {
@@ -140,6 +200,13 @@ public class Response implements HttpServletResponse {
         return this;
     }
 
+    public Response status(HttpStatus status) {
+        return this.setStatusWithReason(
+                status.getValue(),
+                status.getReasonPhrase()
+            );
+    }
+
     public Response header(String name, String value) {
         _base.setHeader(name, value);
         return this;
@@ -148,6 +215,10 @@ public class Response implements HttpServletResponse {
     public Response header(HttpHeader name, String value) {
         _base.setHeader(name, value);
         return this;
+    }
+
+    public Response headers(Map<Object, String> headers) {
+        return this.setHeaders(headers);
     }
 
     public Response setHeaders(Map<Object, String> headers) {

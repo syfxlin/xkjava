@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.ByteArrayUtf8Writer;
-import me.ixk.framework.http.ResponseReason;
+import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.StdErrorJson;
 import me.ixk.framework.utils.JSON;
 import org.eclipse.jetty.http.HttpHeader;
@@ -308,8 +308,7 @@ public class ErrorHandler
     }
 
     public static class Result {
-        private int code;
-        private String reason;
+        private final HttpStatus status;
 
         public Result(
             HttpServletRequest request,
@@ -320,28 +319,19 @@ public class ErrorHandler
             );
             if (th instanceof HttpException) {
                 HttpException exception = (HttpException) th;
-                this.code = exception.getStatus();
-                this.reason = exception.getMessage();
+                this.status = exception.getStatus();
             } else {
-                this.code = response.getStatus();
-                this.reason = ResponseReason.getMessage(code);
+                this.status =
+                    HttpStatus.valueOf(response.getStatus(), th.getMessage());
             }
         }
 
         public int getCode() {
-            return code;
-        }
-
-        public void setCode(int code) {
-            this.code = code;
+            return this.status.getValue();
         }
 
         public String getReason() {
-            return reason;
-        }
-
-        public void setReason(String reason) {
-            this.reason = reason;
+            return this.status.getReasonPhrase();
         }
     }
 }
