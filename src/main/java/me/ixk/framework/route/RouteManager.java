@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.exceptions.RouteCollectorException;
-import me.ixk.framework.facades.Config;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
@@ -16,6 +15,8 @@ import me.ixk.framework.middleware.Middleware;
 
 public class RouteManager {
     public static RouteCollector route;
+
+    public static List<Class<? extends RouteDefinition>> routeDefinition = new ArrayList<>();
 
     public static List<Class<? extends Middleware>> globalMiddleware = new ArrayList<>(
         10
@@ -31,17 +32,12 @@ public class RouteManager {
 
     protected final RouteDispatcher dispatcher;
 
-    @SuppressWarnings("unchecked")
     public RouteManager() {
-        Map<String, Class<? extends RouteDefinition>> routeConfig = Config.get(
-            "route",
-            Map.class
-        );
         dispatcher =
             RouteDispatcher.dispatcher(
                 routeCollector -> {
                     route = routeCollector;
-                    for (Class<? extends RouteDefinition> _class : routeConfig.values()) {
+                    for (Class<? extends RouteDefinition> _class : routeDefinition) {
                         try {
                             ReflectUtil
                                 .newInstance(_class)
