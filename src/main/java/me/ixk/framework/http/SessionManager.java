@@ -71,11 +71,17 @@ public class SessionManager {
     }
 
     public String token() {
-        return this.get("_token", String.class);
+        String token = this.get("_token", String.class);
+        if (token == null) {
+            token = this.regenerateToken();
+        }
+        return token;
     }
 
-    public void regenerateToken() {
-        this.put("_token", Helper.strRandom(40));
+    public String regenerateToken() {
+        String token = Helper.strRandom(40);
+        this.put("_token", token);
+        return token;
     }
 
     public long getCreationTime() {

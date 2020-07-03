@@ -56,8 +56,8 @@ public class Session extends AbstractFacade {
         return make().token();
     }
 
-    public static void regenerateToken() {
-        make().regenerateToken();
+    public static String regenerateToken() {
+        return make().regenerateToken();
     }
 
     public static long getCreationTime() {

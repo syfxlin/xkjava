@@ -45,6 +45,7 @@ public enum HttpStatus {
     RANGE_NOT_SATISFIABLE(416, "Range Not Satisfiable"),
     EXPECTATION_FAILED(417, "Expectation Failed"),
     I_AM_A_TEAPOT(418, "I'm a teapot"),
+    REQUEST_EXPIRED(419, "Request Expired"),
     MISDIRECTED_REQUEST(421, "Misdirected Request"),
     UNPROCESSABLE_ENTITY(422, "Unprocessable Entity"),
     LOCKED(423, "Locked"),
