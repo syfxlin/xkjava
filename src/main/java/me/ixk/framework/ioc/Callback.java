@@ -1,6 +1,6 @@
 package me.ixk.framework.ioc;
 
 @FunctionalInterface
-public interface BootCallback {
+public interface Callback {
     Object invoke(Application app);
 }

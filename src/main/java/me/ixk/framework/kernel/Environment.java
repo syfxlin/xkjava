@@ -1,4 +1,4 @@
-package me.ixk.framework.utils;
+package me.ixk.framework.kernel;
 
 import java.util.Map;
 import java.util.Properties;
@@ -7,12 +7,21 @@ import me.ixk.framework.ioc.Application;
 public class Environment {
     protected final Application app;
 
-    public Environment(Application app) {
+    public Environment(Application app, Properties properties) {
         this.app = app;
+        this.setProperties(properties);
+    }
+
+    protected Properties getProperties() {
+        return this.app.getOrDefaultAttribute("env", new Properties());
+    }
+
+    protected void setProperties(Properties properties) {
+        this.app.setAttribute("env", properties);
     }
 
     public Properties all() {
-        return this.app.getEnvironment();
+        return this.getProperties();
     }
 
     public String get(String key) {
@@ -20,7 +29,7 @@ public class Environment {
     }
 
     public String get(String key, String _default) {
-        return this.app.getEnvironment().getProperty(key, _default);
+        return this.getProperties().getProperty(key, _default);
     }
 
     public void set(Map<String, String> values) {
@@ -30,11 +39,11 @@ public class Environment {
     }
 
     public void set(String key, String value) {
-        this.app.getEnvironment().setProperty(key, value);
+        this.getProperties().setProperty(key, value);
     }
 
     public boolean has(String key) {
-        return this.app.getEnvironment().containsKey(key);
+        return this.getProperties().containsKey(key);
     }
 
     public void push(String key, String value) {

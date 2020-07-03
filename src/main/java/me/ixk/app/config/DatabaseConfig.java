@@ -1,14 +1,15 @@
 package me.ixk.app.config;
 
+import me.ixk.framework.annotations.Config;
+import me.ixk.framework.config.AbstractConfig;
+import me.ixk.framework.ioc.Application;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotations.Configuration;
-import me.ixk.framework.config.AbstractConfig;
-import me.ixk.framework.ioc.Application;
 
-@Configuration(name = "database")
+@Config(name = "database")
 public class DatabaseConfig extends AbstractConfig {
 
     public DatabaseConfig(Application app) {

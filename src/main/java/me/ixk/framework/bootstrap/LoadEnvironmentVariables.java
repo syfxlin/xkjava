@@ -6,7 +6,7 @@ import me.ixk.framework.annotations.Bootstrap;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.exceptions.LoadEnvironmentFileException;
 import me.ixk.framework.ioc.Application;
-import me.ixk.framework.utils.Environment;
+import me.ixk.framework.kernel.Environment;
 
 @Bootstrap
 @Order(Order.HIGHEST_PRECEDENCE + 1)
@@ -29,7 +29,10 @@ public class LoadEnvironmentVariables extends AbstractBootstrap {
                 e
             );
         }
-        this.app.setEnvironment(property);
-        this.app.instance(Environment.class, new Environment(this.app), "env");
+        this.app.instance(
+                Environment.class,
+                new Environment(this.app, property),
+                "env"
+            );
     }
 }

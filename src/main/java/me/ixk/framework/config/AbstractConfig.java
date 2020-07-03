@@ -1,7 +1,7 @@
 package me.ixk.framework.config;
 
 import me.ixk.framework.ioc.Application;
-import me.ixk.framework.utils.Environment;
+import me.ixk.framework.kernel.Environment;
 
 public abstract class AbstractConfig implements Config {
     protected final Application app;

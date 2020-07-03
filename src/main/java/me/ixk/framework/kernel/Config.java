@@ -1,18 +1,32 @@
-package me.ixk.framework.utils;
+package me.ixk.framework.kernel;
 
 import cn.hutool.core.convert.Convert;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.ioc.Application;
+import me.ixk.framework.utils.Helper;
 
 public class Config {
     protected final Application app;
 
-    public Config(Application app) {
+    public Config(Application app, Map<String, Map<String, Object>> config) {
         this.app = app;
+        this.setConfigMap(config);
+    }
+
+    protected Map<String, Map<String, Object>> getConfigMap() {
+        return this.app.getOrDefaultAttribute(
+                "config",
+                new ConcurrentHashMap<>()
+            );
+    }
+
+    protected void setConfigMap(Map<String, Map<String, Object>> config) {
+        this.app.setAttribute("config", config);
     }
 
     public Map<String, Map<String, Object>> all() {
-        return this.app.getConfig();
+        return this.getConfigMap();
     }
 
     public Object get(String name) {
@@ -20,7 +34,7 @@ public class Config {
     }
 
     public Object get(String name, Object _default) {
-        return Helper.dataGet(this.app.getConfig(), name, _default);
+        return Helper.dataGet(this.getConfigMap(), name, _default);
     }
 
     public <T> T get(String name, Object _default, Class<T> returnType) {
@@ -28,7 +42,7 @@ public class Config {
     }
 
     protected void setItem(String name, Object value) {
-        Helper.dataSet(this.app.getConfig(), name, value);
+        Helper.dataSet(this.getConfigMap(), name, value);
     }
 
     public void set(String name, Object value) {

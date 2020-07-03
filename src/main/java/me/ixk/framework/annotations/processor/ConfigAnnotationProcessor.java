@@ -5,36 +5,34 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotations.Configuration;
-import me.ixk.framework.config.Config;
+import me.ixk.framework.annotations.Config;
+import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.exceptions.LoadConfigException;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.ClassUtils;
 
-public class ConfigurationAnnotationProcessor
-    extends AbstractAnnotationProcessor {
-    protected final Map<String, Map<String, Object>> config;
+public class ConfigAnnotationProcessor extends AbstractAnnotationProcessor {
 
-    public ConfigurationAnnotationProcessor(Application app) {
+    public ConfigAnnotationProcessor(Application app) {
         super(app);
-        config = app.getConfig();
     }
 
     @Override
     public void process() {
-        this.processAnnotationConfig();
+        throw new AnnotationProcessorException("Not support invoke process");
     }
 
-    private void processAnnotationConfig() {
-        List<Class<?>> classes = this.getTypesAnnotated(Configuration.class);
+    public Map<String, Map<String, Object>> processAnnotationConfig() {
+        Map<String, Map<String, Object>> config = new ConcurrentHashMap<>();
+        List<Class<?>> classes = this.getTypesAnnotated(Config.class);
         for (Class<?> _class : classes) {
             String name = AnnotationUtils
-                .getAnnotation(_class, Configuration.class)
+                .getAnnotation(_class, Config.class)
                 .name();
             name = name.length() > 0 ? name : _class.getSimpleName();
             // 如果是 Config 类的子类，即编程化配置的方式，则通过 config 方法读取
-            if (Config.class.isAssignableFrom(_class)) {
+            if (me.ixk.framework.config.Config.class.isAssignableFrom(_class)) {
                 try {
                     Object instance = ReflectUtil.newInstance(_class, app);
                     config.put(name, ReflectUtil.invoke(instance, "config"));
@@ -64,5 +62,6 @@ public class ConfigurationAnnotationProcessor
                 }
             }
         }
+        return config;
     }
 }

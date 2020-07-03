@@ -9,7 +9,7 @@ import me.ixk.framework.annotations.*;
 import me.ixk.framework.config.AbstractConfig;
 import me.ixk.framework.ioc.Application;
 
-@Configuration(name = "app")
+@Config(name = "app")
 public class AppConfig extends AbstractConfig {
 
     public AppConfig(Application app) {
@@ -40,6 +40,7 @@ public class AppConfig extends AbstractConfig {
         return Arrays.asList(
             Bean.class,
             Component.class,
+            Configuration.class,
             Controller.class,
             Repository.class,
             Service.class,

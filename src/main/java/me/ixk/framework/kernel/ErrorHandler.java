@@ -1,14 +1,9 @@
 package me.ixk.framework.kernel;
 
-import java.io.IOException;
-import java.io.Writer;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.exceptions.HttpException;
-import me.ixk.framework.http.ByteArrayUtf8Writer;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.StdErrorJson;
+import me.ixk.framework.utils.ByteArrayUtf8Writer;
 import me.ixk.framework.utils.JSON;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
@@ -17,6 +12,12 @@ import org.eclipse.jetty.server.Dispatcher;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.Writer;
 
 public class ErrorHandler
     extends org.eclipse.jetty.server.handler.ErrorHandler {

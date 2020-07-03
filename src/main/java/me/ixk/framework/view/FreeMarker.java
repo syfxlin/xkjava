@@ -3,10 +3,11 @@ package me.ixk.framework.view;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
+import me.ixk.framework.exceptions.TemplateException;
+import me.ixk.framework.utils.ByteArrayUtf8Writer;
+
 import java.io.IOException;
 import java.util.Map;
-import me.ixk.framework.exceptions.TemplateException;
-import me.ixk.framework.http.ByteArrayUtf8Writer;
 
 public class FreeMarker implements TemplateProcessor {
     protected final Configuration configuration;

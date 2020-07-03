@@ -1,4 +1,4 @@
-package me.ixk.framework.http;
+package me.ixk.framework.utils;
 
 import java.io.IOException;
 import java.io.OutputStream;
