@@ -1,14 +1,17 @@
 package me.ixk.framework.utils;
 
+import cn.hutool.core.util.ReflectUtil;
 import java.io.Serializable;
 import java.lang.reflect.*;
 import java.util.Arrays;
+import me.ixk.framework.aop.CanGetTarget;
 import me.ixk.framework.factory.ObjectFactory;
+import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
-public abstract class AutowireUtils {
+public abstract class ReflectUtils {
 
     public static void sortConstructors(Constructor<?>[] constructors) {
         sortMethods(constructors);
@@ -68,8 +71,49 @@ public abstract class AutowireUtils {
         return autowiringValue;
     }
 
+    public static Object getProxyTarget(Object proxy) {
+        if (ClassUtils.isJdkProxy(proxy)) {
+            return getJdkProxyTarget(proxy);
+        } else if (ClassUtils.isCglibProxy(proxy)) {
+            return getCglibProxyTarget(proxy);
+        }
+        return proxy;
+    }
+
+    public static Object getJdkProxyTarget(Object proxy) {
+        try {
+            Field h = proxy.getClass().getSuperclass().getDeclaredField("h");
+            h.setAccessible(true);
+            Object handler = h.get(proxy);
+            if (CanGetTarget.class.isAssignableFrom(handler.getClass())) {
+                return ((CanGetTarget) handler).getTarget();
+            }
+            return null;
+        } catch (Exception e) {
+            return proxy;
+        }
+    }
+
+    public static Object getCglibProxyTarget(Object proxy) {
+        try {
+            Class<?> proxyClass = proxy.getClass();
+            for (Callback callback : (Callback[]) ReflectUtil.invoke(
+                proxy,
+                "getCallbacks"
+            )) {
+                if (CanGetTarget.class.isAssignableFrom(callback.getClass())) {
+                    return ((CanGetTarget) callback).getTarget();
+                }
+            }
+            return proxy;
+        } catch (Exception e) {
+            return proxy;
+        }
+    }
+
     private static class ObjectFactoryDelegatingInterceptor
-        implements MethodInterceptor, InvocationHandler, Serializable {
+        implements
+            MethodInterceptor, InvocationHandler, Serializable, CanGetTarget {
         private final ObjectFactory<?> objectFactory;
 
         public ObjectFactoryDelegatingInterceptor(
@@ -117,6 +161,11 @@ public abstract class AutowireUtils {
             } catch (InvocationTargetException ex) {
                 throw ex.getTargetException();
             }
+        }
+
+        @Override
+        public Object getTarget() {
+            return this.objectFactory.getObject();
         }
     }
 }

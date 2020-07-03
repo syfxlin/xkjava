@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ClassUtil;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Proxy;
 import java.util.*;
 
 public abstract class ClassUtils extends ClassUtil {
@@ -31,6 +32,34 @@ public abstract class ClassUtils extends ClassUtil {
         }
     }
 
+    public static boolean isCglibProxy(Object object) {
+        return isCglibProxyClass(object.getClass());
+    }
+
+    public static boolean isCglibProxyClass(Class<?> _class) {
+        return (_class != null && isCglibProxyClassName(_class.getName()));
+    }
+
+    public static boolean isCglibProxyClassName(String className) {
+        return (className != null && className.contains("$$"));
+    }
+
+    public static boolean isJdkProxy(Object object) {
+        return isJdkProxy(object.getClass());
+    }
+
+    public static boolean isJdkProxy(Class<?> _class) {
+        return Proxy.isProxyClass(_class);
+    }
+
+    public static boolean isProxy(Object object) {
+        return isProxy(object.getClass());
+    }
+
+    public static boolean isProxy(Class<?> _class) {
+        return isJdkProxy(_class) || isCglibProxyClass(_class);
+    }
+
     public static Class<?> getUserClass(Object instance) {
         if (instance == null) {
             throw new RuntimeException("Instance must not be null");
@@ -38,14 +67,14 @@ public abstract class ClassUtils extends ClassUtil {
         return getUserClass(instance.getClass());
     }
 
-    public static Class<?> getUserClass(Class<?> clazz) {
-        if (clazz.getName().contains("$$")) {
-            Class<?> superClass = clazz.getSuperclass();
+    public static Class<?> getUserClass(Class<?> _class) {
+        if (_class.getName().contains("$$")) {
+            Class<?> superClass = _class.getSuperclass();
             if (superClass != null && superClass != Object.class) {
                 return superClass;
             }
         }
-        return clazz;
+        return _class;
     }
 
     public static boolean isAssignable(Class<?> lhsType, Class<?> rhsType) {

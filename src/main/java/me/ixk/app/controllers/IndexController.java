@@ -47,13 +47,13 @@ public class IndexController {
         return this.request.query("age");
     }
 
-    @Middleware("guest")
-    @GetMapping("/login")
+    @GetMapping("/index2")
     @Log
-    public String login(Request request) {
+    public String index2(Request request) {
         return this.request.query("age");
     }
 
+    @Middleware(name = "auth")
     @GetMapping("/free-marker")
     public String freeMarker() {
         FreeMarker freeMarker = new FreeMarker();

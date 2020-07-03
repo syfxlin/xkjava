@@ -65,7 +65,7 @@ public class Auth {
             return new Result(result);
         }
         this.user = dbUser;
-        this.updateLogin(this.user, user.isRememberToken());
+        this.updateLogin(this.user, user.isRemember_me());
         return new Result(dbUser);
     }
 
@@ -90,7 +90,7 @@ public class Auth {
                 this.getRememberName()
             );
             if (tokenCookie != null) {
-                String[] tokens = tokenCookie.getValue().split("/");
+                String[] tokens = tokenCookie.getValue().split("\\|");
                 this.user =
                     usersService
                         .query()
@@ -132,9 +132,9 @@ public class Auth {
         SetCookie cookie = new SetCookie(
             this.getRememberName(),
             user.getId() +
-            "/" +
+            "|" +
             user.getRememberToken() +
-            "/" +
+            "|" +
             user.getPassword()
         );
         cookie.setHttpOnly(true);
@@ -153,7 +153,7 @@ public class Auth {
     }
 
     protected String getRememberName() {
-        return "remember_" + Auth.class.getName();
+        return "remember_" + Auth.class.getName().replace(".", "_");
     }
 
     public boolean check() {

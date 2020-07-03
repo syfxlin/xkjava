@@ -14,6 +14,7 @@ import org.eclipse.jetty.http.*;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.util.Callback;
+import org.eclipse.jetty.util.URIUtil;
 
 public class Response implements HttpServletResponse {
     protected org.eclipse.jetty.server.Response _base;
@@ -135,7 +136,7 @@ public class Response implements HttpServletResponse {
     ) {
         this.reset();
         this.headers(headers);
-        this.sendRedirect(status.getValue(), url);
+        this.setRedirect(status.getValue(), url);
         return this;
     }
 
@@ -298,6 +299,50 @@ public class Response implements HttpServletResponse {
     }
 
     /* =========================== */
+
+    public void setRedirect(int code, String location) {
+        if (
+            (code < HttpServletResponse.SC_MULTIPLE_CHOICES) ||
+            (code >= HttpServletResponse.SC_BAD_REQUEST)
+        ) throw new IllegalArgumentException("Not a 3xx redirect code");
+
+        if (location == null) throw new IllegalArgumentException();
+
+        HttpChannel channel = this.getHttpChannel();
+
+        if (!URIUtil.hasScheme(location)) {
+            StringBuilder buf = channel.getRequest().getRootURL();
+            if (location.startsWith("/")) {
+                // absolute in context
+                location = URIUtil.canonicalEncodedPath(location);
+            } else {
+                // relative to request
+                String path = channel.getRequest().getRequestURI();
+                String parent = (path.endsWith("/"))
+                    ? path
+                    : URIUtil.parentPath(path);
+                location =
+                    URIUtil.canonicalEncodedPath(
+                        URIUtil.addEncodedPaths(parent, location)
+                    );
+                if (location != null && !location.startsWith("/")) buf.append(
+                    '/'
+                );
+            }
+
+            if (location == null) throw new IllegalStateException(
+                "path cannot be above root"
+            );
+            buf.append(location);
+
+            location = buf.toString();
+        }
+
+        resetBuffer();
+        setHeader(HttpHeader.LOCATION, location);
+        setStatus(code);
+        // closeOutput();
+    }
 
     public HttpOutput getHttpOutput() {
         return _base.getHttpOutput();

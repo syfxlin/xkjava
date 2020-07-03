@@ -3,6 +3,13 @@ package me.ixk.framework.ioc;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
@@ -14,15 +21,7 @@ import me.ixk.framework.ioc.injector.DefaultParameterInjector;
 import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
 import me.ixk.framework.ioc.processor.PostConstructProcessor;
 import me.ixk.framework.ioc.processor.PreDestroyProcessor;
-import me.ixk.framework.utils.AutowireUtils;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import me.ixk.framework.utils.ReflectUtils;
 
 public class Container implements Context {
     // 各种注入器
@@ -427,7 +426,7 @@ public class Container implements Context {
                 throw new ContainerException("Instance make failed", e);
             }
         }
-        instance = AutowireUtils.resolveAutowiringValue(instance, returnType);
+        instance = ReflectUtils.resolveAutowiringValue(instance, returnType);
         T returnInstance = Convert.convert(returnType, instance);
         if (scopeType.isShared()) {
             this.walkContexts(

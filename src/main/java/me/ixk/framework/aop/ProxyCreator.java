@@ -7,14 +7,14 @@ public class ProxyCreator {
     public static Object createProxy(
         Object target,
         Class<?> targetType,
-        Class<?>[] instances,
+        Class<?>[] interfaces,
         Class<?>[] argsTypes,
         Object[] args
     ) {
         TargetSource targetSource = new TargetSource(
             target,
             targetType,
-            instances
+            interfaces
         );
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(targetSource.getTargetType());

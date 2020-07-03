@@ -16,5 +16,5 @@ public class LoginUser {
     @Size(min = 6, max = 50)
     private String password;
 
-    private boolean rememberToken = false;
+    private boolean remember_me = false;
 }

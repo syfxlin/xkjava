@@ -5,7 +5,7 @@ import me.ixk.framework.factory.ObjectFactory;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.BindingAndAlias;
 import me.ixk.framework.ioc.ThreadLocalContext;
-import me.ixk.framework.utils.AutowireUtils;
+import me.ixk.framework.utils.ReflectUtils;
 
 public class RequestContext implements ThreadLocalContext {
     private final ThreadLocal<BindingAndAlias> bindingAndAlias = new InheritableThreadLocal<>();
@@ -59,7 +59,7 @@ public class RequestContext implements ThreadLocalContext {
 
     public <T> T getInstanceProxy(String name, Class<T> returnType) {
         return returnType.cast(
-            AutowireUtils.proxyObjectFactory(this.getInstance(name), returnType)
+            ReflectUtils.proxyObjectFactory(this.getInstance(name), returnType)
         );
     }
 }

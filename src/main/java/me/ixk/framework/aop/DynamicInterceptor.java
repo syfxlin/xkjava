@@ -5,7 +5,7 @@ import java.util.List;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
-public class DynamicInterceptor implements MethodInterceptor {
+public class DynamicInterceptor implements MethodInterceptor, CanGetTarget {
     protected final TargetSource targetSource;
 
     public DynamicInterceptor(TargetSource targetSource) {
@@ -35,5 +35,10 @@ public class DynamicInterceptor implements MethodInterceptor {
         }
 
         return methodProxy.invoke(target, args);
+    }
+
+    @Override
+    public Object getTarget() {
+        return this.targetSource.getTarget();
     }
 }

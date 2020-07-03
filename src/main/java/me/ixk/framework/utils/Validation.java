@@ -1,13 +1,12 @@
 package me.ixk.framework.utils;
 
-import lombok.Data;
-import org.hibernate.validator.HibernateValidator;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import lombok.Data;
+import org.hibernate.validator.HibernateValidator;
 
 public abstract class Validation {
     protected static final Validator validator = javax
@@ -17,10 +16,11 @@ public abstract class Validation {
         .buildValidatorFactory()
         .getValidator();
 
+    @SuppressWarnings("unchecked")
     public static <T> Result validate(T obj, Class<?>... groups) {
         Result result = new Result();
         Set<ConstraintViolation<T>> violationSet = validator.validate(
-            obj,
+            (T) ReflectUtils.getProxyTarget(obj),
             groups
         );
         boolean hasError = violationSet != null && violationSet.size() > 0;
@@ -35,10 +35,11 @@ public abstract class Validation {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> Result validate(T obj, String propertyName) {
         Result result = new Result();
         Set<ConstraintViolation<T>> violationSet = validator.validateProperty(
-            obj,
+            (T) ReflectUtils.getProxyTarget(obj),
             propertyName
         );
         boolean hasError = violationSet != null && violationSet.size() > 0;
