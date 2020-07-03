@@ -32,22 +32,6 @@ public class ViewResult extends HttpResult {
         this.filterCallback = callback;
     }
 
-    public static ViewResult make(String view) {
-        return new ViewResult(view);
-    }
-
-    public static ViewResult make(String view, Map<String, Object> data) {
-        return new ViewResult(view, data);
-    }
-
-    public static ViewResult make(
-        String view,
-        Map<String, Object> data,
-        FilterCallback filterCallback
-    ) {
-        return new ViewResult(view, data, filterCallback);
-    }
-
     public ViewResult with(Map<String, Object> data) {
         this.data = data;
         return this;
