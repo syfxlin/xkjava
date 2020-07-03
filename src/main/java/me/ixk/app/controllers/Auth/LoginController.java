@@ -6,17 +6,16 @@ import me.ixk.framework.annotations.GetMapping;
 import me.ixk.framework.annotations.PostMapping;
 import me.ixk.framework.facades.Auth;
 import me.ixk.framework.facades.Resp;
-import me.ixk.framework.facades.View;
 import me.ixk.framework.http.Response;
+import me.ixk.framework.http.result.ViewResult;
 import me.ixk.framework.utils.ReflectUtils;
-import me.ixk.framework.view.ViewResult;
 
 @Controller
 public class LoginController {
 
     @GetMapping("/login")
     public ViewResult index() {
-        return View.make("auth/login");
+        return ViewResult.make("auth/login");
     }
 
     @PostMapping("/login")
@@ -32,6 +31,6 @@ public class LoginController {
     @GetMapping("/logout")
     public ViewResult logout() {
         Auth.logout();
-        return View.make("auth/login");
+        return ViewResult.make("auth/login");
     }
 }

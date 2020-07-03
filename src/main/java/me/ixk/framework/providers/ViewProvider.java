@@ -3,8 +3,8 @@ package me.ixk.framework.providers;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.annotations.ScopeType;
+import me.ixk.framework.http.result.ViewResult;
 import me.ixk.framework.ioc.Application;
-import me.ixk.framework.view.ViewResult;
 
 @Provider
 @Order(Order.HIGHEST_PRECEDENCE + 5)

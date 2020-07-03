@@ -1,5 +1,10 @@
 package me.ixk.framework.kernel;
 
+import java.io.IOException;
+import java.io.Writer;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.StdErrorJson;
@@ -12,12 +17,6 @@ import org.eclipse.jetty.server.Dispatcher;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.Writer;
 
 public class ErrorHandler
     extends org.eclipse.jetty.server.handler.ErrorHandler {
@@ -52,7 +51,10 @@ public class ErrorHandler
         String acc = request.getHeader("Accept");
         return (
             "XMLHttpRequest".equals(xrw) ||
-            (acc != null && acc.startsWith("application/json"))
+            (
+                acc != null &&
+                acc.startsWith(MimeTypes.Type.APPLICATION_JSON.asString())
+            )
         );
     }
 

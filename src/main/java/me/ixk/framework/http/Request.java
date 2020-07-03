@@ -303,14 +303,19 @@ public class Request implements HttpServletRequest {
         String acc = this.getHeader("Accept");
         return (
             "XMLHttpRequest".equals(xrw) ||
-            (acc != null && acc.startsWith("application/json"))
+            (
+                acc != null &&
+                acc.startsWith(MimeTypes.Type.APPLICATION_JSON.asString())
+            )
         );
     }
 
     public boolean isJson() {
         return (
             _base.getContentType() != null &&
-            _base.getContentType().startsWith("application/json")
+            _base
+                .getContentType()
+                .startsWith(MimeTypes.Type.APPLICATION_JSON.asString())
         );
     }
 

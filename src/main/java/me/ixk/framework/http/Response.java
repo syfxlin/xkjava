@@ -30,8 +30,18 @@ public class Response implements HttpServletResponse {
         this._base = response;
     }
 
+    /* =============== Quick method =============== */
+
+    public Response make() {
+        return this;
+    }
+
+    public Response ok() {
+        return this.status(HttpStatus.OK);
+    }
+
     public Response text(String text) {
-        return this.text(text, 200, new ConcurrentHashMap<>());
+        return this.text(text, HttpStatus.OK, new ConcurrentHashMap<>());
     }
 
     public Response text(String text, HttpStatus status) {
@@ -51,7 +61,7 @@ public class Response implements HttpServletResponse {
         this.content(text);
         this.status(status);
         this.headers(headers);
-        this.contentType("text/plain");
+        this.contentType(MimeTypes.Type.TEXT_PLAIN.asString());
         return this;
     }
 
@@ -60,7 +70,7 @@ public class Response implements HttpServletResponse {
     }
 
     public Response html(String html) {
-        return this.html(html, 200, new ConcurrentHashMap<>());
+        return this.html(html, HttpStatus.OK, new ConcurrentHashMap<>());
     }
 
     public Response html(String html, HttpStatus status) {
@@ -80,7 +90,7 @@ public class Response implements HttpServletResponse {
         this.content(html);
         this.status(status);
         this.headers(headers);
-        this.contentType("text/html");
+        this.contentType(MimeTypes.Type.TEXT_HTML.asString());
         return this;
     }
 
@@ -109,7 +119,7 @@ public class Response implements HttpServletResponse {
         this.content(JSON.stringify(data));
         this.status(status);
         this.headers(headers);
-        this.contentType("application/json");
+        this.contentType(MimeTypes.Type.APPLICATION_JSON.asString());
         return this;
     }
 
@@ -182,14 +192,7 @@ public class Response implements HttpServletResponse {
         this.setHeaders(headers).sendProcessing();
     }
 
-    public String getContent() {
-        return this.getWriter().toString();
-    }
-
-    public Response setContent(String content) {
-        this.getWriter().write(content);
-        return this;
-    }
+    /* ========= */
 
     public Response content(String content) {
         this.setContent(content);
@@ -226,25 +229,36 @@ public class Response implements HttpServletResponse {
         return this.setHeaders(headers);
     }
 
-    public Response setHeaders(Map<Object, String> headers) {
-        for (Map.Entry<Object, String> header : headers.entrySet()) {
-            Object key = header.getKey();
-            if (key.getClass().isAssignableFrom(String.class)) {
-                _base.setHeader((String) key, header.getValue());
-            } else if (key.getClass().isAssignableFrom(HttpHeader.class)) {
-                _base.setHeader((HttpHeader) key, header.getValue());
-            }
-        }
-        return this;
+    public Response cookie(HttpCookie cookie) {
+        return this.addSetCookie(
+                cookie.getName(),
+                cookie.getValue(),
+                cookie.getDomain(),
+                cookie.getPath(),
+                (int) cookie.getMaxAge(),
+                cookie.getComment(),
+                cookie.isSecure(),
+                cookie.isHttpOnly(),
+                cookie.getVersion()
+            );
     }
 
-    public Response setHeaders(HttpHeaders headers) {
-        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
-            for (String value : entry.getValue()) {
-                _base.setHeader(entry.getKey(), value);
-            }
-        }
-        return this;
+    public Response cookie(Cookie cookie) {
+        return this.addSetCookie(
+                cookie.getName(),
+                cookie.getValue(),
+                cookie.getDomain(),
+                cookie.getPath(),
+                cookie.getMaxAge(),
+                cookie.getComment(),
+                cookie.getSecure(),
+                cookie.isHttpOnly(),
+                cookie.getVersion()
+            );
+    }
+
+    public Response cookie(SetCookie cookie) {
+        return this.addCookie(cookie);
     }
 
     public Response cookie(
@@ -298,7 +312,35 @@ public class Response implements HttpServletResponse {
         return this;
     }
 
-    /* =========================== */
+    public Response setHeaders(Map<Object, String> headers) {
+        for (Map.Entry<Object, String> header : headers.entrySet()) {
+            Object key = header.getKey();
+            if (key.getClass().isAssignableFrom(String.class)) {
+                _base.setHeader((String) key, header.getValue());
+            } else if (key.getClass().isAssignableFrom(HttpHeader.class)) {
+                _base.setHeader((HttpHeader) key, header.getValue());
+            }
+        }
+        return this;
+    }
+
+    public Response setHeaders(HttpHeaders headers) {
+        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+            for (String value : entry.getValue()) {
+                _base.setHeader(entry.getKey(), value);
+            }
+        }
+        return this;
+    }
+
+    public String getContent() {
+        return this.getWriter().toString();
+    }
+
+    public Response setContent(String content) {
+        this.getWriter().write(content);
+        return this;
+    }
 
     public void setRedirect(int code, String location) {
         if (
@@ -343,6 +385,8 @@ public class Response implements HttpServletResponse {
         setStatus(code);
         // closeOutput();
     }
+
+    /* ============================== */
 
     public HttpOutput getHttpOutput() {
         return _base.getHttpOutput();

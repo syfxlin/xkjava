@@ -2,6 +2,7 @@ package me.ixk.framework.http;
 
 import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.utils.JSON;
+import org.eclipse.jetty.http.MimeTypes;
 
 public class ResponseProcessor {
 
@@ -20,15 +21,11 @@ public class ResponseProcessor {
             );
         } else if (result instanceof Responsable) {
             return ((Responsable) result).toResponse(request, response, result);
-        } else if (result instanceof Renderable) {
-            return response
-                .contentType("text/html")
-                .content(((Renderable) result).render());
         } else if (result instanceof String) {
             return response.content(result.toString());
         } else {
             return response
-                .contentType("application/json")
+                .contentType(MimeTypes.Type.APPLICATION_JSON.asString())
                 .content(JSON.stringify(result));
         }
     }
