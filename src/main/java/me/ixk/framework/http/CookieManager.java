@@ -41,7 +41,7 @@ public class CookieManager {
     }
 
     public void forever(SetCookie cookie) {
-        cookie.setMaxAge(2628000);
+        cookie.setMaxAge(157788000);
         this.put(cookie);
     }
 

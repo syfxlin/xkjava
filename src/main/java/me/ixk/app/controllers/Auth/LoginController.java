@@ -28,4 +28,10 @@ public class LoginController {
         }
         return Resp.text(result.getResult().getErrors().toString());
     }
+
+    @GetMapping("/logout")
+    public ViewResult logout() {
+        Auth.logout();
+        return View.make("auth/login");
+    }
 }
