@@ -7,6 +7,8 @@ package me.ixk.framework.http.result;
 import cn.hutool.core.util.ReflectUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.view.FilterCallback;
 
@@ -69,5 +71,30 @@ public class Result {
         FilterCallback callback
     ) {
         return new ViewResult(view, data, callback);
+    }
+
+    public static void abort(HttpStatus status) {
+        abort(status, "");
+    }
+
+    public static void abort(HttpStatus status, String message) {
+        abort(status, message, new ConcurrentHashMap<>());
+    }
+
+    public static void abort(
+        HttpStatus status,
+        String message,
+        Map<String, String> headers
+    ) {
+        abort(status, message, headers, null);
+    }
+
+    public static void abort(
+        HttpStatus status,
+        String message,
+        Map<String, String> headers,
+        Throwable e
+    ) {
+        throw new HttpException(status, message, headers, e);
     }
 }

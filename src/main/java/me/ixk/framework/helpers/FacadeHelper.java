@@ -4,16 +4,16 @@
 
 package me.ixk.framework.helpers;
 
+import me.ixk.framework.aop.ProxyCreator;
 import me.ixk.framework.database.SqlSessionManager;
-import me.ixk.framework.http.CookieManager;
-import me.ixk.framework.http.Request;
-import me.ixk.framework.http.Response;
-import me.ixk.framework.http.SessionManager;
+import me.ixk.framework.http.*;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.kernel.Auth;
 import me.ixk.framework.kernel.Config;
+import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.route.RouteCollector;
 import me.ixk.framework.route.RouteManager;
+import me.ixk.framework.servlet.DispatcherServlet;
 import me.ixk.framework.utils.Crypt;
 import me.ixk.framework.utils.Hash;
 import me.ixk.framework.utils.JWT;
@@ -26,6 +26,10 @@ public abstract class FacadeHelper {
 
     public static Auth auth() {
         return make(Auth.class);
+    }
+
+    public static Environment env() {
+        return make(Environment.class);
     }
 
     public static Config config() {
@@ -66,5 +70,31 @@ public abstract class FacadeHelper {
 
     public static SessionManager session() {
         return make(SessionManager.class);
+    }
+
+    public static WebContext context() {
+        return make(WebContext.class);
+    }
+
+    public static DispatcherServlet servlet() {
+        return make(DispatcherServlet.class);
+    }
+
+    /* ===================== */
+
+    public static Object proxy(
+        Object target,
+        Class<?> targetType,
+        Class<?>[] interfaces,
+        Class<?>[] argsTypes,
+        Object[] args
+    ) {
+        return ProxyCreator.createProxy(
+            target,
+            targetType,
+            interfaces,
+            argsTypes,
+            args
+        );
     }
 }
