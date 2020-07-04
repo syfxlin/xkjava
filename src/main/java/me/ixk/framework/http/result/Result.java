@@ -12,7 +12,7 @@ import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.view.FilterCallback;
 
-public class Result {
+public abstract class Result {
 
     public static <T extends HttpResult> T custom(
         Class<T> resultHandler,
