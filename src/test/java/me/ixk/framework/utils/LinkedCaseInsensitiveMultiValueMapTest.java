@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
+ */
+
 package me.ixk.framework.utils;
 
 import org.junit.jupiter.api.Assertions;

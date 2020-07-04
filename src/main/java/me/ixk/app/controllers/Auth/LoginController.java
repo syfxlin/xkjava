@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
+ */
+
 package me.ixk.app.controllers.Auth;
 
 import me.ixk.app.entity.LoginUser;
