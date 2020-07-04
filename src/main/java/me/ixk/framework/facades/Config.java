@@ -40,8 +40,8 @@ public class Config extends AbstractFacade {
         make().set(values);
     }
 
-    public static void push(String name, Object value) {
-        make().push(name, value);
+    public static void put(String name, Object value) {
+        make().put(name, value);
     }
 
     public static boolean has(String name) {

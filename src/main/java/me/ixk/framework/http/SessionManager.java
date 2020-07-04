@@ -27,8 +27,9 @@ public class SessionManager {
         return _session;
     }
 
-    public void setSession(HttpSession _session) {
+    public SessionManager setSession(HttpSession _session) {
         this._session = _session;
+        return this;
     }
 
     public boolean has(String name) {
@@ -47,25 +48,30 @@ public class SessionManager {
         return Convert.convert(returnType, result);
     }
 
-    public void put(String name, Object value) {
+    public SessionManager put(String name, Object value) {
         this._session.setAttribute(name, value);
+        return this;
     }
 
-    public void forget(String name) {
+    public SessionManager forget(String name) {
         this._session.removeAttribute(name);
+        return this;
     }
 
-    public void forget(List<String> names) {
+    public SessionManager forget(List<String> names) {
         for (String name : names) {
             this._session.removeAttribute(name);
+            return this;
         }
+        return this;
     }
 
-    public void flush() {
+    public SessionManager flush() {
         while (this._session.getAttributeNames().hasMoreElements()) {
             String s = this._session.getAttributeNames().nextElement();
             this._session.removeAttribute(s);
         }
+        return this;
     }
 
     public <T> T pull(String name, Class<T> returnType, T _default) {
@@ -104,8 +110,9 @@ public class SessionManager {
         return this._session.getServletContext();
     }
 
-    public void setMaxInactiveInterval(int interval) {
+    public SessionManager setMaxInactiveInterval(int interval) {
         this._session.setMaxInactiveInterval(interval);
+        return this;
     }
 
     public int getMaxInactiveInterval() {
@@ -120,16 +127,19 @@ public class SessionManager {
         return this._session.getAttributeNames();
     }
 
-    public void setAttribute(String name, Object value) {
+    public SessionManager setAttribute(String name, Object value) {
         this._session.setAttribute(name, value);
+        return this;
     }
 
-    public void removeAttribute(String name) {
+    public SessionManager removeAttribute(String name) {
         this._session.removeAttribute(name);
+        return this;
     }
 
-    public void invalidate() {
+    public SessionManager invalidate() {
         this._session.invalidate();
+        return this;
     }
 
     public boolean isNew() {

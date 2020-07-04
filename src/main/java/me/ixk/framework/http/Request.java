@@ -79,8 +79,9 @@ public class Request implements HttpServletRequest {
         return _route;
     }
 
-    public void setRoute(RouteResult route) {
+    public Request setRoute(RouteResult route) {
         this._route = route;
+        return this;
     }
 
     protected <T> T getOrDefault(T result, T _default) {

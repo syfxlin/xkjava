@@ -346,7 +346,7 @@ public class Response implements HttpServletResponse {
         return this;
     }
 
-    public void setRedirect(int code, String location) {
+    public Response setRedirect(int code, String location) {
         if (
             (code < HttpServletResponse.SC_MULTIPLE_CHOICES) ||
             (code >= HttpServletResponse.SC_BAD_REQUEST)
@@ -388,6 +388,7 @@ public class Response implements HttpServletResponse {
         setHeader(HttpHeader.LOCATION, location);
         setStatus(code);
         // closeOutput();
+        return this;
     }
 
     /* ============================== */

@@ -40,31 +40,36 @@ public class CookieManager {
 
     /* ===================================== */
 
-    public void put(SetCookie cookie) {
+    public CookieManager put(SetCookie cookie) {
         this._cookies.put(cookie.getName(), cookie);
+        return this;
     }
 
-    public void forever(SetCookie cookie) {
+    public CookieManager forever(SetCookie cookie) {
         cookie.setMaxAge(157788000);
         this.put(cookie);
+        return this;
     }
 
-    public void forget(String name) {
+    public CookieManager forget(String name) {
         SetCookie cookie = new SetCookie(name, "");
         cookie.setMaxAge(1);
         this.put(cookie);
+        return this;
     }
 
     public boolean hasQueue(String name) {
         return this._cookies.containsKey(name);
     }
 
-    public void unqueue(String name) {
+    public CookieManager unqueue(String name) {
         this._cookies.remove(name);
+        return this;
     }
 
-    public void queue(SetCookie cookie) {
+    public CookieManager queue(SetCookie cookie) {
         this.put(cookie);
+        return this;
     }
 
     public SetCookie queued(String name) {

@@ -111,4 +111,49 @@ public class SetCookie extends Cookie {
         this.encrypt = encrypt;
         return this;
     }
+
+    public SetCookie encrypt(boolean encrypt) {
+        this.setEncrypt(encrypt);
+        return this;
+    }
+
+    public SetCookie value(String value) {
+        this.setValue(value);
+        return this;
+    }
+
+    public SetCookie domain(String domain) {
+        this.setDomain(domain);
+        return this;
+    }
+
+    public SetCookie path(String uri) {
+        this.setPath(uri);
+        return this;
+    }
+
+    public SetCookie maxAge(int maxAge) {
+        this.setMaxAge(maxAge);
+        return this;
+    }
+
+    public SetCookie httpOnly(boolean isHttpOnly) {
+        this.setHttpOnly(isHttpOnly);
+        return this;
+    }
+
+    public SetCookie secure(boolean isSecure) {
+        this.setSecure(isSecure);
+        return this;
+    }
+
+    public SetCookie comment(String comment) {
+        this.setComment(comment);
+        return this;
+    }
+
+    public SetCookie version(int version) {
+        this.setVersion(version);
+        return this;
+    }
 }

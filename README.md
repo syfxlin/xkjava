@@ -42,7 +42,6 @@ ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf 渲染，路由是参考 
 -   @ThreadSafe
 -   @RequestBody 和 @RequestParam（由于本框架直接使用）
 -   注解组合（不完善）
--   CSRF
 -   组件与微框架的依赖，使组件更换更为便利（如更换 FreeMarker 或 Thymeleaf）
 -   添加完整的 Test Case
 -   排除中间件

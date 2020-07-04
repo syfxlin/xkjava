@@ -4,28 +4,33 @@
 
 package me.ixk.framework.kernel;
 
+import cn.hutool.core.convert.Convert;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import me.ixk.framework.ioc.Application;
 
 public class Environment {
     protected final Application app;
+    protected Properties properties;
 
     public Environment(Application app, Properties properties) {
         this.app = app;
-        this.setProperties(properties);
+        this.properties = properties;
     }
 
-    protected Properties getProperties() {
-        return this.app.getOrDefaultAttribute("env", new Properties());
+    public Properties getProperties() {
+        return this.properties;
     }
 
-    protected void setProperties(Properties properties) {
-        this.app.setAttribute("env", properties);
+    public Environment setProperties(Properties properties) {
+        this.properties = properties;
+        return this;
     }
 
     public Properties all() {
-        return this.getProperties();
+        return this.properties;
     }
 
     public String get(String key) {
@@ -33,24 +38,107 @@ public class Environment {
     }
 
     public String get(String key, String _default) {
-        return this.getProperties().getProperty(key, _default);
+        return this.properties.getProperty(key, _default);
     }
 
-    public void set(Map<String, String> values) {
-        for (Map.Entry<String, String> entry : values.entrySet()) {
-            this.set(entry.getKey(), entry.getValue());
-        }
+    public Environment set(Map<String, String> values) {
+        this.properties.putAll(values);
+        return this;
     }
 
-    public void set(String key, String value) {
-        this.getProperties().setProperty(key, value);
+    public Environment set(String key, String value) {
+        this.properties.setProperty(key, value);
+        return this;
     }
 
     public boolean has(String key) {
-        return this.getProperties().containsKey(key);
+        return this.properties.containsKey(key);
     }
 
-    public void push(String key, String value) {
+    public Environment put(String key, String value) {
         this.set(key, value);
+        return this;
+    }
+
+    public Environment putAll(Map<String, String> values) {
+        this.set(values);
+        return this;
+    }
+
+    public Environment merge(Environment environment) {
+        this.properties.putAll(environment.getProperties());
+        return this;
+    }
+
+    public Integer getInt(String key) {
+        return this.getInt(key, null);
+    }
+
+    public Integer getInt(String key, Integer _default) {
+        String value = this.get(key);
+        if (value != null) {
+            return Convert.toInt(value);
+        }
+        return _default;
+    }
+
+    public Long getLong(String key) {
+        return this.getLong(key, null);
+    }
+
+    public Long getLong(String key, Long _default) {
+        String value = this.get(key);
+        if (value != null) {
+            return Convert.toLong(value);
+        }
+        return _default;
+    }
+
+    public Boolean getBoolean(String key) {
+        return this.getBoolean(key, null);
+    }
+
+    public Boolean getBoolean(String key, Boolean _default) {
+        String value = this.get(key);
+        if (value != null) {
+            return Convert.toBool(value);
+        }
+        return _default;
+    }
+
+    public Double getDouble(String key) {
+        return this.getDouble(key, null);
+    }
+
+    public Double getDouble(String key, Double _default) {
+        String value = this.get(key);
+        if (value != null) {
+            return Convert.toDouble(value);
+        }
+        return _default;
+    }
+
+    public String[] getArray(String key, String split) {
+        String values = this.get(key);
+        if (values == null) {
+            return null;
+        }
+        return values.split(split);
+    }
+
+    public List<String> getList(String key, String split) {
+        String values = this.get(key);
+        if (values == null) {
+            return null;
+        }
+        return Arrays.asList(values.split(split));
+    }
+
+    public int size() {
+        return this.properties.size();
+    }
+
+    public boolean isEmpty() {
+        return this.properties.isEmpty();
     }
 }
