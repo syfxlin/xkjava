@@ -4,14 +4,14 @@
 
 package me.ixk.framework.providers;
 
+import static me.ixk.framework.helpers.FacadeHelper.config;
+
+import java.util.Map;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
-import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.Base64;
 import me.ixk.framework.utils.JWT;
-
-import java.util.Map;
 
 @Provider
 @Order(Order.HIGHEST_PRECEDENCE + 8)
@@ -28,9 +28,9 @@ public class JwtProvider extends AbstractProvider {
                 JWT.class,
                 (container, with) ->
                     new JWT(
-                        Base64.decode(Config.get("app.key", String.class)),
-                        Config.get("app.hash.algo", String.class),
-                        Config.get("app.hash.default_payload", Map.class)
+                        Base64.decode(config().get("app.key", String.class)),
+                        config().get("app.hash.algo", String.class),
+                        config().get("app.hash.default_payload", Map.class)
                     ),
                 "jwt"
             );

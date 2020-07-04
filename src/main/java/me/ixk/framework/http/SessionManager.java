@@ -5,11 +5,12 @@
 package me.ixk.framework.http;
 
 import cn.hutool.core.convert.Convert;
-import java.util.Enumeration;
-import java.util.List;
+import me.ixk.framework.helpers.UtilHelper;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
-import me.ixk.framework.utils.Helper;
+import java.util.Enumeration;
+import java.util.List;
 
 public class SessionManager {
     HttpSession _session;
@@ -89,7 +90,7 @@ public class SessionManager {
     }
 
     public String regenerateToken() {
-        String token = Helper.strRandom(40);
+        String token = UtilHelper.strRandom(40);
         this.put("_token", token);
         return token;
     }

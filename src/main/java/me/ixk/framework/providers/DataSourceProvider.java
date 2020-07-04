@@ -4,13 +4,14 @@
 
 package me.ixk.framework.providers;
 
+import static me.ixk.framework.helpers.FacadeHelper.config;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.Map;
 import javax.sql.DataSource;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
-import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
 
 @Provider
@@ -24,7 +25,7 @@ public class DataSourceProvider extends AbstractProvider {
     @Override
     @SuppressWarnings("unchecked")
     public void register() {
-        Map<String, String> config = Config.get("database", Map.class);
+        Map<String, String> config = config().get("database", Map.class);
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setDriverClassName(config.get("driver"));
         hikariConfig.setJdbcUrl(config.get("url"));

@@ -4,12 +4,13 @@
 
 package me.ixk.framework.middleware;
 
+import static me.ixk.framework.helpers.FacadeHelper.crypt;
+import static me.ixk.framework.helpers.FacadeHelper.session;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import me.ixk.framework.annotations.GlobalMiddleware;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.exceptions.HttpException;
-import me.ixk.framework.facades.Crypt;
-import me.ixk.framework.facades.Session;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
@@ -46,7 +47,7 @@ public class VerifyCsrfToken implements Middleware {
         } else {
             token = request.header("X-CSRF-TOKEN");
             if (token != null) {
-                token = Crypt.decrypt(token);
+                token = crypt().decrypt(token);
             }
         }
         return token;
@@ -54,7 +55,7 @@ public class VerifyCsrfToken implements Middleware {
 
     protected boolean verifyToken(Request request) {
         String token = this.getToken(request);
-        String sToken = Session.token();
+        String sToken = session().token();
         return sToken != null && sToken.equals(token);
     }
 
@@ -84,7 +85,7 @@ public class VerifyCsrfToken implements Middleware {
     protected Response setToken(Request request, Response response) {
         SetCookie cookie = new SetCookie(
             "XSRF-TOKEN",
-            Session.token(),
+            session().token(),
             2628000
         );
         return response.cookie(cookie);

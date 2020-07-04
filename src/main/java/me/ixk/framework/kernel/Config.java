@@ -6,8 +6,8 @@ package me.ixk.framework.kernel;
 
 import cn.hutool.core.convert.Convert;
 import java.util.Map;
+import me.ixk.framework.helpers.UtilHelper;
 import me.ixk.framework.ioc.Application;
-import me.ixk.framework.utils.Helper;
 
 public class Config {
     protected final Application app;
@@ -36,7 +36,11 @@ public class Config {
     }
 
     public Object get(String name, Object _default) {
-        return Helper.dataGet(this.config, name, _default);
+        return UtilHelper.dataGet(this.config, name, _default);
+    }
+
+    public <T> T get(String name, Class<T> returnType) {
+        return this.get(name, null, returnType);
     }
 
     public <T> T get(String name, Object _default, Class<T> returnType) {
@@ -44,7 +48,7 @@ public class Config {
     }
 
     protected Config setItem(String name, Object value) {
-        Helper.dataSet(this.config, name, value);
+        UtilHelper.dataSet(this.config, name, value);
         return this;
     }
 

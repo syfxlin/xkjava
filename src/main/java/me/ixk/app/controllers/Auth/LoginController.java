@@ -4,16 +4,18 @@
 
 package me.ixk.app.controllers.Auth;
 
+import static me.ixk.framework.helpers.FacadeHelper.auth;
+import static me.ixk.framework.helpers.FacadeHelper.response;
+
 import me.ixk.app.entity.LoginUser;
 import me.ixk.framework.annotations.Controller;
 import me.ixk.framework.annotations.GetMapping;
 import me.ixk.framework.annotations.PostMapping;
-import me.ixk.framework.facades.Auth;
-import me.ixk.framework.facades.Resp;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.result.RedirectResult;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.ViewResult;
+import me.ixk.framework.kernel.Auth;
 import me.ixk.framework.utils.ReflectUtils;
 
 @Controller
@@ -27,16 +29,16 @@ public class LoginController {
     @PostMapping("/login")
     public Response login(LoginUser user) {
         ReflectUtils.getProxyTarget(user);
-        me.ixk.framework.kernel.Auth.Result result = Auth.login(user);
+        Auth.Result result = auth().login(user);
         if (result.isOk()) {
-            return Resp.redirect("/free-marker");
+            return response().redirect("/free-marker");
         }
-        return Resp.text(result.getResult().getErrors().toString());
+        return response().text(result.getResult().getErrors().toString());
     }
 
     @GetMapping("/logout")
     public RedirectResult logout() {
-        Auth.logout();
+        auth().logout();
         return Result.redirect("/login");
     }
 }

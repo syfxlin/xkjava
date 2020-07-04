@@ -2,7 +2,7 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.utils;
+package me.ixk.framework.helpers;
 
 import cn.hutool.core.convert.Convert;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,8 +13,9 @@ import java.lang.reflect.Method;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.utils.JSON;
 
-public abstract class Helper {
+public abstract class UtilHelper {
     protected static final String BASE_STRING =
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     protected static final SecureRandom RANDOM = new SecureRandom();

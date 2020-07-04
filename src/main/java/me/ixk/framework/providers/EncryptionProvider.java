@@ -4,9 +4,10 @@
 
 package me.ixk.framework.providers;
 
+import static me.ixk.framework.helpers.FacadeHelper.config;
+
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
-import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.Base64;
 import me.ixk.framework.utils.Crypt;
@@ -25,8 +26,8 @@ public class EncryptionProvider extends AbstractProvider {
                 Crypt.class,
                 (container, with) ->
                     new Crypt(
-                        Base64.decode(Config.get("app.key", String.class)),
-                        Config.get("app.cipher", String.class)
+                        Base64.decode(config().get("app.key", String.class)),
+                        config().get("app.cipher", String.class)
                     ),
                 "crypt"
             );

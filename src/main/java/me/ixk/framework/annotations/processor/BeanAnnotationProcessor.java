@@ -4,6 +4,8 @@
 
 package me.ixk.framework.annotations.processor;
 
+import static me.ixk.framework.helpers.FacadeHelper.config;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -12,7 +14,6 @@ import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.annotations.ScopeType;
-import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.ioc.Wrapper;
 import me.ixk.framework.utils.AnnotationUtils;
@@ -28,10 +29,8 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     @Override
     @SuppressWarnings("unchecked")
     public void process() {
-        List<Class<? extends Annotation>> beanAnnotations = Config.get(
-            "app.bean_annotations",
-            List.class
-        );
+        List<Class<? extends Annotation>> beanAnnotations = config()
+            .get("app.bean_annotations", List.class);
         for (Class<? extends Annotation> annotation : beanAnnotations) {
             for (Class<?> _class : this.getTypesAnnotated(annotation)) {
                 this.processAnnotation(annotation, _class);

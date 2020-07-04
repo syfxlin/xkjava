@@ -4,13 +4,14 @@
 
 package me.ixk.framework.providers;
 
+import static me.ixk.framework.helpers.FacadeHelper.config;
+
 import java.util.List;
 import javax.sql.DataSource;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.database.MybatisPlus;
 import me.ixk.framework.database.SqlSessionManager;
-import me.ixk.framework.facades.Config;
 import me.ixk.framework.ioc.Application;
 
 @Provider
@@ -24,10 +25,8 @@ public class SqlSessionManagerProvider extends AbstractProvider {
     @Override
     @SuppressWarnings("unchecked")
     public void register() {
-        List<String> mapperPackages = Config.get(
-            "database.mapper_packages",
-            List.class
-        );
+        List<String> mapperPackages = config()
+            .get("database.mapper_packages", List.class);
         this.app.singleton(
                 SqlSessionManager.class,
                 (container, with) ->

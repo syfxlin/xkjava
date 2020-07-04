@@ -4,11 +4,12 @@
 
 package me.ixk.framework.middleware;
 
+import static me.ixk.framework.helpers.FacadeHelper.crypt;
+
 import java.util.List;
 import javax.servlet.http.Cookie;
 import me.ixk.framework.annotations.GlobalMiddleware;
 import me.ixk.framework.annotations.Order;
-import me.ixk.framework.facades.Crypt;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
@@ -25,7 +26,7 @@ public class EncryptCookies implements Middleware {
     protected Request decrypt(Request request) {
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
-            String decrypt = Crypt.decrypt(cookie.getValue());
+            String decrypt = crypt().decrypt(cookie.getValue());
             if (decrypt != null) {
                 cookie.setValue(decrypt);
             }
@@ -37,7 +38,7 @@ public class EncryptCookies implements Middleware {
         List<SetCookie> cookies = response.getCookies();
         for (SetCookie cookie : cookies) {
             if (cookie.isEncrypt()) {
-                cookie.setValue(Crypt.encrypt(cookie.getValue()));
+                cookie.setValue(crypt().encrypt(cookie.getValue()));
             }
         }
         return response;

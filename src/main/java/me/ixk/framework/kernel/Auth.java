@@ -4,17 +4,16 @@
 
 package me.ixk.framework.kernel;
 
+import static me.ixk.framework.helpers.FacadeHelper.*;
+
 import java.time.LocalDateTime;
 import me.ixk.app.entity.LoginUser;
 import me.ixk.app.entity.RegisterUser;
 import me.ixk.app.entity.Users;
 import me.ixk.app.service.impl.UsersServiceImpl;
-import me.ixk.framework.facades.Cookie;
-import me.ixk.framework.facades.Hash;
-import me.ixk.framework.facades.Session;
+import me.ixk.framework.helpers.UtilHelper;
 import me.ixk.framework.http.SetCookie;
 import me.ixk.framework.ioc.Application;
-import me.ixk.framework.utils.Helper;
 import me.ixk.framework.utils.Validation;
 
 public class Auth {
@@ -36,7 +35,7 @@ public class Auth {
             .username(user.getUsername())
             .nickname(user.getNickname())
             .email(user.getEmail())
-            .password(Hash.make(user.getPassword()))
+            .password(hash().make(user.getPassword()))
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
             .status(0)
@@ -64,7 +63,7 @@ public class Auth {
             );
             return new Result(result);
         }
-        if (!Hash.check(user.getPassword(), dbUser.getPassword())) {
+        if (!hash().check(user.getPassword(), dbUser.getPassword())) {
             result.addError("password", "Account does not match the password.");
             return new Result(result);
         }
@@ -85,14 +84,13 @@ public class Auth {
         if (this.user != null) {
             return this.user;
         }
-        Long id = Session.get(this.getName(), Long.class);
+        Long id = session().get(this.getName(), Long.class);
         if (id != null) {
             this.user = this.usersService.getById(id);
         }
         if (this.user == null) {
-            javax.servlet.http.Cookie tokenCookie = Cookie.get(
-                this.getRememberName()
-            );
+            javax.servlet.http.Cookie tokenCookie = cookie()
+                .get(this.getRememberName());
             if (tokenCookie != null) {
                 String[] tokens = tokenCookie.getValue().split("\\|");
                 this.user =
@@ -120,13 +118,13 @@ public class Auth {
     }
 
     protected void updateSession(long id) {
-        Session.put(this.getName(), id);
+        session().put(this.getName(), id);
     }
 
     protected void updateRememberToken(Users user) {
         String token = user.getRememberToken();
         if (token == null || token.length() == 0) {
-            token = Helper.strRandom(40);
+            token = UtilHelper.strRandom(40);
             user.setRememberToken(token);
             this.usersService.updateById(user);
         }
@@ -142,13 +140,13 @@ public class Auth {
             user.getPassword()
         );
         cookie.setHttpOnly(true);
-        Cookie.forever(cookie);
+        cookie().forever(cookie);
     }
 
     protected void clearUserDataFromStorage() {
-        Session.forget(this.getName());
-        if (Cookie.get(this.getRememberName()) != null) {
-            Cookie.forget(this.getRememberName());
+        session().forget(this.getName());
+        if (cookie().get(this.getRememberName()) != null) {
+            cookie().forget(this.getRememberName());
         }
     }
 

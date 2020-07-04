@@ -4,8 +4,9 @@
 
 package me.ixk.framework.server;
 
+import static me.ixk.framework.helpers.FacadeHelper.config;
+
 import java.io.File;
-import me.ixk.framework.facades.Config;
 import me.ixk.framework.kernel.ErrorHandler;
 import me.ixk.framework.servlet.DispatcherServlet;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
@@ -22,7 +23,7 @@ public class HttpServer {
         String rootDir = System.getProperty("user.dir");
         String resource = rootDir + File.separator + "public";
         this.server =
-            this.buildServer(Config.get("app.port", Integer.class), resource);
+            this.buildServer(config().get("app.port", Integer.class), resource);
     }
 
     public static HttpServer create() {
