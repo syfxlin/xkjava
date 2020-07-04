@@ -3,18 +3,9 @@ package me.ixk.app.controllers;
 import java.io.IOException;
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
-import me.ixk.framework.annotations.ExceptionHandler;
-import me.ixk.framework.exceptions.Exception;
 
-//@ControllerAdvice
-//@Order(1)
 @WebFilter(urlPatterns = "/*")
-public class Global2ControllerAdvice implements Filter {
-
-    @ExceptionHandler(value = Exception.class)
-    public String exception(Exception e) {
-        return "error2";
-    }
+public class GlobalFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {}

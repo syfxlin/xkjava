@@ -2,6 +2,7 @@ package me.ixk.framework.http.result;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.http.WebContext;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.view.FilterCallback;
 import me.ixk.framework.view.TemplateProcessor;
@@ -39,9 +40,6 @@ public class ViewResult extends HttpResult {
 
     public ViewResult assign(Map<String, Object> data) {
         this.data.putAll(data);
-        if (!this.data.containsKey("errors")) {
-            this.data.put("errors", new ConcurrentHashMap<>());
-        }
         return this;
     }
 
@@ -71,8 +69,23 @@ public class ViewResult extends HttpResult {
         return filterCallback;
     }
 
+    private void injectModel() {
+        WebContext context = Application.get().make(WebContext.class);
+        // 注入
+        this.data.put("$context", context);
+        this.data.put("$application", context.getApplication());
+        this.data.put("$config", context.getConfig());
+        this.data.put("$environment", context.getEnvironment());
+        this.data.put("$servlet", context.getServlet());
+        this.data.put("$request", context.getRequest());
+        this.data.put("$response", context.getResponse());
+        this.data.put("$cookie", context.getCookieManager());
+        this.data.put("$session", context.getSessionManager());
+    }
+
     @Override
     public String render() {
+        this.injectModel();
         String html = Application
             .get()
             .make(TemplateProcessor.class)

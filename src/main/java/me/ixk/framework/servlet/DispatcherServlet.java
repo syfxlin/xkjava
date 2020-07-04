@@ -6,10 +6,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.annotations.ScopeType;
-import me.ixk.framework.http.CookieManager;
-import me.ixk.framework.http.Request;
-import me.ixk.framework.http.Response;
-import me.ixk.framework.http.SessionManager;
+import me.ixk.framework.http.*;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.ioc.context.ContextName;
 import me.ixk.framework.ioc.context.RequestContext;
@@ -98,6 +95,13 @@ public class DispatcherServlet extends FrameworkServlet {
                 ScopeType.REQUEST
             );
         this.app.instance(Auth.class, new Auth(), "auth", ScopeType.REQUEST);
+
+        this.app.instance(
+                WebContext.class,
+                new WebContext(this.app),
+                "webContext",
+                ScopeType.REQUEST
+            );
     }
 
     protected void doDispatch(Request request, Response response) {

@@ -7,6 +7,7 @@ import me.ixk.framework.annotations.PostMapping;
 import me.ixk.framework.facades.Auth;
 import me.ixk.framework.facades.Resp;
 import me.ixk.framework.http.Response;
+import me.ixk.framework.http.result.RedirectResult;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.ViewResult;
 import me.ixk.framework.utils.ReflectUtils;
@@ -30,8 +31,8 @@ public class LoginController {
     }
 
     @GetMapping("/logout")
-    public ViewResult logout() {
+    public RedirectResult logout() {
         Auth.logout();
-        return Result.view("auth/login");
+        return Result.redirect("/login");
     }
 }

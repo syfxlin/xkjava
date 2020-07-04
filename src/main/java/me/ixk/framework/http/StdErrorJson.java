@@ -38,14 +38,14 @@ public class StdErrorJson {
 
     public StdErrorJson(int status, Throwable throwable) {
         this.status = status;
-        this.message = ResponseReason.getMessage(status);
+        this.message = HttpStatus.valueOf(status).getReasonPhrase();
         this.errors = throwable.getMessage();
         this.throwable = throwable;
     }
 
     public StdErrorJson(Throwable throwable) {
         this.status = 500;
-        this.message = ResponseReason.getMessage(500);
+        this.message = HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase();
         this.errors = throwable.getMessage();
         this.throwable = throwable;
     }
