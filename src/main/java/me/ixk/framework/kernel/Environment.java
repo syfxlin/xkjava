@@ -156,4 +156,12 @@ public class Environment {
         }
         return map;
     }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new ConcurrentHashMap<>();
+        for (Map.Entry<Object, Object> entry : this.properties.entrySet()) {
+            map.put(entry.getKey().toString(), entry.getValue());
+        }
+        return map;
+    }
 }

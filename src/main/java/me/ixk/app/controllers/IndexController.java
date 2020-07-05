@@ -9,11 +9,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import me.ixk.app.annotations.Log;
 import me.ixk.app.beans.User;
+import me.ixk.app.beans.User3;
 import me.ixk.app.config.TestConfigurationProperties;
 import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.Request;
+import me.ixk.framework.ioc.Application;
 import me.ixk.framework.view.FreeMarker;
 
 @Controller
@@ -23,9 +25,6 @@ public class IndexController {
 
     @Autowired("request")
     private HttpServletRequest httpServletRequest;
-
-    @Autowired
-    public TestConfigurationProperties properties;
 
     private final UsersServiceImpl usersService;
 
@@ -59,6 +58,16 @@ public class IndexController {
     @Log
     public String index2(Request request) {
         return this.request.query("age");
+    }
+
+    @GetMapping("/user3")
+    public User3 user3() {
+        return Application.get().make(User3.class);
+    }
+
+    @GetMapping("/conf")
+    public TestConfigurationProperties conf() {
+        return Application.get().make(TestConfigurationProperties.class);
     }
 
     @Middleware(name = "auth")

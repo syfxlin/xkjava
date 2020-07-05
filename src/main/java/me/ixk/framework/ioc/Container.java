@@ -21,10 +21,10 @@ import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.ProxyCreator;
 import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.ioc.context.ContextName;
-import me.ixk.framework.ioc.injector.ConfigurationPropertiesInjector;
 import me.ixk.framework.ioc.injector.DefaultMethodInjector;
 import me.ixk.framework.ioc.injector.DefaultParameterInjector;
 import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
+import me.ixk.framework.ioc.injector.PropertiesValueInjector;
 import me.ixk.framework.ioc.processor.PostConstructProcessor;
 import me.ixk.framework.ioc.processor.PreDestroyProcessor;
 import me.ixk.framework.utils.ReflectUtils;
@@ -53,7 +53,7 @@ public class Container implements Context {
         this.addParameterInjector(new DefaultParameterInjector());
         this.addInstanceInjector(new DefaultPropertyInjector());
         this.addInstanceInjector(new DefaultMethodInjector());
-        this.addInstanceInjector(new ConfigurationPropertiesInjector());
+        this.addInstanceInjector(new PropertiesValueInjector());
 
         this.addBeanBeforeProcessor(new PostConstructProcessor());
         this.addBeanAfterProcessor(new PreDestroyProcessor());

@@ -7,11 +7,15 @@ package me.ixk.app.beans;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.ixk.framework.annotations.Bean;
+import me.ixk.framework.annotations.Value;
 
 @Data
 @NoArgsConstructor
 @Bean
 public class User3 {
-    String name = "name";
-    Integer age = 10;
+    @Value("$('test.name')")
+    String name;
+
+    @Value("$('age:21')")
+    int age;
 }
