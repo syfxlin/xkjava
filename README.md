@@ -36,7 +36,6 @@ ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf 渲染，路由是参考 
 
 -   @ControllerAdvice（不完整）
 -   @PostConstruct 和 @PreDestroy（初步实现，待优化）
--   @Application
 -   @ConfigurationProperties
 -   @Value
 -   @ThreadSafe

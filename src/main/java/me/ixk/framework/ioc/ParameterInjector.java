@@ -8,5 +8,10 @@ import java.lang.reflect.Executable;
 
 @FunctionalInterface
 public interface ParameterInjector {
-    Object[] inject(Binding binding, Executable method, With with);
+    Object[] inject(
+        Binding binding,
+        Executable method,
+        Object[] dependencies,
+        With with
+    );
 }

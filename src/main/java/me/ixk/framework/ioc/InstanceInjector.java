@@ -5,6 +5,6 @@
 package me.ixk.framework.ioc;
 
 @FunctionalInterface
-public interface PropertyInjector {
+public interface InstanceInjector {
     Object inject(Binding binding, Object instance, With with);
 }

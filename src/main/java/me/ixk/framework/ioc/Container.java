@@ -8,6 +8,7 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,21 +30,12 @@ import me.ixk.framework.utils.ReflectUtils;
 
 public class Container implements Context {
     // 各种注入器
-    private MethodInjector methodInjector = new DefaultMethodInjector(this);
-    private ParameterInjector parameterInjector = new DefaultParameterInjector(
-        this
-    );
-    private PropertyInjector propertyInjector = new DefaultPropertyInjector(
-        this
-    );
+    private final Map<Class<? extends ParameterInjector>, ParameterInjector> parameterInjectors = new LinkedHashMap<>();
+    private final Map<Class<? extends InstanceInjector>, InstanceInjector> instanceInjectors = new LinkedHashMap<>();
 
     // 前置处理和后置处理，前置处理在初始化后进行，后置处理在删除前进行
-    private final List<BeanBeforeProcessor> beanBeforeProcessors = Collections.singletonList(
-        new PostConstructProcessor(this)
-    );
-    private final List<BeanAfterProcessor> beanAfterProcessors = Collections.singletonList(
-        new PreDestroyProcessor(this)
-    );
+    private final Map<Class<? extends BeanBeforeProcessor>, BeanBeforeProcessor> beanBeforeProcessors = new LinkedHashMap<>();
+    private final Map<Class<? extends BeanAfterProcessor>, BeanAfterProcessor> beanAfterProcessors = new LinkedHashMap<>();
 
     // Contexts，存储实例和别名的空间
     private final Map<String, Context> contexts = Collections.synchronizedMap(
@@ -53,10 +45,19 @@ public class Container implements Context {
     // 注入的临时变量
     private final ThreadLocal<With> with = new InheritableThreadLocal<>();
 
+    // 构造器
     public Container() {
         this.with.set(new With(null, new ConcurrentHashMap<>()));
+
+        this.addParameterInjector(new DefaultParameterInjector(this));
+        this.addInstanceInjector(new DefaultPropertyInjector(this));
+        this.addInstanceInjector(new DefaultMethodInjector(this));
+
+        this.addBeanBeforeProcessor(new PostConstructProcessor(this));
+        this.addBeanAfterProcessor(new PreDestroyProcessor(this));
     }
 
+    // 销毁方法
     public void destroy() {
         while (this.contexts.values().iterator().hasNext()) {
             Context context = this.contexts.values().iterator().next();
@@ -305,6 +306,39 @@ public class Container implements Context {
         return Convert.convert(type, injectValue);
     }
 
+    protected Object processInstanceInjector(Binding binding, Object instance) {
+        for (InstanceInjector injector : this.instanceInjectors.values()) {
+            instance = injector.inject(binding, instance, this.with.get());
+        }
+        return instance;
+    }
+
+    protected Object[] processParameterInjector(
+        Binding binding,
+        Executable method
+    ) {
+        Object[] dependencies = new Object[method.getParameterCount()];
+        for (ParameterInjector injector : this.parameterInjectors.values()) {
+            dependencies =
+                injector.inject(binding, method, dependencies, this.with.get());
+        }
+        return dependencies;
+    }
+
+    protected Object processBeanBefore(Binding binding, Object instance) {
+        for (BeanBeforeProcessor processor : this.beanBeforeProcessors.values()) {
+            instance = processor.process(instance, binding);
+        }
+        return instance;
+    }
+
+    protected Object processBeanAfter(Binding binding, Object instance) {
+        for (BeanAfterProcessor processor : this.beanAfterProcessors.values()) {
+            instance = processor.process(binding.getInstance(), binding);
+        }
+        return instance;
+    }
+
     /* ===================== doBind ===================== */
 
     private synchronized Container doBind(
@@ -350,8 +384,6 @@ public class Container implements Context {
             );
         }
         binding = new Binding(instance, scopeType, instanceName);
-        instance =
-            this.methodInjector.inject(binding, instance, this.with.get());
         binding.setInstance(instance);
         this.doBind(instanceName, binding, alias);
         return this;
@@ -366,24 +398,13 @@ public class Container implements Context {
         if (constructors.length == 1) {
             Constructor<?> constructor = constructors[0];
             Object[] dependencies =
-                this.parameterInjector.inject(
-                        binding,
-                        constructor,
-                        this.with.get()
-                    );
+                this.processParameterInjector(binding, constructor);
             try {
                 instance = constructor.newInstance(dependencies);
             } catch (Exception e) {
                 throw new ContainerException("Instantiated object failed", e);
             }
-            instance =
-                this.propertyInjector.inject(
-                        binding,
-                        instance,
-                        this.with.get()
-                    );
-            instance =
-                this.methodInjector.inject(binding, instance, this.with.get());
+            instance = this.processInstanceInjector(binding, instance);
             if (
                 !Advice.class.isAssignableFrom(instanceType) &&
                 AspectManager.matches(instanceType)
@@ -397,9 +418,7 @@ public class Container implements Context {
                         dependencies
                     );
             }
-            for (BeanBeforeProcessor processor : this.beanBeforeProcessors) {
-                processor.process(instance, binding);
-            }
+            instance = this.processBeanBefore(binding, instance);
             return instance;
         }
         return ClassUtil.getDefaultValue(instanceType);
@@ -452,9 +471,7 @@ public class Container implements Context {
     protected synchronized Container doRemove(String name) {
         Binding binding = this.getBinding(name);
         if (binding.isCreated()) {
-            for (BeanAfterProcessor processor : beanAfterProcessors) {
-                processor.process(binding.getInstance(), binding);
-            }
+            this.processBeanAfter(binding, binding.getInstance());
             this.removeBinding(name);
         }
         return this;
@@ -467,8 +484,7 @@ public class Container implements Context {
         Method method,
         Class<T> returnType
     ) {
-        Object[] dependencies =
-            this.parameterInjector.inject(null, method, this.with.get());
+        Object[] dependencies = this.processParameterInjector(null, method);
         return Convert.convert(
             returnType,
             ReflectUtil.invoke(instance, method, dependencies)
@@ -1169,31 +1185,71 @@ public class Container implements Context {
         return result;
     }
 
-    public MethodInjector getMethodInjector() {
-        return methodInjector;
-    }
-
-    public void setMethodInjector(MethodInjector methodInjector) {
-        this.methodInjector = methodInjector;
-    }
-
-    public ParameterInjector getParameterInjector() {
-        return parameterInjector;
-    }
-
-    public void setParameterInjector(ParameterInjector parameterInjector) {
-        this.parameterInjector = parameterInjector;
-    }
-
-    public PropertyInjector getPropertyInjector() {
-        return propertyInjector;
-    }
-
-    public void setPropertyInjector(PropertyInjector propertyInjector) {
-        this.propertyInjector = propertyInjector;
-    }
-
     public Map<String, Context> getContexts() {
         return contexts;
+    }
+
+    public Container addInstanceInjector(InstanceInjector injector) {
+        this.instanceInjectors.put(injector.getClass(), injector);
+        return this;
+    }
+
+    public Container removeInstanceInjector(
+        Class<? extends InstanceInjector> injector
+    ) {
+        this.instanceInjectors.remove(injector);
+        return this;
+    }
+
+    public Map<Class<? extends InstanceInjector>, InstanceInjector> getInstanceInjectors() {
+        return instanceInjectors;
+    }
+
+    public Container addParameterInjector(ParameterInjector injector) {
+        this.parameterInjectors.put(injector.getClass(), injector);
+        return this;
+    }
+
+    public Container removeParameterInjector(
+        Class<? extends ParameterInjector> injector
+    ) {
+        this.parameterInjectors.remove(injector);
+        return this;
+    }
+
+    public Map<Class<? extends ParameterInjector>, ParameterInjector> getParameterInjectors() {
+        return parameterInjectors;
+    }
+
+    public Container addBeanBeforeProcessor(BeanBeforeProcessor processor) {
+        this.beanBeforeProcessors.put(processor.getClass(), processor);
+        return this;
+    }
+
+    public Container removeBeanBeforeProcessor(
+        Class<? extends BeanBeforeProcessor> processor
+    ) {
+        this.beanBeforeProcessors.remove(processor);
+        return this;
+    }
+
+    public Map<Class<? extends BeanBeforeProcessor>, BeanBeforeProcessor> getBeanBeforeProcessors() {
+        return beanBeforeProcessors;
+    }
+
+    public Container addBeanAfterProcessor(BeanAfterProcessor processor) {
+        this.beanAfterProcessors.put(processor.getClass(), processor);
+        return this;
+    }
+
+    public Container removeBeanAfterProcessor(
+        Class<? extends BeanAfterProcessor> processor
+    ) {
+        this.beanAfterProcessors.remove(processor);
+        return this;
+    }
+
+    public Map<Class<? extends BeanAfterProcessor>, BeanAfterProcessor> getBeanAfterProcessors() {
+        return beanAfterProcessors;
     }
 }

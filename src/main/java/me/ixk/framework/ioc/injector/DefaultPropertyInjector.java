@@ -13,14 +13,14 @@ import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.SkipPropertyAutowired;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
-import me.ixk.framework.ioc.PropertyInjector;
+import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.ioc.With;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.ClassUtils;
 
 public class DefaultPropertyInjector
     extends AbstractInjector
-    implements PropertyInjector {
+    implements InstanceInjector {
 
     public DefaultPropertyInjector(Container container) {
         super(container);
@@ -53,6 +53,9 @@ public class DefaultPropertyInjector
                     continue;
                 }
                 Method writeMethod = propertyDescriptor.getWriteMethod();
+                if (writeMethod == null) {
+                    continue;
+                }
                 ReflectUtil.invoke(
                     instance,
                     writeMethod,
@@ -81,7 +84,10 @@ public class DefaultPropertyInjector
                             with
                         );
                 }
+                boolean canAccess = field.canAccess(instance);
+                field.setAccessible(true);
                 ReflectUtil.setFieldValue(instance, field, dependency);
+                field.setAccessible(canAccess);
             }
         }
         return instance;

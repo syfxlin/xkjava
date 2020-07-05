@@ -8,12 +8,12 @@ import java.lang.reflect.Method;
 import java.util.List;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
-import me.ixk.framework.ioc.MethodInjector;
+import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.ioc.With;
 
 public class DefaultMethodInjector
     extends AbstractInjector
-    implements MethodInjector {
+    implements InstanceInjector {
 
     public DefaultMethodInjector(Container container) {
         super(container);
