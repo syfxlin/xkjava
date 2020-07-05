@@ -18,26 +18,38 @@ Context 中一般只存储 Binding 和 Alias，其中 Binding 中存储了有关
 
 IoC 容器可以自定义注入器，默认的注入器可以支持大部分场景，如果有无法实现的场景可以使用自定义注入器，不过需要注意线程安全。
 
-集成中间件处理器，可以很方便的对请求和响应进行拦截，预处理，后处理等，后续打算添加上 Servlet 的过滤器，作为上层中间件。
+注入的范围包括字段，方法，构造器。构造器注入无需使用 @Autowired 注解。字段注入如果有 WriteMethod 则无需使用 @Autowired 注解，否则你需要在字段上添加 @Autowired 注解。方法注入分为两种，一种是类似于 Spring 的 Aware 接口，用于对象实例化后立即注入，此情形下你需要添加 @Autowired 注解；还有一种是普通的方法，普通的方法如果使用 Application.call 的方法调用则会自动注入，无需使用 @Autowired 注解。
+
+注入的时候容器会自动进行类型转换，如果查找不到依赖则会注入该类型的默认值。
+
+集成中间件处理器，可以很方便的对请求和响应进行拦截，预处理，后处理等。过滤器和监听器直接使用 Jetty 的过滤器和监听器。
 
 请求和响应扩展自 Jetty 的 Request 和 Response，添加了一些类似 Laravel 的接口，并内置 RequestBody 到 JsonNode 的转换功能。
 
+在控制器中，请求中的参数会自动注入到方法中，无需使用注解标注，同时也支持自动封装成对象，同 Spring MVC 封装的对象也支持嵌套，你只需定义好参数的名称，并使用点分隔即可。
+
+最新的版本重构了 Response 的部分，添加了 HttpResult 一系列的响应对象，你可以直接返回这些对象，后续的中间件会把这些对象转换成对应的响应。使用的方式也很简单，你可以使用 Result 抽象类中的一系列静态方法，也可以 new 出来。
+
 添加了很多同 Spring 的注解，不过有一些小改动，注解大部分都支持通过 @Order 进行排序，同时注解也可以使用 @AliasFor 使用别名，同时提供一个通用的注解处理抽象类，如果需要处理自定义注解可以通过继承该类快速实现。
 
-ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf 渲染，路由是参考 FastRoute 制作的，HttpServer 采用 Jetty，参数验证使用的是 HibernateValidator（由于后续才引入的 HuTool，就懒得改了），类型转换器和一些其他工具使用的是 HuTool，数据源使用的是 HikariCP，JSON 库采用的是 Jackson，由于 Java 默认不会保留参数名称，加编译选项在我这出现时好时坏的情况，所以本项目直接采用了 ASM 来获取参数名称。
-
 支持 AspectJ 切面，需要经过 IoC 容器处理后才能生效，同时需要实现 Advice 接口，可以直接继承自 AbstractAdvice，从容器中 Make 或者 Call，以及绑定到容器的 Bean 都可以注入切面。切面实现使用的是 Cglib。
+
+路由是参考 PHP 的 FastRoute 制作而成的，RouteCollector 会将 Handler 封装成集成了中间件的 RouteHandler，然后依照静态路由或动态路由的方式存入到 staticRoutes 或 variableRoutes。路由匹配的方式采用的是和 FastRoute 一样的匹配方式，在路由调度器创建的时候，RouteGenerator 会将所有动态路由的表达式合成成一个路由表达式，在匹配的时候就只需要进行一次匹配，可以在一定程度上提高路由的匹配速度。
 
 支持使用注解开启事务，不过做的很简单，可能会有一些问题。
 
 替换了 Jetty 自带的 ErrorHandler，改用支持动态响应 HTML 和 JSON 数据内容的 ErrorHandler。
 
+最新版去掉了门面，改用 Helper 静态方法，你可以使用静态导入的方式使用这些 Helper 方法。
+
+ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf, FreeMarker 渲染，HttpServer 采用 Jetty，参数验证使用的是 HibernateValidator（由于后续才引入的 HuTool，就懒得改了），类型转换器和一些其他工具使用的是 HuTool，数据源使用的是 HikariCP，JSON 库采用的是 Jackson，由于 Java 默认不会保留参数名称，加编译选项在我这出现时好时坏的情况，所以本项目直接采用了 ASM 来获取参数名称。使用 QLExpress 来解析 @Value 的表达式。
+
+新版添加了 @PostConstruct 和 @PreDestroy 的支持
+
 ## TODO
 
 -   @ControllerAdvice（不完整）
 -   @PostConstruct 和 @PreDestroy（初步实现，待优化）
--   @ConfigurationProperties
--   @Value
 -   @ThreadSafe
 -   @RequestBody 和 @RequestParam（由于本框架直接使用）
 -   注解组合（不完善）
