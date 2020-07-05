@@ -21,6 +21,7 @@ import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.ProxyCreator;
 import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.ioc.context.ContextName;
+import me.ixk.framework.ioc.injector.ConfigurationPropertiesInjector;
 import me.ixk.framework.ioc.injector.DefaultMethodInjector;
 import me.ixk.framework.ioc.injector.DefaultParameterInjector;
 import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
@@ -49,12 +50,13 @@ public class Container implements Context {
     public Container() {
         this.with.set(new With(null, new ConcurrentHashMap<>()));
 
-        this.addParameterInjector(new DefaultParameterInjector(this));
-        this.addInstanceInjector(new DefaultPropertyInjector(this));
-        this.addInstanceInjector(new DefaultMethodInjector(this));
+        this.addParameterInjector(new DefaultParameterInjector());
+        this.addInstanceInjector(new DefaultPropertyInjector());
+        this.addInstanceInjector(new DefaultMethodInjector());
+        this.addInstanceInjector(new ConfigurationPropertiesInjector());
 
-        this.addBeanBeforeProcessor(new PostConstructProcessor(this));
-        this.addBeanAfterProcessor(new PreDestroyProcessor(this));
+        this.addBeanBeforeProcessor(new PostConstructProcessor());
+        this.addBeanAfterProcessor(new PreDestroyProcessor());
     }
 
     // 销毁方法
@@ -308,7 +310,8 @@ public class Container implements Context {
 
     protected Object processInstanceInjector(Binding binding, Object instance) {
         for (InstanceInjector injector : this.instanceInjectors.values()) {
-            instance = injector.inject(binding, instance, this.with.get());
+            instance =
+                injector.process(this, binding, instance, this.with.get());
         }
         return instance;
     }
@@ -320,21 +323,27 @@ public class Container implements Context {
         Object[] dependencies = new Object[method.getParameterCount()];
         for (ParameterInjector injector : this.parameterInjectors.values()) {
             dependencies =
-                injector.inject(binding, method, dependencies, this.with.get());
+                injector.process(
+                    this,
+                    binding,
+                    method,
+                    dependencies,
+                    this.with.get()
+                );
         }
         return dependencies;
     }
 
     protected Object processBeanBefore(Binding binding, Object instance) {
         for (BeanBeforeProcessor processor : this.beanBeforeProcessors.values()) {
-            instance = processor.process(instance, binding);
+            instance = processor.process(this, binding, instance);
         }
         return instance;
     }
 
     protected Object processBeanAfter(Binding binding, Object instance) {
         for (BeanAfterProcessor processor : this.beanAfterProcessors.values()) {
-            instance = processor.process(binding.getInstance(), binding);
+            instance = processor.process(this, binding, instance);
         }
         return instance;
     }

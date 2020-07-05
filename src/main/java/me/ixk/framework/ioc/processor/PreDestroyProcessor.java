@@ -9,16 +9,14 @@ import me.ixk.framework.ioc.BeanAfterProcessor;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
 
-public class PreDestroyProcessor
-    extends AbstractBeanProcessor
-    implements BeanAfterProcessor {
-
-    public PreDestroyProcessor(Container container) {
-        super(container);
-    }
+public class PreDestroyProcessor implements BeanAfterProcessor {
 
     @Override
-    public Object process(Object instance, Binding binding) {
+    public Object process(
+        Container container,
+        Binding binding,
+        Object instance
+    ) {
         Method method = binding.getDestroyMethod();
         if (method != null) {
             container.call(instance, method, Object.class);

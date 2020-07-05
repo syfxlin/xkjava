@@ -18,5 +18,11 @@ public @interface Bean {
     @AliasFor("value")
     String[] name() default {  };
 
-    boolean bindType() default false;
+    BindType bindType() default BindType.NO_SET;
+
+    public enum BindType {
+        NO_SET,
+        BIND,
+        NO_BIND,
+    }
 }

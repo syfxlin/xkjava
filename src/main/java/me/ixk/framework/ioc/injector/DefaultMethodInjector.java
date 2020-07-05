@@ -11,16 +11,15 @@ import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.ioc.With;
 
-public class DefaultMethodInjector
-    extends AbstractInjector
-    implements InstanceInjector {
-
-    public DefaultMethodInjector(Container container) {
-        super(container);
-    }
+public class DefaultMethodInjector implements InstanceInjector {
 
     @Override
-    public Object inject(Binding binding, Object instance, With with) {
+    public Object inject(
+        Container container,
+        Binding binding,
+        Object instance,
+        With with
+    ) {
         if (instance == null) {
             return null;
         }

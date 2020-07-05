@@ -6,9 +6,6 @@ package me.ixk.framework.ioc.injector;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ReflectUtil;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.SkipPropertyAutowired;
 import me.ixk.framework.ioc.Binding;
@@ -18,16 +15,19 @@ import me.ixk.framework.ioc.With;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.ClassUtils;
 
-public class DefaultPropertyInjector
-    extends AbstractInjector
-    implements InstanceInjector {
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
-    public DefaultPropertyInjector(Container container) {
-        super(container);
-    }
+public class DefaultPropertyInjector implements InstanceInjector {
 
     @Override
-    public Object inject(Binding binding, Object instance, With with) {
+    public Object inject(
+        Container container,
+        Binding binding,
+        Object instance,
+        With with
+    ) {
         if (instance == null) {
             return null;
         }
@@ -56,15 +56,15 @@ public class DefaultPropertyInjector
                 if (writeMethod == null) {
                     continue;
                 }
-                ReflectUtil.invoke(
-                    instance,
-                    writeMethod,
-                    container.getInjectValue(
-                        field.getType(),
-                        field.getName(),
-                        with
-                    )
+                Object dependency = container.getInjectValue(
+                    field.getType(),
+                    field.getName(),
+                    with
                 );
+                if (dependency == null) {
+                    dependency = ReflectUtil.getFieldValue(instance, field);
+                }
+                ReflectUtil.invoke(instance, writeMethod, dependency);
             } else {
                 Object dependency;
                 if (!autowired.name().equals("")) {
@@ -84,10 +84,10 @@ public class DefaultPropertyInjector
                             with
                         );
                 }
-                boolean canAccess = field.canAccess(instance);
-                field.setAccessible(true);
+                if (dependency == null) {
+                    dependency = ReflectUtil.getFieldValue(instance, field);
+                }
                 ReflectUtil.setFieldValue(instance, field, dependency);
-                field.setAccessible(canAccess);
             }
         }
         return instance;

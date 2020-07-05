@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import me.ixk.app.annotations.Log;
 import me.ixk.app.beans.User;
+import me.ixk.app.config.TestConfigurationProperties;
 import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.exceptions.HttpException;
@@ -22,6 +23,9 @@ public class IndexController {
 
     @Autowired("request")
     private HttpServletRequest httpServletRequest;
+
+    @Autowired
+    public TestConfigurationProperties properties;
 
     private final UsersServiceImpl usersService;
 

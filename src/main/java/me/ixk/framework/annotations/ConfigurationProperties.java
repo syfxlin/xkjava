@@ -11,11 +11,14 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Lazy
-public @interface Controller {
-    @AliasFor("name")
-    String[] value() default {  };
+public @interface ConfigurationProperties {
+    @AliasFor("prefix")
+    String value() default "";
 
     @AliasFor("value")
-    String[] name() default {  };
+    String prefix() default "";
+
+    boolean ignoreInvalidFields() default false;
+
+    boolean ignoreUnknownFields() default true;
 }

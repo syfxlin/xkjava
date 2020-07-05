@@ -12,16 +12,11 @@ import me.ixk.framework.ioc.ParameterInjector;
 import me.ixk.framework.ioc.With;
 import me.ixk.framework.utils.ParameterNameDiscoverer;
 
-public class DefaultParameterInjector
-    extends AbstractInjector
-    implements ParameterInjector {
-
-    public DefaultParameterInjector(Container container) {
-        super(container);
-    }
+public class DefaultParameterInjector implements ParameterInjector {
 
     @Override
     public Object[] inject(
+        Container container,
         Binding binding,
         Executable method,
         Object[] dependencies,

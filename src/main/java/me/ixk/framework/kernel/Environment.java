@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.ioc.Application;
 
 public class Environment {
@@ -140,5 +141,19 @@ public class Environment {
 
     public boolean isEmpty() {
         return this.properties.isEmpty();
+    }
+
+    public Map<String, Object> getPrefix(String prefix) {
+        if (!prefix.endsWith(".")) {
+            prefix += ".";
+        }
+        Map<String, Object> map = new ConcurrentHashMap<>();
+        for (Map.Entry<Object, Object> entry : this.properties.entrySet()) {
+            String key = entry.getKey().toString();
+            if (key.startsWith(prefix)) {
+                map.put(key.substring(prefix.length()), entry.getValue());
+            }
+        }
+        return map;
     }
 }

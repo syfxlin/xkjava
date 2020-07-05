@@ -45,11 +45,14 @@ public class AppConfig extends AbstractConfig {
             Bean.class,
             Component.class,
             Configuration.class,
-            Controller.class,
+            ConfigurationProperties.class,
+            Aspect.class,
+            // prototype lazy
             Repository.class,
             Service.class,
             Mapper.class,
-            Aspect.class,
+            // lazy
+            Controller.class,
             ControllerAdvice.class
         );
     }
