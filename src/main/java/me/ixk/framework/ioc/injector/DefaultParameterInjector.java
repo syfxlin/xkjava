@@ -8,8 +8,8 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
+import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.ParameterInjector;
-import me.ixk.framework.ioc.With;
 import me.ixk.framework.utils.ParameterNameDiscoverer;
 
 public class DefaultParameterInjector implements ParameterInjector {
@@ -20,7 +20,7 @@ public class DefaultParameterInjector implements ParameterInjector {
         Binding binding,
         Executable method,
         Object[] dependencies,
-        With with
+        DataBinder dataBinder
     ) {
         Parameter[] parameters = method.getParameters();
         String[] parameterNames = ParameterNameDiscoverer.getParameterNames(
@@ -32,11 +32,7 @@ public class DefaultParameterInjector implements ParameterInjector {
                 ? parameterNames[i]
                 : parameter.getName();
             dependencies[i] =
-                container.getInjectValue(
-                    parameter.getType(),
-                    parameterName,
-                    with
-                );
+                dataBinder.getObject(parameterName, parameter.getType());
         }
         return dependencies;
     }

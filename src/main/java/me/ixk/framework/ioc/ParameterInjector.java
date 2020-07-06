@@ -21,10 +21,10 @@ public interface ParameterInjector {
         Binding binding,
         Executable method,
         Object[] dependencies,
-        With with
+        DataBinder dataBinder
     ) {
         if (this.matches(binding, method, dependencies)) {
-            return this.inject(container, binding, method, dependencies, with);
+            return this.inject(container, binding, method, dependencies, dataBinder);
         }
         return dependencies;
     }
@@ -34,6 +34,6 @@ public interface ParameterInjector {
         Binding binding,
         Executable method,
         Object[] dependencies,
-        With with
+        DataBinder dataBinder
     );
 }

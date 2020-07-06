@@ -4,20 +4,18 @@
 
 package me.ixk.framework.middleware;
 
-import static me.ixk.framework.helpers.FacadeHelper.crypt;
-import static me.ixk.framework.helpers.FacadeHelper.session;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import me.ixk.framework.annotations.GlobalMiddleware;
-import me.ixk.framework.annotations.Order;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
 
-@GlobalMiddleware
-@Order(Order.HIGHEST_PRECEDENCE + 3)
+import static me.ixk.framework.helpers.FacadeHelper.crypt;
+import static me.ixk.framework.helpers.FacadeHelper.session;
+
+// @GlobalMiddleware
+// @Order(Order.HIGHEST_PRECEDENCE + 3)
 public class VerifyCsrfToken implements Middleware {
     /**
      * 排除使用 CSRF 的 URL（正则）

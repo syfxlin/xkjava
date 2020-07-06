@@ -14,10 +14,10 @@ public interface InstanceInjector {
         Container container,
         Binding binding,
         Object instance,
-        With with
+        DataBinder dataBinder
     ) {
         if (this.matches(binding, instance)) {
-            return this.inject(container, binding, instance, with);
+            return this.inject(container, binding, instance, dataBinder);
         }
         return instance;
     }
@@ -26,6 +26,6 @@ public interface InstanceInjector {
         Container container,
         Binding binding,
         Object instance,
-        With with
+        DataBinder dataBinder
     );
 }

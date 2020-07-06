@@ -6,18 +6,17 @@ package me.ixk.framework.ioc.injector;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ReflectUtil;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.SkipPropertyAutowired;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
+import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.InstanceInjector;
-import me.ixk.framework.ioc.With;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.ClassUtils;
-
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 public class DefaultPropertyInjector implements InstanceInjector {
 
@@ -26,7 +25,7 @@ public class DefaultPropertyInjector implements InstanceInjector {
         Container container,
         Binding binding,
         Object instance,
-        With with
+        DataBinder dataBinder
     ) {
         if (instance == null) {
             return null;
@@ -56,10 +55,9 @@ public class DefaultPropertyInjector implements InstanceInjector {
                 if (writeMethod == null) {
                     continue;
                 }
-                Object dependency = container.getInjectValue(
-                    field.getType(),
+                Object dependency = dataBinder.getObject(
                     field.getName(),
-                    with
+                    field.getType()
                 );
                 if (dependency == null) {
                     dependency = ReflectUtil.getFieldValue(instance, field);
@@ -78,11 +76,7 @@ public class DefaultPropertyInjector implements InstanceInjector {
                         autowiredClass = autowired.type();
                     }
                     dependency =
-                        container.getInjectValue(
-                            autowiredClass,
-                            field.getName(),
-                            with
-                        );
+                        dataBinder.getObject(field.getName(), autowiredClass);
                 }
                 if (dependency == null) {
                     dependency = ReflectUtil.getFieldValue(instance, field);

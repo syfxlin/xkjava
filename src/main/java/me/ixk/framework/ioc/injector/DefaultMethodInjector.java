@@ -8,8 +8,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
+import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.InstanceInjector;
-import me.ixk.framework.ioc.With;
 
 public class DefaultMethodInjector implements InstanceInjector {
 
@@ -18,7 +18,7 @@ public class DefaultMethodInjector implements InstanceInjector {
         Container container,
         Binding binding,
         Object instance,
-        With with
+        DataBinder dataBinder
     ) {
         if (instance == null) {
             return null;
@@ -26,13 +26,7 @@ public class DefaultMethodInjector implements InstanceInjector {
         List<Method> methods = binding.getAutowiredMethods();
         for (Method method : methods) {
             // Set 注入
-            container.call(
-                instance,
-                method,
-                Object.class,
-                with.getPrefix(),
-                with.getMap()
-            );
+            container.call(instance, method, Object.class, dataBinder);
         }
         return instance;
     }
