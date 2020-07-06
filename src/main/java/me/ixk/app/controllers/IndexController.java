@@ -4,8 +4,10 @@
 
 package me.ixk.app.controllers;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import me.ixk.app.annotations.Log;
 import me.ixk.app.beans.User;
@@ -16,6 +18,7 @@ import me.ixk.framework.annotations.*;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.result.Result;
+import me.ixk.framework.http.result.TextResult;
 import me.ixk.framework.http.result.ViewResult;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.view.FreeMarker;
@@ -87,8 +90,9 @@ public class IndexController {
     }
 
     @PostMapping("/upload")
-    public void uploadPost(Request request) {
-        System.out.println();
+    public TextResult uploadPost(Request request)
+        throws IOException, ServletException {
+        return Result.text(request.fileToString("file"));
     }
 
     @Autowired

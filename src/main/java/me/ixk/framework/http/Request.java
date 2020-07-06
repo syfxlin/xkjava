@@ -4,26 +4,16 @@
 
 package me.ixk.framework.http;
 
+import cn.hutool.core.io.IoUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import me.ixk.framework.helpers.UtilHelper;
-import me.ixk.framework.route.RouteResult;
-import me.ixk.framework.utils.JSON;
-import org.eclipse.jetty.http.*;
-import org.eclipse.jetty.server.Response;
-import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.session.SessionHandler;
-import org.eclipse.jetty.util.Attributes;
-import org.eclipse.jetty.util.MultiMap;
-
-import javax.servlet.*;
-import javax.servlet.http.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.security.Principal;
@@ -31,6 +21,18 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import me.ixk.framework.helpers.UtilHelper;
+import me.ixk.framework.route.RouteResult;
+import me.ixk.framework.utils.JSON;
+import org.eclipse.jetty.http.*;
+import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.session.SessionHandler;
+import org.eclipse.jetty.util.Attributes;
+import org.eclipse.jetty.util.MultiMap;
 
 public class Request implements HttpServletRequest {
     protected org.eclipse.jetty.server.Request _base;
@@ -325,34 +327,63 @@ public class Request implements HttpServletRequest {
         );
     }
 
-    public Part file(String name) throws IOException, ServletException {
-        return _base.getPart(name);
+    public Part file(String name) {
+        try {
+            return _base.getPart(name);
+        } catch (IOException | ServletException e) {
+            return null;
+        }
     }
 
-    public boolean hasFile(String name) throws IOException, ServletException {
-        return _base.getPart(name) != null;
+    public String fileToString(String name) {
+        return this.fileToString(name, StandardCharsets.UTF_8);
     }
 
-    public boolean moveFileTo(String name, String path)
-        throws IOException, ServletException {
-        Part part = _base.getPart(name);
-        if (part == null) {
+    public String fileToString(String name, Charset charset) {
+        try {
+            return IoUtil
+                .getReader(this.file(name).getInputStream(), charset)
+                .lines()
+                .collect(Collectors.joining("\n"));
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public boolean hasFile(String name) {
+        try {
+            return (
+                _base.getPart(name) != null ||
+                _base.getPart(name).getSubmittedFileName() != null
+            );
+        } catch (IOException | ServletException e) {
             return false;
         }
-        File file = new File(path);
-        if (!file.exists()) {
-            if (!file.createNewFile()) {
+    }
+
+    public boolean moveFileTo(String name, String path) {
+        try {
+            Part part = _base.getPart(name);
+            if (part == null) {
                 return false;
             }
+            File file = new File(path);
+            if (!file.exists()) {
+                if (!file.createNewFile()) {
+                    return false;
+                }
+            }
+            return (
+                Files.copy(
+                    part.getInputStream(),
+                    file.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING
+                ) !=
+                0
+            );
+        } catch (IOException | ServletException e) {
+            return false;
         }
-        return (
-            Files.copy(
-                part.getInputStream(),
-                file.toPath(),
-                StandardCopyOption.REPLACE_EXISTING
-            ) !=
-            0
-        );
     }
 
     /* ================== */
