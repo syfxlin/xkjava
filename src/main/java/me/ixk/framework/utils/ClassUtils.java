@@ -6,9 +6,7 @@ package me.ixk.framework.utils;
 
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ClassUtil;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.*;
 import java.util.*;
 
 public abstract class ClassUtils extends ClassUtil {
@@ -79,6 +77,22 @@ public abstract class ClassUtils extends ClassUtil {
             }
         }
         return _class;
+    }
+
+    public static Executable getUserMethod(Executable method) {
+        Class<?> userClass = getUserClass(method.getDeclaringClass());
+        try {
+            if (method instanceof Constructor) {
+                return userClass.getConstructor(method.getParameterTypes());
+            } else {
+                return userClass.getMethod(
+                    method.getName(),
+                    method.getParameterTypes()
+                );
+            }
+        } catch (NoSuchMethodException e) {
+            return method;
+        }
     }
 
     public static boolean isAssignable(Class<?> lhsType, Class<?> rhsType) {

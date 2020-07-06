@@ -28,6 +28,13 @@ public abstract class AnnotationUtils extends AnnotationUtil {
     };
 
     public static <T extends Annotation> T getAnnotation(
+        Parameter parameter,
+        Class<T> annotationType
+    ) {
+        return parseAnnotation(parameter.getAnnotation(annotationType));
+    }
+
+    public static <T extends Annotation> T getAnnotation(
         Field field,
         Class<T> annotationType
     ) {

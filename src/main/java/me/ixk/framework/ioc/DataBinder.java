@@ -8,12 +8,13 @@ import cn.hutool.core.convert.Convert;
 import java.util.Map;
 
 public class DataBinder {
-    public static final String NO_SET = "NO_SET";
     public static final String DEFAULT_VALUE_PREFIX = "_";
 
     private final Container container;
 
-    private String prefix = NO_SET;
+    private boolean isFirst = true;
+
+    private String prefix = "";
 
     private Map<String, Object> bind;
 
@@ -27,8 +28,11 @@ public class DataBinder {
     }
 
     public <T> T getObject(String name, Class<T> type, String prefix) {
+        if (prefix != null) {
+            this.prefix = prefix;
+        }
         Object object;
-        String concatName = this.concat(prefix, name);
+        String concatName = this.concat(name);
         String typeName = type.getName();
         object = this.bind.get(concatName);
         if (object == null) {
@@ -42,31 +46,28 @@ public class DataBinder {
         }
         if (object == null) {
             String oldPrefix = this.prefix;
+            boolean oldIsFirst = this.isFirst;
             this.prefix = this.concatPrefix(name);
+            this.isFirst = false;
             object = container.make(type.getName(), (Class<?>) type, this);
             this.prefix = oldPrefix;
+            this.isFirst = oldIsFirst;
         }
         return Convert.convert(type, object);
     }
 
     protected String concatPrefix(String name) {
-        if (this.prefix.equals(NO_SET)) {
-            return "";
+        if (isFirst) {
+            return this.prefix;
         }
         return (this.prefix.length() == 0 ? "" : this.prefix + ".") + name;
     }
 
-    protected String concat(String prefix, String name) {
-        StringBuilder builder = new StringBuilder(
-            this.prefix.length() == 0 || this.prefix.equals(NO_SET)
-                ? ""
-                : this.prefix + "."
+    protected String concat(String name) {
+        return (
+            (isFirst || this.prefix.length() == 0 ? "" : this.prefix + ".") +
+            name
         );
-        if (prefix.length() != 0) {
-            builder.append(prefix).append(".");
-        }
-        builder.append(name);
-        return builder.toString();
     }
 
     public Map<String, Object> getBind() {

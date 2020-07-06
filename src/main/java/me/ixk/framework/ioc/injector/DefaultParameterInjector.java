@@ -6,10 +6,13 @@ package me.ixk.framework.ioc.injector;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
+import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.ParameterInjector;
+import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.ClassUtils;
 import me.ixk.framework.utils.ParameterNameDiscoverer;
 
 public class DefaultParameterInjector implements ParameterInjector {
@@ -22,6 +25,7 @@ public class DefaultParameterInjector implements ParameterInjector {
         Object[] dependencies,
         DataBinder dataBinder
     ) {
+        method = ClassUtils.getUserMethod(method);
         Parameter[] parameters = method.getParameters();
         String[] parameterNames = ParameterNameDiscoverer.getParameterNames(
             method
@@ -31,8 +35,16 @@ public class DefaultParameterInjector implements ParameterInjector {
             String parameterName = parameterNames[i] != null
                 ? parameterNames[i]
                 : parameter.getName();
+            DataBind dataBind = AnnotationUtils.getAnnotation(
+                parameter,
+                DataBind.class
+            );
             dependencies[i] =
-                dataBinder.getObject(parameterName, parameter.getType());
+                dataBinder.getObject(
+                    parameterName,
+                    parameter.getType(),
+                    dataBind == null ? null : dataBind.prefix()
+                );
         }
         return dependencies;
     }
