@@ -15,6 +15,8 @@ import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.Request;
+import me.ixk.framework.http.result.Result;
+import me.ixk.framework.http.result.ViewResult;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.view.FreeMarker;
 
@@ -77,6 +79,16 @@ public class IndexController {
         Map<String, Object> map = new ConcurrentHashMap<>();
         map.put("name", "FreeMarker");
         return freeMarker.process("index.ftl", map);
+    }
+
+    @GetMapping("/upload")
+    public ViewResult upload() {
+        return Result.view("upload");
+    }
+
+    @PostMapping("/upload")
+    public void uploadPost(Request request) {
+        System.out.println();
     }
 
     @Autowired

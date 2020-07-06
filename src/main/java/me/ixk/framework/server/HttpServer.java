@@ -8,7 +8,6 @@ import static me.ixk.framework.helpers.FacadeHelper.config;
 
 import java.io.File;
 import me.ixk.framework.kernel.ErrorHandler;
-import me.ixk.framework.servlet.DispatcherServlet;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
@@ -75,7 +74,6 @@ public class HttpServer {
             "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
             ".*/classes/.*"
         );
-        context.addServlet(DispatcherServlet.class, "/*");
 
         ErrorHandler errorHandler = new ErrorHandler();
         context.setErrorHandler(errorHandler);

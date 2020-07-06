@@ -5,6 +5,8 @@
 package me.ixk.framework.servlet;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +19,8 @@ import me.ixk.framework.ioc.context.RequestContext;
 import me.ixk.framework.kernel.Auth;
 import me.ixk.framework.route.RouteManager;
 
+@WebServlet(urlPatterns = "/*")
+@MultipartConfig
 public class DispatcherServlet extends FrameworkServlet {
     protected final Application app;
     protected final RequestContext requestContext;
