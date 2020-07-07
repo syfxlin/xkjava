@@ -6,6 +6,7 @@ package me.ixk.framework.http;
 
 import cn.hutool.core.io.IoUtil;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,6 +36,8 @@ import org.eclipse.jetty.util.Attributes;
 import org.eclipse.jetty.util.MultiMap;
 
 public class Request implements HttpServletRequest {
+    public static final String REQUEST_BODY = "&body";
+
     protected org.eclipse.jetty.server.Request _base;
     protected String _body;
     protected JsonNode _parseBody = null;
@@ -170,7 +173,7 @@ public class Request implements HttpServletRequest {
                     map.put(entry.getKey(), entry.getValue());
                 }
             } else {
-                map.put("&body", this._parseBody);
+                map.put(REQUEST_BODY, this._parseBody);
             }
         }
         return map;
@@ -200,11 +203,7 @@ public class Request implements HttpServletRequest {
         if (object == null) {
             object = this.file(name);
         }
-        if (
-            object == null &&
-            "&body".equals(name) &&
-            this.getParseBody() != null
-        ) {
+        if (object == null && REQUEST_BODY.equals(name)) {
             object = this.getParseBody();
         }
         if (object == null) {
@@ -235,25 +234,42 @@ public class Request implements HttpServletRequest {
                 ObjectNode object = (ObjectNode) this._parseBody;
                 return object.has(name);
             } else {
-                return name.equals("&body");
+                return name.equals(REQUEST_BODY);
             }
         }
         return false;
     }
 
     public JsonNode input() {
+        JsonNode node;
         if (this._parseBody != null) {
-            return this._parseBody;
+            node = this._parseBody;
         } else {
-            return JSON.convertToNode(this.getParameterMap());
+            node = JSON.convertToNode(this.getParameterMap());
         }
+        if (node.isNull()) {
+            node = null;
+        }
+        return node;
     }
 
     public JsonNode input(String name) {
+        JsonNode node;
         if (this._parseBody == null) {
-            return JSON.convertToNode(_base.getParameter(name));
+            node = JSON.convertToNode(_base.getParameter(name));
+        } else {
+            node =
+                Util.dataGet(
+                    this._parseBody,
+                    name,
+                    NullNode.getInstance(),
+                    JsonNode.class
+                );
         }
-        return Util.dataGet(this._parseBody, name, null, JsonNode.class);
+        if (node.isNull()) {
+            node = null;
+        }
+        return node;
     }
 
     public JsonNode input(String name, JsonNode _default) {

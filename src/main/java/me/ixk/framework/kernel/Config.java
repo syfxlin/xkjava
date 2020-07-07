@@ -4,11 +4,10 @@
 
 package me.ixk.framework.kernel;
 
-import cn.hutool.core.convert.Convert;
+import java.util.Map;
 import me.ixk.framework.helpers.Util;
 import me.ixk.framework.ioc.Application;
-
-import java.util.Map;
+import me.ixk.framework.utils.Convert;
 
 public class Config {
     protected final Application app;

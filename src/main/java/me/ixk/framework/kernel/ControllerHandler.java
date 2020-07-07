@@ -16,8 +16,14 @@ import me.ixk.framework.http.WebDataBinder;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.middleware.Handler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ControllerHandler implements Handler {
+    private static final Logger logger = LoggerFactory.getLogger(
+        ControllerHandler.class
+    );
+
     private Class<?> controllerClass;
     private final String methodName;
 
@@ -61,6 +67,7 @@ public class ControllerHandler implements Handler {
                     webDataBinder
                 );
         } catch (Throwable e) {
+            logger.error("ControllerHandler Exception", e);
             // 处理 ExceptionHandler 注解定义的错误处理器
             Object result = this.processException(e);
             if (NO_RESOLVER.equals(result)) {

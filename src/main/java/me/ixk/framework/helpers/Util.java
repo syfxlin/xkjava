@@ -4,7 +4,6 @@
 
 package me.ixk.framework.helpers;
 
-import cn.hutool.core.convert.Convert;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -13,6 +12,7 @@ import java.lang.reflect.Method;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.JSON;
 
 public abstract class Util {

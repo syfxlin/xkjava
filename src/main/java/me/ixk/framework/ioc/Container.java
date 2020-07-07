@@ -4,7 +4,6 @@
 
 package me.ixk.framework.ioc;
 
-import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
 import java.lang.reflect.Constructor;
@@ -27,6 +26,8 @@ import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
 import me.ixk.framework.ioc.injector.PropertiesValueInjector;
 import me.ixk.framework.ioc.processor.PostConstructProcessor;
 import me.ixk.framework.ioc.processor.PreDestroyProcessor;
+import me.ixk.framework.utils.ClassUtils;
+import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.ReflectUtils;
 
 public class Container implements Context {
@@ -388,34 +389,72 @@ public class Container implements Context {
 
     protected synchronized Object doBuild(Binding binding) {
         Class<?> instanceType = binding.getInstanceType();
-        Constructor<?>[] constructors = instanceType.getDeclaredConstructors();
-        Object instance;
-        if (constructors.length == 1) {
-            Constructor<?> constructor = constructors[0];
-            Object[] dependencies =
-                this.processParameterInjector(binding, constructor);
-            try {
-                instance = constructor.newInstance(dependencies);
-            } catch (Exception e) {
-                throw new ContainerException("Instantiated object failed", e);
-            }
-            instance = this.processInstanceInjector(binding, instance);
-            if (
-                !Advice.class.isAssignableFrom(instanceType) &&
-                AspectManager.matches(instanceType)
-            ) {
-                instance =
-                    ProxyCreator.createProxy(
-                        instance,
-                        instanceType,
-                        instanceType.getInterfaces(),
-                        constructor.getParameterTypes(),
-                        dependencies
-                    );
-            }
-            instance = this.processBeanBefore(binding, instance);
-            return instance;
+        // 排除 JDK 自带类的 doBuild
+        if (ClassUtils.isSkipBuildType(instanceType)) {
+            return ClassUtil.getDefaultValue(instanceType);
         }
+        Constructor<?>[] constructors = ReflectUtils.sortConstructors(
+            instanceType.getDeclaredConstructors()
+        );
+        Object instance;
+        for (Constructor<?> constructor : constructors) {
+            constructor.setAccessible(true);
+            try {
+                Object[] dependencies =
+                    this.processParameterInjector(binding, constructor);
+                instance = constructor.newInstance(dependencies);
+                instance = this.processInstanceInjector(binding, instance);
+                if (
+                    !Advice.class.isAssignableFrom(instanceType) &&
+                    AspectManager.matches(instanceType)
+                ) {
+                    instance =
+                        ProxyCreator.createProxy(
+                            instance,
+                            instanceType,
+                            instanceType.getInterfaces(),
+                            constructor.getParameterTypes(),
+                            dependencies
+                        );
+                }
+                instance = this.processBeanBefore(binding, instance);
+                if (instance != null) {
+                    return instance;
+                }
+            } catch (Exception e) {
+                // no code
+            }
+        }
+        // TODO: 重构，使用最优匹配尝试构造
+        // if (constructors.length == 1) {
+        //     Constructor<?> constructor = constructors[0];
+        //     if (!Modifier.isPublic(constructor.getModifiers())) {
+        //         return ClassUtil.getDefaultValue(instanceType);
+        //     }
+        //     Object[] dependencies =
+        //         this.processParameterInjector(binding, constructor);
+        //     try {
+        //         instance = constructor.newInstance(dependencies);
+        //     } catch (Exception e) {
+        //         throw new ContainerException("Instantiated object failed", e);
+        //     }
+        //     instance = this.processInstanceInjector(binding, instance);
+        //     if (
+        //         !Advice.class.isAssignableFrom(instanceType) &&
+        //         AspectManager.matches(instanceType)
+        //     ) {
+        //         instance =
+        //             ProxyCreator.createProxy(
+        //                 instance,
+        //                 instanceType,
+        //                 instanceType.getInterfaces(),
+        //                 constructor.getParameterTypes(),
+        //                 dependencies
+        //             );
+        //     }
+        //     instance = this.processBeanBefore(binding, instance);
+        //     return instance;
+        // }
         return ClassUtil.getDefaultValue(instanceType);
     }
 

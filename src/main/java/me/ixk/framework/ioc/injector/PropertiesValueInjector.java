@@ -5,7 +5,6 @@
 package me.ixk.framework.ioc.injector;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
 import me.ixk.framework.annotations.ConfigurationProperties;
@@ -18,6 +17,7 @@ import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.ClassUtils;
+import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.Express;
 
 import java.beans.PropertyDescriptor;

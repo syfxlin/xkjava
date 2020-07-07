@@ -4,14 +4,18 @@
 
 package me.ixk.app.beans;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import me.ixk.framework.annotations.SkipPropertyAutowired;
 
 @Data
-@AllArgsConstructor
-@SkipPropertyAutowired
 public class User2 {
     private String name;
     private int age;
+
+    // @Autowired // 加上该注解后容器会优先选用该构造器实例化
+    public User2() {}
+
+    public User2(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
 }

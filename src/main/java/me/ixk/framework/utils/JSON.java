@@ -83,4 +83,12 @@ public class JSON extends ObjectMapper {
     public static JsonNode convertToNode(Object object) {
         return make().valueToTree(object);
     }
+
+    public static <T> T convertToObject(JsonNode node, Class<T> type) {
+        try {
+            return make().treeToValue(node, type);
+        } catch (JsonProcessingException e) {
+            return null;
+        }
+    }
 }

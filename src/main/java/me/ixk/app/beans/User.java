@@ -4,13 +4,11 @@
 
 package me.ixk.app.beans;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import me.ixk.framework.annotations.SkipPropertyAutowired;
+import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@SkipPropertyAutowired
+@NoArgsConstructor
 public class User {
     protected String name;
     protected int age;

@@ -8,6 +8,7 @@ import cn.hutool.core.util.ReflectUtil;
 import java.io.Serializable;
 import java.lang.reflect.*;
 import java.util.Arrays;
+import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.aop.CanGetTarget;
 import me.ixk.framework.factory.ObjectFactory;
 import net.sf.cglib.proxy.Callback;
@@ -17,18 +18,30 @@ import net.sf.cglib.proxy.MethodProxy;
 
 public abstract class ReflectUtils {
 
-    public static void sortConstructors(Constructor<?>[] constructors) {
-        sortMethods(constructors);
+    public static Constructor<?>[] sortConstructors(
+        Constructor<?>[] constructors
+    ) {
+        sortExecutables(constructors);
+        return constructors;
     }
 
-    public static void sortFactoryMethods(Method[] factoryMethods) {
-        sortMethods(factoryMethods);
+    public static Method[] sortMethods(Method[] methods) {
+        sortExecutables(methods);
+        return methods;
     }
 
-    private static void sortMethods(Executable[] executable) {
+    private static void sortExecutables(Executable[] executable) {
         Arrays.sort(
             executable,
             (fm1, fm2) -> {
+                Autowired a1 = fm1.getAnnotation(Autowired.class);
+                Autowired a2 = fm2.getAnnotation(Autowired.class);
+                if (a1 != null && a2 == null) {
+                    return -1;
+                }
+                if (a1 == null && a2 != null) {
+                    return 1;
+                }
                 boolean p1 = Modifier.isPublic(fm1.getModifiers());
                 boolean p2 = Modifier.isPublic(fm2.getModifiers());
                 if (p1 != p2) {

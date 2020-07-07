@@ -224,4 +224,20 @@ public abstract class ClassUtils extends ClassUtil {
                 }
         }
     }
+
+    public static boolean isSkipBuildType(Class<?> _class) {
+        if (
+            _class == long.class ||
+            _class == int.class ||
+            _class == short.class ||
+            _class == char.class ||
+            _class == byte.class ||
+            _class == double.class ||
+            _class == float.class ||
+            _class == boolean.class
+        ) {
+            return true;
+        }
+        return _class.getPackageName().startsWith("java.lang");
+    }
 }

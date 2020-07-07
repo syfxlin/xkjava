@@ -4,6 +4,7 @@
 
 package me.ixk.app.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import me.ixk.app.beans.User;
 import me.ixk.app.beans.User2;
 import me.ixk.framework.annotations.*;
@@ -27,9 +28,20 @@ public class TestController {
         return "post";
     }
 
+    @PostMapping("/body")
+    public String body(
+        @DataBind(name = "&body") JsonNode body,
+        @DataBind User2 user2
+    ) {
+        return "body";
+    }
+
     @InitBinder
     public void binder(WebDataBinder binder) {
-        binder.addDefault("user3", new User2("user3", 17));
+        User2 user2 = new User2();
+        user2.setName("user3");
+        user2.setAge(17);
+        binder.addDefault("user3", user2);
         binder.addDefault("user4.name", "user4");
     }
 }
