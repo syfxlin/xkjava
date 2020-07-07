@@ -4,10 +4,8 @@
 
 package me.ixk.app.controllers;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import me.ixk.app.annotations.Log;
 import me.ixk.app.beans.User;
@@ -16,6 +14,7 @@ import me.ixk.app.config.TestConfigurationProperties;
 import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.exceptions.HttpException;
+import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.TextResult;
@@ -90,9 +89,13 @@ public class IndexController {
     }
 
     @PostMapping("/upload")
-    public TextResult uploadPost(Request request)
-        throws IOException, ServletException {
+    public TextResult uploadPost(Request request) {
         return Result.text(request.fileToString("file"));
+    }
+
+    @GetMapping("/exce")
+    public TextResult exce() {
+        throw new HttpException(HttpStatus.BAD_REQUEST);
     }
 
     @Autowired

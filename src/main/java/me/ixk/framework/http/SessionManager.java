@@ -5,7 +5,7 @@
 package me.ixk.framework.http;
 
 import cn.hutool.core.convert.Convert;
-import me.ixk.framework.helpers.UtilHelper;
+import me.ixk.framework.helpers.Util;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
@@ -90,7 +90,7 @@ public class SessionManager {
     }
 
     public String regenerateToken() {
-        String token = UtilHelper.strRandom(40);
+        String token = Util.strRandom(40);
         this.put("_token", token);
         return token;
     }

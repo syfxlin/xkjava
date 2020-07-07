@@ -4,7 +4,7 @@
 
 package me.ixk.framework.route;
 
-import static me.ixk.framework.helpers.FacadeHelper.response;
+import static me.ixk.framework.helpers.Facade.response;
 
 import cn.hutool.core.util.ReflectUtil;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import me.ixk.framework.exceptions.RouteCollectorException;
-import me.ixk.framework.helpers.UtilHelper;
+import me.ixk.framework.helpers.Util;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.kernel.ControllerHandler;
 import me.ixk.framework.middleware.Handler;
@@ -145,7 +145,7 @@ public class RouteCollector {
         this.addRoute(
                 httpMethod,
                 route,
-                new ControllerHandler(UtilHelper.routeHandler(handler))
+                new ControllerHandler(Util.routeHandler(handler))
             );
     }
 

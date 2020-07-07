@@ -4,15 +4,16 @@
 
 package me.ixk.framework.providers;
 
-import static me.ixk.framework.helpers.FacadeHelper.config;
-
-import java.util.List;
-import javax.sql.DataSource;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.database.MybatisPlus;
 import me.ixk.framework.database.SqlSessionManager;
 import me.ixk.framework.ioc.Application;
+
+import javax.sql.DataSource;
+import java.util.List;
+
+import static me.ixk.framework.helpers.Facade.config;
 
 @Provider
 @Order(Order.HIGHEST_PRECEDENCE + 3)

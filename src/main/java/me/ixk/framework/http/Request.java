@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.servlet.*;
 import javax.servlet.http.*;
-import me.ixk.framework.helpers.UtilHelper;
+import me.ixk.framework.helpers.Util;
 import me.ixk.framework.route.RouteResult;
 import me.ixk.framework.utils.JSON;
 import org.eclipse.jetty.http.*;
@@ -176,6 +176,43 @@ public class Request implements HttpServletRequest {
         return map;
     }
 
+    public Object all(String name) {
+        return this.all(name, null);
+    }
+
+    public Object all(String name, Object _default) {
+        Object object = this.getParameterValues(name);
+        if (object != null) {
+            String[] arr = (String[]) object;
+            if (arr.length == 1) {
+                object = arr[0];
+            }
+        }
+        if (object == null) {
+            object = this.input(name);
+        }
+        if (object == null) {
+            object = this.route(name);
+        }
+        if (object == null) {
+            object = this.cookie(name);
+        }
+        if (object == null) {
+            object = this.file(name);
+        }
+        if (
+            object == null &&
+            "&body".equals(name) &&
+            this.getParseBody() != null
+        ) {
+            object = this.getParseBody();
+        }
+        if (object == null) {
+            object = _default;
+        }
+        return object;
+    }
+
     public boolean has(String name) {
         if (_base.getParameterMap().containsKey(name)) {
             return true;
@@ -216,7 +253,7 @@ public class Request implements HttpServletRequest {
         if (this._parseBody == null) {
             return JSON.convertToNode(_base.getParameter(name));
         }
-        return UtilHelper.dataGet(this._parseBody, name, null, JsonNode.class);
+        return Util.dataGet(this._parseBody, name, null, JsonNode.class);
     }
 
     public JsonNode input(String name, JsonNode _default) {

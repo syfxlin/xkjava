@@ -11,8 +11,8 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
 
-import static me.ixk.framework.helpers.FacadeHelper.crypt;
-import static me.ixk.framework.helpers.FacadeHelper.session;
+import static me.ixk.framework.helpers.Facade.crypt;
+import static me.ixk.framework.helpers.Facade.session;
 
 // @GlobalMiddleware
 // @Order(Order.HIGHEST_PRECEDENCE + 3)

@@ -90,13 +90,11 @@ public class ExceptionHandlerResolver {
     }
 
     public Method resolveMethod(Throwable e) {
-        Method method = this.getResolverMethod(e.getClass());
-        if (method == null) {
-            Throwable cause = e.getCause();
-            if (cause != null) {
-                method = this.getResolverMethod(e.getClass());
-            }
-        }
+        Method method;
+        do {
+            method = this.getResolverMethod(e.getClass());
+            e = e.getCause();
+        } while (method == null && e != null);
         return method;
     }
 }

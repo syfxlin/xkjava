@@ -4,14 +4,15 @@
 
 package me.ixk.framework.providers;
 
-import static me.ixk.framework.helpers.FacadeHelper.config;
-
-import java.util.Map;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.Base64;
 import me.ixk.framework.utils.JWT;
+
+import java.util.Map;
+
+import static me.ixk.framework.helpers.Facade.config;
 
 @Provider
 @Order(Order.HIGHEST_PRECEDENCE + 8)

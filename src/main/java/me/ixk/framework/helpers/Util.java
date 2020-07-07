@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.utils.JSON;
 
-public abstract class UtilHelper {
+public abstract class Util {
     protected static final String BASE_STRING =
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     protected static final SecureRandom RANDOM = new SecureRandom();

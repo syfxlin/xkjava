@@ -4,13 +4,13 @@
 
 package me.ixk.framework.middleware;
 
-import static me.ixk.framework.helpers.FacadeHelper.auth;
-import static me.ixk.framework.helpers.FacadeHelper.response;
-
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.RouteMiddleware;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
+
+import static me.ixk.framework.helpers.Facade.auth;
+import static me.ixk.framework.helpers.Facade.response;
 
 @RouteMiddleware(name = "auth")
 @Order(Order.MEDIUM_PRECEDENCE)

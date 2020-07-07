@@ -4,18 +4,19 @@
 
 package me.ixk.framework.annotations.processor;
 
-import static me.ixk.framework.helpers.FacadeHelper.config;
+import me.ixk.framework.annotations.AnnotationProcessor;
+import me.ixk.framework.annotations.*;
+import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.Wrapper;
+import me.ixk.framework.utils.AnnotationUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import me.ixk.framework.annotations.*;
-import me.ixk.framework.annotations.AnnotationProcessor;
-import me.ixk.framework.ioc.Application;
-import me.ixk.framework.ioc.Wrapper;
-import me.ixk.framework.utils.AnnotationUtils;
+
+import static me.ixk.framework.helpers.Facade.config;
 
 @AnnotationProcessor
 @Order(Order.HIGHEST_PRECEDENCE + 1)

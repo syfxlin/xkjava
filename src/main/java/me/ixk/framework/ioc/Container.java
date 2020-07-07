@@ -48,7 +48,9 @@ public class Container implements Context {
 
     // 构造器
     public Container() {
-        this.dataBinder.set(new DataBinder(this, new ConcurrentHashMap<>()));
+        this.dataBinder.set(
+                new DefaultDataBinder(this, new ConcurrentHashMap<>())
+            );
 
         this.addParameterInjector(new DefaultParameterInjector());
         this.addInstanceInjector(new DefaultPropertyInjector());
@@ -894,7 +896,7 @@ public class Container implements Context {
         return this.make(bindName, returnType, this.dataBinder.get());
     }
 
-    protected <T> T make(
+    public <T> T make(
         String bindName,
         Class<T> returnType,
         DataBinder dataBinder
@@ -910,7 +912,11 @@ public class Container implements Context {
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        return this.make(bindName, returnType, new DataBinder(this, args));
+        return this.make(
+                bindName,
+                returnType,
+                new DefaultDataBinder(this, args)
+            );
     }
 
     public <T> T make(Class<T> bindType) {
@@ -919,6 +925,10 @@ public class Container implements Context {
 
     public <T> T make(Class<T> bindType, Map<String, Object> args) {
         return this.make(bindType.getName(), bindType, args);
+    }
+
+    public <T> T make(Class<T> bindType, DataBinder dataBinder) {
+        return this.make(bindType.getName(), bindType, dataBinder);
     }
 
     /* ====================== remove ======================= */
@@ -949,7 +959,7 @@ public class Container implements Context {
     ) {
         return this.withAndReset(
                 () -> this.call(target, returnType),
-                new DataBinder(this, args)
+                new DefaultDataBinder(this, args)
             );
     }
 
@@ -974,7 +984,7 @@ public class Container implements Context {
     ) {
         return this.withAndReset(
                 () -> this.call(target, paramTypes, returnType),
-                new DataBinder(this, args)
+                new DefaultDataBinder(this, args)
             );
     }
 
@@ -1017,10 +1027,7 @@ public class Container implements Context {
         Class<T> returnType,
         Map<String, Object> args
     ) {
-        return this.withAndReset(
-                () -> this.callMethod(type, method, returnType),
-                new DataBinder(this, args)
-            );
+        return this.call(this.make(type), method, returnType, args);
     }
 
     public <T> T call(Method method, Class<T> returnType) {
@@ -1049,7 +1056,7 @@ public class Container implements Context {
                 instance,
                 method,
                 returnType,
-                new DataBinder(this, args)
+                new DefaultDataBinder(this, args)
             );
     }
 
@@ -1075,9 +1082,23 @@ public class Container implements Context {
         Class<T> returnType,
         Map<String, Object> args
     ) {
+        return this.call(
+                instance,
+                methodName,
+                returnType,
+                new DefaultDataBinder(this, args)
+            );
+    }
+
+    public <T> T call(
+        Object instance,
+        String methodName,
+        Class<T> returnType,
+        DataBinder dataBinder
+    ) {
         return this.withAndReset(
                 () -> this.callMethod(instance, methodName, returnType),
-                new DataBinder(this, args)
+                dataBinder
             );
     }
 
@@ -1095,7 +1116,7 @@ public class Container implements Context {
                 type,
                 methodName,
                 returnType,
-                new DataBinder(this, args)
+                new DefaultDataBinder(this, args)
             );
     }
 
@@ -1122,12 +1143,14 @@ public class Container implements Context {
     }
 
     public Container with(String prefix, Map<String, Object> args) {
-        this.dataBinder.set(new DataBinder(this, args));
+        this.dataBinder.set(new DefaultDataBinder(this, args));
         return this;
     }
 
     public Container resetWith() {
-        this.dataBinder.set(new DataBinder(this, new ConcurrentHashMap<>()));
+        this.dataBinder.set(
+                new DefaultDataBinder(this, new ConcurrentHashMap<>())
+            );
         return this;
     }
 

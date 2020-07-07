@@ -4,13 +4,13 @@
 
 package me.ixk.framework.providers;
 
-import static me.ixk.framework.helpers.FacadeHelper.config;
-
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.Base64;
 import me.ixk.framework.utils.Crypt;
+
+import static me.ixk.framework.helpers.Facade.config;
 
 @Provider
 @Order(Order.HIGHEST_PRECEDENCE + 6)

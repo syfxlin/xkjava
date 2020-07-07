@@ -6,10 +6,8 @@ package me.ixk.app.controllers;
 
 import me.ixk.app.beans.User;
 import me.ixk.app.beans.User2;
-import me.ixk.framework.annotations.Controller;
-import me.ixk.framework.annotations.DataBind;
-import me.ixk.framework.annotations.GetMapping;
-import me.ixk.framework.annotations.PostMapping;
+import me.ixk.framework.annotations.*;
+import me.ixk.framework.http.WebDataBinder;
 
 @Controller
 public class TestController {
@@ -20,7 +18,17 @@ public class TestController {
     }
 
     @PostMapping("/post")
-    public String post(User user, @DataBind(prefix = "user2") User2 user2) {
+    public String post(
+        @DataBind(name = "user") User user,
+        @DataBind(name = "user3") User2 user2,
+        @DataBind(name = "user4") User2 user3
+    ) {
         return "post";
+    }
+
+    @InitBinder
+    public void binder(WebDataBinder binder) {
+        binder.addDefault("user3", new User2("user3", 17));
+        binder.addDefault("user4.name", "user4");
     }
 }

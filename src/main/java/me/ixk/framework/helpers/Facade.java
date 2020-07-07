@@ -18,7 +18,7 @@ import me.ixk.framework.utils.Crypt;
 import me.ixk.framework.utils.Hash;
 import me.ixk.framework.utils.JWT;
 
-public abstract class FacadeHelper {
+public abstract class Facade {
 
     protected static <T> T make(Class<T> _class) {
         return Application.get().make(_class);

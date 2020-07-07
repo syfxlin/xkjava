@@ -10,7 +10,6 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.annotations.SkipPropertyAutowired;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
@@ -44,11 +43,6 @@ public class DefaultPropertyInjector implements InstanceInjector {
                 field,
                 Autowired.class
             );
-            DataBind dataBind = AnnotationUtils.getAnnotation(
-                field,
-                DataBind.class
-            );
-            String prefix = dataBind == null ? null : dataBind.prefix();
             if (autowired == null) {
                 PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
                     instanceClass,
@@ -63,8 +57,7 @@ public class DefaultPropertyInjector implements InstanceInjector {
                 }
                 Object dependency = dataBinder.getObject(
                     field.getName(),
-                    field.getType(),
-                    prefix
+                    field.getType()
                 );
                 if (dependency == null) {
                     dependency = ReflectUtil.getFieldValue(instance, field);
@@ -83,11 +76,7 @@ public class DefaultPropertyInjector implements InstanceInjector {
                         autowiredClass = autowired.type();
                     }
                     dependency =
-                        dataBinder.getObject(
-                            field.getName(),
-                            autowiredClass,
-                            prefix
-                        );
+                        dataBinder.getObject(field.getName(), autowiredClass);
                 }
                 if (dependency == null) {
                     dependency = ReflectUtil.getFieldValue(instance, field);

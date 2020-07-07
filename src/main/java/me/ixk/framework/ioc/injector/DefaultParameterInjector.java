@@ -43,7 +43,7 @@ public class DefaultParameterInjector implements ParameterInjector {
                 dataBinder.getObject(
                     parameterName,
                     parameter.getType(),
-                    dataBind == null ? null : dataBind.prefix()
+                    dataBind
                 );
         }
         return dependencies;

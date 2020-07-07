@@ -4,15 +4,16 @@
 
 package me.ixk.framework.middleware;
 
-import static me.ixk.framework.helpers.FacadeHelper.crypt;
-
-import java.util.List;
-import javax.servlet.http.Cookie;
 import me.ixk.framework.annotations.GlobalMiddleware;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
+
+import javax.servlet.http.Cookie;
+import java.util.List;
+
+import static me.ixk.framework.helpers.Facade.crypt;
 
 @GlobalMiddleware
 @Order(Order.HIGHEST_PRECEDENCE + 1)

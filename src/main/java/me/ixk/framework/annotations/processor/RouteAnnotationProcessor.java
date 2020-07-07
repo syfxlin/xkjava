@@ -7,7 +7,7 @@ package me.ixk.framework.annotations.processor;
 import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
-import me.ixk.framework.helpers.UtilHelper;
+import me.ixk.framework.helpers.Util;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.route.AnnotationRouteDefinition;
 import me.ixk.framework.route.RouteDefinition;
@@ -66,7 +66,7 @@ public class RouteAnnotationProcessor extends AbstractAnnotationProcessor {
                             "method"
                         ),
                         (String) AnnotationUtils.getAnnotationValue(a, "value"),
-                        UtilHelper.routeHandler(method)
+                        Util.routeHandler(method)
                     )
                 );
             } catch (Exception e) {

@@ -4,15 +4,16 @@
 
 package me.ixk.framework.providers;
 
-import static me.ixk.framework.helpers.FacadeHelper.config;
-
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import java.util.Map;
-import javax.sql.DataSource;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.ioc.Application;
+
+import javax.sql.DataSource;
+import java.util.Map;
+
+import static me.ixk.framework.helpers.Facade.config;
 
 @Provider
 @Order(Order.HIGHEST_PRECEDENCE + 2)

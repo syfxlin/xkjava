@@ -4,9 +4,6 @@
 
 package me.ixk.app.controllers.Auth;
 
-import static me.ixk.framework.helpers.FacadeHelper.auth;
-import static me.ixk.framework.helpers.FacadeHelper.response;
-
 import me.ixk.app.entity.LoginUser;
 import me.ixk.framework.annotations.Controller;
 import me.ixk.framework.annotations.GetMapping;
@@ -17,6 +14,9 @@ import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.ViewResult;
 import me.ixk.framework.kernel.Auth;
 import me.ixk.framework.utils.ReflectUtils;
+
+import static me.ixk.framework.helpers.Facade.auth;
+import static me.ixk.framework.helpers.Facade.response;
 
 @Controller
 public class LoginController {

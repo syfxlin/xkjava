@@ -4,17 +4,18 @@
 
 package me.ixk.framework.kernel;
 
-import static me.ixk.framework.helpers.FacadeHelper.*;
-
-import java.time.LocalDateTime;
 import me.ixk.app.entity.LoginUser;
 import me.ixk.app.entity.RegisterUser;
 import me.ixk.app.entity.Users;
 import me.ixk.app.service.impl.UsersServiceImpl;
-import me.ixk.framework.helpers.UtilHelper;
+import me.ixk.framework.helpers.Util;
 import me.ixk.framework.http.SetCookie;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.utils.Validation;
+
+import java.time.LocalDateTime;
+
+import static me.ixk.framework.helpers.Facade.*;
 
 public class Auth {
     protected Users user = null;
@@ -124,7 +125,7 @@ public class Auth {
     protected void updateRememberToken(Users user) {
         String token = user.getRememberToken();
         if (token == null || token.length() == 0) {
-            token = UtilHelper.strRandom(40);
+            token = Util.strRandom(40);
             user.setRememberToken(token);
             this.usersService.updateById(user);
         }

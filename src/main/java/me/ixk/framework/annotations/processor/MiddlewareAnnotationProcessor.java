@@ -7,7 +7,7 @@ package me.ixk.framework.annotations.processor;
 import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
-import me.ixk.framework.helpers.UtilHelper;
+import me.ixk.framework.helpers.Util;
 import me.ixk.framework.ioc.Application;
 import me.ixk.framework.route.AnnotationMiddlewareDefinition;
 import me.ixk.framework.route.RouteManager;
@@ -69,7 +69,7 @@ public class MiddlewareAnnotationProcessor extends AbstractAnnotationProcessor {
                 continue;
             }
             try {
-                String handler = UtilHelper.routeHandler(method);
+                String handler = Util.routeHandler(method);
                 RouteManager.annotationMiddlewareDefinitions.put(
                     handler,
                     new AnnotationMiddlewareDefinition(
