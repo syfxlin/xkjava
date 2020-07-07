@@ -80,6 +80,10 @@ public class WebDataBinder implements DataBinder {
         );
     }
 
+    public Map<String, Object> getData() {
+        return data;
+    }
+
     public WebDataBinder add(String name, Object object) {
         this.data.put(name, object);
         return this;
@@ -87,5 +91,15 @@ public class WebDataBinder implements DataBinder {
 
     public WebDataBinder addDefault(String name, Object object) {
         return this.add(DEFAULT_VALUE_PREFIX + name, object);
+    }
+
+    public WebDataBinder remove(String name) {
+        this.data.remove(name);
+        return this;
+    }
+
+    public WebDataBinder removeDefault(String name) {
+        this.data.remove(DEFAULT_VALUE_PREFIX + name);
+        return this;
     }
 }
