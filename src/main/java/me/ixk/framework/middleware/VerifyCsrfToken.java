@@ -4,6 +4,9 @@
 
 package me.ixk.framework.middleware;
 
+import static me.ixk.framework.helpers.Facade.crypt;
+import static me.ixk.framework.helpers.Facade.session;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.HttpStatus;
@@ -11,16 +14,13 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
 
-import static me.ixk.framework.helpers.Facade.crypt;
-import static me.ixk.framework.helpers.Facade.session;
-
 // @GlobalMiddleware
 // @Order(Order.HIGHEST_PRECEDENCE + 3)
 public class VerifyCsrfToken implements Middleware {
     /**
      * 排除使用 CSRF 的 URL（正则）
      */
-    protected String[] except = null;
+    protected final String[] except = new String[] {  };
 
     @Override
     public Response handle(Request request, Runner next) {
@@ -69,9 +69,6 @@ public class VerifyCsrfToken implements Middleware {
     }
 
     protected boolean skipVerify(Request request) {
-        if (this.except == null) {
-            return false;
-        }
         for (String pattern : this.except) {
             if (request.pattern(pattern)) {
                 return true;

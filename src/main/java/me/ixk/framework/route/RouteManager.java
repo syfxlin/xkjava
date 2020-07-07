@@ -5,10 +5,6 @@
 package me.ixk.framework.route;
 
 import cn.hutool.core.util.ReflectUtil;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.exceptions.RouteCollectorException;
 import me.ixk.framework.http.HttpStatus;
@@ -17,16 +13,21 @@ import me.ixk.framework.http.Response;
 import me.ixk.framework.http.ResponseProcessor;
 import me.ixk.framework.middleware.Middleware;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class RouteManager {
     public static RouteCollector route;
 
-    public static List<Class<? extends RouteDefinition>> routeDefinition = new ArrayList<>();
+    public static final List<Class<? extends RouteDefinition>> routeDefinition = new ArrayList<>();
 
-    public static List<Class<? extends Middleware>> globalMiddleware = new ArrayList<>(
+    public static final List<Class<? extends Middleware>> globalMiddleware = new ArrayList<>(
         10
     );
 
-    public static Map<String, Class<? extends Middleware>> routeMiddleware = new ConcurrentHashMap<>(
+    public static final Map<String, Class<? extends Middleware>> routeMiddleware = new ConcurrentHashMap<>(
         10
     );
 

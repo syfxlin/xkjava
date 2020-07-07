@@ -20,7 +20,7 @@ public @interface Bean {
 
     BindType bindType() default BindType.NO_SET;
 
-    public enum BindType {
+    enum BindType {
         NO_SET,
         BIND,
         NO_BIND,

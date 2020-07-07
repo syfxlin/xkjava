@@ -19,7 +19,8 @@ public class TestController {
 
     @PostMapping("/post")
     public String post(
-        @DataBind(name = "user") User user,
+        User user,
+        @DataBind(name = "user") User user1,
         @DataBind(name = "user3") User2 user2,
         @DataBind(name = "user4") User2 user3
     ) {

@@ -13,7 +13,7 @@ import me.ixk.framework.view.TemplateProcessor;
 import org.eclipse.jetty.http.MimeTypes;
 
 public class ViewResult extends HttpResult {
-    protected String view = "";
+    protected String view;
 
     protected Map<String, Object> data = new ConcurrentHashMap<>();
 
