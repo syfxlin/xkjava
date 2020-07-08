@@ -13,5 +13,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @RequestMapping(method = RequestMethod.DELETE)
 public @interface DeleteMapping {
+    @AliasFor("path")
     String value() default "";
+
+    @AliasFor("value")
+    String path() default "";
 }

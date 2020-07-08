@@ -12,7 +12,11 @@ import java.lang.annotation.Target;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestMapping {
+    @AliasFor("path")
     String value() default "";
+
+    @AliasFor("value")
+    String path() default "";
 
     RequestMethod[] method() default RequestMethod.GET;
 }

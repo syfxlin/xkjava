@@ -11,9 +11,10 @@ import me.ixk.framework.annotations.*;
 import me.ixk.framework.http.WebDataBinder;
 
 @Controller
+@RequestMapping("/test")
 public class TestController {
 
-    @GetMapping("/test/{id}")
+    @GetMapping("/{id}")
     public String test(int id) {
         return "test";
     }

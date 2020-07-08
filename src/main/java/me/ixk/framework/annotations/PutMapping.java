@@ -13,5 +13,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @RequestMapping(method = RequestMethod.PUT)
 public @interface PutMapping {
+    @AliasFor("path")
     String value() default "";
+
+    @AliasFor("value")
+    String path() default "";
 }

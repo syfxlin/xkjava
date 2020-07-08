@@ -4,8 +4,11 @@
 
 package me.ixk.framework.annotations.processor;
 
-import me.ixk.framework.annotations.AnnotationProcessor;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.List;
 import me.ixk.framework.annotations.*;
+import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.helpers.Util;
 import me.ixk.framework.ioc.Application;
@@ -13,10 +16,6 @@ import me.ixk.framework.route.AnnotationRouteDefinition;
 import me.ixk.framework.route.RouteDefinition;
 import me.ixk.framework.route.RouteManager;
 import me.ixk.framework.utils.AnnotationUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.List;
 
 @AnnotationProcessor
 @Order(Order.HIGHEST_PRECEDENCE + 5)
@@ -58,14 +57,24 @@ public class RouteAnnotationProcessor extends AbstractAnnotationProcessor {
             if (a == null) {
                 continue;
             }
+            RequestMapping baseMapping = AnnotationUtils.getAnnotation(
+                method.getDeclaringClass(),
+                RequestMapping.class
+            );
             try {
+                RequestMethod[] requestMethods = (RequestMethod[]) AnnotationUtils.getAnnotationValue(
+                    a,
+                    "method"
+                );
+                String requestUrl = baseMapping != null
+                    ? baseMapping.value()
+                    : "";
+                requestUrl +=
+                    (String) AnnotationUtils.getAnnotationValue(a, "path");
                 RouteManager.annotationRouteDefinitions.add(
                     new AnnotationRouteDefinition(
-                        (RequestMethod[]) AnnotationUtils.getAnnotationValue(
-                            a,
-                            "method"
-                        ),
-                        (String) AnnotationUtils.getAnnotationValue(a, "value"),
+                        requestMethods,
+                        requestUrl,
                         Util.routeHandler(method)
                     )
                 );

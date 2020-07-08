@@ -5,13 +5,12 @@
 package me.ixk.framework.http;
 
 import com.fasterxml.jackson.databind.node.NullNode;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.utils.Convert;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class WebDataBinder implements DataBinder {
     public static final String DEFAULT_VALUE_PREFIX = "&";
@@ -25,6 +24,8 @@ public class WebDataBinder implements DataBinder {
     private final Container container;
 
     private final Map<String, Object> data = new ConcurrentHashMap<>();
+
+    private final Map<String, Converter> converter = new ConcurrentHashMap<>();
 
     public WebDataBinder(Container container, Request request) {
         this.container = container;
@@ -85,6 +86,10 @@ public class WebDataBinder implements DataBinder {
         return data;
     }
 
+    public Map<String, Converter> getConverter() {
+        return converter;
+    }
+
     public WebDataBinder add(String name, Object object) {
         this.data.put(name, object);
         return this;
@@ -101,6 +106,16 @@ public class WebDataBinder implements DataBinder {
 
     public WebDataBinder removeDefault(String name) {
         this.data.remove(DEFAULT_VALUE_PREFIX + name);
+        return this;
+    }
+
+    public WebDataBinder addConverter(String name, Converter converter) {
+        this.converter.put(name, converter);
+        return this;
+    }
+
+    public WebDataBinder removeConverter(String name) {
+        this.converter.remove(name);
         return this;
     }
 }
