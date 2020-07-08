@@ -113,6 +113,7 @@ public class ErrorHandler
             );
         writer.flush();
         response.setContentLength(writer.size());
+        response.setStatus(result.getCode());
         writer.writeTo(response.getOutputStream());
         writer.destroy();
     }
@@ -140,6 +141,7 @@ public class ErrorHandler
             );
         writer.flush();
         response.setContentLength(writer.size());
+        response.setStatus(result.getCode());
         writer.writeTo(response.getOutputStream());
         writer.destroy();
     }

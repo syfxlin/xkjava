@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * @author xiaoleilu
  *
  */
-public class Convert {
+public abstract class Convert {
 
     /**
      * 转换为字符串<br>

@@ -55,7 +55,6 @@ ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf, FreeMarker 渲染，Http
 -   添加完整的 Test Case
 -   排除中间件
 -   日志
--   InitBinder 功能增强（格式化等等）
 
 ## 文档 Doc
 

@@ -5,6 +5,10 @@
 package me.ixk.framework.route;
 
 import cn.hutool.core.util.ReflectUtil;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.exceptions.RouteCollectorException;
 import me.ixk.framework.http.HttpStatus;
@@ -12,11 +16,6 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.ResponseProcessor;
 import me.ixk.framework.middleware.Middleware;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class RouteManager {
     public static RouteCollector route;

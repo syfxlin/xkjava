@@ -4,24 +4,24 @@
 
 package me.ixk.framework.server;
 
+import static me.ixk.framework.helpers.Facade.config;
+
 import me.ixk.framework.kernel.ErrorHandler;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.*;
-
-import java.io.File;
-
-import static me.ixk.framework.helpers.Facade.config;
 
 public class HttpServer {
     private final Server server;
 
     private HttpServer() {
-        String rootDir = System.getProperty("user.dir");
-        String resource = rootDir + File.separator + "public";
+        Resource resource = Resource.newClassPathResource("/public");
         this.server =
             this.buildServer(config().get("app.port", Integer.class), resource);
     }
@@ -47,7 +47,7 @@ public class HttpServer {
         return server;
     }
 
-    private Server buildServer(int port, String resource) {
+    private Server buildServer(int port, Resource resource) {
         Server server = new Server();
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(port);
@@ -55,7 +55,7 @@ public class HttpServer {
 
         WebAppContext context = new WebAppContext();
         context.setContextPath("/");
-        context.setResourceBase(resource);
+        context.setBaseResource(Resource.newClassPathResource(""));
         context.setParentLoaderPriority(true);
 
         context.setConfigurations(
@@ -79,7 +79,12 @@ public class HttpServer {
         ErrorHandler errorHandler = new ErrorHandler();
         context.setErrorHandler(errorHandler);
 
-        server.setHandler(context);
+        ResourceHandler resourceHandler = new ResourceHandler();
+        resourceHandler.setBaseResource(resource);
+
+        HandlerList handlerList = new HandlerList(resourceHandler, context);
+
+        server.setHandler(handlerList);
 
         return server;
     }
