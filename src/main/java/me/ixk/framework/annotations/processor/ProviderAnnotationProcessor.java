@@ -4,12 +4,10 @@
 
 package me.ixk.framework.annotations.processor;
 
+import java.util.List;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.kernel.ProviderManager;
 import me.ixk.framework.providers.Provider;
-
-import java.util.List;
 
 public class ProviderAnnotationProcessor extends AbstractAnnotationProcessor {
 
@@ -20,9 +18,7 @@ public class ProviderAnnotationProcessor extends AbstractAnnotationProcessor {
     @Override
     public void process() {
         List<Class<?>> providers =
-            this.getTypesAnnotated(
-                    me.ixk.framework.annotations.Provider.class
-                );
+            this.getTypesAnnotated(me.ixk.framework.annotations.Provider.class);
         for (Class<?> providerType : providers) {
             if (!Provider.class.isAssignableFrom(providerType)) {
                 throw new AnnotationProcessorException(
@@ -30,13 +26,6 @@ public class ProviderAnnotationProcessor extends AbstractAnnotationProcessor {
                 );
             }
         }
-        ProviderManager providerManager = new ProviderManager(this.app);
-        this.app.setProviderManager(providerManager);
-        this.app.instance(
-                ProviderManager.class,
-                providerManager,
-                "providerManager"
-            );
-        providerManager.registers(providers);
+        this.app.providerManager().registers(providers);
     }
 }

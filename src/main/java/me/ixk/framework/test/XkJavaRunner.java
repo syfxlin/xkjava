@@ -12,8 +12,6 @@ public class XkJavaRunner implements BeforeAllCallback {
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
-        XkJava
-            .create()
-            .bootNoServer(new Class[] { context.getRequiredTestClass() });
+        XkJava.create().boot(new Class[] { context.getRequiredTestClass() });
     }
 }

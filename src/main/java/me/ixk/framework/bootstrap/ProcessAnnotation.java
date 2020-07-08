@@ -4,6 +4,7 @@
 
 package me.ixk.framework.bootstrap;
 
+import java.util.List;
 import me.ixk.framework.annotations.Bootstrap;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.processor.AnnotationProcessor;
@@ -11,8 +12,6 @@ import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.utils.ReflectionsUtils;
-
-import java.util.List;
 
 @Bootstrap
 @Order(Order.HIGHEST_PRECEDENCE + 4)
@@ -34,15 +33,8 @@ public class ProcessAnnotation extends AbstractBootstrap {
                 );
             }
         }
-        AnnotationProcessorManager manager = new AnnotationProcessorManager(
-            this.app
-        );
-        this.app.setAnnotationProcessorManager(manager);
-        this.app.instance(
-                AnnotationProcessor.class,
-                manager,
-                "annotationProcessorManager"
-            );
+        AnnotationProcessorManager manager =
+            this.app.annotationProcessorManager();
         manager.registers(processors);
         manager.process();
     }

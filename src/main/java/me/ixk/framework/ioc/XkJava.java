@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import me.ixk.framework.annotations.ComponentScan;
+import me.ixk.framework.annotations.processor.AnnotationProcessor;
 import me.ixk.framework.annotations.processor.BootstrapAnnotationProcessor;
 import me.ixk.framework.ioc.context.ApplicationContext;
 import me.ixk.framework.ioc.context.RequestContext;
@@ -15,13 +16,22 @@ import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.kernel.Config;
 import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.kernel.ProviderManager;
-import me.ixk.framework.server.HttpServer;
+import me.ixk.framework.server.JettyServer;
 import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.Ansi;
 
 /**
  * XkJava 继承自 IoC 容器，并在其之上扩充一些应用部分的功能，同时也是框架的核心
  */
 public class XkJava extends Container {
+    protected String bannerText =
+        " __   __      __  __               _____                                 \n" +
+        "/\\ \\ /\\ \\    /\\ \\/\\ \\             /\\___ \\                                \n" +
+        "\\ `\\`\\/'/'   \\ \\ \\/'/'            \\/__/\\ \\     __      __  __     __     \n" +
+        " `\\/ > <      \\ \\ , <     _______    _\\ \\ \\  /'__`\\   /\\ \\/\\ \\  /'__`\\   \n" +
+        "    \\/'/\\`\\    \\ \\ \\\\`\\  /\\______\\  /\\ \\_\\ \\/\\ \\L\\.\\_ \\ \\ \\_/ |/\\ \\L\\.\\_ \n" +
+        "    /\\_\\\\ \\_\\   \\ \\_\\ \\_\\\\/______/  \\ \\____/\\ \\__/.\\_\\ \\ \\___/ \\ \\__/.\\_\\\n" +
+        "    \\/_/ \\/_/    \\/_/\\/_/            \\/___/  \\/__/\\/_/  \\/__/   \\/__/\\/_/";
     /**
      * 存储 boot 方法传入的类
      */
@@ -37,15 +47,26 @@ public class XkJava extends Container {
      */
     protected boolean booted = false;
 
+    protected BootstrapAnnotationProcessor bootstrapAnnotationProcessor = new BootstrapAnnotationProcessor(
+        this
+    );
+
     /**
      * 服务提供者管理器
      */
-    protected ProviderManager providerManager;
+    protected ProviderManager providerManager = new ProviderManager(this);
 
     /**
      * 注解处理器
      */
-    protected AnnotationProcessorManager annotationProcessorManager;
+    protected AnnotationProcessorManager annotationProcessorManager = new AnnotationProcessorManager(
+        this
+    );
+
+    /**
+     * Jetty Server
+     */
+    protected JettyServer server = new JettyServer(this);
 
     /**
      * 启动前回调
@@ -68,12 +89,8 @@ public class XkJava extends Container {
     protected Callback destroyedCallback = null;
 
     private XkJava() {
-        ApplicationContext applicationContext = new ApplicationContext();
-        this.registerContext(applicationContext);
-        RequestContext requestContext = new RequestContext();
-        this.registerContext(requestContext);
-
-        this.instance(XkJava.class, this, "app");
+        // 注册实例
+        this.registerInstance();
 
         // 注册销毁钩子
         this.registerShutdownHook();
@@ -111,24 +128,6 @@ public class XkJava extends Container {
     }
 
     /**
-     * 创建并启动 XkJava 实例
-     * @param primarySource 传入类
-     * @param args 传入参数
-     */
-    public static void createAndBoot(Class<?> primarySource, String... args) {
-        create().boot(new Class[] { primarySource }, args);
-    }
-
-    /**
-     * 创建并启动 XkJava 实例
-     * @param primarySource 传入类
-     * @param args 传入参数
-     */
-    public static void createAndBoot(Class<?>[] primarySource, String... args) {
-        create().boot(primarySource, args);
-    }
-
-    /**
      * 启动 XkJava 实例
      * @param primarySource 传入类
      * @param args 传入参数
@@ -143,26 +142,21 @@ public class XkJava extends Container {
      * @param args 传入参数
      */
     public void boot(Class<?>[] primarySource, String... args) {
-        this.bootNoServer(primarySource, args);
-
-        // 启动 Jetty 服务
-        this.startServer();
-    }
-
-    public void bootNoServer(Class<?>[] primarySource, String... args) {
         this.primarySource = primarySource;
         this.args = args;
 
-        // 启动前读取一些信息
-        this.load();
+        this.printBanner();
+
+        // 读取需要扫描的包
+        this.loadPackageScanAnnotation();
 
         // 启动前回调
         if (this.bootingCallback != null) {
             this.bootedCallback.invoke(this);
         }
 
-        // Bootstrap
-        this.bootstrap();
+        // 通过调用 Bootstrap 注解处理器处理 Bootstrap
+        this.bootstrapAnnotationProcessor.process();
 
         // 启动后回调
         if (this.bootedCallback != null) {
@@ -170,62 +164,15 @@ public class XkJava extends Container {
         }
 
         this.booted = true;
-    }
-
-    /**
-     * 启动前读取一些信息
-     */
-    protected void load() {
-        // 读取需要扫描的包
-        this.loadPackageScanAnnotation();
-    }
-
-    /**
-     * Bootstrap
-     */
-    protected void bootstrap() {
-        // 通过调用 Bootstrap 注解处理器处理 Bootstrap
-        BootstrapAnnotationProcessor processor = new BootstrapAnnotationProcessor(
-            this
-        );
-        processor.process();
-    }
-
-    /**
-     * 启动 Jetty Server
-     */
-    protected void startServer() {
-        // 启动Jetty
-        HttpServer server = HttpServer.create();
-        this.instance(HttpServer.class, server, "server");
-        server.start();
-    }
-
-    public boolean isBooted() {
-        return this.booted;
-    }
-
-    public void booting(Callback callback) {
-        this.bootingCallback = callback;
-    }
-
-    public void booted(Callback callback) {
-        this.bootedCallback = callback;
-    }
-
-    public void destroying(Callback callback) {
-        this.destroyingCallback = callback;
-    }
-
-    public void destroyed(Callback callback) {
-        this.destroyedCallback = callback;
+        // 启动 Jetty 服务
+        this.server.start();
     }
 
     /**
      * 配置要扫描的包
      */
     protected void loadPackageScanAnnotation() {
-        List<String> scanPackage = this.getScanPackage();
+        List<String> scanPackage = this.scanPackage();
         scanPackage.add("me.ixk.framework");
         for (Class<?> source : this.primarySource) {
             scanPackage.add(source.getPackageName());
@@ -237,6 +184,32 @@ public class XkJava extends Container {
                 scanPackage.addAll(Arrays.asList(componentScan.basePackages()));
             }
         }
+    }
+
+    /**
+     * 注册实例
+     */
+    protected void registerInstance() {
+        ApplicationContext applicationContext = new ApplicationContext();
+        this.registerContext(applicationContext);
+        RequestContext requestContext = new RequestContext();
+        this.registerContext(requestContext);
+
+        this.instance(XkJava.class, this, "app");
+
+        this.instance(JettyServer.class, this.server, "server");
+
+        this.instance(
+                ProviderManager.class,
+                this.providerManager,
+                "providerManager"
+            );
+
+        this.instance(
+                AnnotationProcessor.class,
+                annotationProcessorManager,
+                "annotationProcessorManager"
+            );
     }
 
     /**
@@ -261,39 +234,89 @@ public class XkJava extends Container {
             );
     }
 
+    protected void printBanner() {
+        if (this.bannerText != null) {
+            System.out.println(this.bannerText);
+        }
+        String text =
+            Ansi.make(Ansi.Color.CYAN).format(" :: XK-Java :: ") +
+            Ansi.make(Ansi.Color.MAGENTA).format("       (v1.0-SNAPSHOT)\n");
+        System.out.println(text);
+    }
+
     /* Quick get set context attribute */
 
-    public List<String> getScanPackage() {
+    public List<String> scanPackage() {
         return this.getOrDefaultAttribute("scanPackage", new ArrayList<>());
     }
 
-    public void setScanPackage(List<String> scanPackage) {
+    public XkJava scanPackage(List<String> scanPackage) {
         this.setAttribute("scanPackage", scanPackage);
+        return this;
     }
 
-    public Config getConfig() {
+    public Config config() {
         return this.make(Config.class);
     }
 
-    public Environment getEnvironment() {
+    public Environment env() {
         return this.make(Environment.class);
     }
 
-    public ProviderManager getProviderManager() {
+    public ProviderManager providerManager() {
         return providerManager;
     }
 
-    public void setProviderManager(ProviderManager providerManager) {
+    public XkJava providerManager(ProviderManager providerManager) {
         this.providerManager = providerManager;
+        return this;
     }
 
-    public AnnotationProcessorManager getAnnotationProcessorManager() {
+    public AnnotationProcessorManager annotationProcessorManager() {
         return annotationProcessorManager;
     }
 
-    public void setAnnotationProcessorManager(
+    public XkJava annotationProcessorManager(
         AnnotationProcessorManager annotationProcessorManager
     ) {
         this.annotationProcessorManager = annotationProcessorManager;
+        return this;
+    }
+
+    public JettyServer server() {
+        return this.make(JettyServer.class);
+    }
+
+    public boolean isBooted() {
+        return this.booted;
+    }
+
+    public XkJava booting(Callback callback) {
+        this.bootingCallback = callback;
+        return this;
+    }
+
+    public XkJava booted(Callback callback) {
+        this.bootedCallback = callback;
+        return this;
+    }
+
+    public XkJava destroying(Callback callback) {
+        this.destroyingCallback = callback;
+        return this;
+    }
+
+    public XkJava destroyed(Callback callback) {
+        this.destroyedCallback = callback;
+        return this;
+    }
+
+    public String bannerText() {
+        return this.bannerText;
+    }
+
+    public XkJava bannerText(String bannerText) {
+        this.bannerText = bannerText;
+        return this;
     }
 }

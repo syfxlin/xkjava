@@ -18,6 +18,6 @@ public class BootProviders extends AbstractBootstrap {
 
     @Override
     public void boot() {
-        this.app.getProviderManager().boot();
+        this.app.providerManager().boot();
     }
 }

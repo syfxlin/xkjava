@@ -21,7 +21,7 @@ import java.util.List;
 
 public abstract class ReflectionsUtils {
     private static final Reflections GLOBAL_APP_REFLECTIONS = make(
-        XkJava.of().getScanPackage().toArray(new String[0])
+        XkJava.of().scanPackage().toArray(new String[0])
     );
 
     private static final SimpleCache<Class<? extends Annotation>, List<Class<?>>> CLASS_ANNOTATION_CACHE = new SimpleCache<>();
