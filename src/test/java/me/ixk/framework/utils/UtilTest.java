@@ -6,13 +6,12 @@ package me.ixk.framework.utils;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import me.ixk.framework.helpers.Util;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.helpers.Util;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class UtilTest {
 
@@ -94,9 +93,6 @@ class UtilTest {
         Assertions.assertEquals("array2", Util.dataGet(map, "sub.2"));
         Assertions.assertEquals("sub3", Util.dataGet(map, "sub1.sub2"));
         Assertions.assertEquals("data", Util.dataGet(map, "sub.3.data"));
-        Assertions.assertEquals(
-            "value",
-            Util.dataGet(map, "sub.10", "value")
-        );
+        Assertions.assertEquals("value", Util.dataGet(map, "sub.10", "value"));
     }
 }

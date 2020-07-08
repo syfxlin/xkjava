@@ -134,7 +134,7 @@ public class Application extends Container {
      * @param args 传入参数
      */
     public void boot(Class<?> primarySource, String... args) {
-        boot(new Class[] { primarySource }, args);
+        this.boot(new Class[] { primarySource }, args);
     }
 
     /**
@@ -143,6 +143,13 @@ public class Application extends Container {
      * @param args 传入参数
      */
     public void boot(Class<?>[] primarySource, String... args) {
+        this.bootNoServer(primarySource, args);
+
+        // 启动 Jetty 服务
+        this.startServer();
+    }
+
+    public void bootNoServer(Class<?>[] primarySource, String... args) {
         this.primarySource = primarySource;
         this.args = args;
 
@@ -163,9 +170,6 @@ public class Application extends Container {
         }
 
         this.booted = true;
-
-        // 启动 Jetty 服务
-        this.startServer();
     }
 
     /**
