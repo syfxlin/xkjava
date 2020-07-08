@@ -6,11 +6,9 @@ package me.ixk.framework.utils;
 
 import cn.hutool.core.lang.SimpleCache;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import org.objectweb.asm.*;
+import org.objectweb.asm.Type;
 
 public abstract class ParameterNameDiscoverer {
     protected static final SimpleCache<Executable, String[]> PARAMETER_CACHE = new SimpleCache<>();
@@ -26,12 +24,39 @@ public abstract class ParameterNameDiscoverer {
     }
 
     public static String[] getParameterNames(final Executable method) {
+        String[] paramNames = getParameterNamesByReflection(method);
+        if (paramNames == null) {
+            paramNames = getParameterNamesByAsm(method);
+        }
+        return paramNames;
+    }
+
+    public static String[] getParameterNamesByReflection(
+        final Executable method
+    ) {
         String[] cache = PARAMETER_CACHE.get(method);
         if (cache != null) {
             return cache;
         }
-        final String[] paramNames = new String[method.getParameterTypes()
-            .length];
+        String[] paramNames = new String[method.getParameterCount()];
+        Parameter[] parameters = method.getParameters();
+        for (int i = 0; i < parameters.length; i++) {
+            Parameter param = parameters[i];
+            if (!param.isNamePresent()) {
+                return null;
+            }
+            paramNames[i] = param.getName();
+        }
+        PARAMETER_CACHE.put(method, paramNames);
+        return paramNames;
+    }
+
+    public static String[] getParameterNamesByAsm(final Executable method) {
+        String[] cache = PARAMETER_CACHE.get(method);
+        if (cache != null) {
+            return cache;
+        }
+        final String[] paramNames = new String[method.getParameterCount()];
         final String className = ClassUtils
             .getUserClass(method.getDeclaringClass())
             .getName();
