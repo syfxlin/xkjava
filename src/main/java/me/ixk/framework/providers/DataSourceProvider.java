@@ -8,7 +8,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -19,7 +19,7 @@ import static me.ixk.framework.helpers.Facade.config;
 @Order(Order.HIGHEST_PRECEDENCE + 2)
 public class DataSourceProvider extends AbstractProvider {
 
-    public DataSourceProvider(Application app) {
+    public DataSourceProvider(XkJava app) {
         super(app);
     }
 

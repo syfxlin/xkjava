@@ -5,20 +5,21 @@
 package me.ixk.framework.kernel;
 
 import cn.hutool.core.util.ReflectUtil;
+import me.ixk.framework.annotations.processor.AnnotationProcessor;
+import me.ixk.framework.exceptions.AnnotationProcessorException;
+import me.ixk.framework.ioc.XkJava;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import me.ixk.framework.annotations.processor.AnnotationProcessor;
-import me.ixk.framework.exceptions.AnnotationProcessorException;
-import me.ixk.framework.ioc.Application;
 
 public class AnnotationProcessorManager {
-    protected final Application app;
+    protected final XkJava app;
 
     protected final Map<String, AnnotationProcessor> processors;
 
-    public AnnotationProcessorManager(Application app) {
+    public AnnotationProcessorManager(XkJava app) {
         this.app = app;
         this.processors = new ConcurrentHashMap<>();
     }

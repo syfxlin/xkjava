@@ -10,7 +10,7 @@ import me.ixk.app.entity.Users;
 import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.helpers.Util;
 import me.ixk.framework.http.SetCookie;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.Validation;
 
 import java.time.LocalDateTime;
@@ -22,8 +22,8 @@ public class Auth {
 
     protected boolean viaRemember = false;
 
-    protected final UsersServiceImpl usersService = Application
-        .get()
+    protected final UsersServiceImpl usersService = XkJava
+        .of()
         .make(UsersServiceImpl.class);
 
     public Result register(RegisterUser user) {

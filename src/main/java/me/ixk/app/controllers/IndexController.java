@@ -4,9 +4,6 @@
 
 package me.ixk.app.controllers;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.servlet.http.HttpServletRequest;
 import me.ixk.app.annotations.Log;
 import me.ixk.app.beans.User;
 import me.ixk.app.beans.User3;
@@ -19,8 +16,12 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.TextResult;
 import me.ixk.framework.http.result.ViewResult;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.view.FreeMarker;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
 public class IndexController {
@@ -66,12 +67,12 @@ public class IndexController {
 
     @GetMapping("/user3")
     public User3 user3() {
-        return Application.get().make(User3.class);
+        return XkJava.of().make(User3.class);
     }
 
     @GetMapping("/conf")
     public TestConfigurationProperties conf() {
-        return Application.get().make(TestConfigurationProperties.class);
+        return XkJava.of().make(TestConfigurationProperties.class);
     }
 
     @Middleware(name = "auth")

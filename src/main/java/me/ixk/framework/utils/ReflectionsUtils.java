@@ -5,6 +5,12 @@
 package me.ixk.framework.utils;
 
 import cn.hutool.core.lang.SimpleCache;
+import me.ixk.framework.ioc.XkJava;
+import org.reflections.Reflections;
+import org.reflections.scanners.*;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -12,15 +18,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import me.ixk.framework.ioc.Application;
-import org.reflections.Reflections;
-import org.reflections.scanners.*;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
 
 public abstract class ReflectionsUtils {
     private static final Reflections GLOBAL_APP_REFLECTIONS = make(
-        Application.get().getScanPackage().toArray(new String[0])
+        XkJava.of().getScanPackage().toArray(new String[0])
     );
 
     private static final SimpleCache<Class<? extends Annotation>, List<Class<?>>> CLASS_ANNOTATION_CACHE = new SimpleCache<>();

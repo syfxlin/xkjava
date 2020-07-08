@@ -6,8 +6,8 @@ package me.ixk.framework.annotations.processor;
 
 import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.*;
-import me.ixk.framework.ioc.Application;
 import me.ixk.framework.ioc.Wrapper;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.AnnotationUtils;
 
 import java.lang.annotation.Annotation;
@@ -23,7 +23,7 @@ import static me.ixk.framework.helpers.Facade.config;
 public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     private final List<String> makeList = new ArrayList<>();
 
-    public BeanAnnotationProcessor(Application app) {
+    public BeanAnnotationProcessor(XkJava app) {
         super(app);
     }
 

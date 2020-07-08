@@ -8,7 +8,7 @@ import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.helpers.Util;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.route.AnnotationMiddlewareDefinition;
 import me.ixk.framework.route.RouteManager;
 import me.ixk.framework.utils.AnnotationUtils;
@@ -20,7 +20,7 @@ import java.util.List;
 @Order(Order.HIGHEST_PRECEDENCE + 6)
 public class MiddlewareAnnotationProcessor extends AbstractAnnotationProcessor {
 
-    public MiddlewareAnnotationProcessor(Application app) {
+    public MiddlewareAnnotationProcessor(XkJava app) {
         super(app);
     }
 

@@ -4,15 +4,16 @@
 
 package me.ixk.framework.http.result;
 
-import java.util.Map;
-import javax.servlet.http.Cookie;
 import me.ixk.framework.http.*;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import org.eclipse.jetty.http.HttpCookie;
 import org.eclipse.jetty.http.HttpHeader;
 
+import javax.servlet.http.Cookie;
+import java.util.Map;
+
 public abstract class HttpResult implements Renderable {
-    private final Response response = Application.get().make(Response.class);
+    private final Response response = XkJava.of().make(Response.class);
 
     public final Response getResponse() {
         return response;

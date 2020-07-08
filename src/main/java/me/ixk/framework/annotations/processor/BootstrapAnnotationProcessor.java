@@ -6,13 +6,13 @@ package me.ixk.framework.annotations.processor;
 
 import me.ixk.framework.bootstrap.Bootstrap;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 
 import java.util.List;
 
 public class BootstrapAnnotationProcessor extends AbstractAnnotationProcessor {
 
-    public BootstrapAnnotationProcessor(Application app) {
+    public BootstrapAnnotationProcessor(XkJava app) {
         super(app);
     }
 

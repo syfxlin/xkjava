@@ -4,20 +4,21 @@
 
 package me.ixk.framework.kernel;
 
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.exceptions.DispatchServletException;
 import me.ixk.framework.exceptions.Exception;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.WebDataBinder;
-import me.ixk.framework.ioc.Application;
 import me.ixk.framework.ioc.DataBinder;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ControllerHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(
@@ -27,7 +28,7 @@ public class ControllerHandler implements Handler {
     private Class<?> controllerClass;
     private final String methodName;
 
-    private final Application app;
+    private final XkJava app;
 
     private static final String NO_RESOLVER = "NO_RESOLVER";
 
@@ -39,7 +40,7 @@ public class ControllerHandler implements Handler {
             this.controllerClass = null;
         }
         this.methodName = handlerArr[1];
-        this.app = Application.get();
+        this.app = XkJava.of();
     }
 
     @Override

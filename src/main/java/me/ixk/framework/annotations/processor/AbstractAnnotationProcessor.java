@@ -4,17 +4,18 @@
 
 package me.ixk.framework.annotations.processor;
 
+import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.utils.AnnotationUtils;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
-import me.ixk.framework.ioc.Application;
-import me.ixk.framework.utils.AnnotationUtils;
 
 public abstract class AbstractAnnotationProcessor
     implements AnnotationProcessor {
-    protected final Application app;
+    protected final XkJava app;
 
-    public AbstractAnnotationProcessor(Application app) {
+    public AbstractAnnotationProcessor(XkJava app) {
         this.app = app;
     }
 

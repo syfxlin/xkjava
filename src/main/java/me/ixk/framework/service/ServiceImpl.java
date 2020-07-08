@@ -11,16 +11,8 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.*;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
-import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import me.ixk.framework.database.SqlSessionManager;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
@@ -29,6 +21,15 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+
+import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 @SuppressWarnings("unchecked")
 public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
@@ -40,8 +41,8 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
             .getGenericSuperclass()
     ).getActualTypeArguments()[0];
 
-    protected final SqlSessionManager sqlSessionManager = Application
-        .get()
+    protected final SqlSessionManager sqlSessionManager = XkJava
+        .of()
         .make(SqlSessionManager.class);
 
     @Override

@@ -8,7 +8,7 @@ import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.Controller;
 import me.ixk.framework.annotations.ControllerAdvice;
 import me.ixk.framework.annotations.Order;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.ExceptionHandlerResolver;
 
 import java.util.LinkedHashMap;
@@ -20,7 +20,7 @@ import java.util.Map;
 public class ExceptionHandlerAnnotationProcessor
     extends AbstractAnnotationProcessor {
 
-    public ExceptionHandlerAnnotationProcessor(Application app) {
+    public ExceptionHandlerAnnotationProcessor(XkJava app) {
         super(app);
     }
 

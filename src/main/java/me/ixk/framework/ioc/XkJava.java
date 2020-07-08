@@ -19,9 +19,9 @@ import me.ixk.framework.server.HttpServer;
 import me.ixk.framework.utils.AnnotationUtils;
 
 /**
- * Application 继承自 IoC 容器，并在其之上扩充一些应用部分的功能，同时也是框架的核心
+ * XkJava 继承自 IoC 容器，并在其之上扩充一些应用部分的功能，同时也是框架的核心
  */
-public class Application extends Container {
+public class XkJava extends Container {
     /**
      * 存储 boot 方法传入的类
      */
@@ -33,7 +33,7 @@ public class Application extends Container {
     protected String[] args;
 
     /**
-     * Application 是否已经启动
+     * XkJava 是否已经启动
      */
     protected boolean booted = false;
 
@@ -67,13 +67,13 @@ public class Application extends Container {
      */
     protected Callback destroyedCallback = null;
 
-    private Application() {
+    private XkJava() {
         ApplicationContext applicationContext = new ApplicationContext();
         this.registerContext(applicationContext);
         RequestContext requestContext = new RequestContext();
         this.registerContext(requestContext);
 
-        this.instance(Application.class, this, "app");
+        this.instance(XkJava.class, this, "app");
 
         // 注册销毁钩子
         this.registerShutdownHook();
@@ -83,35 +83,35 @@ public class Application extends Container {
      * 静态内部类创建实例
      */
     private static class Inner {
-        private static final Application INSTANCE = new Application();
+        private static final XkJava INSTANCE = new XkJava();
     }
 
     /**
-     * 创建或获取 Application
-     * @return Application 实例
+     * 创建或获取 XkJava
+     * @return XkJava 实例
      */
-    public static Application create() {
+    public static XkJava create() {
         return Inner.INSTANCE;
     }
 
     /**
-     * 创建或获取 Application
-     * @return Application 实例
+     * 创建或获取 XkJava
+     * @return XkJava 实例
      */
-    public static Application getInstance() {
+    public static XkJava getInstance() {
         return Inner.INSTANCE;
     }
 
     /**
-     * 创建或获取 Application
-     * @return Application 实例
+     * 创建或获取 XkJava
+     * @return XkJava 实例
      */
-    public static Application get() {
+    public static XkJava of() {
         return Inner.INSTANCE;
     }
 
     /**
-     * 创建并启动 Application 实例
+     * 创建并启动 XkJava 实例
      * @param primarySource 传入类
      * @param args 传入参数
      */
@@ -120,7 +120,7 @@ public class Application extends Container {
     }
 
     /**
-     * 创建并启动 Application 实例
+     * 创建并启动 XkJava 实例
      * @param primarySource 传入类
      * @param args 传入参数
      */
@@ -129,7 +129,7 @@ public class Application extends Container {
     }
 
     /**
-     * 启动 Application 实例
+     * 启动 XkJava 实例
      * @param primarySource 传入类
      * @param args 传入参数
      */
@@ -138,7 +138,7 @@ public class Application extends Container {
     }
 
     /**
-     * 启动 Application 实例
+     * 启动 XkJava 实例
      * @param primarySource 传入类
      * @param args 传入参数
      */

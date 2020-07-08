@@ -4,7 +4,7 @@
 
 package me.ixk.framework.kernel;
 
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.Convert;
 
 import java.util.Arrays;
@@ -14,10 +14,10 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Environment {
-    protected final Application app;
+    protected final XkJava app;
     protected Properties properties;
 
-    public Environment(Application app, Properties properties) {
+    public Environment(XkJava app, Properties properties) {
         this.app = app;
         this.properties = properties;
     }

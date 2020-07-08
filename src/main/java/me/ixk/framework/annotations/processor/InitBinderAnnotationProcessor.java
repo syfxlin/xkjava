@@ -4,22 +4,23 @@
 
 package me.ixk.framework.annotations.processor;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.Controller;
 import me.ixk.framework.annotations.ControllerAdvice;
 import me.ixk.framework.annotations.Order;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.InitBinderHandlerResolver;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @AnnotationProcessor
 @Order(Order.HIGHEST_PRECEDENCE + 3)
 public class InitBinderAnnotationProcessor extends AbstractAnnotationProcessor {
 
-    public InitBinderAnnotationProcessor(Application app) {
+    public InitBinderAnnotationProcessor(XkJava app) {
         super(app);
     }
 

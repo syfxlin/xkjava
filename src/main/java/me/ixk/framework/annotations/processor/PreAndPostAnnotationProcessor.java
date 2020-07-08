@@ -8,7 +8,7 @@ import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.PostConstruct;
 import me.ixk.framework.annotations.PreDestroy;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.List;
 @Order(Order.HIGHEST_PRECEDENCE + 4)
 public class PreAndPostAnnotationProcessor extends AbstractAnnotationProcessor {
 
-    public PreAndPostAnnotationProcessor(Application app) {
+    public PreAndPostAnnotationProcessor(XkJava app) {
         super(app);
     }
 

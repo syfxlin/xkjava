@@ -4,16 +4,17 @@
 
 package me.ixk.framework.kernel;
 
-import java.util.Map;
 import me.ixk.framework.helpers.Util;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.Convert;
 
+import java.util.Map;
+
 public class Config {
-    protected final Application app;
+    protected final XkJava app;
     protected Map<String, Map<String, Object>> config;
 
-    public Config(Application app, Map<String, Map<String, Object>> config) {
+    public Config(XkJava app, Map<String, Map<String, Object>> config) {
         this.app = app;
         this.config = config;
     }

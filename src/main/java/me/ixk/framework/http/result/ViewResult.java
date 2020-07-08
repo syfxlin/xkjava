@@ -4,13 +4,14 @@
 
 package me.ixk.framework.http.result;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.http.WebContext;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.view.FilterCallback;
 import me.ixk.framework.view.TemplateProcessor;
 import org.eclipse.jetty.http.MimeTypes;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ViewResult extends HttpResult {
     protected String view;
@@ -74,7 +75,7 @@ public class ViewResult extends HttpResult {
     }
 
     private void injectModel() {
-        WebContext context = Application.get().make(WebContext.class);
+        WebContext context = XkJava.of().make(WebContext.class);
         // 注入
         this.data.put("$context", context);
         this.data.put("$application", context.getApplication());
@@ -90,8 +91,8 @@ public class ViewResult extends HttpResult {
     @Override
     public String render() {
         this.injectModel();
-        String html = Application
-            .get()
+        String html = XkJava
+            .of()
             .make(TemplateProcessor.class)
             .process(this.view, this.data);
         if (this.filterCallback != null) {

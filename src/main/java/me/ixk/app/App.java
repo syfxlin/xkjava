@@ -4,10 +4,10 @@
 
 package me.ixk.app;
 
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 
 /**
- * 启动流程：Application.create().boot() -> load() -> booting()
+ * 启动流程：XkJava.create().boot() -> load() -> booting()
  *         -> Bootstrap -> Provider -> booted() -> Start Jetty
  *
  * 请求流程：HttpServlet.service()[Jetty] -> FrameworkServlet.do* -> FrameworkServlet.processRequest()
@@ -20,6 +20,6 @@ import me.ixk.framework.ioc.Application;
 public class App {
 
     public static void main(String[] args) {
-        Application.create().boot(App.class, args);
+        XkJava.create().boot(App.class, args);
     }
 }

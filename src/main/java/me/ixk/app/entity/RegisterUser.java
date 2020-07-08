@@ -4,14 +4,15 @@
 
 package me.ixk.app.entity;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import me.ixk.app.service.impl.UsersServiceImpl;
+import me.ixk.framework.ioc.XkJava;
+
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import me.ixk.app.service.impl.UsersServiceImpl;
-import me.ixk.framework.ioc.Application;
 
 @Data
 @EqualsAndHashCode
@@ -46,8 +47,8 @@ public class RegisterUser {
         if (this.username == null) {
             return false;
         }
-        UsersServiceImpl usersService = Application
-            .get()
+        UsersServiceImpl usersService = XkJava
+            .of()
             .make(UsersServiceImpl.class);
         return usersService.query().eq("username", this.username).count() == 0;
     }

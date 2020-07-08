@@ -4,19 +4,20 @@
 
 package me.ixk.framework.bootstrap;
 
-import java.io.IOException;
-import java.util.Properties;
 import me.ixk.framework.annotations.Bootstrap;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.exceptions.LoadEnvironmentFileException;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.Environment;
+
+import java.io.IOException;
+import java.util.Properties;
 
 @Bootstrap
 @Order(Order.HIGHEST_PRECEDENCE + 1)
 public class LoadEnvironmentVariables extends AbstractBootstrap {
 
-    public LoadEnvironmentVariables(Application app) {
+    public LoadEnvironmentVariables(XkJava app) {
         super(app);
     }
 

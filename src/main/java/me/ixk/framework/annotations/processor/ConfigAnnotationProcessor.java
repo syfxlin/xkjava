@@ -5,20 +5,21 @@
 package me.ixk.framework.annotations.processor;
 
 import cn.hutool.core.util.ReflectUtil;
+import me.ixk.framework.annotations.Config;
+import me.ixk.framework.exceptions.AnnotationProcessorException;
+import me.ixk.framework.exceptions.LoadConfigException;
+import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.ClassUtils;
+
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotations.Config;
-import me.ixk.framework.exceptions.AnnotationProcessorException;
-import me.ixk.framework.exceptions.LoadConfigException;
-import me.ixk.framework.ioc.Application;
-import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.ClassUtils;
 
 public class ConfigAnnotationProcessor extends AbstractAnnotationProcessor {
 
-    public ConfigAnnotationProcessor(Application app) {
+    public ConfigAnnotationProcessor(XkJava app) {
         super(app);
     }
 

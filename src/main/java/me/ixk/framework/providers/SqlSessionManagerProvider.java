@@ -8,7 +8,7 @@ import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.database.MybatisPlus;
 import me.ixk.framework.database.SqlSessionManager;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -19,7 +19,7 @@ import static me.ixk.framework.helpers.Facade.config;
 @Order(Order.HIGHEST_PRECEDENCE + 3)
 public class SqlSessionManagerProvider extends AbstractProvider {
 
-    public SqlSessionManagerProvider(Application app) {
+    public SqlSessionManagerProvider(XkJava app) {
         super(app);
     }
 

@@ -11,7 +11,7 @@ import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.AspectPointcut;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.AnnotationUtils;
 
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
 @Order(Order.HIGHEST_PRECEDENCE + 2)
 public class AspectAnnotationProcessor extends AbstractAnnotationProcessor {
 
-    public AspectAnnotationProcessor(Application app) {
+    public AspectAnnotationProcessor(XkJava app) {
         super(app);
     }
 

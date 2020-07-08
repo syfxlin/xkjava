@@ -7,7 +7,7 @@ package me.ixk.framework.helpers;
 import me.ixk.framework.aop.ProxyCreator;
 import me.ixk.framework.database.SqlSessionManager;
 import me.ixk.framework.http.*;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.Auth;
 import me.ixk.framework.kernel.Config;
 import me.ixk.framework.kernel.Environment;
@@ -21,7 +21,7 @@ import me.ixk.framework.utils.JWT;
 public abstract class Facade {
 
     protected static <T> T make(Class<T> _class) {
-        return Application.get().make(_class);
+        return XkJava.of().make(_class);
     }
 
     public static Auth auth() {

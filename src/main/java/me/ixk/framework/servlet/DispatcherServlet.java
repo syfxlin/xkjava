@@ -4,6 +4,14 @@
 
 package me.ixk.framework.servlet;
 
+import me.ixk.framework.annotations.ScopeType;
+import me.ixk.framework.http.*;
+import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.ioc.context.ContextName;
+import me.ixk.framework.ioc.context.RequestContext;
+import me.ixk.framework.kernel.Auth;
+import me.ixk.framework.route.RouteManager;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -11,24 +19,17 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import me.ixk.framework.annotations.ScopeType;
-import me.ixk.framework.http.*;
-import me.ixk.framework.ioc.Application;
-import me.ixk.framework.ioc.context.ContextName;
-import me.ixk.framework.ioc.context.RequestContext;
-import me.ixk.framework.kernel.Auth;
-import me.ixk.framework.route.RouteManager;
 
 @WebServlet(urlPatterns = "/*")
 @MultipartConfig
 public class DispatcherServlet extends FrameworkServlet {
-    protected final Application app;
+    protected final XkJava app;
     protected final RequestContext requestContext;
 
     @Deprecated
     public DispatcherServlet() {
         super();
-        this.app = Application.get();
+        this.app = XkJava.of();
         this.requestContext =
             (RequestContext) this.app.getContextByName(
                     ContextName.REQUEST.getName()

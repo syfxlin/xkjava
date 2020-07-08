@@ -6,7 +6,7 @@ package me.ixk.app.config;
 
 import me.ixk.framework.annotations.Config;
 import me.ixk.framework.config.AbstractConfig;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Config(name = "database")
 public class DatabaseConfig extends AbstractConfig {
 
-    public DatabaseConfig(Application app) {
+    public DatabaseConfig(XkJava app) {
         super(app);
     }
 

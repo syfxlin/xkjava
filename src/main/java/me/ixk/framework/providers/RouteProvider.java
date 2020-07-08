@@ -6,14 +6,14 @@ package me.ixk.framework.providers;
 
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.route.RouteManager;
 
 @Provider
 @Order(Order.HIGHEST_PRECEDENCE + 10)
 public class RouteProvider extends AbstractProvider {
 
-    public RouteProvider(Application app) {
+    public RouteProvider(XkJava app) {
         super(app);
     }
 

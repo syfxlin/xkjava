@@ -7,13 +7,13 @@ package me.ixk.framework.bootstrap;
 import me.ixk.framework.annotations.Bootstrap;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.processor.ProviderAnnotationProcessor;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 
 @Bootstrap
 @Order(Order.HIGHEST_PRECEDENCE + 5)
 public class RegisterProviders extends AbstractBootstrap {
 
-    public RegisterProviders(Application app) {
+    public RegisterProviders(XkJava app) {
         super(app);
     }
 

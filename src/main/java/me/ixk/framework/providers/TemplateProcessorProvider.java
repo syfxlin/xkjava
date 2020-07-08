@@ -6,7 +6,7 @@ package me.ixk.framework.providers;
 
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.view.FreeMarker;
 import me.ixk.framework.view.TemplateProcessor;
 
@@ -14,7 +14,7 @@ import me.ixk.framework.view.TemplateProcessor;
 @Order(Order.HIGHEST_PRECEDENCE + 4)
 public class TemplateProcessorProvider extends AbstractProvider {
 
-    public TemplateProcessorProvider(Application app) {
+    public TemplateProcessorProvider(XkJava app) {
         super(app);
     }
 

@@ -8,10 +8,11 @@ import com.ql.util.express.*;
 import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 import com.ql.util.express.instruction.op.OperatorBase;
-import java.util.Map;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.Config;
 import me.ixk.framework.kernel.Environment;
+
+import java.util.Map;
 
 public abstract class Express {
     protected static final ExpressRunner runner = new ExpressRunner();
@@ -21,7 +22,7 @@ public abstract class Express {
     }
 
     public static Object executeEnv(String express) {
-        Application app = Application.get();
+        XkJava app = XkJava.of();
         DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("env", app.make(Environment.class));
         context.put("config", app.make(Config.class));

@@ -5,7 +5,7 @@
 package me.ixk.framework.kernel;
 
 import me.ixk.framework.exceptions.ProviderException;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.providers.Provider;
 
 import java.lang.reflect.InvocationTargetException;
@@ -15,11 +15,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class ProviderManager {
-    protected final Application app;
+    protected final XkJava app;
 
     protected final Map<String, Provider> providers;
 
-    public ProviderManager(Application app) {
+    public ProviderManager(XkJava app) {
         this.app = app;
         this.providers = new ConcurrentHashMap<>();
     }
@@ -44,7 +44,7 @@ public class ProviderManager {
         try {
             Provider provider = (Provider) Class
                 .forName(name)
-                .getConstructor(Application.class)
+                .getConstructor(XkJava.class)
                 .newInstance(this.app);
             this.setProvider(name, provider);
             return provider;

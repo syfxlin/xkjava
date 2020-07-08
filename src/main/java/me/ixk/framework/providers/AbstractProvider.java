@@ -4,14 +4,14 @@
 
 package me.ixk.framework.providers;
 
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 
 public abstract class AbstractProvider implements Provider {
-    protected final Application app;
+    protected final XkJava app;
 
     protected boolean booted = false;
 
-    public AbstractProvider(Application app) {
+    public AbstractProvider(XkJava app) {
         this.app = app;
     }
 

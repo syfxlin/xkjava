@@ -4,18 +4,19 @@
 
 package me.ixk.framework.bootstrap;
 
-import java.util.Map;
 import me.ixk.framework.annotations.Bootstrap;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.processor.ConfigAnnotationProcessor;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.Config;
+
+import java.util.Map;
 
 @Bootstrap
 @Order(Order.HIGHEST_PRECEDENCE + 2)
 public class LoadConfiguration extends AbstractBootstrap {
 
-    public LoadConfiguration(Application app) {
+    public LoadConfiguration(XkJava app) {
         super(app);
     }
 

@@ -6,7 +6,7 @@ package me.ixk.framework.providers;
 
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Provider;
-import me.ixk.framework.ioc.Application;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.Base64;
 import me.ixk.framework.utils.Crypt;
 
@@ -16,7 +16,7 @@ import static me.ixk.framework.helpers.Facade.config;
 @Order(Order.HIGHEST_PRECEDENCE + 6)
 public class EncryptionProvider extends AbstractProvider {
 
-    public EncryptionProvider(Application app) {
+    public EncryptionProvider(XkJava app) {
         super(app);
     }
 
