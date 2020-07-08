@@ -5,6 +5,8 @@
 package me.ixk.framework.http;
 
 import com.fasterxml.jackson.databind.node.NullNode;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.DataBind;
@@ -25,7 +27,7 @@ public class WebDataBinder implements DataBinder {
 
     private final Map<String, Object> data = new ConcurrentHashMap<>();
 
-    private final Map<String, Converter> converter = new ConcurrentHashMap<>();
+    private final Map<String, List<Converter<?>>> converter = new ConcurrentHashMap<>();
 
     public WebDataBinder(Container container, Request request) {
         this.container = container;
@@ -36,6 +38,7 @@ public class WebDataBinder implements DataBinder {
         return this.getObject(name, type, null);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T getObject(String name, Class<T> type, DataBind dataBind) {
         if (dataBind != null) {
             name = dataBind.name();
@@ -65,7 +68,19 @@ public class WebDataBinder implements DataBinder {
             this.prefix = oldPrefix;
             this.first = oldFirst;
         }
-        return Convert.convert(type, object);
+        List<Converter<?>> converters = this.converter.get(concatName);
+        if (converters != null) {
+            for (Converter converter : converters) {
+                object = converter.before(object);
+            }
+        }
+        object = Convert.convert(type, object);
+        if (converters != null) {
+            for (Converter converter : converters) {
+                object = converter.after(object);
+            }
+        }
+        return (T) object;
     }
 
     protected String concatPrefix(String name) {
@@ -86,7 +101,7 @@ public class WebDataBinder implements DataBinder {
         return data;
     }
 
-    public Map<String, Converter> getConverter() {
+    public Map<String, List<Converter<?>>> getConverter() {
         return converter;
     }
 
@@ -109,8 +124,11 @@ public class WebDataBinder implements DataBinder {
         return this;
     }
 
-    public WebDataBinder addConverter(String name, Converter converter) {
-        this.converter.put(name, converter);
+    public WebDataBinder addConverter(String name, Converter<?> converter) {
+        List<Converter<?>> converters =
+            this.converter.getOrDefault(name, new ArrayList<>());
+        converters.add(converter);
+        this.converter.put(name, converters);
         return this;
     }
 

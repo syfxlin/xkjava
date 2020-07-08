@@ -9,6 +9,7 @@ import me.ixk.app.beans.User;
 import me.ixk.app.beans.User2;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.http.WebDataBinder;
+import me.ixk.framework.http.converter.TestConverter;
 
 @Controller
 @RequestMapping("/test")
@@ -44,5 +45,6 @@ public class TestController {
         user2.setAge(17);
         binder.addDefault("user3", user2);
         binder.addDefault("user4.name", "user4");
+        binder.addConverter("user4.name", new TestConverter());
     }
 }
