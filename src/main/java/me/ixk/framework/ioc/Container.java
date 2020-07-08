@@ -425,36 +425,6 @@ public class Container implements Context {
                 // no code
             }
         }
-        // TODO: 重构，使用最优匹配尝试构造
-        // if (constructors.length == 1) {
-        //     Constructor<?> constructor = constructors[0];
-        //     if (!Modifier.isPublic(constructor.getModifiers())) {
-        //         return ClassUtil.getDefaultValue(instanceType);
-        //     }
-        //     Object[] dependencies =
-        //         this.processParameterInjector(binding, constructor);
-        //     try {
-        //         instance = constructor.newInstance(dependencies);
-        //     } catch (Exception e) {
-        //         throw new ContainerException("Instantiated object failed", e);
-        //     }
-        //     instance = this.processInstanceInjector(binding, instance);
-        //     if (
-        //         !Advice.class.isAssignableFrom(instanceType) &&
-        //         AspectManager.matches(instanceType)
-        //     ) {
-        //         instance =
-        //             ProxyCreator.createProxy(
-        //                 instance,
-        //                 instanceType,
-        //                 instanceType.getInterfaces(),
-        //                 constructor.getParameterTypes(),
-        //                 dependencies
-        //             );
-        //     }
-        //     instance = this.processBeanBefore(binding, instance);
-        //     return instance;
-        // }
         return ClassUtil.getDefaultValue(instanceType);
     }
 
