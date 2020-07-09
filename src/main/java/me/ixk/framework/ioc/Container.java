@@ -389,6 +389,9 @@ public class Container implements Context {
 
     protected synchronized Object doBuild(Binding binding) {
         Class<?> instanceType = binding.getInstanceType();
+        if (instanceType == null) {
+            return null;
+        }
         // 排除 JDK 自带类的 doBuild
         if (ClassUtils.isSkipBuildType(instanceType)) {
             return ClassUtil.getDefaultValue(instanceType);
@@ -399,30 +402,30 @@ public class Container implements Context {
         Object instance;
         for (Constructor<?> constructor : constructors) {
             constructor.setAccessible(true);
+            Object[] dependencies =
+                this.processParameterInjector(binding, constructor);
             try {
-                Object[] dependencies =
-                    this.processParameterInjector(binding, constructor);
                 instance = constructor.newInstance(dependencies);
-                instance = this.processInstanceInjector(binding, instance);
-                if (
-                    !Advice.class.isAssignableFrom(instanceType) &&
-                    AspectManager.matches(instanceType)
-                ) {
-                    instance =
-                        ProxyCreator.createProxy(
-                            instance,
-                            instanceType,
-                            instanceType.getInterfaces(),
-                            constructor.getParameterTypes(),
-                            dependencies
-                        );
-                }
-                instance = this.processBeanBefore(binding, instance);
-                if (instance != null) {
-                    return instance;
-                }
             } catch (Exception e) {
-                // no code
+                continue;
+            }
+            instance = this.processInstanceInjector(binding, instance);
+            if (
+                !Advice.class.isAssignableFrom(instanceType) &&
+                AspectManager.matches(instanceType)
+            ) {
+                instance =
+                    ProxyCreator.createProxy(
+                        instance,
+                        instanceType,
+                        instanceType.getInterfaces(),
+                        constructor.getParameterTypes(),
+                        dependencies
+                    );
+            }
+            instance = this.processBeanBefore(binding, instance);
+            if (instance != null) {
+                return instance;
             }
         }
         return ClassUtil.getDefaultValue(instanceType);

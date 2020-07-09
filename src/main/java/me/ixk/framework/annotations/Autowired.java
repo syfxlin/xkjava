@@ -29,4 +29,6 @@ public @interface Autowired {
 
     @AliasFor("value")
     String name() default "";
+
+    boolean required() default false;
 }

@@ -41,7 +41,10 @@ public class WebDataBinder implements DataBinder {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T getObject(String name, Class<T> type, DataBind dataBind) {
         if (dataBind != null) {
-            name = dataBind.name();
+            name =
+                dataBind.name().length() == 0
+                    ? dataBind.name()
+                    : Request.REQUEST_BODY;
             this.prefix = name;
         }
         String concatName = this.concat(name);

@@ -4,10 +4,9 @@
 
 package me.ixk.framework.ioc;
 
+import java.util.Map;
 import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.utils.Convert;
-
-import java.util.Map;
 
 public class DefaultDataBinder implements DataBinder {
     private final Container container;
@@ -31,7 +30,7 @@ public class DefaultDataBinder implements DataBinder {
     }
 
     public <T> T getObject(String name, Class<T> type, DataBind dataBind) {
-        if (dataBind != null) {
+        if (dataBind != null && dataBind.name().length() != 0) {
             name = dataBind.name();
         }
         return this.getObject(name, type);

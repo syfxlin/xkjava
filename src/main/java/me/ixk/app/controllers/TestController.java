@@ -14,6 +14,8 @@ import me.ixk.framework.http.converter.TestConverter;
 @Controller
 @RequestMapping("/test")
 public class TestController {
+    @Autowired(value = "name", required = false)
+    private String name;
 
     @GetMapping("/{id}")
     public String test(int id) {
@@ -24,8 +26,7 @@ public class TestController {
     public String post(
         User user,
         @DataBind(name = "user") User user1,
-        @DataBind(name = "user3") User2 user2,
-        @DataBind(name = "user4") User2 user3
+        @DataBind(name = "user3", required = false) String user2
     ) {
         return "post";
     }

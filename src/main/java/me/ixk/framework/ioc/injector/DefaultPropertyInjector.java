@@ -81,6 +81,16 @@ public class DefaultPropertyInjector implements InstanceInjector {
                 if (dependency == null) {
                     dependency = ReflectUtil.getFieldValue(instance, field);
                 }
+                // 如果必须注入，但是为 null，则抛出错误
+                if (dependency == null && autowired.required()) {
+                    throw new NullPointerException(
+                        "Target [" +
+                        instanceClass.getName() +
+                        "::" +
+                        field.getName() +
+                        "] is required, but inject value is null"
+                    );
+                }
                 ReflectUtil.setFieldValue(instance, field, dependency);
             }
         }

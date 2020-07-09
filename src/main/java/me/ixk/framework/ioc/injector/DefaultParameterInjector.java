@@ -45,6 +45,21 @@ public class DefaultParameterInjector implements ParameterInjector {
                     parameter.getType(),
                     dataBind
                 );
+            if (
+                dependencies[i] == null &&
+                dataBind != null &&
+                dataBind.required()
+            ) {
+                throw new NullPointerException(
+                    "Target [" +
+                    method.getDeclaringClass().getName() +
+                    "@" +
+                    method.getName() +
+                    "(" +
+                    parameterName +
+                    ")] is required, but inject value is null"
+                );
+            }
         }
         return dependencies;
     }
