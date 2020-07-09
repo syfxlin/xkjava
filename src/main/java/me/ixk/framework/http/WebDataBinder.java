@@ -43,8 +43,8 @@ public class WebDataBinder implements DataBinder {
         if (dataBind != null) {
             name =
                 dataBind.name().length() == 0
-                    ? dataBind.name()
-                    : Request.REQUEST_BODY;
+                    ? Request.REQUEST_BODY
+                    : dataBind.name();
             this.prefix = name;
         }
         String concatName = this.concat(name);

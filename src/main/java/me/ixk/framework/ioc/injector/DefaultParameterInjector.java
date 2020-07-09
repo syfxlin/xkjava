@@ -12,8 +12,6 @@ import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.ParameterInjector;
 import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.ClassUtils;
-import me.ixk.framework.utils.ParameterNameDiscoverer;
 
 public class DefaultParameterInjector implements ParameterInjector {
 
@@ -22,14 +20,11 @@ public class DefaultParameterInjector implements ParameterInjector {
         Container container,
         Binding binding,
         Executable method,
+        Parameter[] parameters,
+        String[] parameterNames,
         Object[] dependencies,
         DataBinder dataBinder
     ) {
-        method = ClassUtils.getUserMethod(method);
-        Parameter[] parameters = method.getParameters();
-        String[] parameterNames = ParameterNameDiscoverer.getParameterNames(
-            method
-        );
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
             String parameterName = parameterNames[i] != null

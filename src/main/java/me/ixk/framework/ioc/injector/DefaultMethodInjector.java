@@ -18,6 +18,7 @@ public class DefaultMethodInjector implements InstanceInjector {
         Container container,
         Binding binding,
         Object instance,
+        Class<?> instanceClass,
         DataBinder dataBinder
     ) {
         if (instance == null) {

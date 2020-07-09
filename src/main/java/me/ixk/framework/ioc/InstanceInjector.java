@@ -6,18 +6,29 @@ package me.ixk.framework.ioc;
 
 @FunctionalInterface
 public interface InstanceInjector {
-    default boolean matches(Binding binding, Object instance) {
-        return true;
+    default boolean matches(
+        Binding binding,
+        Object instance,
+        Class<?> instanceClass
+    ) {
+        return instance != null;
     }
 
     default Object process(
         Container container,
         Binding binding,
         Object instance,
+        Class<?> instanceClass,
         DataBinder dataBinder
     ) {
-        if (this.matches(binding, instance)) {
-            return this.inject(container, binding, instance, dataBinder);
+        if (this.matches(binding, instance, instanceClass)) {
+            return this.inject(
+                    container,
+                    binding,
+                    instance,
+                    instanceClass,
+                    dataBinder
+                );
         }
         return instance;
     }
@@ -26,6 +37,7 @@ public interface InstanceInjector {
         Container container,
         Binding binding,
         Object instance,
+        Class<?> instanceClass,
         DataBinder dataBinder
     );
 }

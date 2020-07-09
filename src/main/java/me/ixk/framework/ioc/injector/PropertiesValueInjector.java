@@ -7,6 +7,10 @@ package me.ixk.framework.ioc.injector;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Map;
 import me.ixk.framework.annotations.ConfigurationProperties;
 import me.ixk.framework.annotations.Value;
 import me.ixk.framework.bootstrap.Bootstrap;
@@ -16,14 +20,8 @@ import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.ClassUtils;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.Express;
-
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Map;
 
 public class PropertiesValueInjector implements InstanceInjector {
 
@@ -32,6 +30,7 @@ public class PropertiesValueInjector implements InstanceInjector {
         Container container,
         Binding binding,
         Object instance,
+        Class<?> instanceClass,
         DataBinder dataBinder
     ) {
         if (
@@ -41,7 +40,6 @@ public class PropertiesValueInjector implements InstanceInjector {
         ) {
             return instance;
         }
-        Class<?> instanceClass = ClassUtils.getUserClass(instance);
         Field[] fields = instanceClass.getDeclaredFields();
         ConfigurationProperties config = AnnotationUtils.getAnnotation(
             instanceClass,

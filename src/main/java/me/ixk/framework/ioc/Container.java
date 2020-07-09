@@ -9,6 +9,7 @@ import cn.hutool.core.util.ReflectUtil;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -28,6 +29,7 @@ import me.ixk.framework.ioc.processor.PostConstructProcessor;
 import me.ixk.framework.ioc.processor.PreDestroyProcessor;
 import me.ixk.framework.utils.ClassUtils;
 import me.ixk.framework.utils.Convert;
+import me.ixk.framework.utils.ParameterNameDiscoverer;
 import me.ixk.framework.utils.ReflectUtils;
 
 public class Container implements Context {
@@ -291,12 +293,14 @@ public class Container implements Context {
     }
 
     protected Object processInstanceInjector(Binding binding, Object instance) {
+        Class<?> instanceClass = ClassUtils.getUserClass(instance);
         for (InstanceInjector injector : this.instanceInjectors.values()) {
             instance =
                 injector.process(
                     this,
                     binding,
                     instance,
+                    instanceClass,
                     this.dataBinder.get()
                 );
         }
@@ -308,12 +312,19 @@ public class Container implements Context {
         Executable method
     ) {
         Object[] dependencies = new Object[method.getParameterCount()];
+        method = ClassUtils.getUserMethod(method);
+        Parameter[] parameters = method.getParameters();
+        String[] parameterNames = ParameterNameDiscoverer.getParameterNames(
+            method
+        );
         for (ParameterInjector injector : this.parameterInjectors.values()) {
             dependencies =
                 injector.process(
                     this,
                     binding,
                     method,
+                    parameters,
+                    parameterNames,
                     dependencies,
                     this.dataBinder.get()
                 );

@@ -16,7 +16,6 @@ import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.ClassUtils;
 
 public class DefaultPropertyInjector implements InstanceInjector {
 
@@ -25,12 +24,9 @@ public class DefaultPropertyInjector implements InstanceInjector {
         Container container,
         Binding binding,
         Object instance,
+        Class<?> instanceClass,
         DataBinder dataBinder
     ) {
-        if (instance == null) {
-            return null;
-        }
-        Class<?> instanceClass = ClassUtils.getUserClass(instance);
         if (instanceClass.getAnnotation(SkipPropertyAutowired.class) != null) {
             return instance;
         }
