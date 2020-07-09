@@ -4,17 +4,21 @@
 
 package me.ixk.app.beans;
 
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class User2 {
+    @NotNull
     private String name;
-    private int age;
+
+    @NotNull
+    private Integer age;
 
     // @Autowired // 加上该注解后容器会优先选用该构造器实例化
     public User2() {}
 
-    public User2(String name, int age) {
+    public User2(String name, Integer age) {
         this.name = name;
         this.age = age;
     }

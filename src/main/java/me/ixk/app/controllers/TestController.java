@@ -5,11 +5,14 @@
 package me.ixk.app.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import javax.validation.Valid;
 import me.ixk.app.beans.User;
 import me.ixk.app.beans.User2;
 import me.ixk.framework.annotations.*;
 import me.ixk.framework.http.WebDataBinder;
 import me.ixk.framework.http.converter.TestConverter;
+import me.ixk.framework.utils.ValidGroup;
+import me.ixk.framework.utils.ValidResult;
 
 @Controller
 @RequestMapping("/test")
@@ -25,8 +28,11 @@ public class TestController {
     @PostMapping("/post")
     public String post(
         User user,
-        @DataBind(name = "user") User user1,
-        @DataBind(name = "user3", required = false) String user2
+        @Valid @DataBind(name = "user1") User2 user1,
+        @Valid @DataBind(name = "user2") User2 user2,
+        // 如果不传入这两个其中一个参数，则会抛出异常
+        ValidGroup validGroup,
+        ValidResult<User2> validResult
     ) {
         return "post";
     }

@@ -11,9 +11,12 @@ import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.helpers.Util;
 import me.ixk.framework.http.SetCookie;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.utils.ValidResult;
 import me.ixk.framework.utils.Validation;
 
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static me.ixk.framework.helpers.Facade.*;
 
@@ -27,7 +30,7 @@ public class Auth {
         .make(UsersServiceImpl.class);
 
     public Result register(RegisterUser user) {
-        Validation.Result result = Validation.validate(user);
+        ValidResult<RegisterUser> result = Validation.validate(user);
         if (result.isFail()) {
             return new Result(result);
         }
@@ -46,7 +49,7 @@ public class Auth {
     }
 
     public Result login(LoginUser user) {
-        Validation.Result result = Validation.validate(user);
+        ValidResult<LoginUser> result = Validation.validate(user);
         if (result.isFail()) {
             return new Result(result);
         }
@@ -56,17 +59,17 @@ public class Auth {
     public Result attempt(LoginUser user) {
         Users dbUser =
             this.usersService.query().eq("username", user.getUsername()).one();
-        Validation.Result result = new Validation.Result();
+        Map<String, String> errors = new ConcurrentHashMap<>();
         if (dbUser == null) {
-            result.addError(
+            errors.put(
                 "account",
                 "No \"" + user.getUsername() + "\" users found"
             );
-            return new Result(result);
+            return new Result(errors);
         }
         if (!hash().check(user.getPassword(), dbUser.getPassword())) {
-            result.addError("password", "Account does not match the password.");
-            return new Result(result);
+            errors.put("password", "Account does not match the password.");
+            return new Result(errors);
         }
         this.user = dbUser;
         this.updateLogin(this.user, user.isRemember_me());
@@ -172,23 +175,27 @@ public class Auth {
     }
 
     public static class Result {
-        private Validation.Result result;
+        private Map<String, String> errors;
         private Users user;
 
-        public Result(Validation.Result result) {
-            this.result = result;
+        public Result(ValidResult<?> validResult) {
+            this.errors = validResult.getErrorMessages();
+        }
+
+        public Result(Map<String, String> errors) {
+            this.errors = errors;
         }
 
         public Result(Users user) {
             this.user = user;
         }
 
-        public Validation.Result getResult() {
-            return result;
+        public Map<String, String> getErrors() {
+            return errors;
         }
 
-        public void setResult(Validation.Result result) {
-            this.result = result;
+        public void setErrors(Map<String, String> errors) {
+            this.errors = errors;
         }
 
         public Users getUser() {
@@ -200,7 +207,7 @@ public class Auth {
         }
 
         public boolean isOk() {
-            return result == null || result.isOk();
+            return errors == null || errors.isEmpty();
         }
 
         public boolean isFail() {

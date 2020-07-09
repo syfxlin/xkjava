@@ -24,10 +24,6 @@ public class HttpException extends Exception {
         this(status, message, new ConcurrentHashMap<>());
     }
 
-    public HttpException(HttpStatus status, String message, String reason) {
-        this(status, message, new ConcurrentHashMap<>());
-    }
-
     public HttpException(HttpStatus status, String message, Throwable cause) {
         super(message, cause);
         this.setStatus(status);
