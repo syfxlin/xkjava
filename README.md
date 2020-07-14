@@ -44,7 +44,13 @@ IoC 容器可以自定义注入器，默认的注入器可以支持大部分场�
 
 ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf, FreeMarker 渲染，HttpServer 采用 Jetty，参数验证使用的是 HibernateValidator（由于后续才引入的 HuTool，就懒得改了），类型转换器和一些其他工具使用的是 HuTool，数据源使用的是 HikariCP，JSON 库采用的是 Jackson，由于 Java 默认不会保留参数名称，加编译选项在我这出现时好时坏的情况，所以本项目直接采用了 ASM 来获取参数名称。使用 QLExpress 来解析 @Value 的表达式。
 
-新版添加了 @PostConstruct 和 @PreDestroy 的支持
+添加了 @PostConstruct 和 @PreDestroy 的支持
+
+添加了 @DataBind 和 WebDataBinder 的支持，@DataBind 用于标注传入参数的名称或前缀，如 GET 请求参数为 name=name1&user.name=name2，如果在 @DataBind 中设置名称为 user，那么会使用 WebDataBinder 注入，注入的值就是 name2。若注入的不是请求参数而是绑定到容器的对象，那么会使用 DefaultDataBinder 注入，注入值是在容器中指定名称的对象或值。
+
+@Autowired 和 @DataBind 都已经支持设置 required，一旦无法找到注入的对象或值，那么就会抛出 NullPointerException。
+
+同时添加了 @Valid 校验注解，使用方式和 Spring 差不多，目前只支持在参数上使用，在参数上添加该注解，容器在注入后就会使用 HibernateValidator 对对象进行验证，如果验证失败会将信息封装到 ValidResult 和 ValidGroup 中，如果有多个错误，那么 ValidResult 只会保留最后一个。同 Spring 一样，如果注入的参数不包含 ValidResult 或 ValidGroup（在 Spring 中是 BindingResult），一旦校验失败则会抛出 ValidException。如果注入的参数中包含 ValidResult 或 ValidGroup，那么在校验失败的时候，容器不会抛出 ValidException，此时就需要在 Controller 中进行错误处理。
 
 ## TODO
 

@@ -67,7 +67,10 @@ public class WebDataBinder implements DataBinder {
             boolean oldFirst = this.first;
             this.prefix = this.concatPrefix(name);
             this.first = false;
-            object = container.make(type.getName(), (Class<?>) type, this);
+            object = container.make(concatName, type, this);
+            if (object == null) {
+                object = container.make(type.getName(), (Class<?>) type, this);
+            }
             this.prefix = oldPrefix;
             this.first = oldFirst;
         }

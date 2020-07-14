@@ -5,6 +5,7 @@
 package me.ixk.app.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import me.ixk.app.beans.User;
 import me.ixk.app.beans.User2;
@@ -40,7 +41,8 @@ public class TestController {
     @PostMapping("/body")
     public String body(
         @DataBind(name = "&body") JsonNode body,
-        @DataBind User2 user2
+        @DataBind User2 user2,
+        @DataBind(name = "request") HttpServletRequest request
     ) {
         return "body";
     }

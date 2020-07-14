@@ -24,6 +24,9 @@ public class DefaultDataBinder implements DataBinder {
             object = this.data.get(type.getName());
         }
         if (object == null) {
+            object = container.make(name, type, this);
+        }
+        if (object == null) {
             object = container.make(type, this);
         }
         return Convert.convert(type, object);
