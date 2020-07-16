@@ -5,8 +5,6 @@
 package me.ixk.app.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import me.ixk.app.beans.User;
 import me.ixk.app.beans.User2;
 import me.ixk.framework.annotations.*;
@@ -14,6 +12,9 @@ import me.ixk.framework.http.WebDataBinder;
 import me.ixk.framework.http.converter.TestConverter;
 import me.ixk.framework.utils.ValidGroup;
 import me.ixk.framework.utils.ValidResult;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/test")
@@ -45,6 +46,11 @@ public class TestController {
         @DataBind(name = "request") HttpServletRequest request
     ) {
         return "body";
+    }
+
+    @GetMapping("/case")
+    public String getCase(String userName) {
+        return userName;
     }
 
     @InitBinder
