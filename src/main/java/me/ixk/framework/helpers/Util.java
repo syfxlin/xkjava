@@ -4,6 +4,7 @@
 
 package me.ixk.framework.helpers;
 
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -12,6 +13,8 @@ import java.lang.reflect.Method;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.JSON;
 
@@ -355,5 +358,45 @@ public abstract class Util {
 
     public static String routeHandler(String[] handler) {
         return handler[0] + "@" + handler[1];
+    }
+
+    public static <T> T caseGet(String name, Function<String, T> fun) {
+        return caseGet(
+            name,
+            fun,
+            new char[] { '_', '-', 'a' },
+            Objects::nonNull
+        );
+    }
+
+    public static <T> T caseGet(
+        String name,
+        Function<String, T> fun,
+        Predicate<T> predicate
+    ) {
+        return caseGet(name, fun, new char[] { '_', '-', 'a' }, predicate);
+    }
+
+    public static <T> T caseGet(
+        String name,
+        Function<String, T> fun,
+        char[] splits,
+        Predicate<T> predicate
+    ) {
+        T target = fun.apply(name);
+        if (!predicate.test(target)) {
+            for (char split : splits) {
+                target =
+                    fun.apply(
+                        split == 'a'
+                            ? StrUtil.toCamelCase(name)
+                            : StrUtil.toSymbolCase(name, split)
+                    );
+                if (predicate.test(target)) {
+                    break;
+                }
+            }
+        }
+        return target;
     }
 }

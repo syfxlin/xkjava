@@ -4,7 +4,8 @@
 
 package me.ixk.framework.http;
 
-import cn.hutool.core.util.StrUtil;
+import static me.ixk.framework.helpers.Util.caseGet;
+
 import com.fasterxml.jackson.databind.node.NullNode;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,34 +50,17 @@ public class WebDataBinder implements DataBinder {
             this.prefix = name;
         }
         String concatName = this.concat(name);
-        String underlineName = StrUtil.toUnderlineCase(concatName);
-        String symbolName = StrUtil.toSymbolCase(concatName, '-');
         String typeName = type.getName();
-        Object object = this.request.all(concatName);
-        if (object == NullNode.getInstance()) {
-            object = null;
-        }
-        if (object == null) {
-            object = this.data.get(DEFAULT_VALUE_PREFIX + concatName);
-        }
-        if (object == null) {
-            object = this.request.all(underlineName);
-            if (object == NullNode.getInstance()) {
-                object = null;
+        Object object = caseGet(
+            concatName,
+            n -> {
+                Object target = this.request.all(n);
+                if (target == NullNode.getInstance()) {
+                    target = this.data.get(DEFAULT_VALUE_PREFIX + n);
+                }
+                return target;
             }
-        }
-        if (object == null) {
-            object = this.data.get(DEFAULT_VALUE_PREFIX + symbolName);
-        }
-        if (object == null) {
-            object = this.request.all(symbolName);
-            if (object == NullNode.getInstance()) {
-                object = null;
-            }
-        }
-        if (object == null) {
-            object = this.data.get(DEFAULT_VALUE_PREFIX + symbolName);
-        }
+        );
         if (object == null) {
             object = this.data.get(typeName);
         }

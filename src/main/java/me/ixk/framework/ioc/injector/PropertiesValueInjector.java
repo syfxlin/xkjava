@@ -4,6 +4,8 @@
 
 package me.ixk.framework.ioc.injector;
 
+import static me.ixk.framework.helpers.Util.caseGet;
+
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
@@ -90,7 +92,7 @@ public class PropertiesValueInjector implements InstanceInjector {
         ConfigurationProperties config,
         Map<String, Object> properties
     ) {
-        Object value = properties.get(field.getName());
+        Object value = caseGet(field.getName(), properties::get);
         if (value == null && !config.ignoreUnknownFields()) {
             throw new NullPointerException(
                 "Unknown property [" +

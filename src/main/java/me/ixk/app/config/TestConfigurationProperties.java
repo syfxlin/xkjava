@@ -15,4 +15,6 @@ public class TestConfigurationProperties {
 
     @Value("env.get('test.age1')")
     private Integer age;
+
+    private String nickName;
 }
