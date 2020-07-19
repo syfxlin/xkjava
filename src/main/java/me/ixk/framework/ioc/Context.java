@@ -31,9 +31,10 @@ public interface Context {
         return this.getBindings().get(name);
     }
 
-    default void setBinding(String name, Binding binding) {
+    default Binding setBinding(String name, Binding binding) {
         name = this.getCanonicalName(name);
         this.getBindings().put(name, binding);
+        return binding;
     }
 
     default boolean hasBinding(String name) {
@@ -58,8 +59,8 @@ public interface Context {
         return this.getBinding(requiredType.getName());
     }
 
-    default void setBinding(Class<?> requiredType, Binding binding) {
-        this.setBinding(requiredType.getName(), binding);
+    default Binding setBinding(Class<?> requiredType, Binding binding) {
+        return this.setBinding(requiredType.getName(), binding);
     }
 
     default boolean hasBinding(Class<?> requiredType) {
@@ -121,8 +122,8 @@ public interface Context {
         return (T) result.getInstance();
     }
 
-    default void setAttribute(String name, Object attribute) {
-        this.setBinding(
+    default Binding setAttribute(String name, Object attribute) {
+        return this.setBinding(
                 ATTRIBUTE_PREFIX + name,
                 new Binding(attribute, ScopeType.SINGLETON)
             );
@@ -146,7 +147,7 @@ public interface Context {
         return binding.getInstance();
     }
 
-    default void setInstance(String name, Object instance) {
+    default Binding setInstance(String name, Object instance) {
         Binding binding = this.getBinding(name);
         if (binding == null) {
             binding = new Binding(instance, ScopeType.SINGLETON, name);
@@ -154,6 +155,7 @@ public interface Context {
         } else {
             binding.setInstance(instance);
         }
+        return binding;
     }
 
     default boolean hasInstance(String name) {

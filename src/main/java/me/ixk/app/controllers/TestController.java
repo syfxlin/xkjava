@@ -5,6 +5,8 @@
 package me.ixk.app.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import me.ixk.app.beans.User;
 import me.ixk.app.beans.User2;
 import me.ixk.framework.annotations.*;
@@ -13,10 +15,8 @@ import me.ixk.framework.http.converter.TestConverter;
 import me.ixk.framework.utils.ValidGroup;
 import me.ixk.framework.utils.ValidResult;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
-@Controller
+// @Controller
+@Bean(destroyMethod = "destroy")
 @RequestMapping("/test")
 public class TestController {
     @Autowired(value = "name", required = false)
@@ -61,5 +61,9 @@ public class TestController {
         binder.addDefault("user3", user2);
         binder.addDefault("user4.name", "user4");
         binder.addConverter("user4.name", new TestConverter());
+    }
+
+    public void destroy() {
+        System.out.println("TestController destroy");
     }
 }

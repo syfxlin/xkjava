@@ -171,8 +171,8 @@ public class Container implements Context {
     }
 
     @Override
-    public void setBinding(String name, Binding binding) {
-        this.getContextByBinding(binding).setBinding(name, binding);
+    public Binding setBinding(String name, Binding binding) {
+        return this.getContextByBinding(binding).setBinding(name, binding);
     }
 
     @Override
@@ -268,12 +268,12 @@ public class Container implements Context {
         return this.getContextByName(this.getContextNameByBinding(binding));
     }
 
-    public void setAttribute(
+    public Binding setAttribute(
         String name,
         Object attribute,
         ScopeType scopeType
     ) {
-        this.setBinding(
+        return this.setBinding(
                 Context.ATTRIBUTE_PREFIX + name,
                 new Binding(attribute, scopeType)
             );
@@ -347,7 +347,7 @@ public class Container implements Context {
 
     /* ===================== doBind ===================== */
 
-    private synchronized Container doBind(
+    private synchronized Binding doBind(
         String bindName,
         Binding binding,
         String alias
@@ -359,11 +359,10 @@ public class Container implements Context {
                     this.getContextNameByBinding(binding)
                 );
         }
-        this.setBinding(bindName, binding);
-        return this;
+        return this.setBinding(bindName, binding);
     }
 
-    protected synchronized Container doBind(
+    protected synchronized Binding doBind(
         String bindName,
         Wrapper wrapper,
         String alias,
@@ -585,22 +584,22 @@ public class Container implements Context {
     // String
     // String, Wrapper
 
-    public Container bind(String bindName) {
+    public Binding bind(String bindName) {
         return this.bind(
                 bindName,
                 (container, with) -> container.build(bindName)
             );
     }
 
-    public Container bind(String bindName, Wrapper wrapper) {
+    public Binding bind(String bindName, Wrapper wrapper) {
         return this.bind(bindName, wrapper, null);
     }
 
-    public Container bind(String bindName, Wrapper wrapper, String alias) {
+    public Binding bind(String bindName, Wrapper wrapper, String alias) {
         return this.bind(bindName, wrapper, alias, ScopeType.PROTOTYPE);
     }
 
-    public Container bind(
+    public Binding bind(
         String bindName,
         Wrapper wrapper,
         String alias,
@@ -609,7 +608,7 @@ public class Container implements Context {
         return this.bind(bindName, wrapper, alias, scopeType, false);
     }
 
-    public Container bind(
+    public Binding bind(
         String bindName,
         Wrapper wrapper,
         String alias,
@@ -622,22 +621,22 @@ public class Container implements Context {
     // Class
     // Class, Wrapper
 
-    public Container bind(Class<?> bingType) {
+    public Binding bind(Class<?> bingType) {
         return this.bind(
                 bingType,
                 (container, with) -> container.build(bingType)
             );
     }
 
-    public Container bind(Class<?> bingType, Wrapper wrapper) {
+    public Binding bind(Class<?> bingType, Wrapper wrapper) {
         return this.bind(bingType, wrapper, null);
     }
 
-    public Container bind(Class<?> bingType, Wrapper wrapper, String alias) {
+    public Binding bind(Class<?> bingType, Wrapper wrapper, String alias) {
         return this.bind(bingType, wrapper, alias, ScopeType.PROTOTYPE);
     }
 
-    public Container bind(
+    public Binding bind(
         Class<?> bingType,
         Wrapper wrapper,
         String alias,
@@ -646,7 +645,7 @@ public class Container implements Context {
         return this.bind(bingType, wrapper, alias, scopeType, false);
     }
 
-    public Container bind(
+    public Binding bind(
         Class<?> bindType,
         Wrapper wrapper,
         String alias,
@@ -664,15 +663,15 @@ public class Container implements Context {
 
     // String, String
 
-    public Container bind(String bindName, String wrapper) {
+    public Binding bind(String bindName, String wrapper) {
         return this.bind(bindName, wrapper, null);
     }
 
-    public Container bind(String bindName, String wrapper, String alias) {
+    public Binding bind(String bindName, String wrapper, String alias) {
         return this.bind(bindName, wrapper, alias, ScopeType.PROTOTYPE);
     }
 
-    public Container bind(
+    public Binding bind(
         String bindName,
         String wrapper,
         String alias,
@@ -681,7 +680,7 @@ public class Container implements Context {
         return this.bind(bindName, wrapper, alias, scopeType, false);
     }
 
-    public Container bind(
+    public Binding bind(
         String bindName,
         String wrapper,
         String alias,
@@ -699,15 +698,15 @@ public class Container implements Context {
 
     // Class, Class
 
-    public Container bind(Class<?> bindType, Class<?> wrapper) {
+    public Binding bind(Class<?> bindType, Class<?> wrapper) {
         return this.bind(bindType, wrapper, null);
     }
 
-    public Container bind(Class<?> bindType, Class<?> wrapper, String alias) {
+    public Binding bind(Class<?> bindType, Class<?> wrapper, String alias) {
         return this.bind(bindType, wrapper, alias, ScopeType.PROTOTYPE);
     }
 
-    public Container bind(
+    public Binding bind(
         Class<?> bindType,
         Class<?> wrapper,
         String alias,
@@ -716,7 +715,7 @@ public class Container implements Context {
         return this.bind(bindType, wrapper, alias, scopeType, false);
     }
 
-    public Container bind(
+    public Binding bind(
         Class<?> bindType,
         Class<?> wrapper,
         String alias,
@@ -734,19 +733,19 @@ public class Container implements Context {
 
     /* ==================== singleton ====================== */
 
-    public Container singleton(String bindName) {
+    public Binding singleton(String bindName) {
         return this.singleton(bindName, bindName);
     }
 
-    public Container singleton(String bindName, String wrapper) {
+    public Binding singleton(String bindName, String wrapper) {
         return this.singleton(bindName, wrapper, null);
     }
 
-    public Container singleton(String bindName, String wrapper, String alias) {
+    public Binding singleton(String bindName, String wrapper, String alias) {
         return this.singleton(bindName, wrapper, alias, false);
     }
 
-    public Container singleton(
+    public Binding singleton(
         String bindName,
         String wrapper,
         String alias,
@@ -761,15 +760,15 @@ public class Container implements Context {
             );
     }
 
-    public Container singleton(String bindName, Wrapper wrapper) {
+    public Binding singleton(String bindName, Wrapper wrapper) {
         return this.singleton(bindName, wrapper, null);
     }
 
-    public Container singleton(String bindName, Wrapper wrapper, String alias) {
+    public Binding singleton(String bindName, Wrapper wrapper, String alias) {
         return this.singleton(bindName, wrapper, alias, false);
     }
 
-    public Container singleton(
+    public Binding singleton(
         String bindName,
         Wrapper wrapper,
         String alias,
@@ -784,15 +783,15 @@ public class Container implements Context {
             );
     }
 
-    public Container singleton(Class<?> bindType) {
+    public Binding singleton(Class<?> bindType) {
         return this.singleton(bindType, bindType);
     }
 
-    public Container singleton(Class<?> bindType, Class<?> wrapper) {
+    public Binding singleton(Class<?> bindType, Class<?> wrapper) {
         return this.singleton(bindType, wrapper, null);
     }
 
-    public Container singleton(
+    public Binding singleton(
         Class<?> bindType,
         Class<?> wrapper,
         String alias
@@ -800,7 +799,7 @@ public class Container implements Context {
         return this.singleton(bindType, wrapper, alias, false);
     }
 
-    public Container singleton(
+    public Binding singleton(
         Class<?> bindType,
         Class<?> wrapper,
         String alias,
@@ -815,19 +814,15 @@ public class Container implements Context {
             );
     }
 
-    public Container singleton(Class<?> bindType, Wrapper wrapper) {
+    public Binding singleton(Class<?> bindType, Wrapper wrapper) {
         return this.singleton(bindType, wrapper, null);
     }
 
-    public Container singleton(
-        Class<?> bindType,
-        Wrapper wrapper,
-        String alias
-    ) {
+    public Binding singleton(Class<?> bindType, Wrapper wrapper, String alias) {
         return this.singleton(bindType, wrapper, alias, false);
     }
 
-    public Container singleton(
+    public Binding singleton(
         Class<?> bindType,
         Wrapper wrapper,
         String alias,

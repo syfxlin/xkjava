@@ -28,8 +28,8 @@ public interface ThreadLocalContext extends Context {
     }
 
     @Override
-    default void setAttribute(String name, Object attribute) {
-        this.setBinding(
+    default Binding setAttribute(String name, Object attribute) {
+        return this.setBinding(
                 ATTRIBUTE_PREFIX + name,
                 new Binding(attribute, ScopeType.REQUEST)
             );
