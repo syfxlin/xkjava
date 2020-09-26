@@ -7,40 +7,32 @@ package me.ixk.app.controllers.Auth;
 import static me.ixk.framework.helpers.Facade.response;
 
 import me.ixk.app.auth.Auth;
-import me.ixk.app.entity.LoginUser;
+import me.ixk.app.entity.RegisterUser;
 import me.ixk.framework.annotations.Controller;
 import me.ixk.framework.annotations.GetMapping;
 import me.ixk.framework.annotations.Middleware;
 import me.ixk.framework.annotations.PostMapping;
 import me.ixk.framework.http.Response;
-import me.ixk.framework.http.result.RedirectResult;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.ViewResult;
 import me.ixk.framework.ioc.XkJava;
 
 @Controller
-public class LoginController {
+public class RegisterController {
 
-    @GetMapping("/login")
+    @GetMapping("/register")
     @Middleware(name = "guest")
     public ViewResult index() {
-        return Result.view("auth/login");
+        return Result.view("auth/register");
     }
 
-    @PostMapping("/login")
+    @PostMapping("/register")
     @Middleware(name = "guest")
-    public Response login(final LoginUser user) {
-        final Auth.Result result = XkJava.of().make(Auth.class).login(user);
+    public Response register(final RegisterUser user) {
+        final Auth.Result result = XkJava.of().make(Auth.class).register(user);
         if (result.isOk()) {
-            return response().redirect("/free-marker");
+            return response().redirect("/login");
         }
         return response().text(result.getErrors().toString());
-    }
-
-    @GetMapping("/logout")
-    @Middleware(name = "auth")
-    public RedirectResult logout() {
-        XkJava.of().make(Auth.class).logout();
-        return Result.redirect("/login");
     }
 }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
+ */
+
 package me.ixk.app.auth;
 
 import static me.ixk.framework.helpers.Facade.*;
@@ -92,13 +96,15 @@ public class Auth {
                 .get(this.getRememberName());
             if (tokenCookie != null) {
                 String[] tokens = tokenCookie.getValue().split("\\|");
-                this.user =
-                    usersService
-                        .query()
-                        .eq("id", tokens[0])
-                        .eq("remember_token", tokens[1])
-                        .eq("password", tokens[2])
-                        .one();
+                if (tokens.length == 3) {
+                    this.user =
+                        usersService
+                            .query()
+                            .eq("id", tokens[0])
+                            .eq("remember_token", tokens[1])
+                            .eq("password", tokens[2])
+                            .one();
+                }
                 if (this.user != null) {
                     this.updateSession(this.user.getId());
                     this.viaRemember = true;
