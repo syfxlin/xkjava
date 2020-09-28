@@ -22,4 +22,6 @@ public class Visitors implements Serializable {
     private Integer id;
 
     private Long counts;
+
+    private String users;
 }

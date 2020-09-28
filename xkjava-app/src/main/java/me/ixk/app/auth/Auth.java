@@ -4,7 +4,9 @@
 
 package me.ixk.app.auth;
 
-import static me.ixk.framework.helpers.Facade.*;
+import static me.ixk.framework.helpers.Facade.cookie;
+import static me.ixk.framework.helpers.Facade.hash;
+import static me.ixk.framework.helpers.Facade.session;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -87,13 +89,13 @@ public class Auth {
         if (this.user != null) {
             return this.user;
         }
-        Long id = session().get(this.getName(), Long.class);
+        Long id = session().get(getName(), Long.class);
         if (id != null) {
             this.user = this.usersService.getById(id);
         }
         if (this.user == null) {
             javax.servlet.http.Cookie tokenCookie = cookie()
-                .get(this.getRememberName());
+                .get(getRememberName());
             if (tokenCookie != null) {
                 String[] tokens = tokenCookie.getValue().split("\\|");
                 if (tokens.length == 3) {
@@ -123,7 +125,7 @@ public class Auth {
     }
 
     protected void updateSession(long id) {
-        session().put(this.getName(), id);
+        session().put(getName(), id);
     }
 
     protected void updateRememberToken(Users user) {
@@ -137,7 +139,7 @@ public class Auth {
 
     protected void queueRememberTokenCookie(Users user) {
         SetCookie cookie = new SetCookie(
-            this.getRememberName(),
+            getRememberName(),
             user.getId() +
             "|" +
             user.getRememberToken() +
@@ -149,17 +151,17 @@ public class Auth {
     }
 
     protected void clearUserDataFromStorage() {
-        session().forget(this.getName());
-        if (cookie().get(this.getRememberName()) != null) {
-            cookie().forget(this.getRememberName());
+        session().forget(getName());
+        if (cookie().get(getRememberName()) != null) {
+            cookie().forget(getRememberName());
         }
     }
 
-    protected String getName() {
+    public static String getName() {
         return "login_" + Auth.class.getName();
     }
 
-    protected String getRememberName() {
+    public static String getRememberName() {
         return "remember_" + Auth.class.getName().replace(".", "_");
     }
 

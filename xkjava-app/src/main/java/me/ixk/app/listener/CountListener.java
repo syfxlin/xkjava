@@ -7,13 +7,11 @@ package me.ixk.app.listener;
 import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
-import lombok.extern.slf4j.Slf4j;
 import me.ixk.app.entity.Visitors;
 import me.ixk.app.service.impl.VisitorsServiceImpl;
 import me.ixk.framework.ioc.XkJava;
 
 @WebListener
-@Slf4j
 public class CountListener implements HttpSessionListener {
     final VisitorsServiceImpl visitorsService = XkJava
         .of()
