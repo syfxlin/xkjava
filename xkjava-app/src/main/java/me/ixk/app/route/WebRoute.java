@@ -13,6 +13,6 @@ public class WebRoute implements RouteDefinition {
 
     @Override
     public void routes(RouteCollector r) {
-        System.out.println();
+        //
     }
 }

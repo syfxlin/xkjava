@@ -12,6 +12,7 @@ import me.ixk.framework.database.SqlSessionManager;
 import me.ixk.framework.exceptions.TransactionalException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.AnnotationUtils;
+import org.apache.ibatis.session.SqlSession;
 
 @Aspect("@annotation(me.ixk.framework.annotations.Transactional)")
 public class TransactionalAspect extends AbstractAdvice {
@@ -25,10 +26,12 @@ public class TransactionalAspect extends AbstractAdvice {
             joinPoint.getMethod(),
             Transactional.class
         );
+        SqlSession sqlSession = sqlSessionManager.startTransactionSession(
+            transactional.isolation()
+        );
         try {
-            sqlSessionManager.startManagedSession(transactional.isolation());
             Object result = joinPoint.proceed();
-            sqlSessionManager.commit();
+            sqlSession.commit();
             return result;
         } catch (Throwable t) {
             boolean rollback =
@@ -40,11 +43,11 @@ public class TransactionalAspect extends AbstractAdvice {
                 }
             }
             if (rollback) {
-                sqlSessionManager.rollback();
+                sqlSession.rollback();
             }
             throw new TransactionalException("Transactional process error", t);
         } finally {
-            sqlSessionManager.close();
+            sqlSession.close();
         }
     }
 }
