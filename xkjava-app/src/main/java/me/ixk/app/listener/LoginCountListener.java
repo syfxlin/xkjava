@@ -6,7 +6,9 @@ package me.ixk.app.listener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpSessionAttributeListener;
 import javax.servlet.http.HttpSessionBindingEvent;
@@ -25,9 +27,10 @@ public class LoginCountListener implements HttpSessionAttributeListener {
     public void attributeAdded(final HttpSessionBindingEvent event) {
         if (event.getName().equals(Auth.getName())) {
             final Visitors visitors = visitorsService.getById(3);
-            final List<String> users = new ArrayList<>(
-                Arrays.asList(visitors.getUsers().split(","))
-            );
+            final String usersStr = visitors.getUsers();
+            final Set<String> users = usersStr == null || usersStr.isEmpty()
+                ? new HashSet<>()
+                : new HashSet<>(Arrays.asList(usersStr.split(",")));
             users.add(event.getValue().toString());
             visitors.setUsers(String.join(",", users));
             visitorsService.saveOrUpdate(visitors);
@@ -38,10 +41,11 @@ public class LoginCountListener implements HttpSessionAttributeListener {
     public void attributeRemoved(final HttpSessionBindingEvent event) {
         if (event.getName().equals(Auth.getName())) {
             final Visitors visitors = visitorsService.getById(3);
-            final List<String> users = new ArrayList<>(
-                Arrays.asList(visitors.getUsers().split(","))
-            );
-            users.remove((String) event.getValue());
+            final String usersStr = visitors.getUsers();
+            final List<String> users = usersStr == null || usersStr.isEmpty()
+                ? new ArrayList<>()
+                : new ArrayList<>(Arrays.asList(usersStr.split(",")));
+            users.remove(event.getValue().toString());
             visitors.setUsers(String.join(",", users));
             visitorsService.saveOrUpdate(visitors);
         }

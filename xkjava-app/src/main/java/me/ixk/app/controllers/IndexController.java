@@ -12,7 +12,15 @@ import me.ixk.app.beans.User;
 import me.ixk.app.beans.User3;
 import me.ixk.app.config.TestConfigurationProperties;
 import me.ixk.app.service.impl.UsersServiceImpl;
-import me.ixk.framework.annotations.*;
+import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.annotations.Controller;
+import me.ixk.framework.annotations.ExceptionHandler;
+import me.ixk.framework.annotations.GetMapping;
+import me.ixk.framework.annotations.Middleware;
+import me.ixk.framework.annotations.PostConstruct;
+import me.ixk.framework.annotations.PostMapping;
+import me.ixk.framework.annotations.PreDestroy;
+import me.ixk.framework.annotations.Transactional;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Request;
@@ -96,6 +104,11 @@ public class IndexController {
     @GetMapping("/exce")
     public TextResult exce() {
         throw new HttpException(HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping("/encoding")
+    public TextResult encoding() {
+        return Result.text("中文");
     }
 
     @Autowired

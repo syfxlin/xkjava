@@ -4,6 +4,7 @@
 
 package me.ixk.app.controllers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -37,11 +38,14 @@ public class CountController {
         final Map<String, Object> objectMap = new ConcurrentHashMap<>();
         objectMap.put("countOnline", visitorsOnline.getCounts());
         objectMap.put("countHistory", visitorsHistory.getCounts());
-        List<Users> usersList = Arrays
-            .stream(visitorsLogin.getUsers().split(","))
-            .map(Long::parseLong)
-            .map(usersService::getById)
-            .collect(Collectors.toList());
+        String users = visitorsLogin.getUsers();
+        List<Users> usersList = users == null || users.isEmpty()
+            ? new ArrayList<>()
+            : Arrays
+                .stream(users.split(","))
+                .map(Long::parseLong)
+                .map(usersService::getById)
+                .collect(Collectors.toList());
         objectMap.put("usersList", usersList);
         return Result.view("count/index", objectMap);
     }
