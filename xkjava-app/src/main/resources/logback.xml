@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
+  -->
 <!-- scan ：开启"热更新" scanPeriod："热更新"扫描周期，默认 60 seconds(60秒)-->
 <configuration scan="true" scanPeriod="300 seconds">
   <property
