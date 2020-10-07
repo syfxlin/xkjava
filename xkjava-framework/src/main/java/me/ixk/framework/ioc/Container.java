@@ -75,6 +75,8 @@ public class Container implements Context {
 
         this.addBeanBeforeProcessor(new PostConstructProcessor());
         this.addBeanAfterProcessor(new PreDestroyProcessor());
+
+        log.info("Container created");
     }
 
     // 销毁方法
@@ -83,6 +85,7 @@ public class Container implements Context {
             Context context = this.contexts.values().iterator().next();
             this.removeContext(context);
         }
+        log.info("Container destroyed");
     }
 
     /* ===================== Base ===================== */
@@ -98,6 +101,7 @@ public class Container implements Context {
     }
 
     public void registerContext(Context context) {
+        log.debug("Container registered context: {}", context.getName());
         this.contexts.put(context.getName(), context);
     }
 
@@ -107,6 +111,7 @@ public class Container implements Context {
     }
 
     public void removeContext(Context context) {
+        log.debug("Container remove context: {}", context.getName());
         if (context.isCreated()) {
             for (String name : context.getBindings().keySet()) {
                 this.doRemove(name);
@@ -186,6 +191,7 @@ public class Container implements Context {
 
     @Override
     public Binding setBinding(String name, Binding binding) {
+        log.debug("Container set binding: {}", name);
         return this.getContextByBinding(binding).setBinding(name, binding);
     }
 
@@ -207,6 +213,7 @@ public class Container implements Context {
 
     @Override
     public void removeBinding(String name) {
+        log.debug("Container remove binding: {}", name);
         this.walkContexts(
                 (Consumer<Context>) context -> context.removeBinding(name)
             );
@@ -219,6 +226,12 @@ public class Container implements Context {
     }
 
     public void registerAlias(String alias, String name, String contextName) {
+        log.debug(
+            "Container register alias: {} - ({} -> {})",
+            contextName,
+            alias,
+            name
+        );
         if (!this.contexts.containsKey(contextName)) {
             throw new ContainerException(
                 "Target [" + contextName + "] context is not registered"
@@ -229,6 +242,7 @@ public class Container implements Context {
 
     @Override
     public void removeAlias(String alias) {
+        log.debug("Container remove alias: {}", alias);
         this.walkContexts(
                 (Consumer<Context>) context -> context.removeAlias(alias)
             );
@@ -287,6 +301,7 @@ public class Container implements Context {
         Object attribute,
         ScopeType scopeType
     ) {
+        log.debug("Container set attribute: {} - {}", scopeType, name);
         return this.setBinding(
                 Context.ATTRIBUTE_PREFIX + name,
                 new Binding(attribute, scopeType)
@@ -387,6 +402,12 @@ public class Container implements Context {
         Binding binding,
         String alias
     ) {
+        log.debug(
+            "Container bind: {} - {}({})",
+            binding.getScope(),
+            bindName,
+            alias
+        );
         if (alias != null) {
             this.registerAlias(
                     alias,
@@ -440,6 +461,7 @@ public class Container implements Context {
         if (ClassUtils.isSkipBuildType(instanceType)) {
             return ClassUtil.getDefaultValue(instanceType);
         }
+        log.debug("Container build: {}", instanceType);
         Constructor<?>[] constructors = ReflectUtils.sortConstructors(
             instanceType.getDeclaredConstructors()
         );
@@ -488,6 +510,7 @@ public class Container implements Context {
         String instanceName,
         Class<T> returnType
     ) {
+        log.debug("Container make: {} - {}", instanceName, returnType);
         Binding binding = this.getOrDefaultBinding(instanceName);
         ScopeType scopeType = binding.getScope();
         Object instance =
@@ -529,6 +552,7 @@ public class Container implements Context {
     /* ===================== doRemove ===================== */
 
     protected synchronized Container doRemove(String name) {
+        log.debug("Container remove: {}", name);
         Binding binding = this.getBinding(name);
         if (binding.isCreated()) {
             this.processBeanAfter(binding, binding.getInstance());
@@ -544,6 +568,7 @@ public class Container implements Context {
         Method method,
         Class<T> returnType
     ) {
+        log.debug("Container call method: {} - {}", method, returnType);
         Object[] dependencies = this.processParameterInjector(null, method);
         return Convert.convert(
             returnType,
@@ -1219,6 +1244,7 @@ public class Container implements Context {
     }
 
     public Container addInstanceInjector(InstanceInjector injector) {
+        log.debug("Container add instance injector: {}", injector);
         this.instanceInjectors.put(injector.getClass(), injector);
         return this;
     }
@@ -1226,6 +1252,7 @@ public class Container implements Context {
     public Container removeInstanceInjector(
         Class<? extends InstanceInjector> injector
     ) {
+        log.debug("Container remove instance injector: {}", injector);
         this.instanceInjectors.remove(injector);
         return this;
     }
@@ -1235,6 +1262,7 @@ public class Container implements Context {
     }
 
     public Container addParameterInjector(ParameterInjector injector) {
+        log.debug("Container add parameter injector: {}", injector);
         this.parameterInjectors.put(injector.getClass(), injector);
         return this;
     }
@@ -1242,6 +1270,7 @@ public class Container implements Context {
     public Container removeParameterInjector(
         Class<? extends ParameterInjector> injector
     ) {
+        log.debug("Container remove parameter injector: {}", injector);
         this.parameterInjectors.remove(injector);
         return this;
     }
@@ -1251,6 +1280,7 @@ public class Container implements Context {
     }
 
     public Container addBeanBeforeProcessor(BeanBeforeProcessor processor) {
+        log.debug("Container add bean before processor: {}", processor);
         this.beanBeforeProcessors.put(processor.getClass(), processor);
         return this;
     }
@@ -1258,6 +1288,7 @@ public class Container implements Context {
     public Container removeBeanBeforeProcessor(
         Class<? extends BeanBeforeProcessor> processor
     ) {
+        log.debug("Container remove bean before processor: {}", processor);
         this.beanBeforeProcessors.remove(processor);
         return this;
     }
@@ -1267,6 +1298,7 @@ public class Container implements Context {
     }
 
     public Container addBeanAfterProcessor(BeanAfterProcessor processor) {
+        log.debug("Container add bean after processor: {}", processor);
         this.beanAfterProcessors.put(processor.getClass(), processor);
         return this;
     }
@@ -1274,6 +1306,7 @@ public class Container implements Context {
     public Container removeBeanAfterProcessor(
         Class<? extends BeanAfterProcessor> processor
     ) {
+        log.debug("Container remove bean after processor: {}", processor);
         this.beanAfterProcessors.remove(processor);
         return this;
     }

@@ -5,9 +5,20 @@
 package me.ixk.framework.annotations;
 
 public enum ScopeType {
-    SINGLETON,
-    PROTOTYPE,
-    REQUEST,;
+    SINGLETON("singleton"),
+    PROTOTYPE("prototype"),
+    REQUEST("request"),;
+
+    private final String name;
+
+    ScopeType(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
 
     public boolean isShared() {
         return this != PROTOTYPE;
