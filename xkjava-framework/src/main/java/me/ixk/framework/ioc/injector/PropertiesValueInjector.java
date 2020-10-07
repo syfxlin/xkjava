@@ -27,87 +27,100 @@ import me.ixk.framework.utils.Express;
 
 public class PropertiesValueInjector implements InstanceInjector {
 
-  @Override
-  public Object inject(
-    Container container,
-    Binding binding,
-    Object instance,
-    Class<?> instanceClass,
-    DataBinder dataBinder
-  ) {
-    if (
-      instance == null ||
-      instance instanceof Bootstrap ||
-      instance instanceof Environment
+    @Override
+    public Object inject(
+        Container container,
+        Binding binding,
+        Object instance,
+        Class<?> instanceClass,
+        DataBinder dataBinder
     ) {
-      return instance;
-    }
-    Field[] fields = instanceClass.getDeclaredFields();
-    ConfigurationProperties config = AnnotationUtils.getAnnotation(
-      instanceClass,
-      ConfigurationProperties.class
-    );
-    Environment environment = container.make(Environment.class);
-    Map<String, Object> prefixProps = null;
-    if (config != null) {
-      prefixProps = environment.getPrefix(config.prefix());
-    }
-    for (Field field : fields) {
-      Value valueAnno = field.getAnnotation(Value.class);
-      if (config == null && valueAnno == null) {
-        continue;
-      }
-      PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
-        instanceClass,
-        field.getName()
-      );
-      if (propertyDescriptor == null) {
-        continue;
-      }
-      Method writeMethod = propertyDescriptor.getWriteMethod();
-      Object value;
-      if (config != null && valueAnno == null) {
-        // @ConfigurationProperties 没有 @Value 注解
-        value = this.injectConfigurationProperties(field, config, prefixProps);
-      } else {
-        // 有 @Value 注解就优先使用
-        value = this.injectValue(field, valueAnno);
-      }
-      if (writeMethod != null) {
-        ReflectUtil.invoke(instance, writeMethod, value);
-      } else {
-        ReflectUtil.setFieldValue(instance, field, value);
-      }
-    }
-    return instance;
-  }
-
-  protected Object injectConfigurationProperties(
-    Field field,
-    ConfigurationProperties config,
-    Map<String, Object> properties
-  ) {
-    Object value = caseGet(field.getName(), properties::get);
-    if (value == null && !config.ignoreUnknownFields()) {
-      throw new NullPointerException(
-        "Unknown property [" + config.prefix() + "." + field.getName() + "]"
-      );
-    }
-    try {
-      value = Convert.convert(field.getType(), value);
-    } catch (Exception e) {
-      if (!config.ignoreInvalidFields()) {
-        throw new RuntimeException(
-          "Invalid property [" + config.prefix() + "." + field.getName() + "]",
-          e
+        if (
+            instance == null ||
+            instance instanceof Bootstrap ||
+            instance instanceof Environment
+        ) {
+            return instance;
+        }
+        Field[] fields = instanceClass.getDeclaredFields();
+        ConfigurationProperties config = AnnotationUtils.getParentAnnotation(
+            instanceClass,
+            ConfigurationProperties.class
         );
-      }
-      value = ClassUtil.getDefaultValue(field.getType());
+        Environment environment = container.make(Environment.class);
+        Map<String, Object> prefixProps = null;
+        if (config != null) {
+            prefixProps = environment.getPrefix(config.prefix());
+        }
+        for (Field field : fields) {
+            Value valueAnno = field.getAnnotation(Value.class);
+            if (config == null && valueAnno == null) {
+                continue;
+            }
+            PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
+                instanceClass,
+                field.getName()
+            );
+            if (propertyDescriptor == null) {
+                continue;
+            }
+            Method writeMethod = propertyDescriptor.getWriteMethod();
+            Object value;
+            if (config != null && valueAnno == null) {
+                // @ConfigurationProperties 没有 @Value 注解
+                value =
+                    this.injectConfigurationProperties(
+                            field,
+                            config,
+                            prefixProps
+                        );
+            } else {
+                // 有 @Value 注解就优先使用
+                value = this.injectValue(field, valueAnno);
+            }
+            if (writeMethod != null) {
+                ReflectUtil.invoke(instance, writeMethod, value);
+            } else {
+                ReflectUtil.setFieldValue(instance, field, value);
+            }
+        }
+        return instance;
     }
-    return value;
-  }
 
-  protected Object injectValue(Field field, Value value) {
-    return Express.executeEnv(value.value());
-  }
+    protected Object injectConfigurationProperties(
+        Field field,
+        ConfigurationProperties config,
+        Map<String, Object> properties
+    ) {
+        Object value = caseGet(field.getName(), properties::get);
+        if (value == null && !config.ignoreUnknownFields()) {
+            throw new NullPointerException(
+                "Unknown property [" +
+                config.prefix() +
+                "." +
+                field.getName() +
+                "]"
+            );
+        }
+        try {
+            value = Convert.convert(field.getType(), value);
+        } catch (Exception e) {
+            if (!config.ignoreInvalidFields()) {
+                throw new RuntimeException(
+                    "Invalid property [" +
+                    config.prefix() +
+                    "." +
+                    field.getName() +
+                    "]",
+                    e
+                );
+            }
+            value = ClassUtil.getDefaultValue(field.getType());
+        }
+        return value;
+    }
+
+    protected Object injectValue(Field field, Value value) {
+        return Express.executeEnv(value.value());
+    }
 }

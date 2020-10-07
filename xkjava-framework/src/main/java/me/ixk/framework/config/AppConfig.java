@@ -2,17 +2,25 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.app.config;
-
-import me.ixk.framework.annotations.*;
-import me.ixk.framework.config.AbstractConfig;
-import me.ixk.framework.ioc.XkJava;
+package me.ixk.framework.config;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.annotations.Aspect;
+import me.ixk.framework.annotations.Bean;
+import me.ixk.framework.annotations.Component;
+import me.ixk.framework.annotations.Config;
+import me.ixk.framework.annotations.Configuration;
+import me.ixk.framework.annotations.ConfigurationProperties;
+import me.ixk.framework.annotations.Controller;
+import me.ixk.framework.annotations.ControllerAdvice;
+import me.ixk.framework.annotations.Mapper;
+import me.ixk.framework.annotations.Repository;
+import me.ixk.framework.annotations.Service;
+import me.ixk.framework.ioc.XkJava;
 
 @Config(name = "app")
 public class AppConfig extends AbstractConfig {

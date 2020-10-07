@@ -76,21 +76,21 @@ public class Binding {
             }
             List<Method> autowiredMethods = new ArrayList<>();
             for (Method method : instanceType.getDeclaredMethods()) {
-                PostConstruct postConstruct = AnnotationUtils.getAnnotation(
+                PostConstruct postConstruct = AnnotationUtils.getParentAnnotation(
                     method,
                     PostConstruct.class
                 );
                 if (postConstruct != null) {
                     bindingCache.setInitMethod(method);
                 }
-                PreDestroy preDestroy = AnnotationUtils.getAnnotation(
+                PreDestroy preDestroy = AnnotationUtils.getParentAnnotation(
                     method,
                     PreDestroy.class
                 );
                 if (preDestroy != null) {
                     bindingCache.setDestroyMethods(method);
                 }
-                Autowired autowired = AnnotationUtils.getAnnotation(
+                Autowired autowired = AnnotationUtils.getParentAnnotation(
                     method,
                     Autowired.class
                 );

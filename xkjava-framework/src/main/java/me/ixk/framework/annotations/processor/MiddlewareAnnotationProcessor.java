@@ -65,7 +65,7 @@ public class MiddlewareAnnotationProcessor extends AbstractAnnotationProcessor {
                     )
             ) {
                 String name = AnnotationUtils
-                    .getAnnotation(_class, RouteMiddleware.class)
+                    .getParentAnnotation(_class, RouteMiddleware.class)
                     .name();
                 routeMiddleware.put(
                     name,
@@ -75,7 +75,7 @@ public class MiddlewareAnnotationProcessor extends AbstractAnnotationProcessor {
         }
         // use
         for (Method method : this.getMethodsAnnotated(Middleware.class)) {
-            Middleware annotation = AnnotationUtils.getAnnotation(
+            Middleware annotation = AnnotationUtils.getParentAnnotation(
                 method,
                 Middleware.class
             );

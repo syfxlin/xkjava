@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Scope(ScopeType.PROTOTYPE)
+@Bean
 public @interface Repository {
     @AliasFor("name")
     String[] value() default {  };

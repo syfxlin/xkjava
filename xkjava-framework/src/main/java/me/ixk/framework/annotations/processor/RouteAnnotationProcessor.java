@@ -9,12 +9,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import me.ixk.framework.annotations.AnnotationProcessor;
-import me.ixk.framework.annotations.DeleteMapping;
-import me.ixk.framework.annotations.GetMapping;
 import me.ixk.framework.annotations.Order;
-import me.ixk.framework.annotations.PatchMapping;
-import me.ixk.framework.annotations.PostMapping;
-import me.ixk.framework.annotations.PutMapping;
 import me.ixk.framework.annotations.RequestMapping;
 import me.ixk.framework.annotations.RequestMethod;
 import me.ixk.framework.annotations.Route;
@@ -39,11 +34,11 @@ public class RouteAnnotationProcessor extends AbstractAnnotationProcessor {
         this.processDefinitionAnnotation();
         // mapping
         this.processAnnotation(RequestMapping.class);
-        this.processAnnotation(GetMapping.class);
-        this.processAnnotation(PostMapping.class);
-        this.processAnnotation(PutMapping.class);
-        this.processAnnotation(DeleteMapping.class);
-        this.processAnnotation(PatchMapping.class);
+        // this.processAnnotation(GetMapping.class);
+        // this.processAnnotation(PostMapping.class);
+        // this.processAnnotation(PutMapping.class);
+        // this.processAnnotation(DeleteMapping.class);
+        // this.processAnnotation(PatchMapping.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -69,27 +64,23 @@ public class RouteAnnotationProcessor extends AbstractAnnotationProcessor {
                     new ArrayList<>()
                 );
         for (final Method method : this.getMethodsAnnotated(annotation)) {
-            final Annotation a = AnnotationUtils.getAnnotation(
+            final RequestMapping a = (RequestMapping) AnnotationUtils.getParentAnnotation(
                 method,
                 annotation
             );
             if (a == null) {
                 continue;
             }
-            final RequestMapping baseMapping = AnnotationUtils.getAnnotation(
+            final RequestMapping baseMapping = AnnotationUtils.getParentAnnotation(
                 method.getDeclaringClass(),
                 RequestMapping.class
             );
             try {
-                final RequestMethod[] requestMethods = (RequestMethod[]) AnnotationUtils.getAnnotationValue(
-                    a,
-                    "method"
-                );
+                final RequestMethod[] requestMethods = a.method();
                 String requestUrl = baseMapping != null
                     ? baseMapping.value()
                     : "";
-                requestUrl +=
-                    (String) AnnotationUtils.getAnnotationValue(a, "path");
+                requestUrl += a.path();
                 annotationRouteDefinitions.add(
                     new AnnotationRouteDefinition(
                         requestMethods,

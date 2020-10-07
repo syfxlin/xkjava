@@ -5,7 +5,6 @@
 package me.ixk.framework.annotations.processor;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.Controller;
@@ -26,9 +25,9 @@ public class ExceptionHandlerAnnotationProcessor
     @Override
     public void process() {
         Map<Class<?>, ExceptionHandlerResolver> handlerResolvers = new LinkedHashMap<>();
-        List<Class<?>> controllerAdvices =
-            this.getTypesAnnotated(ControllerAdvice.class);
-        for (Class<?> adviceType : controllerAdvices) {
+        for (Class<?> adviceType : this.getTypesAnnotated(
+                ControllerAdvice.class
+            )) {
             ExceptionHandlerResolver resolver = new ExceptionHandlerResolver(
                 adviceType
             );
@@ -42,8 +41,7 @@ public class ExceptionHandlerAnnotationProcessor
             );
 
         Map<Class<?>, ExceptionHandlerResolver> controllerResolvers = new LinkedHashMap<>();
-        List<Class<?>> controllers = this.getTypesAnnotated(Controller.class);
-        for (Class<?> controller : controllers) {
+        for (Class<?> controller : this.getTypesAnnotated(Controller.class)) {
             ExceptionHandlerResolver resolver = new ExceptionHandlerResolver(
                 controller
             );

@@ -4,19 +4,16 @@
 
 package me.ixk.framework.annotations;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import me.ixk.framework.ioc.Condition;
 
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@Scope(ScopeType.PROTOTYPE)
-@Bean
-public @interface Service {
-    @AliasFor("name")
-    String[] value() default {  };
-
-    @AliasFor("value")
-    String[] name() default {  };
+@Documented
+public @interface Conditional {
+    Class<? extends Condition>[] value();
 }

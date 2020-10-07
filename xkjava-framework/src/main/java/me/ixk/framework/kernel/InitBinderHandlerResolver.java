@@ -15,7 +15,7 @@ public class InitBinderHandlerResolver {
 
     public InitBinderHandlerResolver(Class<?> _class) {
         for (Method method : _class.getDeclaredMethods()) {
-            InitBinder initBinder = AnnotationUtils.getAnnotation(
+            InitBinder initBinder = AnnotationUtils.getParentAnnotation(
                 method,
                 InitBinder.class
             );

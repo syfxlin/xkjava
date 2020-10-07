@@ -4,7 +4,6 @@
 
 package me.ixk.framework.annotations.processor;
 
-import java.util.List;
 import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.Aspect;
 import me.ixk.framework.annotations.Order;
@@ -25,11 +24,10 @@ public class AspectAnnotationProcessor extends AbstractAnnotationProcessor {
 
     @Override
     public void process() {
-        List<Class<?>> classes = this.getTypesAnnotated(Aspect.class);
         AspectManager aspectManager = this.app.make(AspectManager.class);
-        for (Class<?> _class : classes) {
+        for (Class<?> _class : this.getTypesAnnotated(Aspect.class)) {
             if (Advice.class.isAssignableFrom(_class)) {
-                Aspect aspect = AnnotationUtils.getAnnotation(
+                Aspect aspect = AnnotationUtils.getParentAnnotation(
                     _class,
                     Aspect.class
                 );

@@ -4,7 +4,7 @@
 
 package me.ixk.framework.bootstrap;
 
-import java.util.List;
+import java.util.Set;
 import me.ixk.framework.annotations.Bootstrap;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.processor.AnnotationProcessor;
@@ -23,7 +23,7 @@ public class ProcessAnnotation extends AbstractBootstrap {
 
     @Override
     public void boot() {
-        List<Class<?>> processors = ReflectionsUtils.getTypesAnnotatedWith(
+        Set<Class<?>> processors = ReflectionsUtils.getTypesAnnotatedWith(
             me.ixk.framework.annotations.AnnotationProcessor.class
         );
         for (Class<?> processorType : processors) {

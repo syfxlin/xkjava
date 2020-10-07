@@ -18,7 +18,7 @@ public class ExceptionHandlerResolver {
 
     public ExceptionHandlerResolver(Class<?> _class) {
         for (Method method : _class.getDeclaredMethods()) {
-            ExceptionHandler exceptionHandler = AnnotationUtils.getAnnotation(
+            ExceptionHandler exceptionHandler = AnnotationUtils.getParentAnnotation(
                 method,
                 ExceptionHandler.class
             );

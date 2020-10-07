@@ -11,6 +11,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
+@Bean
 public @interface Component {
     @AliasFor("name")
     String[] value() default {  };

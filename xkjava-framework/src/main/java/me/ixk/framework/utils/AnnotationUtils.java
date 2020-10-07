@@ -6,9 +6,25 @@ package me.ixk.framework.utils;
 
 import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.util.ReflectUtil;
-import java.lang.annotation.*;
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Native;
+import java.lang.annotation.Repeatable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import me.ixk.framework.annotations.AliasFor;
 import me.ixk.framework.annotations.Order;
 
@@ -16,69 +32,70 @@ public abstract class AnnotationUtils extends AnnotationUtil {
     private static final Comparator<Object> ORDER_ANNOTATION_COMPARATOR = (o1, o2) -> {
         Order or1 = null, or2 = null;
         if (o1 instanceof Class && o2 instanceof Class) {
-            or1 = getAnnotation((Class<?>) o1, Order.class);
-            or2 = getAnnotation((Class<?>) o2, Order.class);
+            or1 = getParentAnnotation((Class<?>) o1, Order.class);
+            or2 = getParentAnnotation((Class<?>) o2, Order.class);
         } else if (o1 instanceof Method && o2 instanceof Method) {
-            or1 = getAnnotation((Method) o1, Order.class);
-            or2 = getAnnotation((Method) o1, Order.class);
+            or1 = getParentAnnotation((Method) o1, Order.class);
+            or2 = getParentAnnotation((Method) o1, Order.class);
         }
         int i1 = or1 == null ? Order.LOWEST_PRECEDENCE : or1.value();
         int i2 = or2 == null ? Order.LOWEST_PRECEDENCE : or2.value();
         return i1 - i2;
     };
 
-    public static <T extends Annotation> T getAnnotation(
-        Parameter parameter,
-        Class<T> annotationType
+    @SuppressWarnings("unchecked")
+    public static <T extends Annotation> T getParentAnnotation(
+        final AnnotatedElement annotatedElement,
+        final Class<T> annotationType
     ) {
-        return parseAnnotation(parameter.getAnnotation(annotationType));
-    }
-
-    public static <T extends Annotation> T getAnnotation(
-        Field field,
-        Class<T> annotationType
-    ) {
-        return parseAnnotation(field.getAnnotation(annotationType));
-    }
-
-    public static <T extends Annotation> T getAnnotation(
-        Constructor<?> constructor,
-        Class<T> annotationType
-    ) {
-        return parseAnnotation(constructor.getAnnotation(annotationType));
-    }
-
-    public static <T extends Annotation> T getAnnotation(
-        Method method,
-        Class<T> annotationType
-    ) {
-        return parseAnnotation(method.getAnnotation(annotationType));
-    }
-
-    public static <T extends Annotation> T getAnnotation(
-        Class<?> _class,
-        Class<T> annotationType
-    ) {
-        return parseAnnotation(_class.getAnnotation(annotationType));
-    }
-
-    public static <T extends Annotation> T parseAnnotation(T annotation) {
+        Annotation annotation = parseAnnotation(
+            walkGetParentAnnotation(annotatedElement, annotationType)
+        );
         if (annotation == null) {
             return null;
         }
-        Class<? extends Annotation> annotationClass = annotation.annotationType();
-        Map<String, Object> memberValues = getMemberValues(annotation);
-        Method[] methodValues = annotationClass.getDeclaredMethods();
-        for (Method method : methodValues) {
+        return (T) Proxy.newProxyInstance(
+            AnnotationUtils.class.getClassLoader(),
+            new Class[] { annotationType },
+            new AnnotationInvocationHandler(annotation)
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Annotation> T getTargetAnnotation(
+        final AnnotatedElement annotatedElement,
+        final Class<T> annotationType
+    ) {
+        Annotation annotation = parseAnnotation(
+            walkGetTargetAnnotation(annotatedElement, annotationType)
+        );
+        if (annotation == null) {
+            return null;
+        }
+        return (T) Proxy.newProxyInstance(
+            AnnotationUtils.class.getClassLoader(),
+            new Class[] { annotationType },
+            new AnnotationInvocationHandler(annotation)
+        );
+    }
+
+    public static <T extends Annotation> T parseAnnotation(final T annotation) {
+        if (annotation == null) {
+            return null;
+        }
+        final Class<? extends Annotation> annotationClass = annotation.annotationType();
+        final Map<String, Object> memberValues = getMemberValues(annotation);
+        final Method[] methodValues = annotationClass.getDeclaredMethods();
+        for (final Method method : methodValues) {
             if (method.getAnnotation(AliasFor.class) == null) {
                 continue;
             }
-            String name = method.getName();
+            final String name = method.getName();
             if (isDefaultValue(method, memberValues)) {
-                AliasFor aliasFor = method.getAnnotation(AliasFor.class);
-                String alias = aliasFor.value();
+                final AliasFor aliasFor = method.getAnnotation(AliasFor.class);
+                final String alias = aliasFor.value();
                 if (aliasFor.annotation() != Annotation.class) {
-                    Object object = getAnnotationValue(
+                    final Object object = getAnnotationValue(
                         parseAnnotation(
                             annotationClass.getAnnotation(aliasFor.annotation())
                         ),
@@ -93,24 +110,23 @@ public abstract class AnnotationUtils extends AnnotationUtil {
         return annotation;
     }
 
-    public static Object getAnnotationValue(Annotation annotation, String key) {
-        Class<? extends Annotation> annotationType = annotation.annotationType();
+    public static Object getAnnotationValue(
+        final Annotation annotation,
+        final String key
+    ) {
+        if (annotation == null) {
+            return null;
+        }
+        final Class<? extends Annotation> annotationType = annotation.annotationType();
         try {
             return ReflectUtil.invoke(annotation, key);
-        } catch (Exception e) {
-            for (Annotation item : annotationType.getAnnotations()) {
-                Class<? extends Annotation> itemType = item.annotationType();
-                if (
-                    itemType == Documented.class ||
-                    itemType == Inherited.class ||
-                    itemType == Native.class ||
-                    itemType == Repeatable.class ||
-                    itemType == Retention.class ||
-                    itemType == Target.class
-                ) {
+        } catch (final Exception e) {
+            for (final Annotation item : annotationType.getAnnotations()) {
+                final Class<? extends Annotation> itemType = item.annotationType();
+                if (isJdkAnnotation(itemType)) {
                     continue;
                 }
-                Object value = getAnnotationValue(item, key);
+                final Object value = getAnnotationValue(item, key);
                 if (value != null) {
                     return value;
                 }
@@ -119,31 +135,47 @@ public abstract class AnnotationUtils extends AnnotationUtil {
         }
     }
 
+    public static Object getAnnotationValue(
+        final Class<?> type,
+        final Class<? extends Annotation> annotationType,
+        String key
+    ) {
+        return getAnnotationValue(
+            getParentAnnotation(type, annotationType),
+            key
+        );
+    }
+
     @SuppressWarnings("unchecked")
-    private static Map<String, Object> getMemberValues(Annotation annotation) {
+    private static Map<String, Object> getMemberValues(
+        final Annotation annotation
+    ) {
         try {
-            InvocationHandler invocationHandler = Proxy.getInvocationHandler(
+            final InvocationHandler invocationHandler = Proxy.getInvocationHandler(
                 annotation
             );
-            Field field = invocationHandler
+            final Field field = invocationHandler
                 .getClass()
                 .getDeclaredField("memberValues");
             field.setAccessible(true);
             return (Map<String, Object>) field.get(invocationHandler);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException("Get annotation member values failed");
         }
     }
 
     public static boolean isDefaultValue(
-        Method method,
-        Map<String, Object> memberValues
+        final Method method,
+        final Map<String, Object> memberValues
     ) {
         return isDefaultValue(method, memberValues.get(method.getName()));
     }
 
-    public static boolean isDefaultValue(Method method, Object value) {
-        Object defaultValue = method.getDefaultValue();
+    public static boolean isDefaultValue(
+        final Method method,
+        final Object value
+    ) {
+        final Object defaultValue = method.getDefaultValue();
         if (method.getReturnType().isArray()) {
             return Arrays.equals((Object[]) defaultValue, (Object[]) value);
         } else {
@@ -152,71 +184,147 @@ public abstract class AnnotationUtils extends AnnotationUtil {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static List sortByOrderAnnotation(Set classes) {
-        List list = new ArrayList(classes);
-        list.sort(ORDER_ANNOTATION_COMPARATOR);
-        return list;
+    public static Set sortByOrderAnnotation(final Collection classes) {
+        return (Set) classes
+            .stream()
+            .sorted(ORDER_ANNOTATION_COMPARATOR)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static List sortByOrderAnnotation(List classes) {
-        classes.sort(ORDER_ANNOTATION_COMPARATOR);
-        return classes;
-    }
-
-    public static Class<?>[] sortByOrderAnnotation(Class<?>[] classes) {
+    public static Class<?>[] sortByOrderAnnotation(final Class<?>[] classes) {
         Arrays.sort(classes, ORDER_ANNOTATION_COMPARATOR);
         return classes;
     }
 
-    public static Method[] sortByOrderAnnotation(Method[] classes) {
+    public static Method[] sortByOrderAnnotation(final Method[] classes) {
         Arrays.sort(classes, ORDER_ANNOTATION_COMPARATOR);
         return classes;
     }
 
-    public static List<Class<?>> getTypesAnnotated(
-        Class<? extends Annotation> annotation
+    @SuppressWarnings("unchecked")
+    public static Set<Class<?>> getTypesAnnotated(
+        final Class<? extends Annotation> annotation
     ) {
-        return ReflectionsUtils.getTypesAnnotatedWith(annotation);
-    }
-
-    public static List<Method> getMethodsAnnotated(
-        Class<? extends Annotation> annotation
-    ) {
-        return ReflectionsUtils.getMethodsAnnotatedWith(annotation);
+        final Set<Class<?>> set = new LinkedHashSet<>();
+        for (final Class<?> item : ReflectionsUtils.getTypesAnnotatedWith(
+            annotation
+        )) {
+            if (item.isAnnotation()) {
+                set.addAll(
+                    getTypesAnnotated((Class<? extends Annotation>) item)
+                );
+            } else {
+                set.add(item);
+            }
+        }
+        return set;
     }
 
     @SuppressWarnings("unchecked")
-    public static List<Class<?>> getTypesAnnotatedAndInherit(
-        Class<? extends Annotation> annotation
+    public static Set<Method> getMethodsAnnotated(
+        final Class<? extends Annotation> annotation
     ) {
-        List<Class<?>> list = getTypesAnnotated(annotation);
-        for (Class<?> item : list) {
+        final Set<Method> set = ReflectionsUtils.getMethodsAnnotatedWith(
+            annotation
+        );
+        for (final Class<?> item : ReflectionsUtils.getTypesAnnotatedWith(
+            annotation
+        )) {
             if (item.isAnnotation()) {
-                list.addAll(
-                    getTypesAnnotatedAndInherit(
-                        (Class<? extends Annotation>) item
-                    )
+                set.addAll(
+                    getMethodsAnnotated((Class<? extends Annotation>) item)
                 );
             }
         }
-        return list;
+        return set;
     }
 
-    @SuppressWarnings("unchecked")
-    public static List<Method> getMethodAnnotatedAndInherit(
-        Class<? extends Annotation> annotation
+    public static <T extends Annotation> T walkGetTargetAnnotation(
+        final AnnotatedElement element,
+        final Class<T> annotationType
     ) {
-        List<Method> list = getMethodsAnnotated(annotation);
-        for (Class<?> item : getTypesAnnotatedAndInherit(annotation)) {
-            if (item.isAnnotation()) {
-                list.addAll(
-                    getMethodAnnotatedAndInherit(
-                        (Class<? extends Annotation>) item
-                    )
+        T annotation = element.getAnnotation(annotationType);
+        if (annotation == null) {
+            for (final Annotation item : element.getAnnotations()) {
+                final Class<? extends Annotation> annotationClass = item.annotationType();
+                if (isJdkAnnotation(annotationClass)) {
+                    continue;
+                }
+                final T typeAnnotation = walkGetTargetAnnotation(
+                    annotationClass,
+                    annotationType
                 );
+                if (typeAnnotation != null) {
+                    annotation = typeAnnotation;
+                    break;
+                }
             }
         }
-        return list;
+        return annotation;
+    }
+
+    public static Annotation walkGetParentAnnotation(
+        final AnnotatedElement element,
+        final Class<? extends Annotation> annotationType
+    ) {
+        Annotation annotation = element.getAnnotation(annotationType);
+        if (annotation == null) {
+            for (final Annotation item : element.getAnnotations()) {
+                final Class<? extends Annotation> annotationClass = item.annotationType();
+                if (isJdkAnnotation(annotationClass)) {
+                    continue;
+                }
+                final Annotation typeAnnotation = walkGetParentAnnotation(
+                    annotationClass,
+                    annotationType
+                );
+                if (typeAnnotation != null) {
+                    return item;
+                }
+            }
+        }
+        return annotation;
+    }
+
+    public static boolean isJdkAnnotation(
+        final Class<? extends Annotation> type
+    ) {
+        return (
+            type == Documented.class ||
+            type == Retention.class ||
+            type == Inherited.class ||
+            type == Native.class ||
+            type == Repeatable.class ||
+            type == Target.class
+        );
+    }
+
+    private static class AnnotationInvocationHandler
+        implements InvocationHandler {
+        private final Annotation annotation;
+
+        public AnnotationInvocationHandler(Annotation annotation) {
+            this.annotation = annotation;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args)
+            throws Throwable {
+            switch (method.getName()) {
+                case "equals":
+                    return (proxy == args[0]);
+                case "hashCode":
+                    return System.identityHashCode(proxy);
+                case "toString":
+                    return (
+                        this.annotation == null ? "" : this.annotation
+                    ).toString();
+                default:
+                    if (this.annotation == null) {
+                        return null;
+                    }
+                    return getAnnotationValue(annotation, method.getName());
+            }
+        }
     }
 }

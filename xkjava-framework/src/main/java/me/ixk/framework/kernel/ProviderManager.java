@@ -5,8 +5,8 @@
 package me.ixk.framework.kernel;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import me.ixk.framework.exceptions.ProviderException;
@@ -14,85 +14,88 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.providers.Provider;
 
 public class ProviderManager {
-  protected final XkJava app;
+    protected final XkJava app;
 
-  protected final Map<String, Provider> providers;
+    protected final Map<String, Provider> providers;
 
-  public ProviderManager(XkJava app) {
-    this.app = app;
-    this.providers = new ConcurrentHashMap<>();
-  }
-
-  public Provider getProvider(String name) {
-    return this.providers.get(name);
-  }
-
-  public Provider getProvider(Provider provider) {
-    return provider;
-  }
-
-  public boolean hasProvider(String name) {
-    return this.providers.containsKey(name);
-  }
-
-  public void setProvider(String name, Provider provider) {
-    this.providers.put(name, provider);
-  }
-
-  protected Provider getProviderInstance(String name) {
-    try {
-      Provider provider = (Provider) Class
-        .forName(name)
-        .getConstructor(XkJava.class)
-        .newInstance(this.app);
-      this.setProvider(name, provider);
-      return provider;
-    } catch (
-      InstantiationException
-      | IllegalAccessException
-      | InvocationTargetException
-      | NoSuchMethodException
-      | ClassNotFoundException e
-    ) {
-      throw new ProviderException("Instantiating provider failed", e);
+    public ProviderManager(XkJava app) {
+        this.app = app;
+        this.providers = new ConcurrentHashMap<>();
     }
-  }
 
-  public Provider register(String provider) {
-    return this.register(provider, false);
-  }
-
-  public Provider register(String provider, boolean force) {
-    Provider result;
-    if (!force && (result = this.getProvider(provider)) != null) {
-      return result;
+    public Provider getProvider(String name) {
+        return this.providers.get(name);
     }
-    result = this.getProviderInstance(provider);
-    result.register();
-    return result;
-  }
 
-  public Provider register(Class<?> _class) {
-    return this.register(_class.getName());
-  }
+    public Provider getProvider(Provider provider) {
+        return provider;
+    }
 
-  public Provider register(Class<?> _class, boolean force) {
-    return this.register(_class.getName(), force);
-  }
+    public boolean hasProvider(String name) {
+        return this.providers.containsKey(name);
+    }
 
-  public List<Provider> registers(List<Class<?>> providers) {
-    return providers.stream().map(this::register).collect(Collectors.toList());
-  }
+    public void setProvider(String name, Provider provider) {
+        this.providers.put(name, provider);
+    }
 
-  public void boot() {
-    this.providers.values()
-      .forEach(
-        provider -> {
-          if (!provider.isBooted()) {
-            provider.boot();
-            provider.setBooted(true);
-          }
+    protected Provider getProviderInstance(String name) {
+        try {
+            Provider provider = (Provider) Class
+                .forName(name)
+                .getConstructor(XkJava.class)
+                .newInstance(this.app);
+            this.setProvider(name, provider);
+            return provider;
+        } catch (
+            InstantiationException
+            | IllegalAccessException
+            | InvocationTargetException
+            | NoSuchMethodException
+            | ClassNotFoundException e
+        ) {
+            throw new ProviderException("Instantiating provider failed", e);
         }
-      );
-  }
+    }
+
+    public Provider register(String provider) {
+        return this.register(provider, false);
+    }
+
+    public Provider register(String provider, boolean force) {
+        Provider result;
+        if (!force && (result = this.getProvider(provider)) != null) {
+            return result;
+        }
+        result = this.getProviderInstance(provider);
+        result.register();
+        return result;
+    }
+
+    public Provider register(Class<?> _class) {
+        return this.register(_class.getName());
+    }
+
+    public Provider register(Class<?> _class, boolean force) {
+        return this.register(_class.getName(), force);
+    }
+
+    public Set<Provider> registers(Set<Class<?>> providers) {
+        return providers
+            .stream()
+            .map(this::register)
+            .collect(Collectors.toSet());
+    }
+
+    public void boot() {
+        this.providers.values()
+            .forEach(
+                provider -> {
+                    if (!provider.isBooted()) {
+                        provider.boot();
+                        provider.setBooted(true);
+                    }
+                }
+            );
+    }
 }

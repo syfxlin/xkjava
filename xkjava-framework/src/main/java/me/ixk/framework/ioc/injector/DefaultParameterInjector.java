@@ -28,7 +28,7 @@ public class DefaultParameterInjector implements ParameterInjector {
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
             String parameterName = parameterNames[i];
-            DataBind dataBind = AnnotationUtils.getAnnotation(
+            DataBind dataBind = AnnotationUtils.getParentAnnotation(
                 parameter,
                 DataBind.class
             );

@@ -4,7 +4,6 @@
 
 package me.ixk.framework.annotations.processor;
 
-import java.util.List;
 import me.ixk.framework.bootstrap.Bootstrap;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
@@ -17,11 +16,9 @@ public class BootstrapAnnotationProcessor extends AbstractAnnotationProcessor {
 
     @Override
     public void process() {
-        List<Class<?>> bootstraps =
-            this.getTypesAnnotated(
-                    me.ixk.framework.annotations.Bootstrap.class
-                );
-        for (Class<?> bootstrapType : bootstraps) {
+        for (Class<?> bootstrapType : this.getTypesAnnotated(
+                me.ixk.framework.annotations.Bootstrap.class
+            )) {
             if (Bootstrap.class.isAssignableFrom(bootstrapType)) {
                 this.app.call(bootstrapType, "boot", Object.class);
             } else {

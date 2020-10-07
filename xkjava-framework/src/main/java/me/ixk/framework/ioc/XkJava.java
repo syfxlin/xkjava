@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 public class XkJava extends Container {
     private static final Logger log = LoggerFactory.getLogger(XkJava.class);
 
+    protected static final String VERSION = "v1.0-SNAPSHOT";
+
     protected String bannerText =
         " __   __      __  __               _____                                 \n" +
         "/\\ \\ /\\ \\    /\\ \\/\\ \\             /\\___ \\                                \n" +
@@ -193,7 +195,7 @@ public class XkJava extends Container {
         scanPackage.add("me.ixk.framework");
         for (Class<?> source : this.primarySource) {
             scanPackage.add(source.getPackageName());
-            ComponentScan componentScan = AnnotationUtils.getAnnotation(
+            ComponentScan componentScan = AnnotationUtils.getParentAnnotation(
                 source,
                 ComponentScan.class
             );
@@ -261,7 +263,7 @@ public class XkJava extends Container {
         }
         String text =
             Ansi.make(Ansi.Color.CYAN).format(" :: XK-Java :: ") +
-            Ansi.make(Ansi.Color.MAGENTA).format("       (v1.0-SNAPSHOT)\n");
+            Ansi.make(Ansi.Color.MAGENTA).format("       (" + VERSION + ")\n");
         System.out.println(text);
     }
 

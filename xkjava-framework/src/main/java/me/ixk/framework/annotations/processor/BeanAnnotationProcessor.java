@@ -4,14 +4,13 @@
 
 package me.ixk.framework.annotations.processor;
 
-import static me.ixk.framework.helpers.Facade.config;
-
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.Bean;
@@ -36,8 +35,11 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     @Override
     @SuppressWarnings("unchecked")
     public void process() {
-        List<Class<? extends Annotation>> beanAnnotations = config()
-            .get("app.bean_annotations", List.class);
+        // List<Class<? extends Annotation>> beanAnnotations = config()
+        //     .get("app.bean_annotations", List.class);
+        List<Class<? extends Annotation>> beanAnnotations = Arrays.asList(
+            Bean.class
+        );
         // bind
         for (Class<? extends Annotation> annotation : beanAnnotations) {
             for (Class<?> _class : this.getTypesAnnotated(annotation)) {
@@ -57,16 +59,19 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         Class<? extends Annotation> annotation,
         Method method
     ) {
-        ScopeType scopeType = this.getScoopType(annotation, method);
+        ScopeType scopeType = this.getScoopType(method);
         String name = method.getName();
         Class<?> _class = method.getReturnType();
-        Annotation anno = AnnotationUtils.getAnnotation(method, annotation);
-        Bean.BindType bindType = (Bean.BindType) AnnotationUtils.getAnnotationValue(
-            anno,
-            "bindType"
+        Annotation anno = AnnotationUtils.getParentAnnotation(
+            method,
+            annotation
         );
+        if (anno == null) {
+            return;
+        }
+        Bean.BindType bindType = ((Bean) anno).bindType();
         Method[] initAndDestroyMethod =
-            this.getInitAndDestroyMethod(anno, _class);
+            this.getInitAndDestroyMethod((Bean) anno, _class);
         Wrapper wrapper = (container, with) ->
             method.invoke(container.make(method.getDeclaringClass()));
         this.setInitAndDestroyMethod(
@@ -81,19 +86,16 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
                     ),
                 initAndDestroyMethod
             );
-        Object names = AnnotationUtils.getAnnotationValue(anno, "name");
-        if (names != null) {
-            for (String n : (String[]) names) {
-                this.setInitAndDestroyMethod(
-                        this.app.bind(n, wrapper, null, scopeType),
-                        initAndDestroyMethod
-                    );
-            }
+        Object names = ((Bean) anno).name();
+        for (String n : (String[]) names) {
+            this.setInitAndDestroyMethod(
+                    this.app.bind(n, wrapper, null, scopeType),
+                    initAndDestroyMethod
+                );
         }
         if (
             scopeType.isSingleton() &&
-            method.getAnnotation(Lazy.class) == null &&
-            anno.annotationType().getAnnotation(Lazy.class) == null
+            AnnotationUtils.getParentAnnotation(_class, Lazy.class) == null
         ) {
             makeList.add(name);
         }
@@ -103,70 +105,59 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         Class<? extends Annotation> annotation,
         Class<?> _class
     ) {
-        ScopeType scopeType = this.getScoopType(annotation, _class);
-        Annotation anno = AnnotationUtils.getAnnotation(_class, annotation);
-        Bean.BindType bindType = (Bean.BindType) AnnotationUtils.getAnnotationValue(
-            anno,
-            "bindType"
+        ScopeType scopeType = this.getScoopType(_class);
+        Annotation anno = AnnotationUtils.getParentAnnotation(
+            _class,
+            annotation
         );
+        if (anno == null) {
+            return;
+        }
+        Bean.BindType bindType = ((Bean) anno).bindType();
         Method[] initAndDestroyMethod =
-            this.getInitAndDestroyMethod(anno, _class);
+            this.getInitAndDestroyMethod((Bean) anno, _class);
         // Class 的 Bean 默认绑定 Type
         if (
-            bindType == null ||
-            bindType == Bean.BindType.NO_SET ||
-            bindType == Bean.BindType.BIND
+            bindType == Bean.BindType.NO_SET || bindType == Bean.BindType.BIND
         ) {
             this.setInitAndDestroyMethod(
                     this.app.bind(_class, _class, null, scopeType),
                     initAndDestroyMethod
                 );
         }
-        Object names = AnnotationUtils.getAnnotationValue(anno, "name");
-        if (names != null) {
-            for (String name : (String[]) names) {
-                this.setInitAndDestroyMethod(
-                        this.app.bind(name, _class.getName(), null, scopeType),
-                        initAndDestroyMethod
-                    );
-            }
+        Object names = ((Bean) anno).name();
+        for (String name : (String[]) names) {
+            this.setInitAndDestroyMethod(
+                    this.app.bind(name, _class.getName(), null, scopeType),
+                    initAndDestroyMethod
+                );
         }
         if (
             scopeType.isSingleton() &&
-            _class.getAnnotation(Lazy.class) == null &&
-            anno.annotationType().getAnnotation(Lazy.class) == null
+            AnnotationUtils.getParentAnnotation(_class, Lazy.class) == null
         ) {
             makeList.add(_class.getName());
         }
     }
 
-    private ScopeType getScoopType(
-        Class<? extends Annotation> annotation,
-        AnnotatedElement element
-    ) {
-        Scope scope = annotation.getAnnotation(Scope.class);
+    private ScopeType getScoopType(AnnotatedElement element) {
+        // TODO: fix get scope annotation
+        Scope scope = AnnotationUtils.getTargetAnnotation(element, Scope.class);
         ScopeType scopeType = scope == null
             ? ScopeType.SINGLETON
             : scope.value();
         if (element.isAnnotationPresent(Scope.class)) {
             scopeType =
-                AnnotationUtils.getAnnotation(element, Scope.class).value();
+                AnnotationUtils
+                    .getParentAnnotation(element, Scope.class)
+                    .value();
         }
         return scopeType;
     }
 
-    private Method[] getInitAndDestroyMethod(
-        Annotation annotation,
-        Class<?> _class
-    ) {
-        String initMethodName = (String) AnnotationUtils.getAnnotationValue(
-            annotation,
-            "initMethod"
-        );
-        String destroyMethodName = (String) AnnotationUtils.getAnnotationValue(
-            annotation,
-            "destroyMethod"
-        );
+    private Method[] getInitAndDestroyMethod(Bean annotation, Class<?> _class) {
+        String initMethodName = annotation.initMethod();
+        String destroyMethodName = annotation.destroyMethod();
         Method initMethod = StrUtil.isEmpty(initMethodName)
             ? null
             : ReflectUtil.getMethod(_class, initMethodName);

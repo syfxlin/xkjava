@@ -6,7 +6,7 @@ package me.ixk.framework.annotations.processor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.List;
+import java.util.Set;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.AnnotationUtils;
 
@@ -18,13 +18,13 @@ public abstract class AbstractAnnotationProcessor
         this.app = app;
     }
 
-    protected List<Class<?>> getTypesAnnotated(
+    protected Set<Class<?>> getTypesAnnotated(
         Class<? extends Annotation> annotation
     ) {
         return AnnotationUtils.getTypesAnnotated(annotation);
     }
 
-    protected List<Method> getMethodsAnnotated(
+    protected Set<Method> getMethodsAnnotated(
         Class<? extends Annotation> annotation
     ) {
         return AnnotationUtils.getMethodsAnnotated(annotation);

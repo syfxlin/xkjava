@@ -30,7 +30,7 @@ public class AspectManager {
         public AdviceEntry(AspectPointcut pointcut, Advice advice) {
             this.pointcut = pointcut;
             this.advice = advice;
-            Order order = AnnotationUtils.getAnnotation(
+            Order order = AnnotationUtils.getParentAnnotation(
                 advice.getClass(),
                 Order.class
             );

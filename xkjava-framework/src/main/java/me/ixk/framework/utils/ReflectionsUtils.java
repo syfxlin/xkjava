@@ -12,90 +12,95 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import me.ixk.framework.ioc.XkJava;
 import org.reflections.Reflections;
-import org.reflections.scanners.*;
+import org.reflections.scanners.FieldAnnotationsScanner;
+import org.reflections.scanners.MethodAnnotationsScanner;
+import org.reflections.scanners.Scanner;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
 public abstract class ReflectionsUtils {
-  private static final Reflections GLOBAL_APP_REFLECTIONS = make(
-    XkJava.of().scanPackage().toArray(new String[0])
-  );
-
-  private static final SimpleCache<Class<? extends Annotation>, List<Class<?>>> CLASS_ANNOTATION_CACHE = new SimpleCache<>();
-  private static final SimpleCache<Class<? extends Annotation>, List<Method>> METHOD_ANNOTATION_CACHE = new SimpleCache<>();
-
-  public static Reflections make() {
-    return GLOBAL_APP_REFLECTIONS;
-  }
-
-  public static Reflections make(Class<?> _class) {
-    return make(ClasspathHelper.forClass(_class));
-  }
-
-  public static Reflections make(String _package) {
-    return make(ClasspathHelper.forPackage(_package));
-  }
-
-  public static Reflections make(String prefix, Scanner... scanners) {
-    return new Reflections(prefix, scanners);
-  }
-
-  public static Reflections make(Collection<URL> urls) {
-    return new Reflections(
-      new ConfigurationBuilder()
-        .setUrls(urls)
-        .setScanners(
-          new TypeAnnotationsScanner(),
-          new MethodAnnotationsScanner(),
-          new FieldAnnotationsScanner(),
-          new SubTypesScanner()
-        )
+    private static final Reflections GLOBAL_APP_REFLECTIONS = make(
+        XkJava.of().scanPackage().toArray(new String[0])
     );
-  }
 
-  public static Reflections make(String... packages) {
-    List<URL> urls = new ArrayList<>(packages.length);
-    for (String item : packages) {
-      urls.addAll(ClasspathHelper.forPackage(item));
+    private static final SimpleCache<Class<? extends Annotation>, Set<Class<?>>> CLASS_ANNOTATION_CACHE = new SimpleCache<>();
+    private static final SimpleCache<Class<? extends Annotation>, Set<Method>> METHOD_ANNOTATION_CACHE = new SimpleCache<>();
+
+    public static Reflections make() {
+        return GLOBAL_APP_REFLECTIONS;
     }
-    return make(urls);
-  }
 
-  public static Reflections make(URL... urls) {
-    return make(Arrays.asList(urls));
-  }
-
-  @SuppressWarnings("unchecked")
-  public static List<Class<?>> getTypesAnnotatedWith(
-    Class<? extends Annotation> annotation
-  ) {
-    List<Class<?>> cache = CLASS_ANNOTATION_CACHE.get(annotation);
-    if (cache != null) {
-      return cache;
+    public static Reflections make(Class<?> _class) {
+        return make(ClasspathHelper.forClass(_class));
     }
-    return CLASS_ANNOTATION_CACHE.put(
-      annotation,
-      (List<Class<?>>) AnnotationUtils.sortByOrderAnnotation(
-        make().getTypesAnnotatedWith(annotation)
-      )
-    );
-  }
 
-  @SuppressWarnings("unchecked")
-  public static List<Method> getMethodsAnnotatedWith(
-    Class<? extends Annotation> annotation
-  ) {
-    List<Method> cache = METHOD_ANNOTATION_CACHE.get(annotation);
-    if (cache != null) {
-      return cache;
+    public static Reflections make(String _package) {
+        return make(ClasspathHelper.forPackage(_package));
     }
-    return METHOD_ANNOTATION_CACHE.put(
-      annotation,
-      (List<Method>) AnnotationUtils.sortByOrderAnnotation(
-        make().getMethodsAnnotatedWith(annotation)
-      )
-    );
-  }
+
+    public static Reflections make(String prefix, Scanner... scanners) {
+        return new Reflections(prefix, scanners);
+    }
+
+    public static Reflections make(Collection<URL> urls) {
+        return new Reflections(
+            new ConfigurationBuilder()
+                .setUrls(urls)
+                .setScanners(
+                    new TypeAnnotationsScanner(),
+                    new MethodAnnotationsScanner(),
+                    new FieldAnnotationsScanner(),
+                    new SubTypesScanner()
+                )
+        );
+    }
+
+    public static Reflections make(String... packages) {
+        List<URL> urls = new ArrayList<>(packages.length);
+        for (String item : packages) {
+            urls.addAll(ClasspathHelper.forPackage(item));
+        }
+        return make(urls);
+    }
+
+    public static Reflections make(URL... urls) {
+        return make(Arrays.asList(urls));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Set<Class<?>> getTypesAnnotatedWith(
+        Class<? extends Annotation> annotation
+    ) {
+        Set<Class<?>> cache = CLASS_ANNOTATION_CACHE.get(annotation);
+        if (cache != null) {
+            return cache;
+        }
+        return CLASS_ANNOTATION_CACHE.put(
+            annotation,
+            (Set<Class<?>>) AnnotationUtils.sortByOrderAnnotation(
+                make().getTypesAnnotatedWith(annotation)
+            )
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Set<Method> getMethodsAnnotatedWith(
+        Class<? extends Annotation> annotation
+    ) {
+        Set<Method> cache = METHOD_ANNOTATION_CACHE.get(annotation);
+        if (cache != null) {
+            return cache;
+        }
+        return METHOD_ANNOTATION_CACHE.put(
+            annotation,
+            (Set<Method>) AnnotationUtils.sortByOrderAnnotation(
+                make().getMethodsAnnotatedWith(annotation)
+            )
+        );
+    }
 }

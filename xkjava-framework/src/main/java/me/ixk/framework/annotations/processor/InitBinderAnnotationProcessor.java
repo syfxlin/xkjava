@@ -30,9 +30,9 @@ public class InitBinderAnnotationProcessor extends AbstractAnnotationProcessor {
                     "adviceInitBinderHandlerResolver",
                     new ArrayList<>()
                 );
-        List<Class<?>> controllerAdvices =
-            this.getTypesAnnotated(ControllerAdvice.class);
-        for (Class<?> adviceType : controllerAdvices) {
+        for (Class<?> adviceType : this.getTypesAnnotated(
+                ControllerAdvice.class
+            )) {
             InitBinderHandlerResolver resolver = new InitBinderHandlerResolver(
                 adviceType
             );
@@ -46,8 +46,7 @@ public class InitBinderAnnotationProcessor extends AbstractAnnotationProcessor {
                     "controllerInitBinderHandlerResolver",
                     new LinkedHashMap<>()
                 );
-        List<Class<?>> controllers = this.getTypesAnnotated(Controller.class);
-        for (Class<?> controller : controllers) {
+        for (Class<?> controller : this.getTypesAnnotated(Controller.class)) {
             InitBinderHandlerResolver resolver = new InitBinderHandlerResolver(
                 controller
             );

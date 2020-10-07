@@ -6,7 +6,6 @@ package me.ixk.framework.annotations.processor;
 
 import cn.hutool.core.util.ReflectUtil;
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.Config;
@@ -29,10 +28,9 @@ public class ConfigAnnotationProcessor extends AbstractAnnotationProcessor {
 
     public Map<String, Map<String, Object>> processAnnotationConfig() {
         Map<String, Map<String, Object>> config = new ConcurrentHashMap<>();
-        List<Class<?>> classes = this.getTypesAnnotated(Config.class);
-        for (Class<?> _class : classes) {
+        for (Class<?> _class : this.getTypesAnnotated(Config.class)) {
             String name = AnnotationUtils
-                .getAnnotation(_class, Config.class)
+                .getParentAnnotation(_class, Config.class)
                 .name();
             name = name.length() > 0 ? name : _class.getSimpleName();
             // 如果是 Config 类的子类，即编程化配置的方式，则通过 config 方法读取
