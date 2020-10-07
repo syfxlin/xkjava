@@ -19,11 +19,15 @@ import me.ixk.framework.kernel.ProviderManager;
 import me.ixk.framework.server.JettyServer;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Ansi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * XkJava 继承自 IoC 容器，并在其之上扩充一些应用部分的功能，同时也是框架的核心
  */
 public class XkJava extends Container {
+    private static final Logger log = LoggerFactory.getLogger(XkJava.class);
+
     protected String bannerText =
         " __   __      __  __               _____                                 \n" +
         "/\\ \\ /\\ \\    /\\ \\/\\ \\             /\\___ \\                                \n" +
@@ -89,11 +93,16 @@ public class XkJava extends Container {
     protected Callback destroyedCallback = null;
 
     private XkJava() {
+        // 打印 Banner
+        this.printBanner();
+
         // 注册实例
         this.registerInstance();
 
         // 注册销毁钩子
         this.registerShutdownHook();
+
+        log.info("Application created");
     }
 
     /**
@@ -105,6 +114,7 @@ public class XkJava extends Container {
 
     /**
      * 创建或获取 XkJava
+     *
      * @return XkJava 实例
      */
     public static XkJava create() {
@@ -113,6 +123,7 @@ public class XkJava extends Container {
 
     /**
      * 创建或获取 XkJava
+     *
      * @return XkJava 实例
      */
     public static XkJava getInstance() {
@@ -121,6 +132,7 @@ public class XkJava extends Container {
 
     /**
      * 创建或获取 XkJava
+     *
      * @return XkJava 实例
      */
     public static XkJava of() {
@@ -129,8 +141,9 @@ public class XkJava extends Container {
 
     /**
      * 启动 XkJava 实例
+     *
      * @param primarySource 传入类
-     * @param args 传入参数
+     * @param args          传入参数
      */
     public void boot(Class<?> primarySource, String... args) {
         this.boot(new Class[] { primarySource }, args);
@@ -138,34 +151,38 @@ public class XkJava extends Container {
 
     /**
      * 启动 XkJava 实例
+     *
      * @param primarySource 传入类
-     * @param args 传入参数
+     * @param args          传入参数
      */
     public void boot(Class<?>[] primarySource, String... args) {
         this.primarySource = primarySource;
         this.args = args;
-
-        this.printBanner();
 
         // 读取需要扫描的包
         this.loadPackageScanAnnotation();
 
         // 启动前回调
         if (this.bootingCallback != null) {
+            log.debug("Application call booting");
             this.bootedCallback.invoke(this);
         }
 
         // 通过调用 Bootstrap 注解处理器处理 Bootstrap
+        log.debug("Application process bootstrap");
         this.bootstrapAnnotationProcessor.process();
 
         // 启动后回调
         if (this.bootedCallback != null) {
+            log.debug("Application call booted");
             this.bootedCallback.invoke(this);
         }
 
         this.booted = true;
         // 启动 Jetty 服务
         this.server.start();
+
+        log.info("Application booted");
     }
 
     /**
@@ -182,6 +199,10 @@ public class XkJava extends Container {
             );
             if (componentScan != null) {
                 scanPackage.addAll(Arrays.asList(componentScan.basePackages()));
+                log.debug(
+                    "Application add base packages: {}",
+                    Arrays.toString(componentScan.basePackages())
+                );
             }
         }
     }
