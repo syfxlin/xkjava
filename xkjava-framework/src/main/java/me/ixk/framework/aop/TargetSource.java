@@ -5,18 +5,22 @@
 package me.ixk.framework.aop;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TargetSource {
     private final Class<?> targetType;
     private final Class<?>[] interfaces;
     private final Object target;
+    private final AspectManager aspectManager;
 
     public TargetSource(
+        AspectManager aspectManager,
         Object target,
         Class<?> targetType,
         Class<?>[] interfaces
     ) {
+        this.aspectManager = aspectManager;
         this.targetType = targetType;
         this.interfaces = interfaces;
         this.target = target;
@@ -35,6 +39,9 @@ public class TargetSource {
     }
 
     public List<Advice> getAdvices(Method method) {
-        return AspectManager.getAdvices(method);
+        if (this.aspectManager == null) {
+            return new ArrayList<>();
+        }
+        return this.aspectManager.getAdvices(method);
     }
 }

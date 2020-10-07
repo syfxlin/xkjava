@@ -19,38 +19,41 @@ import me.ixk.framework.kernel.InitBinderHandlerResolver;
 @Order(Order.HIGHEST_PRECEDENCE + 3)
 public class InitBinderAnnotationProcessor extends AbstractAnnotationProcessor {
 
-  public InitBinderAnnotationProcessor(XkJava app) {
-    super(app);
-  }
-
-  @Override
-  public void process() {
-    List<InitBinderHandlerResolver> handlerResolvers = new ArrayList<>();
-    List<Class<?>> controllerAdvices =
-      this.getTypesAnnotated(ControllerAdvice.class);
-    for (Class<?> adviceType : controllerAdvices) {
-      InitBinderHandlerResolver resolver = new InitBinderHandlerResolver(
-        adviceType
-      );
-      if (resolver.hasInitBinderList()) {
-        handlerResolvers.add(resolver);
-      }
+    public InitBinderAnnotationProcessor(XkJava app) {
+        super(app);
     }
-    this.app.setAttribute("adviceInitBinderHandlerResolver", handlerResolvers);
 
-    Map<Class<?>, InitBinderHandlerResolver> controllerResolvers = new LinkedHashMap<>();
-    List<Class<?>> controllers = this.getTypesAnnotated(Controller.class);
-    for (Class<?> controller : controllers) {
-      InitBinderHandlerResolver resolver = new InitBinderHandlerResolver(
-        controller
-      );
-      if (resolver.hasInitBinderList()) {
-        controllerResolvers.put(controller, resolver);
-      }
+    @Override
+    public void process() {
+        List<InitBinderHandlerResolver> handlerResolvers =
+            this.app.getOrDefaultAttribute(
+                    "adviceInitBinderHandlerResolver",
+                    new ArrayList<>()
+                );
+        List<Class<?>> controllerAdvices =
+            this.getTypesAnnotated(ControllerAdvice.class);
+        for (Class<?> adviceType : controllerAdvices) {
+            InitBinderHandlerResolver resolver = new InitBinderHandlerResolver(
+                adviceType
+            );
+            if (resolver.hasInitBinderList()) {
+                handlerResolvers.add(resolver);
+            }
+        }
+
+        Map<Class<?>, InitBinderHandlerResolver> controllerResolvers =
+            this.app.getOrDefaultAttribute(
+                    "controllerInitBinderHandlerResolver",
+                    new LinkedHashMap<>()
+                );
+        List<Class<?>> controllers = this.getTypesAnnotated(Controller.class);
+        for (Class<?> controller : controllers) {
+            InitBinderHandlerResolver resolver = new InitBinderHandlerResolver(
+                controller
+            );
+            if (resolver.hasInitBinderList()) {
+                controllerResolvers.put(controller, resolver);
+            }
+        }
     }
-    this.app.setAttribute(
-        "controllerInitBinderHandlerResolver",
-        controllerResolvers
-      );
-  }
 }

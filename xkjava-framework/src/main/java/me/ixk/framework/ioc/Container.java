@@ -10,7 +10,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -19,9 +24,15 @@ import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.ProxyCreator;
+import me.ixk.framework.bootstrap.LoadConfiguration;
+import me.ixk.framework.bootstrap.LoadEnvironmentVariables;
 import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.ioc.context.ContextName;
-import me.ixk.framework.ioc.injector.*;
+import me.ixk.framework.ioc.injector.DefaultMethodInjector;
+import me.ixk.framework.ioc.injector.DefaultParameterInjector;
+import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
+import me.ixk.framework.ioc.injector.PropertiesValueInjector;
+import me.ixk.framework.ioc.injector.ValidationParameterInjector;
 import me.ixk.framework.ioc.processor.PostConstructProcessor;
 import me.ixk.framework.ioc.processor.PreDestroyProcessor;
 import me.ixk.framework.utils.ClassUtils;
@@ -348,6 +359,27 @@ public class Container implements Context {
         return instance;
     }
 
+    protected boolean aspectMatches(Class<?> type) {
+        // Disable proxy Advice and AspectManager
+        if (
+            Advice.class.isAssignableFrom(type) || type == AspectManager.class
+        ) {
+            return false;
+        }
+        // Disable some bootstrap
+        if (
+            type == LoadConfiguration.class ||
+            type == LoadEnvironmentVariables.class
+        ) {
+            return false;
+        }
+        AspectManager aspectManager = this.make(AspectManager.class);
+        if (aspectManager == null) {
+            return false;
+        }
+        return aspectManager.matches(type);
+    }
+
     /* ===================== doBind ===================== */
 
     private synchronized Binding doBind(
@@ -424,12 +456,10 @@ public class Container implements Context {
                 continue;
             }
             instance = this.processInstanceInjector(binding, instance);
-            if (
-                !Advice.class.isAssignableFrom(instanceType) &&
-                AspectManager.matches(instanceType)
-            ) {
+            if (this.aspectMatches(instanceType)) {
                 instance =
-                    ProxyCreator.createProxy(
+                    ProxyCreator.createAop(
+                        this.make(AspectManager.class),
                         instance,
                         instanceType,
                         instanceType.getInterfaces(),
@@ -563,14 +593,7 @@ public class Container implements Context {
         Class<T> returnType
     ) {
         Object instance = this.make(typeName);
-        try {
-            Method method = instance
-                .getClass()
-                .getMethod(methodName, paramTypes);
-            return this.callMethod(instance, methodName, returnType);
-        } catch (NoSuchMethodException e) {
-            throw new ContainerException("Method not found");
-        }
+        return this.callMethod(instance, methodName, returnType);
     }
 
     /* ===================== build ==================== */

@@ -19,25 +19,29 @@ import me.ixk.framework.utils.AnnotationUtils;
 @Order(Order.HIGHEST_PRECEDENCE + 2)
 public class AspectAnnotationProcessor extends AbstractAnnotationProcessor {
 
-  public AspectAnnotationProcessor(XkJava app) {
-    super(app);
-  }
-
-  @Override
-  public void process() {
-    List<Class<?>> classes = this.getTypesAnnotated(Aspect.class);
-    for (Class<?> _class : classes) {
-      if (Advice.class.isAssignableFrom(_class)) {
-        Aspect aspect = AnnotationUtils.getAnnotation(_class, Aspect.class);
-        AspectManager.addAdvice(
-          new AspectPointcut(aspect.value()),
-          this.app.make(_class.getName(), Advice.class)
-        );
-      } else {
-        throw new AnnotationProcessorException(
-          "Classes marked by the Aspect annotation should implement the Advice interface"
-        );
-      }
+    public AspectAnnotationProcessor(XkJava app) {
+        super(app);
     }
-  }
+
+    @Override
+    public void process() {
+        List<Class<?>> classes = this.getTypesAnnotated(Aspect.class);
+        AspectManager aspectManager = this.app.make(AspectManager.class);
+        for (Class<?> _class : classes) {
+            if (Advice.class.isAssignableFrom(_class)) {
+                Aspect aspect = AnnotationUtils.getAnnotation(
+                    _class,
+                    Aspect.class
+                );
+                aspectManager.addAdvice(
+                    new AspectPointcut(aspect.value()),
+                    this.app.make(_class.getName(), Advice.class)
+                );
+            } else {
+                throw new AnnotationProcessorException(
+                    "Classes marked by the Aspect annotation should implement the Advice interface"
+                );
+            }
+        }
+    }
 }

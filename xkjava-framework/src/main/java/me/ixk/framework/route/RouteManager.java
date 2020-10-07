@@ -5,65 +5,51 @@
 package me.ixk.framework.route;
 
 import cn.hutool.core.util.ReflectUtil;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.exceptions.RouteCollectorException;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.ResponseProcessor;
-import me.ixk.framework.middleware.Middleware;
+import me.ixk.framework.ioc.XkJava;
 
 public class RouteManager {
-    public static RouteCollector route;
+    protected final XkJava app;
 
-    public static final List<Class<? extends RouteDefinition>> routeDefinition = new ArrayList<>();
-
-    public static final List<Class<? extends Middleware>> globalMiddleware = new ArrayList<>(
-        10
-    );
-
-    public static final Map<String, Class<? extends Middleware>> routeMiddleware = new ConcurrentHashMap<>(
-        10
-    );
-
-    public static final List<AnnotationRouteDefinition> annotationRouteDefinitions = new ArrayList<>();
-
-    public static final Map<String, AnnotationMiddlewareDefinition> annotationMiddlewareDefinitions = new ConcurrentHashMap<>();
-
+    protected final RouteParser parser;
+    protected final RouteGenerator generator;
+    protected final RouteCollector collector;
     protected final RouteDispatcher dispatcher;
 
-    public RouteManager() {
-        dispatcher =
-            RouteDispatcher.dispatcher(
-                routeCollector -> {
-                    route = routeCollector;
-                    for (Class<? extends RouteDefinition> _class : routeDefinition) {
-                        try {
-                            ReflectUtil
-                                .newInstance(_class)
-                                .routes(routeCollector);
-                        } catch (Exception e) {
-                            throw new RouteCollectorException(
-                                "Route collector [" +
-                                _class.getSimpleName() +
-                                "] error",
-                                e
-                            );
-                        }
-                    }
-                    for (AnnotationRouteDefinition definition : annotationRouteDefinitions) {
-                        routeCollector.match(
-                            definition.getMethod(),
-                            definition.getRoute(),
-                            definition.getHandler()
-                        );
-                    }
-                }
-            );
+    @SuppressWarnings("unchecked")
+    public RouteManager(XkJava app) {
+        this.app = app;
+        this.parser = this.app.make(RouteParser.class);
+        this.generator = this.app.make(RouteGenerator.class);
+        this.collector = this.app.make(RouteCollector.class);
+        for (Class<? extends RouteDefinition> _class : (List<Class<? extends RouteDefinition>>) this.app.getAttribute(
+                "routeDefinition"
+            )) {
+            try {
+                ReflectUtil.newInstance(_class).routes(this.collector);
+            } catch (Exception e) {
+                throw new RouteCollectorException(
+                    "Route collector [" + _class.getSimpleName() + "] error",
+                    e
+                );
+            }
+        }
+        for (AnnotationRouteDefinition definition : (List<AnnotationRouteDefinition>) this.app.getAttribute(
+                "annotationRouteDefinitions"
+            )) {
+            this.collector.match(
+                    definition.getMethod(),
+                    definition.getRoute(),
+                    definition.getHandler()
+                );
+        }
+        this.dispatcher = this.app.make(RouteDispatcher.class);
     }
 
     public Response dispatch(Request request, Response response) {

@@ -15,7 +15,19 @@ public class ProxyCreator {
         Class<?>[] argsTypes,
         Object[] args
     ) {
+        return createAop(null, target, targetType, interfaces, argsTypes, args);
+    }
+
+    public static Object createAop(
+        AspectManager aspectManager,
+        Object target,
+        Class<?> targetType,
+        Class<?>[] interfaces,
+        Class<?>[] argsTypes,
+        Object[] args
+    ) {
         TargetSource targetSource = new TargetSource(
+            aspectManager,
             target,
             targetType,
             interfaces

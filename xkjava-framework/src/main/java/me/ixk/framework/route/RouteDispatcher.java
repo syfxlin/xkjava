@@ -19,16 +19,6 @@ public class RouteDispatcher {
         this.variableRoutes = routeCollector.getVariableRoutes();
     }
 
-    public static RouteDispatcher dispatcher(RouteDefinition routeDefinition) {
-        RouteCollector routeCollector = new RouteCollector(
-            new RouteParser(),
-            new RouteGenerator()
-        );
-        routeDefinition.routes(routeCollector);
-
-        return new RouteDispatcher(routeCollector);
-    }
-
     public RouteResult dispatch(String httpMethod, String url) {
         boolean methodInStatic = this.staticRoutes.containsKey(httpMethod);
         boolean methodInVariable = this.variableRoutes.containsKey(httpMethod);

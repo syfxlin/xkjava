@@ -17,40 +17,43 @@ import me.ixk.framework.kernel.ExceptionHandlerResolver;
 @AnnotationProcessor
 @Order(Order.HIGHEST_PRECEDENCE + 3)
 public class ExceptionHandlerAnnotationProcessor
-  extends AbstractAnnotationProcessor {
+    extends AbstractAnnotationProcessor {
 
-  public ExceptionHandlerAnnotationProcessor(XkJava app) {
-    super(app);
-  }
-
-  @Override
-  public void process() {
-    Map<Class<?>, ExceptionHandlerResolver> handlerResolvers = new LinkedHashMap<>();
-    List<Class<?>> controllerAdvices =
-      this.getTypesAnnotated(ControllerAdvice.class);
-    for (Class<?> adviceType : controllerAdvices) {
-      ExceptionHandlerResolver resolver = new ExceptionHandlerResolver(
-        adviceType
-      );
-      if (resolver.hasExceptionMappings()) {
-        handlerResolvers.put(adviceType, resolver);
-      }
+    public ExceptionHandlerAnnotationProcessor(XkJava app) {
+        super(app);
     }
-    this.app.setAttribute("adviceExceptionHandlerResolvers", handlerResolvers);
 
-    Map<Class<?>, ExceptionHandlerResolver> controllerResolvers = new LinkedHashMap<>();
-    List<Class<?>> controllers = this.getTypesAnnotated(Controller.class);
-    for (Class<?> controller : controllers) {
-      ExceptionHandlerResolver resolver = new ExceptionHandlerResolver(
-        controller
-      );
-      if (resolver.hasExceptionMappings()) {
-        controllerResolvers.put(controller, resolver);
-      }
+    @Override
+    public void process() {
+        Map<Class<?>, ExceptionHandlerResolver> handlerResolvers = new LinkedHashMap<>();
+        List<Class<?>> controllerAdvices =
+            this.getTypesAnnotated(ControllerAdvice.class);
+        for (Class<?> adviceType : controllerAdvices) {
+            ExceptionHandlerResolver resolver = new ExceptionHandlerResolver(
+                adviceType
+            );
+            if (resolver.hasExceptionMappings()) {
+                handlerResolvers.put(adviceType, resolver);
+            }
+        }
+        this.app.setAttribute(
+                "adviceExceptionHandlerResolvers",
+                handlerResolvers
+            );
+
+        Map<Class<?>, ExceptionHandlerResolver> controllerResolvers = new LinkedHashMap<>();
+        List<Class<?>> controllers = this.getTypesAnnotated(Controller.class);
+        for (Class<?> controller : controllers) {
+            ExceptionHandlerResolver resolver = new ExceptionHandlerResolver(
+                controller
+            );
+            if (resolver.hasExceptionMappings()) {
+                controllerResolvers.put(controller, resolver);
+            }
+        }
+        this.app.setAttribute(
+                "controllerExceptionHandlerResolvers",
+                controllerResolvers
+            );
     }
-    this.app.setAttribute(
-        "controllerExceptionHandlerResolvers",
-        controllerResolvers
-      );
-  }
 }

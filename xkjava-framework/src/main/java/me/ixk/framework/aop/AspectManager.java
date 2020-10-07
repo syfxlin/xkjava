@@ -12,15 +12,15 @@ import me.ixk.framework.annotations.Order;
 import me.ixk.framework.utils.AnnotationUtils;
 
 public class AspectManager {
-    protected static final List<AdviceEntry> adviceList = new ArrayList<>();
+    protected final List<AdviceEntry> adviceList = new ArrayList<>();
 
-    protected static final SimpleCache<Method, List<Advice>> METHOD_CACHE = new SimpleCache<>();
+    protected final SimpleCache<Method, List<Advice>> METHOD_CACHE = new SimpleCache<>();
 
-    public static void addAdvice(AspectPointcut pointcut, Advice advice) {
+    public void addAdvice(AspectPointcut pointcut, Advice advice) {
         adviceList.add(new AdviceEntry(pointcut, advice));
     }
 
-    protected static class AdviceEntry {
+    protected class AdviceEntry {
         private final AspectPointcut pointcut;
 
         private final Advice advice;
@@ -54,7 +54,7 @@ public class AspectManager {
         }
     }
 
-    public static boolean matches(Class<?> _class) {
+    public boolean matches(Class<?> _class) {
         for (AdviceEntry entry : adviceList) {
             if (entry.getPointcut().matches(_class)) {
                 return true;
@@ -63,7 +63,7 @@ public class AspectManager {
         return false;
     }
 
-    public static boolean matches(Method method) {
+    public boolean matches(Method method) {
         for (AdviceEntry entry : adviceList) {
             if (entry.getPointcut().matches(method)) {
                 return true;
@@ -72,7 +72,7 @@ public class AspectManager {
         return false;
     }
 
-    public static List<Advice> getAdvices(Method method) {
+    public List<Advice> getAdvices(Method method) {
         List<Advice> cache = METHOD_CACHE.get(method);
         if (cache != null) {
             return cache;

@@ -14,7 +14,7 @@
 
 集成了一个 IoC 容器和添加了 Aop 的支持，最新的版本重构了这两部分，IoC 容器中并不实际存储实例，实例通过 Context 的实现类进行管理，类似于 Spring 的 BeanFactory，如 ApplicationContext 和 RequestContext，这样就可以动态的添加拥有不同特性的 Context，比如 RequestContext 是线程安全的，而且可以动态的删除和创建，而 ApplicationContext 则没有这些功能，只是一个简单的存储容器。
 
-Context 中一般只存储 Binding 和 Alias，其中 Binding 中存储了有关实例的元数据，类似于 Spring 的 BeanDefinition，但也同时存储实例。其中一些非 Bean 的对象，如注解扫描后的元数据，配置信息等，则视为是 Attribute，Attribute 也是一种 Binding，不过与之不同的是 Attribute 设置的时候会添加 "&a-" 前缀，防止与普通的 Binding 的别名冲突。
+Context 中一般只存储 Binding 和 Alias，其中 Binding 中存储了有关实例的元数据，类似于 Spring 的 BeanDefinition，但也同时存储实例。其中一些非 Bean 的对象，如注解扫描后的元数据，配置信息等，则视为是 Attribute，Attribute 也是一种 Binding，不过与之不同的是 Attribute 设置的时候会添加 "\$" 前缀，防止与普通的 Binding 的别名冲突。
 
 由于 Java 是常驻内存的，不同于 PHP 每次请求都重新加载容器，所以 Java 需要考虑到不同客户端请求间的线程安全，不同线程间独立的实例存储于 RequestContext，如 Request，Response 等，然后通过 ObjectFactory 动态代理的方式通过 getObject 从 RequestContext 动态获取该线程下的实例。RequestContext 使用 ThreadLocal 保证线程安全。
 
@@ -61,6 +61,7 @@ ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf, FreeMarker 渲染，Http
 -   添加完整的 Test Case
 -   日志
 -   缓存注解
+-   @Conditional
 
 ## 文档 Doc
 
