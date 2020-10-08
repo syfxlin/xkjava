@@ -6,8 +6,16 @@ package me.ixk.framework.utils;
 
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ClassUtil;
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class ClassUtils extends ClassUtil {
     private static final Map<Class<?>, Class<?>> primitiveWrapperTypeMap = new IdentityHashMap<>(
@@ -38,8 +46,8 @@ public abstract class ClassUtils extends ClassUtil {
         return isCglibProxyClass(object.getClass());
     }
 
-    public static boolean isCglibProxyClass(Class<?> _class) {
-        return (_class != null && isCglibProxyClassName(_class.getName()));
+    public static boolean isCglibProxyClass(Class<?> clazz) {
+        return (clazz != null && isCglibProxyClassName(clazz.getName()));
     }
 
     public static boolean isCglibProxyClassName(String className) {
@@ -50,16 +58,16 @@ public abstract class ClassUtils extends ClassUtil {
         return isJdkProxy(object.getClass());
     }
 
-    public static boolean isJdkProxy(Class<?> _class) {
-        return Proxy.isProxyClass(_class);
+    public static boolean isJdkProxy(Class<?> clazz) {
+        return Proxy.isProxyClass(clazz);
     }
 
     public static boolean isProxy(Object object) {
         return isProxy(object.getClass());
     }
 
-    public static boolean isProxy(Class<?> _class) {
-        return isJdkProxy(_class) || isCglibProxyClass(_class);
+    public static boolean isProxy(Class<?> clazz) {
+        return isJdkProxy(clazz) || isCglibProxyClass(clazz);
     }
 
     public static Class<?> getUserClass(Object instance) {
@@ -69,14 +77,14 @@ public abstract class ClassUtils extends ClassUtil {
         return getUserClass(instance.getClass());
     }
 
-    public static Class<?> getUserClass(Class<?> _class) {
-        if (_class.getName().contains("$$")) {
-            Class<?> superClass = _class.getSuperclass();
+    public static Class<?> getUserClass(Class<?> clazz) {
+        if (clazz.getName().contains("$$")) {
+            Class<?> superClass = clazz.getSuperclass();
             if (superClass != null && superClass != Object.class) {
                 return superClass;
             }
         }
-        return _class;
+        return clazz;
     }
 
     public static Executable getUserMethod(Executable method) {
@@ -116,13 +124,13 @@ public abstract class ClassUtils extends ClassUtil {
         }
     }
 
-    public static <T> Class<?> getGenericClass(Class<T> _class) {
-        return getGenericClass(_class, 0);
+    public static <T> Class<?> getGenericClass(Class<T> clazz) {
+        return getGenericClass(clazz, 0);
     }
 
-    public static <T> Class<?> getGenericClass(Class<T> _class, int index) {
+    public static <T> Class<?> getGenericClass(Class<T> clazz, int index) {
         return (Class<?>) (
-            (ParameterizedType) getUserClass(_class).getGenericSuperclass()
+            (ParameterizedType) getUserClass(clazz).getGenericSuperclass()
         ).getActualTypeArguments()[index];
     }
 
@@ -130,17 +138,17 @@ public abstract class ClassUtils extends ClassUtil {
         return getInterfaces(instance.getClass());
     }
 
-    public static Set<Class<?>> getInterfaces(Class<?> _class) {
+    public static Set<Class<?>> getInterfaces(Class<?> clazz) {
         Set<Class<?>> set = new HashSet<>();
-        getInterfaces(_class, set);
+        getInterfaces(clazz, set);
         return set;
     }
 
-    private static void getInterfaces(Class<?> _class, Set<Class<?>> set) {
-        _class = getUserClass(_class);
-        Class<?>[] interfaces = _class.getInterfaces();
+    private static void getInterfaces(Class<?> clazz, Set<Class<?>> set) {
+        clazz = getUserClass(clazz);
+        Class<?>[] interfaces = clazz.getInterfaces();
         set.addAll(Arrays.asList(interfaces));
-        Class<?> superClass = _class.getSuperclass();
+        Class<?> superClass = clazz.getSuperclass();
         if (superClass != null && superClass != Object.class) {
             getInterfaces(superClass, set);
         }
@@ -150,10 +158,10 @@ public abstract class ClassUtils extends ClassUtil {
         return getMethods(instance.getClass());
     }
 
-    public static Set<Method> getMethods(Class<?> _class) {
-        _class = getUserClass(_class);
+    public static Set<Method> getMethods(Class<?> clazz) {
+        clazz = getUserClass(clazz);
         Set<Method> methods = new HashSet<>();
-        for (Method method : _class.getMethods()) {
+        for (Method method : clazz.getMethods()) {
             switch (method.getName()) {
                 case "getClass":
                 case "hashCode":
@@ -225,19 +233,19 @@ public abstract class ClassUtils extends ClassUtil {
         }
     }
 
-    public static boolean isSkipBuildType(Class<?> _class) {
+    public static boolean isSkipBuildType(Class<?> clazz) {
         if (
-            _class == long.class ||
-            _class == int.class ||
-            _class == short.class ||
-            _class == char.class ||
-            _class == byte.class ||
-            _class == double.class ||
-            _class == float.class ||
-            _class == boolean.class
+            clazz == long.class ||
+            clazz == int.class ||
+            clazz == short.class ||
+            clazz == char.class ||
+            clazz == byte.class ||
+            clazz == double.class ||
+            clazz == float.class ||
+            clazz == boolean.class
         ) {
             return true;
         }
-        return _class.getPackageName().startsWith("java.lang");
+        return clazz.getPackageName().startsWith("java.lang");
     }
 }

@@ -68,12 +68,12 @@ public class AnnotationProcessorManager {
         return result;
     }
 
-    public AnnotationProcessor register(Class<?> _class) {
-        return this.register(_class.getName());
+    public AnnotationProcessor register(Class<?> clazz) {
+        return this.register(clazz.getName());
     }
 
-    public AnnotationProcessor register(Class<?> _class, boolean force) {
-        return this.register(_class.getName(), force);
+    public AnnotationProcessor register(Class<?> clazz, boolean force) {
+        return this.register(clazz.getName(), force);
     }
 
     public Set<AnnotationProcessor> registers(Set<Class<?>> processors) {

@@ -13,8 +13,8 @@ import me.ixk.framework.utils.AnnotationUtils;
 public class InitBinderHandlerResolver {
     private final List<Method> methodList = new ArrayList<>();
 
-    public InitBinderHandlerResolver(Class<?> _class) {
-        for (Method method : _class.getDeclaredMethods()) {
+    public InitBinderHandlerResolver(Class<?> clazz) {
+        for (Method method : clazz.getDeclaredMethods()) {
             InitBinder initBinder = AnnotationUtils.getAnnotation(
                 method,
                 InitBinder.class

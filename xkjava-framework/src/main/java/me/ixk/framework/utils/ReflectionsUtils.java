@@ -35,8 +35,8 @@ public abstract class ReflectionsUtils {
         return GLOBAL_APP_REFLECTIONS;
     }
 
-    public static Reflections make(Class<?> _class) {
-        return make(ClasspathHelper.forClass(_class));
+    public static Reflections make(Class<?> clazz) {
+        return make(ClasspathHelper.forClass(clazz));
     }
 
     public static Reflections make(String _package) {

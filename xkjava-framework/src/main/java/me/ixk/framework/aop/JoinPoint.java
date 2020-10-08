@@ -8,90 +8,90 @@ import java.lang.reflect.Method;
 import net.sf.cglib.proxy.MethodProxy;
 
 public class JoinPoint {
-  protected final AspectHandler handler;
+    protected final AspectHandler handler;
 
-  protected Object[] args;
+    protected Object[] args;
 
-  protected Object object;
+    protected Object object;
 
-  protected Class<?> _class;
+    protected Class<?> clazz;
 
-  protected Method method;
+    protected Method method;
 
-  protected MethodProxy methodProxy;
+    protected MethodProxy methodProxy;
 
-  protected Object _return;
+    protected Object _return;
 
-  protected Throwable error;
+    protected Throwable error;
 
-  public JoinPoint(
-    AspectHandler handler,
-    Object object,
-    Method method,
-    MethodProxy methodProxy,
-    Object[] args
-  ) {
-    this.handler = handler;
-    this.args = args;
-    this.object = object;
-    this._class = object.getClass();
-    this.method = method;
-    this.methodProxy = methodProxy;
-  }
+    public JoinPoint(
+        AspectHandler handler,
+        Object object,
+        Method method,
+        MethodProxy methodProxy,
+        Object[] args
+    ) {
+        this.handler = handler;
+        this.args = args;
+        this.object = object;
+        this.clazz = object.getClass();
+        this.method = method;
+        this.methodProxy = methodProxy;
+    }
 
-  public Object[] getArgs() {
-    return args;
-  }
+    public Object[] getArgs() {
+        return args;
+    }
 
-  public void setArgs(Object[] args) {
-    this.args = args;
-  }
+    public void setArgs(Object[] args) {
+        this.args = args;
+    }
 
-  public Object getObject() {
-    return object;
-  }
+    public Object getObject() {
+        return object;
+    }
 
-  public void setObject(Object object) {
-    this.object = object;
-  }
+    public void setObject(Object object) {
+        this.object = object;
+    }
 
-  public Class<?> getTargetClass() {
-    return _class;
-  }
+    public Class<?> getTargetClass() {
+        return clazz;
+    }
 
-  public void setTargetClass(Class<?> _class) {
-    this._class = _class;
-  }
+    public void setTargetClass(Class<?> clazz) {
+        this.clazz = clazz;
+    }
 
-  public MethodProxy getMethodProxy() {
-    return methodProxy;
-  }
+    public MethodProxy getMethodProxy() {
+        return methodProxy;
+    }
 
-  public void setMethodProxy(MethodProxy methodProxy) {
-    this.methodProxy = methodProxy;
-  }
+    public void setMethodProxy(MethodProxy methodProxy) {
+        this.methodProxy = methodProxy;
+    }
 
-  public Object getReturn() {
-    return _return;
-  }
+    public Object getReturn() {
+        return _return;
+    }
 
-  public void setReturn(Object _return) {
-    this._return = _return;
-  }
+    public void setReturn(Object _return) {
+        this._return = _return;
+    }
 
-  public Throwable getError() {
-    return error;
-  }
+    public Throwable getError() {
+        return error;
+    }
 
-  public void setError(Throwable error) {
-    this.error = error;
-  }
+    public void setError(Throwable error) {
+        this.error = error;
+    }
 
-  public Method getMethod() {
-    return method;
-  }
+    public Method getMethod() {
+        return method;
+    }
 
-  public void setMethod(Method method) {
-    this.method = method;
-  }
+    public void setMethod(Method method) {
+        this.method = method;
+    }
 }

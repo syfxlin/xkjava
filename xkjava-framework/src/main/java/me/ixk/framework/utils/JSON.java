@@ -52,9 +52,9 @@ public class JSON extends ObjectMapper {
         }
     }
 
-    public static <T> T parse(String json, Class<T> _class) {
+    public static <T> T parse(String json, Class<T> clazz) {
         try {
-            return make().readValue(json, _class);
+            return make().readValue(json, clazz);
         } catch (JsonProcessingException e) {
             return null;
         }

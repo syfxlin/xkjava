@@ -11,7 +11,12 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.lang.reflect.Method;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -348,8 +353,8 @@ public abstract class Util {
         return handler;
     }
 
-    public static String routeHandler(Class<?> _class, String method) {
-        return _class.getName() + "@" + method;
+    public static String routeHandler(Class<?> clazz, String method) {
+        return clazz.getName() + "@" + method;
     }
 
     public static String routeHandler(Method method) {

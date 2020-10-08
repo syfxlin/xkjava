@@ -22,8 +22,8 @@ import me.ixk.framework.utils.JWT;
 
 public abstract class Facade {
 
-    protected static <T> T make(Class<T> _class) {
-        return XkJava.of().make(_class);
+    protected static <T> T make(Class<T> clazz) {
+        return XkJava.of().make(clazz);
     }
 
     public static Environment env() {

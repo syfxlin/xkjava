@@ -28,14 +28,14 @@ public class RouteManager {
         this.parser = this.app.make(RouteParser.class);
         this.generator = this.app.make(RouteGenerator.class);
         this.collector = this.app.make(RouteCollector.class);
-        for (Class<? extends RouteDefinition> _class : (List<Class<? extends RouteDefinition>>) this.app.getAttribute(
+        for (Class<? extends RouteDefinition> clazz : (List<Class<? extends RouteDefinition>>) this.app.getAttribute(
                 "routeDefinition"
             )) {
             try {
-                ReflectUtil.newInstance(_class).routes(this.collector);
+                ReflectUtil.newInstance(clazz).routes(this.collector);
             } catch (Exception e) {
                 throw new RouteCollectorException(
-                    "Route collector [" + _class.getSimpleName() + "] error",
+                    "Route collector [" + clazz.getSimpleName() + "] error",
                     e
                 );
             }

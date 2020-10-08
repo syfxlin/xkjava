@@ -34,11 +34,6 @@ public class RouteAnnotationProcessor extends AbstractAnnotationProcessor {
         this.processDefinitionAnnotation();
         // mapping
         this.processAnnotation(RequestMapping.class);
-        // this.processAnnotation(GetMapping.class);
-        // this.processAnnotation(PostMapping.class);
-        // this.processAnnotation(PutMapping.class);
-        // this.processAnnotation(DeleteMapping.class);
-        // this.processAnnotation(PatchMapping.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -48,9 +43,9 @@ public class RouteAnnotationProcessor extends AbstractAnnotationProcessor {
                     "routeDefinition",
                     new ArrayList<>()
                 );
-        for (final Class<?> _class : this.getTypesAnnotated(Route.class)) {
-            if (RouteDefinition.class.isAssignableFrom(_class)) {
-                routeDefinition.add((Class<? extends RouteDefinition>) _class);
+        for (final Class<?> clazz : this.getTypesAnnotated(Route.class)) {
+            if (RouteDefinition.class.isAssignableFrom(clazz)) {
+                routeDefinition.add((Class<? extends RouteDefinition>) clazz);
             }
         }
     }

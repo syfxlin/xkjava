@@ -46,11 +46,11 @@ public abstract class AnnotationUtils {
     };
 
     @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T getAnnotation(
+    public static <T> T getAnnotation(
         final AnnotatedElement element,
-        final Class<T> annotationType
+        final Class<? extends Annotation> annotationType
     ) {
-        final WalkAnnotation annotation = walkAnnotation(
+        final MergeAnnotationImpl annotation = walkAnnotation(
             element,
             annotationType
         );
@@ -59,7 +59,7 @@ public abstract class AnnotationUtils {
         }
         return (T) Proxy.newProxyInstance(
             AnnotationUtils.class.getClassLoader(),
-            new Class[] { annotationType, AnnotationObject.class },
+            new Class[] { annotationType, MergeAnnotation.class },
             new AnnotationInvocationHandler(annotation)
         );
     }
@@ -69,7 +69,7 @@ public abstract class AnnotationUtils {
         Class<? extends Annotation> annotationType,
         String name
     ) {
-        final WalkAnnotation walkAnnotation = walkAnnotation(
+        final MergeAnnotationImpl walkAnnotation = walkAnnotation(
             element,
             annotationType
         );
@@ -137,7 +137,10 @@ public abstract class AnnotationUtils {
         AnnotatedElement element,
         Class<? extends Annotation> annotationType
     ) {
-        WalkAnnotation walkAnnotation = walkAnnotation(element, annotationType);
+        MergeAnnotationImpl walkAnnotation = walkAnnotation(
+            element,
+            annotationType
+        );
         if (walkAnnotation == null) {
             return null;
         }
@@ -280,7 +283,7 @@ public abstract class AnnotationUtils {
         return set;
     }
 
-    public static WalkAnnotation walkAnnotation(
+    public static MergeAnnotationImpl walkAnnotation(
         final AnnotatedElement element,
         final Class<? extends Annotation> annotationType
     ) {
@@ -291,7 +294,7 @@ public abstract class AnnotationUtils {
                 if (isJdkAnnotation(annotationClass)) {
                     continue;
                 }
-                final WalkAnnotation typeAnnotation = walkAnnotation(
+                final MergeAnnotationImpl typeAnnotation = walkAnnotation(
                     annotationClass,
                     annotationType
                 );
@@ -302,7 +305,7 @@ public abstract class AnnotationUtils {
             }
         }
         if (annotation != null) {
-            final WalkAnnotation walkAnnotation = new WalkAnnotation();
+            final MergeAnnotationImpl walkAnnotation = new MergeAnnotationImpl();
             walkAnnotation.addAnnotation(annotation);
             return walkAnnotation;
         }
@@ -345,10 +348,10 @@ public abstract class AnnotationUtils {
         );
     }
 
-    private static class WalkAnnotation implements AnnotationObject {
+    private static class MergeAnnotationImpl implements MergeAnnotation {
         private final List<Annotation> annotations = new LinkedList<>();
 
-        public WalkAnnotation() {}
+        public MergeAnnotationImpl() {}
 
         public void addAnnotation(Annotation annotation) {
             this.annotations.add(parseAnnotation(annotation));
@@ -362,9 +365,11 @@ public abstract class AnnotationUtils {
 
     private static class AnnotationInvocationHandler
         implements InvocationHandler {
-        private final WalkAnnotation annotation;
+        private final MergeAnnotationImpl annotation;
 
-        public AnnotationInvocationHandler(final WalkAnnotation annotation) {
+        public AnnotationInvocationHandler(
+            final MergeAnnotationImpl annotation
+        ) {
             this.annotation = annotation;
         }
 
@@ -384,11 +389,11 @@ public abstract class AnnotationUtils {
                     return (
                         this.annotation == null ? "" : this.annotation
                     ).toString();
-                case "getParent":
+                case "getRoot":
                     if (this.annotation == null) {
                         return null;
                     }
-                    return this.annotation.getParent();
+                    return this.annotation.getRoot();
                 case "getTarget":
                     if (this.annotation == null) {
                         return null;
@@ -427,7 +432,7 @@ public abstract class AnnotationUtils {
         }
     }
 
-    public interface AnnotationObject {
+    public interface MergeAnnotation {
         List<Annotation> annotations();
 
         default Annotation getTarget() {
@@ -435,12 +440,12 @@ public abstract class AnnotationUtils {
             return list.isEmpty() ? null : list.get(0);
         }
 
-        default Annotation getParent() {
+        default Annotation getRoot() {
             List<Annotation> list = this.annotations();
             return list.isEmpty() ? null : list.get(list.size() - 1);
         }
 
-        default Object get(final String key) {
+        default <T> T get(final String key) {
             return getAnnotationValue(this.annotations(), key);
         }
 
@@ -448,7 +453,7 @@ public abstract class AnnotationUtils {
             return getAnnotationValue(this.annotations(), returnType, key);
         }
 
-        default Object get(
+        default <T> T get(
             final Class<? extends Annotation> annotationType,
             final String key
         ) {

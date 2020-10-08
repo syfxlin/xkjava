@@ -53,9 +53,9 @@ public class AspectManager {
         }
     }
 
-    public boolean matches(Class<?> _class) {
+    public boolean matches(Class<?> clazz) {
         for (AdviceEntry entry : adviceList) {
-            if (entry.getPointcut().matches(_class)) {
+            if (entry.getPointcut().matches(clazz)) {
                 return true;
             }
         }

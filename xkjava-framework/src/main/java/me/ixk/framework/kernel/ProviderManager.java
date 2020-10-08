@@ -72,12 +72,12 @@ public class ProviderManager {
         return result;
     }
 
-    public Provider register(Class<?> _class) {
-        return this.register(_class.getName());
+    public Provider register(Class<?> clazz) {
+        return this.register(clazz.getName());
     }
 
-    public Provider register(Class<?> _class, boolean force) {
-        return this.register(_class.getName(), force);
+    public Provider register(Class<?> clazz, boolean force) {
+        return this.register(clazz.getName(), force);
     }
 
     public Set<Provider> registers(Set<Class<?>> providers) {

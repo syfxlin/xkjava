@@ -16,8 +16,8 @@ import me.ixk.framework.utils.AnnotationUtils;
 public class ExceptionHandlerResolver {
     private final Map<Class<? extends Throwable>, Method> methodMap = new ConcurrentHashMap<>();
 
-    public ExceptionHandlerResolver(Class<?> _class) {
-        for (Method method : _class.getDeclaredMethods()) {
+    public ExceptionHandlerResolver(Class<?> clazz) {
+        for (Method method : clazz.getDeclaredMethods()) {
             ExceptionHandler exceptionHandler = AnnotationUtils.getAnnotation(
                 method,
                 ExceptionHandler.class

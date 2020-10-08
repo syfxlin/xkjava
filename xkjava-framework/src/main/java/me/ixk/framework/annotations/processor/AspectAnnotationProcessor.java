@@ -25,10 +25,10 @@ public class AspectAnnotationProcessor extends AbstractAnnotationProcessor {
     @Override
     public void process() {
         final AspectManager aspectManager = this.app.make(AspectManager.class);
-        for (final Class<?> _class : this.getTypesAnnotated(Aspect.class)) {
-            if (Advice.class.isAssignableFrom(_class)) {
+        for (final Class<?> clazz : this.getTypesAnnotated(Aspect.class)) {
+            if (Advice.class.isAssignableFrom(clazz)) {
                 String pointcut = AnnotationUtils.getAnnotationValue(
-                    _class,
+                    clazz,
                     Aspect.class,
                     "pointcut"
                 );
@@ -37,7 +37,7 @@ public class AspectAnnotationProcessor extends AbstractAnnotationProcessor {
                 }
                 aspectManager.addAdvice(
                     new AspectPointcut(pointcut),
-                    this.app.make(_class.getName(), Advice.class)
+                    this.app.make(clazz.getName(), Advice.class)
                 );
             } else {
                 throw new AnnotationProcessorException(

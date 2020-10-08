@@ -28,32 +28,32 @@ public class ConfigAnnotationProcessor extends AbstractAnnotationProcessor {
 
     public Map<String, Map<String, Object>> processAnnotationConfig() {
         Map<String, Map<String, Object>> config = new ConcurrentHashMap<>();
-        for (Class<?> _class : this.getTypesAnnotated(Config.class)) {
+        for (Class<?> clazz : this.getTypesAnnotated(Config.class)) {
             String name = AnnotationUtils.getAnnotationValue(
-                _class,
+                clazz,
                 Config.class,
                 "name"
             );
             name =
                 name == null || name.length() > 0
                     ? name
-                    : _class.getSimpleName();
+                    : clazz.getSimpleName();
             // 如果是 Config 类的子类，即编程化配置的方式，则通过 config 方法读取
-            if (me.ixk.framework.config.Config.class.isAssignableFrom(_class)) {
+            if (me.ixk.framework.config.Config.class.isAssignableFrom(clazz)) {
                 try {
-                    Object instance = ReflectUtil.newInstance(_class, app);
+                    Object instance = ReflectUtil.newInstance(clazz, app);
                     config.put(name, ReflectUtil.invoke(instance, "config"));
                 } catch (Exception e) {
                     throw new LoadConfigException(
-                        "Load [" + _class.getSimpleName() + "] config failed",
+                        "Load [" + clazz.getSimpleName() + "] config failed",
                         e
                     );
                 }
             } else {
                 try {
-                    Object object = ReflectUtil.newInstance(_class);
+                    Object object = ReflectUtil.newInstance(clazz);
                     Map<String, Object> item = new ConcurrentHashMap<>();
-                    for (Method method : ClassUtils.getMethods(_class)) {
+                    for (Method method : ClassUtils.getMethods(clazz)) {
                         item.put(
                             method.getName(),
                             ReflectUtil.invoke(object, method)
@@ -63,7 +63,7 @@ public class ConfigAnnotationProcessor extends AbstractAnnotationProcessor {
                     config.put(name, item);
                 } catch (Exception e) {
                     throw new LoadConfigException(
-                        "Load [" + _class.getSimpleName() + "] config failed",
+                        "Load [" + clazz.getSimpleName() + "] config failed",
                         e
                     );
                 }

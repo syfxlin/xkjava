@@ -47,31 +47,31 @@ public class MiddlewareAnnotationProcessor extends AbstractAnnotationProcessor {
                     new ConcurrentHashMap<>()
                 );
         // define
-        for (Class<?> _class : this.getTypesAnnotated(GlobalMiddleware.class)) {
+        for (Class<?> clazz : this.getTypesAnnotated(GlobalMiddleware.class)) {
             if (
                 me.ixk.framework.middleware.Middleware.class.isAssignableFrom(
-                        _class
+                        clazz
                     )
             ) {
                 globalMiddleware.add(
-                    (Class<? extends me.ixk.framework.middleware.Middleware>) _class
+                    (Class<? extends me.ixk.framework.middleware.Middleware>) clazz
                 );
             }
         }
-        for (Class<?> _class : this.getTypesAnnotated(RouteMiddleware.class)) {
+        for (Class<?> clazz : this.getTypesAnnotated(RouteMiddleware.class)) {
             if (
                 me.ixk.framework.middleware.Middleware.class.isAssignableFrom(
-                        _class
+                        clazz
                     )
             ) {
                 String name = AnnotationUtils.getAnnotationValue(
-                    _class,
+                    clazz,
                     RouteMiddleware.class,
                     "name"
                 );
                 routeMiddleware.put(
                     name,
-                    (Class<? extends me.ixk.framework.middleware.Middleware>) _class
+                    (Class<? extends me.ixk.framework.middleware.Middleware>) clazz
                 );
             }
         }
