@@ -59,7 +59,7 @@ public class RouteAnnotationProcessor extends AbstractAnnotationProcessor {
                     new ArrayList<>()
                 );
         for (final Method method : this.getMethodsAnnotated(annotation)) {
-            final RequestMapping a = (RequestMapping) AnnotationUtils.getAnnotation(
+            final RequestMapping a = AnnotationUtils.getAnnotation(
                 method,
                 annotation
             );

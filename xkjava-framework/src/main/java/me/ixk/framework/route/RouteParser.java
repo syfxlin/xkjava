@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import me.ixk.framework.annotations.Component;
 
+@Component
 public class RouteParser {
     protected static final Pattern PATH_VARIABLE_PATTERN = Pattern.compile(
         "\\{([^/]+)}"

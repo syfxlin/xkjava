@@ -9,10 +9,10 @@ import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.XkJava;
 
 @Bootstrap
-@Order(Order.HIGHEST_PRECEDENCE + 6)
+@Order(Order.HIGHEST_PRECEDENCE + 7)
 public class BootProviders extends AbstractBootstrap {
 
-    public BootProviders(XkJava app) {
+    public BootProviders(final XkJava app) {
         super(app);
     }
 

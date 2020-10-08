@@ -4,34 +4,21 @@
 
 package me.ixk.framework.config;
 
-import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotations.Aspect;
-import me.ixk.framework.annotations.Bean;
-import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Config;
-import me.ixk.framework.annotations.Configuration;
-import me.ixk.framework.annotations.ConfigurationProperties;
-import me.ixk.framework.annotations.Controller;
-import me.ixk.framework.annotations.ControllerAdvice;
-import me.ixk.framework.annotations.Mapper;
-import me.ixk.framework.annotations.Repository;
-import me.ixk.framework.annotations.Service;
 import me.ixk.framework.ioc.XkJava;
 
 @Config(name = "app")
 public class AppConfig extends AbstractConfig {
 
-    public AppConfig(XkJava app) {
+    public AppConfig(final XkJava app) {
         super(app);
     }
 
     @Override
     public Map<String, Object> config() {
-        Map<String, Object> map = new ConcurrentHashMap<>();
+        final Map<String, Object> map = new ConcurrentHashMap<>();
         map.put("name", this.env.get("app.name", "XK-Java"));
         map.put("version", this.env.get("app.version", "1.0"));
         map.put("locale", this.env.get("app.locale", "zh_CN"));
@@ -45,24 +32,6 @@ public class AppConfig extends AbstractConfig {
         map.put("jwt.algo", this.env.get("app.jwt", "HS256"));
         map.put("jwt.default_payload", new ConcurrentHashMap<String, String>());
 
-        map.put("bean_annotations", this.beanAnnotations());
         return map;
-    }
-
-    private List<Class<? extends Annotation>> beanAnnotations() {
-        return Arrays.asList(
-            Bean.class,
-            Component.class,
-            Configuration.class,
-            ConfigurationProperties.class,
-            Aspect.class,
-            // prototype lazy
-            Repository.class,
-            Service.class,
-            Mapper.class,
-            // lazy
-            Controller.class,
-            ControllerAdvice.class
-        );
     }
 }

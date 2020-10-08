@@ -38,10 +38,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         for (Method method : this.getMethodsAnnotated(Bean.class)) {
             this.processAnnotation(method);
         }
-        // make
-        for (String name : this.makeList) {
-            this.app.make(name);
-        }
+        this.app.setAttribute("makeSingletonBeanList", this.makeList);
     }
 
     private void processAnnotation(Method method) {
@@ -57,24 +54,18 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
             this.getInitAndDestroyMethod(beanAnnotation, clazz);
         Wrapper wrapper = (container, with) ->
             method.invoke(container.make(method.getDeclaringClass()));
-        this.setInitAndDestroyMethod(
-                this.app.bind(
-                        name,
-                        wrapper,
-                        // Method 的 Bean 默认是不绑定 Type 的
-                        (bindType == Bean.BindType.BIND)
-                            ? clazz.getName()
-                            : null,
-                        scopeType
-                    ),
-                initAndDestroyMethod
-            );
+        Binding binding =
+            this.app.bind(
+                    name,
+                    wrapper,
+                    // Method 的 Bean 默认是不绑定 Type 的
+                    (bindType == Bean.BindType.BIND) ? clazz.getName() : null,
+                    scopeType
+                );
+        this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
         Object names = beanAnnotation.name();
         for (String n : (String[]) names) {
-            this.setInitAndDestroyMethod(
-                    this.app.bind(n, wrapper, null, scopeType),
-                    initAndDestroyMethod
-                );
+            this.app.alias(n, name, binding.getScope());
         }
         if (
             scopeType.isSingleton() &&
@@ -94,20 +85,15 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         Method[] initAndDestroyMethod =
             this.getInitAndDestroyMethod(anno, clazz);
         // Class 的 Bean 默认绑定 Type
+        Binding binding = this.app.bind(clazz, clazz, null, scopeType);
         if (
             bindType == Bean.BindType.NO_SET || bindType == Bean.BindType.BIND
         ) {
-            this.setInitAndDestroyMethod(
-                    this.app.bind(clazz, clazz, null, scopeType),
-                    initAndDestroyMethod
-                );
+            this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
         }
         Object names = anno.name();
         for (String name : (String[]) names) {
-            this.setInitAndDestroyMethod(
-                    this.app.bind(name, clazz.getName(), null, scopeType),
-                    initAndDestroyMethod
-                );
+            this.app.alias(name, clazz, binding.getScope());
         }
         if (
             scopeType.isSingleton() &&

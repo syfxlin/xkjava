@@ -4,24 +4,26 @@
 
 package me.ixk.framework.bootstrap;
 
+import java.util.List;
 import me.ixk.framework.annotations.Bootstrap;
 import me.ixk.framework.annotations.Order;
-import me.ixk.framework.annotations.processor.ProviderAnnotationProcessor;
 import me.ixk.framework.ioc.XkJava;
 
 @Bootstrap
 @Order(Order.HIGHEST_PRECEDENCE + 6)
-public class RegisterProviders extends AbstractBootstrap {
+public class MakeSingletonBean extends AbstractBootstrap {
 
-    public RegisterProviders(XkJava app) {
+    public MakeSingletonBean(final XkJava app) {
         super(app);
     }
 
     @Override
     public void boot() {
-        ProviderAnnotationProcessor processor = new ProviderAnnotationProcessor(
-            this.app
-        );
-        processor.process();
+        for (Object beanName : this.app.getAttribute(
+                "makeSingletonBeanList",
+                List.class
+            )) {
+            this.app.make((String) beanName);
+        }
     }
 }

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import me.ixk.framework.annotations.Component;
 import me.ixk.framework.exceptions.RouteCollectorException;
 import me.ixk.framework.helpers.Util;
 import me.ixk.framework.http.result.Result;
@@ -23,6 +24,7 @@ import me.ixk.framework.middleware.Runner;
 import me.ixk.framework.utils.AnnotationUtils;
 import org.eclipse.jetty.http.HttpMethod;
 
+@Component
 public class RouteCollector {
     protected final XkJava app;
 
@@ -51,6 +53,10 @@ public class RouteCollector {
         RouteGenerator routeGenerator
     ) {
         this.app = app;
+        this.staticRoutes = new ConcurrentHashMap<>();
+        this.variableRoutes = new ConcurrentHashMap<>();
+        this.routeParser = routeParser;
+        this.routeGenerator = routeGenerator;
         this.globalMiddleware =
             (List<Class<? extends Middleware>>) this.app.getAttribute(
                     "globalMiddleware"
@@ -63,10 +69,27 @@ public class RouteCollector {
             (Map<String, AnnotationMiddlewareDefinition>) this.app.getAttribute(
                     "annotationMiddlewareDefinitions"
                 );
-        this.staticRoutes = new ConcurrentHashMap<>();
-        this.variableRoutes = new ConcurrentHashMap<>();
-        this.routeParser = routeParser;
-        this.routeGenerator = routeGenerator;
+        for (Class<? extends RouteDefinition> clazz : (List<Class<? extends RouteDefinition>>) this.app.getAttribute(
+                "routeDefinition"
+            )) {
+            try {
+                ReflectUtil.newInstance(clazz).routes(this);
+            } catch (Exception e) {
+                throw new RouteCollectorException(
+                    "Route collector [" + clazz.getSimpleName() + "] error",
+                    e
+                );
+            }
+        }
+        for (AnnotationRouteDefinition definition : (List<AnnotationRouteDefinition>) this.app.getAttribute(
+                "annotationRouteDefinitions"
+            )) {
+            this.match(
+                    definition.getMethod(),
+                    definition.getRoute(),
+                    definition.getHandler()
+                );
+        }
     }
 
     protected RouteHandler getHandler(Handler handler) {

@@ -8,31 +8,34 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import me.ixk.framework.annotations.Component;
 
+@Component(name = "routeDispatcher")
 public class RouteDispatcher {
-    protected final Map<String, Map<String, RouteHandler>> staticRoutes;
-
-    protected final Map<String, MergeRouteData> variableRoutes;
+    protected final RouteCollector collector;
 
     public RouteDispatcher(RouteCollector routeCollector) {
-        this.staticRoutes = routeCollector.getStaticRoutes();
-        this.variableRoutes = routeCollector.getVariableRoutes();
+        this.collector = routeCollector;
     }
 
     public RouteResult dispatch(String httpMethod, String url) {
-        boolean methodInStatic = this.staticRoutes.containsKey(httpMethod);
-        boolean methodInVariable = this.variableRoutes.containsKey(httpMethod);
+        boolean methodInStatic =
+            this.collector.getStaticRoutes().containsKey(httpMethod);
+        boolean methodInVariable =
+            this.collector.getVariableRoutes().containsKey(httpMethod);
         if (
-            methodInStatic && this.staticRoutes.get(httpMethod).containsKey(url)
+            methodInStatic &&
+            this.collector.getStaticRoutes().get(httpMethod).containsKey(url)
         ) {
             return new RouteResult(
                 RouteStatus.FOUND,
-                this.staticRoutes.get(httpMethod).get(url),
+                this.collector.getStaticRoutes().get(httpMethod).get(url),
                 url
             );
         }
         if (methodInVariable) {
-            MergeRouteData mergeRouteData = variableRoutes.get(httpMethod);
+            MergeRouteData mergeRouteData =
+                this.collector.getVariableRoutes().get(httpMethod);
             RouteResult result =
                 this.dispatchVariableRoute(mergeRouteData, url);
             if (result.getStatus() == RouteStatus.FOUND) {
@@ -44,13 +47,15 @@ public class RouteDispatcher {
             return this.dispatch("GET", url);
         }
 
-        for (Map<String, RouteHandler> routeData : this.staticRoutes.values()) {
+        for (Map<String, RouteHandler> routeData : this.collector.getStaticRoutes()
+            .values()) {
             if (routeData.containsKey(url)) {
                 return new RouteResult(RouteStatus.METHOD_NOT_ALLOWED);
             }
         }
 
-        for (MergeRouteData routeData : this.variableRoutes.values()) {
+        for (MergeRouteData routeData : this.collector.getVariableRoutes()
+            .values()) {
             if (
                 this.dispatchVariableRoute(routeData, url).getStatus() ==
                 RouteStatus.FOUND

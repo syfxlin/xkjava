@@ -225,21 +225,6 @@ public class Container implements Context {
         throw new ContainerException("Do not call unregistered register alias");
     }
 
-    public void registerAlias(String alias, String name, String contextName) {
-        log.debug(
-            "Container register alias: {} - ({} -> {})",
-            contextName,
-            alias,
-            name
-        );
-        if (!this.contexts.containsKey(contextName)) {
-            throw new ContainerException(
-                "Target [" + contextName + "] context is not registered"
-            );
-        }
-        this.getContextByName(contextName).registerAlias(alias, name);
-    }
-
     @Override
     public void removeAlias(String alias) {
         log.debug("Container remove alias: {}", alias);
@@ -395,6 +380,41 @@ public class Container implements Context {
         return aspectManager.matches(type);
     }
 
+    /*======================  Alias  ==================*/
+
+    public void alias(String alias, String name, String contextName) {
+        log.debug(
+            "Container register alias: {} - ({} -> {})",
+            contextName,
+            alias,
+            name
+        );
+        if (!this.contexts.containsKey(contextName)) {
+            throw new ContainerException(
+                "Target [" + contextName + "] context is not registered"
+            );
+        }
+        this.getContextByName(contextName).registerAlias(alias, name);
+    }
+
+    public void alias(String alias, Class<?> type, String contextName) {
+        this.alias(alias, type.getName(), contextName);
+    }
+
+    public void alias(String alias, String name, ScopeType scopeType) {
+        this.walkContexts(
+                context -> {
+                    if (context.matchesScope(scopeType)) {
+                        context.registerAlias(alias, name);
+                    }
+                }
+            );
+    }
+
+    public void alias(String alias, Class<?> type, ScopeType scopeType) {
+        this.alias(alias, type.getName(), scopeType);
+    }
+
     /* ===================== doBind ===================== */
 
     private synchronized Binding doBind(
@@ -409,11 +429,7 @@ public class Container implements Context {
             alias
         );
         if (alias != null) {
-            this.registerAlias(
-                    alias,
-                    bindName,
-                    this.getContextNameByBinding(binding)
-                );
+            this.alias(alias, bindName, this.getContextNameByBinding(binding));
         }
         return this.setBinding(bindName, binding);
     }
@@ -522,15 +538,17 @@ public class Container implements Context {
                         return null;
                     }
                 );
-        if (instance == null) {
-            try {
-                instance =
-                    binding
-                        .getWrapper()
-                        .getInstance(this, this.dataBinder.get());
-            } catch (Throwable e) {
-                throw new ContainerException("Instance make failed", e);
-            }
+        if (instance != null) {
+            return Convert.convert(
+                returnType,
+                ReflectUtils.resolveAutowiringValue(instance, returnType)
+            );
+        }
+        try {
+            instance =
+                binding.getWrapper().getInstance(this, this.dataBinder.get());
+        } catch (Throwable e) {
+            throw new ContainerException("Instance make failed", e);
         }
         instance = ReflectUtils.resolveAutowiringValue(instance, returnType);
         T returnInstance = Convert.convert(returnType, instance);
