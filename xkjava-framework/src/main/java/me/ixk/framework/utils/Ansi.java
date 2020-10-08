@@ -106,4 +106,8 @@ public class Ansi {
     public static Ansi make(Style style) {
         return new Ansi(style.getAnsi());
     }
+
+    public static String split() {
+        return new Ansi(Color.GREEN.getAnsi()).format("   |   ");
+    }
 }

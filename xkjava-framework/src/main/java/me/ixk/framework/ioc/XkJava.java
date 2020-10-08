@@ -19,6 +19,7 @@ import me.ixk.framework.kernel.ProviderManager;
 import me.ixk.framework.server.JettyServer;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Ansi;
+import me.ixk.framework.utils.Ansi.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,12 @@ public class XkJava extends Container {
     private static final Logger log = LoggerFactory.getLogger(XkJava.class);
 
     protected static final String VERSION = "v1.0-SNAPSHOT";
+    protected static final String OTHER =
+        Ansi.make(Color.BLUE).format("Author: Otstar Lin <syfxlin@gmail.com>") +
+        Ansi.split() +
+        Ansi
+            .make(Color.CYAN)
+            .format("Github: https://github.com/syfxlin/xkjava");
 
     protected String bannerText =
         " __   __      __  __               _____                                 \n" +
@@ -244,7 +251,7 @@ public class XkJava extends Container {
             .addShutdownHook(
                 new Thread(
                     () -> {
-                        System.out.println("destroy");
+                        log.info("Run shutdown hook");
                         if (this.destroyingCallback != null) {
                             this.destroyingCallback.invoke(this);
                         }
@@ -252,18 +259,23 @@ public class XkJava extends Container {
                         if (this.destroyedCallback != null) {
                             this.destroyedCallback.invoke(this);
                         }
-                    }
+                    },
+                    "shutdown-hook"
                 )
             );
     }
 
     protected void printBanner() {
         if (this.bannerText != null) {
-            System.out.println(this.bannerText);
+            System.out.println(this.bannerText + "\n");
         }
         String text =
-            Ansi.make(Ansi.Color.CYAN).format(" :: XK-Java :: ") +
-            Ansi.make(Ansi.Color.MAGENTA).format("       (" + VERSION + ")\n");
+            Ansi.make(Color.CYAN).format(" :: XK-Java :: ") +
+            Ansi.split() +
+            Ansi.make(Color.MAGENTA).format("(" + VERSION + ")") +
+            Ansi.split() +
+            OTHER +
+            "\n";
         System.out.println(text);
     }
 
