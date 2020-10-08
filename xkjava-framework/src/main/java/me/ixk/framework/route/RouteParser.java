@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import me.ixk.framework.annotations.Component;
 
-@Component
+@Component(name = "routeParser")
 public class RouteParser {
     protected static final Pattern PATH_VARIABLE_PATTERN = Pattern.compile(
         "\\{([^/]+)}"

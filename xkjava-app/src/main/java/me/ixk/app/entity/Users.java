@@ -11,12 +11,10 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 
 @Data
 @Builder
 @EqualsAndHashCode
-@Accessors(chain = true)
 public class Users implements Serializable {
     private static final long serialVersionUID = 1L;
 

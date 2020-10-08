@@ -12,7 +12,7 @@ import me.ixk.framework.http.Response;
 import me.ixk.framework.http.ResponseProcessor;
 import me.ixk.framework.ioc.XkJava;
 
-@Component
+@Component(name = "routeManager")
 public class RouteManager {
     protected final XkJava app;
 

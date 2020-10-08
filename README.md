@@ -62,6 +62,7 @@ ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf, FreeMarker 渲染，Http
 -   日志
 -   缓存注解
 -   @Conditional
+-   接口 Bean 绑定的解决方案
 
 ## 文档 Doc
 

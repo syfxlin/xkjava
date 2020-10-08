@@ -5,6 +5,7 @@
 package me.ixk.framework.view;
 
 import freemarker.template.Configuration;
+import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
 import java.io.IOException;
@@ -27,6 +28,9 @@ public class FreeMarker implements TemplateProcessor {
         configuration.setTemplateExceptionHandler(
             TemplateExceptionHandler.DEBUG_HANDLER
         );
+        configuration.setAPIBuiltinEnabled(true);
+        DefaultObjectWrapper defaultObjectWrapper = (DefaultObjectWrapper) configuration.getObjectWrapper();
+        defaultObjectWrapper.setUseAdaptersForContainers(true);
         this.configuration = configuration;
     }
 

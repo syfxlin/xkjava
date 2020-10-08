@@ -246,6 +246,6 @@ public abstract class ClassUtils extends ClassUtil {
         ) {
             return true;
         }
-        return clazz.getPackageName().startsWith("java.lang");
+        return clazz.getPackageName().startsWith("java.");
     }
 }

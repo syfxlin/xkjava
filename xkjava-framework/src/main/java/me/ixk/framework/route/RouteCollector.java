@@ -24,7 +24,7 @@ import me.ixk.framework.middleware.Runner;
 import me.ixk.framework.utils.AnnotationUtils;
 import org.eclipse.jetty.http.HttpMethod;
 
-@Component
+@Component(name = "routeCollector")
 public class RouteCollector {
     protected final XkJava app;
 

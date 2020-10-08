@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.Component;
 
-@Component
+@Component(name = "routeGenerator")
 public class RouteGenerator {
 
     public MergeRouteData mergeVariableRoutes(
