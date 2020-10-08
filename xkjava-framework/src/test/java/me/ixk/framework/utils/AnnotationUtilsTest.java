@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.Set;
 import me.ixk.framework.test.XkJavaRunner;
 import me.ixk.framework.utils.annotation.Parent;
+import me.ixk.framework.utils.annotation.SuperParent;
 import me.ixk.framework.utils.entity.Test1;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,17 +19,26 @@ import org.junit.jupiter.api.extension.ExtendWith;
 class AnnotationUtilsTest {
 
     @Test
-    void getTypesAnnotatedAndInherit() {
+    void getTypesAnnotated() {
         Set<Class<?>> list = AnnotationUtils.getTypesAnnotated(Parent.class);
         assertEquals(list.size(), 2);
     }
 
     @Test
-    void getAnnotationInherit() {
-        Parent parent = AnnotationUtils.getParentAnnotation(
+    void getAnnotation() {
+        SuperParent parent = AnnotationUtils.getAnnotation(
             Test1.class,
-            Parent.class
+            SuperParent.class
         );
         assertNotNull(parent);
+    }
+
+    @Test
+    void getAnnotationValues() {
+        MultiValueMap<String, Object> map = AnnotationUtils.getAnnotationValues(
+            Test1.class,
+            SuperParent.class
+        );
+        assertNotNull(map);
     }
 }

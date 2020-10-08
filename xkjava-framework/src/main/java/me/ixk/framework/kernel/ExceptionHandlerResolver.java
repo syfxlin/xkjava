@@ -18,12 +18,12 @@ public class ExceptionHandlerResolver {
 
     public ExceptionHandlerResolver(Class<?> _class) {
         for (Method method : _class.getDeclaredMethods()) {
-            ExceptionHandler exceptionHandler = AnnotationUtils.getParentAnnotation(
+            ExceptionHandler exceptionHandler = AnnotationUtils.getAnnotation(
                 method,
                 ExceptionHandler.class
             );
             if (exceptionHandler != null) {
-                for (Class<? extends Throwable> exceptionType : exceptionHandler.value()) {
+                for (Class<? extends Throwable> exceptionType : exceptionHandler.exception()) {
                     this.addExceptionMapping(exceptionType, method);
                 }
             }

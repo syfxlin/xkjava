@@ -35,7 +35,7 @@ public class DefaultPropertyInjector implements InstanceInjector {
             if (field.getAnnotation(SkipPropertyAutowired.class) != null) {
                 continue;
             }
-            Autowired autowired = AnnotationUtils.getParentAnnotation(
+            Autowired autowired = AnnotationUtils.getAnnotation(
                 field,
                 Autowired.class
             );

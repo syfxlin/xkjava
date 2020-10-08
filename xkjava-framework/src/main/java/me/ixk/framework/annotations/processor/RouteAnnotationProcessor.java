@@ -64,21 +64,21 @@ public class RouteAnnotationProcessor extends AbstractAnnotationProcessor {
                     new ArrayList<>()
                 );
         for (final Method method : this.getMethodsAnnotated(annotation)) {
-            final RequestMapping a = (RequestMapping) AnnotationUtils.getParentAnnotation(
+            final RequestMapping a = (RequestMapping) AnnotationUtils.getAnnotation(
                 method,
                 annotation
             );
             if (a == null) {
                 continue;
             }
-            final RequestMapping baseMapping = AnnotationUtils.getParentAnnotation(
+            final RequestMapping baseMapping = AnnotationUtils.getAnnotation(
                 method.getDeclaringClass(),
                 RequestMapping.class
             );
             try {
                 final RequestMethod[] requestMethods = a.method();
                 String requestUrl = baseMapping != null
-                    ? baseMapping.value()
+                    ? baseMapping.path()
                     : "";
                 requestUrl += a.path();
                 annotationRouteDefinitions.add(

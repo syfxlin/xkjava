@@ -43,7 +43,7 @@ public class PropertiesValueInjector implements InstanceInjector {
             return instance;
         }
         Field[] fields = instanceClass.getDeclaredFields();
-        ConfigurationProperties config = AnnotationUtils.getParentAnnotation(
+        ConfigurationProperties config = AnnotationUtils.getAnnotation(
             instanceClass,
             ConfigurationProperties.class
         );

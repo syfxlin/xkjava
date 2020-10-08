@@ -22,7 +22,7 @@ public class TransactionalAspect extends AbstractAdvice {
         final SqlSessionManager sqlSessionManager = XkJava
             .of()
             .make(SqlSessionManager.class);
-        final Transactional transactional = AnnotationUtils.getParentAnnotation(
+        final Transactional transactional = AnnotationUtils.getAnnotation(
             joinPoint.getMethod(),
             Transactional.class
         );

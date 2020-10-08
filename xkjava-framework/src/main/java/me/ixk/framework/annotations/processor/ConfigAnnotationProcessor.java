@@ -29,10 +29,15 @@ public class ConfigAnnotationProcessor extends AbstractAnnotationProcessor {
     public Map<String, Map<String, Object>> processAnnotationConfig() {
         Map<String, Map<String, Object>> config = new ConcurrentHashMap<>();
         for (Class<?> _class : this.getTypesAnnotated(Config.class)) {
-            String name = AnnotationUtils
-                .getParentAnnotation(_class, Config.class)
-                .name();
-            name = name.length() > 0 ? name : _class.getSimpleName();
+            String name = AnnotationUtils.getAnnotationValue(
+                _class,
+                Config.class,
+                "name"
+            );
+            name =
+                name == null || name.length() > 0
+                    ? name
+                    : _class.getSimpleName();
             // 如果是 Config 类的子类，即编程化配置的方式，则通过 config 方法读取
             if (me.ixk.framework.config.Config.class.isAssignableFrom(_class)) {
                 try {

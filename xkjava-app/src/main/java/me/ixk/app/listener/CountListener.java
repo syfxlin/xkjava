@@ -4,14 +4,13 @@
 
 package me.ixk.app.listener;
 
-import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 import me.ixk.app.entity.Visitors;
 import me.ixk.app.service.impl.VisitorsServiceImpl;
 import me.ixk.framework.ioc.XkJava;
 
-@WebListener
+// @WebListener
 public class CountListener implements HttpSessionListener {
     final VisitorsServiceImpl visitorsService = XkJava
         .of()

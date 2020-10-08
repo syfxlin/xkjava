@@ -18,21 +18,25 @@ import me.ixk.framework.utils.AnnotationUtils;
 @Order(Order.HIGHEST_PRECEDENCE + 2)
 public class AspectAnnotationProcessor extends AbstractAnnotationProcessor {
 
-    public AspectAnnotationProcessor(XkJava app) {
+    public AspectAnnotationProcessor(final XkJava app) {
         super(app);
     }
 
     @Override
     public void process() {
-        AspectManager aspectManager = this.app.make(AspectManager.class);
-        for (Class<?> _class : this.getTypesAnnotated(Aspect.class)) {
+        final AspectManager aspectManager = this.app.make(AspectManager.class);
+        for (final Class<?> _class : this.getTypesAnnotated(Aspect.class)) {
             if (Advice.class.isAssignableFrom(_class)) {
-                Aspect aspect = AnnotationUtils.getParentAnnotation(
+                String pointcut = AnnotationUtils.getAnnotationValue(
                     _class,
-                    Aspect.class
+                    Aspect.class,
+                    "pointcut"
                 );
+                if (pointcut == null) {
+                    continue;
+                }
                 aspectManager.addAdvice(
-                    new AspectPointcut(aspect.value()),
+                    new AspectPointcut(pointcut),
                     this.app.make(_class.getName(), Advice.class)
                 );
             } else {

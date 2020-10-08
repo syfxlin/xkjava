@@ -62,10 +62,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         ScopeType scopeType = this.getScoopType(method);
         String name = method.getName();
         Class<?> _class = method.getReturnType();
-        Annotation anno = AnnotationUtils.getParentAnnotation(
-            method,
-            annotation
-        );
+        Annotation anno = AnnotationUtils.getAnnotation(method, annotation);
         if (anno == null) {
             return;
         }
@@ -95,7 +92,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         }
         if (
             scopeType.isSingleton() &&
-            AnnotationUtils.getParentAnnotation(_class, Lazy.class) == null
+            !AnnotationUtils.hasAnnotation(_class, Lazy.class)
         ) {
             makeList.add(name);
         }
@@ -106,10 +103,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         Class<?> _class
     ) {
         ScopeType scopeType = this.getScoopType(_class);
-        Annotation anno = AnnotationUtils.getParentAnnotation(
-            _class,
-            annotation
-        );
+        Annotation anno = AnnotationUtils.getAnnotation(_class, annotation);
         if (anno == null) {
             return;
         }
@@ -134,25 +128,19 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         }
         if (
             scopeType.isSingleton() &&
-            AnnotationUtils.getParentAnnotation(_class, Lazy.class) == null
+            !AnnotationUtils.hasAnnotation(_class, Lazy.class)
         ) {
             makeList.add(_class.getName());
         }
     }
 
     private ScopeType getScoopType(AnnotatedElement element) {
-        // TODO: fix get scope annotation
-        Scope scope = AnnotationUtils.getTargetAnnotation(element, Scope.class);
-        ScopeType scopeType = scope == null
-            ? ScopeType.SINGLETON
-            : scope.value();
-        if (element.isAnnotationPresent(Scope.class)) {
-            scopeType =
-                AnnotationUtils
-                    .getParentAnnotation(element, Scope.class)
-                    .value();
-        }
-        return scopeType;
+        ScopeType scopeType = AnnotationUtils.getAnnotationValue(
+            element,
+            Scope.class,
+            "value"
+        );
+        return scopeType == null ? ScopeType.SINGLETON : scopeType;
     }
 
     private Method[] getInitAndDestroyMethod(Bean annotation, Class<?> _class) {

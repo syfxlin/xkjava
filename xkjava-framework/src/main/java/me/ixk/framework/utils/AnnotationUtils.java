@@ -4,7 +4,7 @@
 
 package me.ixk.framework.utils;
 
-import cn.hutool.core.annotation.AnnotationUtil;
+import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
@@ -22,61 +22,138 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import me.ixk.framework.annotations.AliasFor;
 import me.ixk.framework.annotations.Order;
 
-public abstract class AnnotationUtils extends AnnotationUtil {
+public abstract class AnnotationUtils {
     private static final Comparator<Object> ORDER_ANNOTATION_COMPARATOR = (o1, o2) -> {
         Order or1 = null, or2 = null;
         if (o1 instanceof Class && o2 instanceof Class) {
-            or1 = getParentAnnotation((Class<?>) o1, Order.class);
-            or2 = getParentAnnotation((Class<?>) o2, Order.class);
+            or1 = getAnnotation((Class<?>) o1, Order.class);
+            or2 = getAnnotation((Class<?>) o2, Order.class);
         } else if (o1 instanceof Method && o2 instanceof Method) {
-            or1 = getParentAnnotation((Method) o1, Order.class);
-            or2 = getParentAnnotation((Method) o1, Order.class);
+            or1 = getAnnotation((Method) o1, Order.class);
+            or2 = getAnnotation((Method) o1, Order.class);
         }
-        int i1 = or1 == null ? Order.LOWEST_PRECEDENCE : or1.value();
-        int i2 = or2 == null ? Order.LOWEST_PRECEDENCE : or2.value();
+        int i1 = or1 == null ? Order.LOWEST_PRECEDENCE : or1.order();
+        int i2 = or2 == null ? Order.LOWEST_PRECEDENCE : or2.order();
         return i1 - i2;
     };
 
     @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T getParentAnnotation(
-        final AnnotatedElement annotatedElement,
+    public static <T extends Annotation> T getAnnotation(
+        final AnnotatedElement element,
         final Class<T> annotationType
     ) {
-        Annotation annotation = parseAnnotation(
-            walkGetParentAnnotation(annotatedElement, annotationType)
+        final WalkAnnotation annotation = walkAnnotation(
+            element,
+            annotationType
         );
         if (annotation == null) {
             return null;
         }
         return (T) Proxy.newProxyInstance(
             AnnotationUtils.class.getClassLoader(),
-            new Class[] { annotationType },
+            new Class[] { annotationType, AnnotationObject.class },
             new AnnotationInvocationHandler(annotation)
         );
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T getTargetAnnotation(
-        final AnnotatedElement annotatedElement,
-        final Class<T> annotationType
+    public static <T> T getAnnotationValue(
+        AnnotatedElement element,
+        Class<? extends Annotation> annotationType,
+        String name
     ) {
-        Annotation annotation = parseAnnotation(
-            walkGetTargetAnnotation(annotatedElement, annotationType)
+        final WalkAnnotation walkAnnotation = walkAnnotation(
+            element,
+            annotationType
         );
-        if (annotation == null) {
+        if (walkAnnotation == null) {
             return null;
         }
-        return (T) Proxy.newProxyInstance(
-            AnnotationUtils.class.getClassLoader(),
-            new Class[] { annotationType },
-            new AnnotationInvocationHandler(annotation)
+        return getAnnotationValue(
+            walkAnnotation.annotations(),
+            name,
+            annotationType
         );
+    }
+
+    public static <T> T getAnnotationValue(
+        List<Annotation> annotations,
+        String name
+    ) {
+        return getAnnotationValue(annotations, name, null);
+    }
+
+    public static <T> T getAnnotationValue(
+        List<Annotation> annotations,
+        String name,
+        Class<? extends Annotation> annotationType
+    ) {
+        if (annotations == null) {
+            return null;
+        }
+        for (int i = annotations.size() - 1; i >= 0; i--) {
+            Annotation annotation = annotations.get(i);
+            Class<? extends Annotation> type = annotation.annotationType();
+            if (annotationType != null && type != annotationType) {
+                continue;
+            }
+            Method method = ReflectUtil.getMethod(type, name);
+            if (method == null) {
+                continue;
+            }
+            return ReflectUtil.invoke(annotation, method);
+        }
+        return null;
+    }
+
+    public static <T> T getAnnotationValue(
+        List<Annotation> annotations,
+        Class<T> returnType,
+        String name
+    ) {
+        if (annotations == null) {
+            return null;
+        }
+        for (int i = annotations.size() - 1; i >= 0; i--) {
+            Annotation annotation = annotations.get(i);
+            Class<? extends Annotation> type = annotation.annotationType();
+            Method method = ReflectUtil.getMethod(type, name);
+            if (method == null || method.getReturnType() != returnType) {
+                continue;
+            }
+            return ReflectUtil.invoke(annotation, method);
+        }
+        return null;
+    }
+
+    public static MultiValueMap<String, Object> getAnnotationValues(
+        AnnotatedElement element,
+        Class<? extends Annotation> annotationType
+    ) {
+        WalkAnnotation walkAnnotation = walkAnnotation(element, annotationType);
+        if (walkAnnotation == null) {
+            return null;
+        }
+        MultiValueMap<String, Object> result = new LinkedMultiValueMap<>();
+        List<Annotation> annotations = walkAnnotation.annotations();
+        for (int i = annotations.size() - 1; i >= 0; i--) {
+            Annotation annotation = annotations.get(i);
+            Class<? extends Annotation> type = annotation.annotationType();
+            for (Method method : type.getDeclaredMethods()) {
+                result.add(
+                    method.getName(),
+                    ReflectUtil.invoke(annotation, method)
+                );
+            }
+        }
+        return result;
     }
 
     public static <T extends Annotation> T parseAnnotation(final T annotation) {
@@ -95,7 +172,7 @@ public abstract class AnnotationUtils extends AnnotationUtil {
                 final AliasFor aliasFor = method.getAnnotation(AliasFor.class);
                 final String alias = aliasFor.value();
                 if (aliasFor.annotation() != Annotation.class) {
-                    final Object object = getAnnotationValue(
+                    final Object object = ReflectUtil.invoke(
                         parseAnnotation(
                             annotationClass.getAnnotation(aliasFor.annotation())
                         ),
@@ -108,42 +185,6 @@ public abstract class AnnotationUtils extends AnnotationUtil {
             }
         }
         return annotation;
-    }
-
-    public static Object getAnnotationValue(
-        final Annotation annotation,
-        final String key
-    ) {
-        if (annotation == null) {
-            return null;
-        }
-        final Class<? extends Annotation> annotationType = annotation.annotationType();
-        try {
-            return ReflectUtil.invoke(annotation, key);
-        } catch (final Exception e) {
-            for (final Annotation item : annotationType.getAnnotations()) {
-                final Class<? extends Annotation> itemType = item.annotationType();
-                if (isJdkAnnotation(itemType)) {
-                    continue;
-                }
-                final Object value = getAnnotationValue(item, key);
-                if (value != null) {
-                    return value;
-                }
-            }
-            return null;
-        }
-    }
-
-    public static Object getAnnotationValue(
-        final Class<?> type,
-        final Class<? extends Annotation> annotationType,
-        String key
-    ) {
-        return getAnnotationValue(
-            getParentAnnotation(type, annotationType),
-            key
-        );
     }
 
     @SuppressWarnings("unchecked")
@@ -239,31 +280,7 @@ public abstract class AnnotationUtils extends AnnotationUtil {
         return set;
     }
 
-    public static <T extends Annotation> T walkGetTargetAnnotation(
-        final AnnotatedElement element,
-        final Class<T> annotationType
-    ) {
-        T annotation = element.getAnnotation(annotationType);
-        if (annotation == null) {
-            for (final Annotation item : element.getAnnotations()) {
-                final Class<? extends Annotation> annotationClass = item.annotationType();
-                if (isJdkAnnotation(annotationClass)) {
-                    continue;
-                }
-                final T typeAnnotation = walkGetTargetAnnotation(
-                    annotationClass,
-                    annotationType
-                );
-                if (typeAnnotation != null) {
-                    annotation = typeAnnotation;
-                    break;
-                }
-            }
-        }
-        return annotation;
-    }
-
-    public static Annotation walkGetParentAnnotation(
+    public static WalkAnnotation walkAnnotation(
         final AnnotatedElement element,
         final Class<? extends Annotation> annotationType
     ) {
@@ -274,16 +291,45 @@ public abstract class AnnotationUtils extends AnnotationUtil {
                 if (isJdkAnnotation(annotationClass)) {
                     continue;
                 }
-                final Annotation typeAnnotation = walkGetParentAnnotation(
+                final WalkAnnotation typeAnnotation = walkAnnotation(
                     annotationClass,
                     annotationType
                 );
                 if (typeAnnotation != null) {
-                    return item;
+                    typeAnnotation.addAnnotation(item);
+                    return typeAnnotation;
                 }
             }
         }
-        return annotation;
+        if (annotation != null) {
+            final WalkAnnotation walkAnnotation = new WalkAnnotation();
+            walkAnnotation.addAnnotation(annotation);
+            return walkAnnotation;
+        }
+        return null;
+    }
+
+    public static boolean hasAnnotation(
+        final AnnotatedElement element,
+        final Class<? extends Annotation> annotationType
+    ) {
+        Annotation annotation = element.getAnnotation(annotationType);
+        if (annotation == null) {
+            for (final Annotation item : element.getAnnotations()) {
+                final Class<? extends Annotation> annotationClass = item.annotationType();
+                if (isJdkAnnotation(annotationClass)) {
+                    continue;
+                }
+                final boolean hasAnnotation = hasAnnotation(
+                    annotationClass,
+                    annotationType
+                );
+                if (hasAnnotation) {
+                    return true;
+                }
+            }
+        }
+        return annotation != null;
     }
 
     public static boolean isJdkAnnotation(
@@ -299,16 +345,35 @@ public abstract class AnnotationUtils extends AnnotationUtil {
         );
     }
 
+    private static class WalkAnnotation implements AnnotationObject {
+        private final List<Annotation> annotations = new LinkedList<>();
+
+        public WalkAnnotation() {}
+
+        public void addAnnotation(Annotation annotation) {
+            this.annotations.add(parseAnnotation(annotation));
+        }
+
+        @Override
+        public List<Annotation> annotations() {
+            return this.annotations;
+        }
+    }
+
     private static class AnnotationInvocationHandler
         implements InvocationHandler {
-        private final Annotation annotation;
+        private final WalkAnnotation annotation;
 
-        public AnnotationInvocationHandler(Annotation annotation) {
+        public AnnotationInvocationHandler(final WalkAnnotation annotation) {
             this.annotation = annotation;
         }
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args)
+        public Object invoke(
+            final Object proxy,
+            final Method method,
+            final Object[] args
+        )
             throws Throwable {
             switch (method.getName()) {
                 case "equals":
@@ -319,12 +384,75 @@ public abstract class AnnotationUtils extends AnnotationUtil {
                     return (
                         this.annotation == null ? "" : this.annotation
                     ).toString();
+                case "getParent":
+                    if (this.annotation == null) {
+                        return null;
+                    }
+                    return this.annotation.getParent();
+                case "getTarget":
+                    if (this.annotation == null) {
+                        return null;
+                    }
+                    return this.annotation.getTarget();
+                case "annotations":
+                    if (this.annotation == null) {
+                        return null;
+                    }
+                    return this.annotation.annotations();
+                case "get":
+                    if (this.annotation == null) {
+                        return null;
+                    }
+                    if (args.length == 0) {
+                        return this.annotation.get(
+                                "get",
+                                method.getReturnType()
+                            );
+                    }
+                    return ReflectUtil.invoke(
+                        this.annotation,
+                        this.annotation.getClass()
+                            .getMethod("get", ClassUtil.getClasses(args)),
+                        args
+                    );
                 default:
                     if (this.annotation == null) {
                         return null;
                     }
-                    return getAnnotationValue(annotation, method.getName());
+                    return this.annotation.get(
+                            method.getName(),
+                            method.getReturnType()
+                        );
             }
+        }
+    }
+
+    public interface AnnotationObject {
+        List<Annotation> annotations();
+
+        default Annotation getTarget() {
+            List<Annotation> list = this.annotations();
+            return list.isEmpty() ? null : list.get(0);
+        }
+
+        default Annotation getParent() {
+            List<Annotation> list = this.annotations();
+            return list.isEmpty() ? null : list.get(list.size() - 1);
+        }
+
+        default Object get(final String key) {
+            return getAnnotationValue(this.annotations(), key);
+        }
+
+        default <T> T get(final String key, final Class<T> returnType) {
+            return getAnnotationValue(this.annotations(), returnType, key);
+        }
+
+        default Object get(
+            final Class<? extends Annotation> annotationType,
+            final String key
+        ) {
+            return getAnnotationValue(this.annotations(), key, annotationType);
         }
     }
 }

@@ -41,11 +41,11 @@ public class ValidationParameterInjector implements ParameterInjector {
             } else if (parameter.getType() == ValidGroup.class) {
                 validGroupIndex = i;
             } else {
-                Valid valid = AnnotationUtils.getParentAnnotation(
+                boolean valid = AnnotationUtils.hasAnnotation(
                     parameter,
                     Valid.class
                 );
-                if (valid != null) {
+                if (valid) {
                     validResult = Validation.validate(dependencies[i]);
                     if (validGroup == null) {
                         validGroup = new ValidGroup();

@@ -195,7 +195,7 @@ public class XkJava extends Container {
         scanPackage.add("me.ixk.framework");
         for (Class<?> source : this.primarySource) {
             scanPackage.add(source.getPackageName());
-            ComponentScan componentScan = AnnotationUtils.getParentAnnotation(
+            ComponentScan componentScan = AnnotationUtils.getAnnotation(
                 source,
                 ComponentScan.class
             );

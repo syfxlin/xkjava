@@ -8,6 +8,7 @@ import cn.hutool.core.lang.SimpleCache;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.utils.AnnotationUtils;
 
@@ -30,15 +31,13 @@ public class AspectManager {
         public AdviceEntry(AspectPointcut pointcut, Advice advice) {
             this.pointcut = pointcut;
             this.advice = advice;
-            Order order = AnnotationUtils.getParentAnnotation(
+            Integer order = AnnotationUtils.getAnnotationValue(
                 advice.getClass(),
-                Order.class
+                Order.class,
+                "order"
             );
-            if (order != null) {
-                this.order = order.value();
-            } else {
-                this.order = Order.LOWEST_PRECEDENCE;
-            }
+            this.order =
+                Objects.requireNonNullElse(order, Order.LOWEST_PRECEDENCE);
         }
 
         public AspectPointcut getPointcut() {

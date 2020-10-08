@@ -64,9 +64,11 @@ public class MiddlewareAnnotationProcessor extends AbstractAnnotationProcessor {
                         _class
                     )
             ) {
-                String name = AnnotationUtils
-                    .getParentAnnotation(_class, RouteMiddleware.class)
-                    .name();
+                String name = AnnotationUtils.getAnnotationValue(
+                    _class,
+                    RouteMiddleware.class,
+                    "name"
+                );
                 routeMiddleware.put(
                     name,
                     (Class<? extends me.ixk.framework.middleware.Middleware>) _class
@@ -75,7 +77,7 @@ public class MiddlewareAnnotationProcessor extends AbstractAnnotationProcessor {
         }
         // use
         for (Method method : this.getMethodsAnnotated(Middleware.class)) {
-            Middleware annotation = AnnotationUtils.getParentAnnotation(
+            Middleware annotation = AnnotationUtils.getAnnotation(
                 method,
                 Middleware.class
             );
@@ -87,7 +89,7 @@ public class MiddlewareAnnotationProcessor extends AbstractAnnotationProcessor {
                 annotationMiddlewareDefinitions.put(
                     handler,
                     new AnnotationMiddlewareDefinition(
-                        annotation.value(),
+                        annotation.name(),
                         annotation.middleware(),
                         handler
                     )
