@@ -1301,6 +1301,19 @@ public class Container implements Context {
             );
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T call(final Method method) {
+        return (T) this.call(
+                method.getDeclaringClass(),
+                method,
+                method.getReturnType()
+            );
+    }
+
+    public <T> T call(final Method method, final DataBinder binder) {
+        return this.withAndReset(() -> this.call(method), binder);
+    }
+
     /* ===================================================== */
 
     public DataBinder getDataBinder() {

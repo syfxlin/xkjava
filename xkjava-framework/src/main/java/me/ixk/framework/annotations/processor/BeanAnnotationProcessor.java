@@ -52,8 +52,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         Bean.BindType bindType = beanAnnotation.bindType();
         Method[] initAndDestroyMethod =
             this.getInitAndDestroyMethod(beanAnnotation, clazz);
-        Wrapper wrapper = (container, with) ->
-            method.invoke(container.make(method.getDeclaringClass()));
+        Wrapper wrapper = (container, with) -> container.call(method);
         Binding binding =
             this.app.bind(
                     name,
