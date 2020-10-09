@@ -97,6 +97,9 @@ public interface Context {
         do {
             resolvedName = this.getAlias(canonicalName);
             if (resolvedName != null) {
+                if (name.equals(resolvedName)) {
+                    break;
+                }
                 canonicalName = resolvedName;
             }
         } while (resolvedName != null);

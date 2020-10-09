@@ -5,6 +5,7 @@
 package me.ixk.app.controllers;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class HomeworkMybatisController {
         Integer isPayment,
         String productName
     ) {
-        List<TbBill> bills = null;
+        List<TbBill> bills = new ArrayList<>();
         Map<String, TbProvider> providers = new HashMap<>();
         if (providerId != null && isPayment != null && productName != null) {
             bills =

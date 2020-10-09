@@ -65,6 +65,9 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
         Object names = beanAnnotation.name();
         for (String n : (String[]) names) {
+            if (name.equals(n)) {
+                continue;
+            }
             this.app.alias(n, name, binding.getScope());
         }
         if (
