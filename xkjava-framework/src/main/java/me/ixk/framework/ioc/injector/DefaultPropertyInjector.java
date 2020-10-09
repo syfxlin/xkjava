@@ -16,6 +16,7 @@ import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergeAnnotation;
 
 public class DefaultPropertyInjector implements InstanceInjector {
 
@@ -35,7 +36,7 @@ public class DefaultPropertyInjector implements InstanceInjector {
             if (field.getAnnotation(SkipPropertyAutowired.class) != null) {
                 continue;
             }
-            Autowired autowired = AnnotationUtils.getAnnotation(
+            MergeAnnotation autowired = AnnotationUtils.getAnnotation(
                 field,
                 Autowired.class
             );
@@ -61,15 +62,16 @@ public class DefaultPropertyInjector implements InstanceInjector {
                 ReflectUtil.invoke(instance, writeMethod, dependency);
             } else {
                 Object dependency;
-                if (!"".equals(autowired.name())) {
-                    dependency =
-                        container.make(autowired.name(), field.getType());
+                String name = autowired.get("name");
+                Class<?> type = autowired.get("type");
+                if (!"".equals(name)) {
+                    dependency = container.make(name, field.getType());
                 } else {
                     Class<?> autowiredClass;
-                    if (autowired.type() == Class.class) {
+                    if (type == Class.class) {
                         autowiredClass = field.getType();
                     } else {
-                        autowiredClass = autowired.type();
+                        autowiredClass = type;
                     }
                     dependency =
                         dataBinder.getObject(field.getName(), autowiredClass);
@@ -78,7 +80,7 @@ public class DefaultPropertyInjector implements InstanceInjector {
                     dependency = ReflectUtil.getFieldValue(instance, field);
                 }
                 // 如果必须注入，但是为 null，则抛出错误
-                if (dependency == null && autowired.required()) {
+                if (dependency == null && (boolean) autowired.get("required")) {
                     throw new NullPointerException(
                         "Target [" +
                         instanceClass.getName() +

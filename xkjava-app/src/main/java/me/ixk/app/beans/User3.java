@@ -12,6 +12,17 @@ import me.ixk.framework.annotations.Value;
 @Data
 @NoArgsConstructor
 @Bean
+// @Conditional({ FalseConditional.class })
+// @ConditionalOnBean(name = { "app" })
+// @ConditionalOnMissingBean(name = { "C" })
+// @ConditionalOnProperty(
+//     prefix = "test.",
+//     name = { "name" },
+//     havingValue = "Otstar Lin"
+// )
+// @ConditionalOnExpression("2 > 1")
+// @ConditionalOnResource(resources = { "banner.txt" })
+// @ConditionalOnJava(version = JavaVersion.FIFTEEN)
 public class User3 {
     @Value("$('test.name')")
     String name;

@@ -12,6 +12,7 @@ import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.ParameterInjector;
 import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergeAnnotation;
 
 public class DefaultParameterInjector implements ParameterInjector {
 
@@ -28,7 +29,7 @@ public class DefaultParameterInjector implements ParameterInjector {
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
             String parameterName = parameterNames[i];
-            DataBind dataBind = AnnotationUtils.getAnnotation(
+            MergeAnnotation dataBind = AnnotationUtils.getAnnotation(
                 parameter,
                 DataBind.class
             );
@@ -41,7 +42,7 @@ public class DefaultParameterInjector implements ParameterInjector {
             if (
                 dependencies[i] == null &&
                 dataBind != null &&
-                dataBind.required()
+                (boolean) dataBind.get("required")
             ) {
                 throw new NullPointerException(
                     "Target [" +

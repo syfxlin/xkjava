@@ -11,7 +11,7 @@ import me.ixk.framework.annotations.processor.AnnotationProcessor;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
-import me.ixk.framework.utils.ReflectionsUtils;
+import me.ixk.framework.utils.AnnotationUtils;
 
 @Bootstrap
 @Order(Order.HIGHEST_PRECEDENCE + 4)
@@ -23,7 +23,7 @@ public class ProcessAnnotation extends AbstractBootstrap {
 
     @Override
     public void boot() {
-        Set<Class<?>> processors = ReflectionsUtils.getTypesAnnotatedWith(
+        Set<Class<?>> processors = AnnotationUtils.getTypesAnnotatedWith(
             me.ixk.framework.annotations.AnnotationProcessor.class
         );
         for (Class<?> processorType : processors) {

@@ -19,6 +19,7 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.route.AnnotationRouteDefinition;
 import me.ixk.framework.route.RouteDefinition;
 import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergeAnnotation;
 
 @AnnotationProcessor
 @Order(Order.HIGHEST_PRECEDENCE + 5)
@@ -59,23 +60,23 @@ public class RouteAnnotationProcessor extends AbstractAnnotationProcessor {
                     new ArrayList<>()
                 );
         for (final Method method : this.getMethodsAnnotated(annotation)) {
-            final RequestMapping a = AnnotationUtils.getAnnotation(
+            final MergeAnnotation a = AnnotationUtils.getAnnotation(
                 method,
                 annotation
             );
             if (a == null) {
                 continue;
             }
-            final RequestMapping baseMapping = AnnotationUtils.getAnnotation(
+            final MergeAnnotation baseMapping = AnnotationUtils.getAnnotation(
                 method.getDeclaringClass(),
                 RequestMapping.class
             );
             try {
-                final RequestMethod[] requestMethods = a.method();
+                final RequestMethod[] requestMethods = a.get("method");
                 String requestUrl = baseMapping != null
-                    ? baseMapping.path()
+                    ? baseMapping.get("path")
                     : "";
-                requestUrl += a.path();
+                requestUrl += a.get("path");
                 annotationRouteDefinitions.add(
                     new AnnotationRouteDefinition(
                         requestMethods,

@@ -24,6 +24,7 @@ import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.Express;
+import me.ixk.framework.utils.MergeAnnotation;
 
 public class PropertiesValueInjector implements InstanceInjector {
 
@@ -43,14 +44,14 @@ public class PropertiesValueInjector implements InstanceInjector {
             return instance;
         }
         Field[] fields = instanceClass.getDeclaredFields();
-        ConfigurationProperties config = AnnotationUtils.getAnnotation(
+        MergeAnnotation config = AnnotationUtils.getAnnotation(
             instanceClass,
             ConfigurationProperties.class
         );
         Environment environment = container.make(Environment.class);
         Map<String, Object> prefixProps = null;
         if (config != null) {
-            prefixProps = environment.getPrefix(config.prefix());
+            prefixProps = environment.getPrefix(config.get("prefix"));
         }
         for (Field field : fields) {
             Value valueAnno = field.getAnnotation(Value.class);
@@ -76,7 +77,7 @@ public class PropertiesValueInjector implements InstanceInjector {
                         );
             } else {
                 // 有 @Value 注解就优先使用
-                value = this.injectValue(field, valueAnno);
+                value = this.injectValue(valueAnno);
             }
             if (writeMethod != null) {
                 ReflectUtil.invoke(instance, writeMethod, value);
@@ -89,14 +90,14 @@ public class PropertiesValueInjector implements InstanceInjector {
 
     protected Object injectConfigurationProperties(
         Field field,
-        ConfigurationProperties config,
+        MergeAnnotation config,
         Map<String, Object> properties
     ) {
         Object value = caseGet(field.getName(), properties::get);
-        if (value == null && !config.ignoreUnknownFields()) {
+        if (value == null && !((boolean) config.get("ignoreUnknownFields"))) {
             throw new NullPointerException(
                 "Unknown property [" +
-                config.prefix() +
+                config.get("prefix") +
                 "." +
                 field.getName() +
                 "]"
@@ -105,10 +106,10 @@ public class PropertiesValueInjector implements InstanceInjector {
         try {
             value = Convert.convert(field.getType(), value);
         } catch (Exception e) {
-            if (!config.ignoreInvalidFields()) {
+            if (!((boolean) config.get("ignoreInvalidFields"))) {
                 throw new RuntimeException(
                     "Invalid property [" +
-                    config.prefix() +
+                    config.get("prefix") +
                     "." +
                     field.getName() +
                     "]",
@@ -120,7 +121,7 @@ public class PropertiesValueInjector implements InstanceInjector {
         return value;
     }
 
-    protected Object injectValue(Field field, Value value) {
+    protected Object injectValue(Value value) {
         return Express.executeEnv(value.value());
     }
 }

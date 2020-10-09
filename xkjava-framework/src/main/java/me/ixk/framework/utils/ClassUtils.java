@@ -206,33 +206,6 @@ public abstract class ClassUtils extends ClassUtil {
         return null;
     }
 
-    public static Class<?> forName(String name) {
-        switch (name) {
-            case "long":
-                return long.class;
-            case "int":
-                return int.class;
-            case "short":
-                return short.class;
-            case "char":
-                return char.class;
-            case "byte":
-                return byte.class;
-            case "double":
-                return double.class;
-            case "float":
-                return float.class;
-            case "boolean":
-                return boolean.class;
-            default:
-                try {
-                    return Class.forName(name);
-                } catch (ClassNotFoundException e) {
-                    return null;
-                }
-        }
-    }
-
     public static boolean isSkipBuildType(Class<?> clazz) {
         if (
             clazz == long.class ||

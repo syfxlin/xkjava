@@ -12,22 +12,24 @@ import me.ixk.framework.database.SqlSessionManager;
 import me.ixk.framework.exceptions.TransactionalException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergeAnnotation;
 import org.apache.ibatis.session.SqlSession;
 
 @Aspect("@annotation(me.ixk.framework.annotations.Transactional)")
 public class TransactionalAspect extends AbstractAdvice {
 
     @Override
+    @SuppressWarnings("unchecked")
     public Object around(ProceedingJoinPoint joinPoint) {
         final SqlSessionManager sqlSessionManager = XkJava
             .of()
             .make(SqlSessionManager.class);
-        final Transactional transactional = AnnotationUtils.getAnnotation(
+        final MergeAnnotation transactional = AnnotationUtils.getAnnotation(
             joinPoint.getMethod(),
             Transactional.class
         );
         SqlSession sqlSession = sqlSessionManager.startTransactionSession(
-            transactional.isolation()
+            transactional.get("isolation")
         );
         try {
             Object result = joinPoint.proceed();
@@ -36,7 +38,9 @@ public class TransactionalAspect extends AbstractAdvice {
         } catch (Throwable t) {
             boolean rollback =
                 t instanceof Error || t instanceof RuntimeException;
-            for (Class<? extends Exception> rollbackFor : transactional.rollbackFor()) {
+            for (Class<? extends Exception> rollbackFor : (Class<? extends Exception>[]) transactional.get(
+                "rollbackFor"
+            )) {
                 if (rollbackFor.isAssignableFrom(t.getClass())) {
                     rollback = true;
                     break;

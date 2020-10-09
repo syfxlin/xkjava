@@ -20,6 +20,7 @@ import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Wrapper;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergeAnnotation;
 
 @AnnotationProcessor
 @Order(Order.HIGHEST_PRECEDENCE + 1)
@@ -45,11 +46,14 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         ScopeType scopeType = this.getScoopType(method);
         String name = method.getName();
         Class<?> clazz = method.getReturnType();
-        Bean beanAnnotation = AnnotationUtils.getAnnotation(method, Bean.class);
+        MergeAnnotation beanAnnotation = AnnotationUtils.getAnnotation(
+            method,
+            Bean.class
+        );
         if (beanAnnotation == null) {
             return;
         }
-        Bean.BindType bindType = beanAnnotation.bindType();
+        Bean.BindType bindType = beanAnnotation.get("bindType");
         Method[] initAndDestroyMethod =
             this.getInitAndDestroyMethod(beanAnnotation, clazz);
         Wrapper wrapper = (container, with) -> container.call(method);
@@ -62,7 +66,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
                     scopeType
                 );
         this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
-        Object names = beanAnnotation.name();
+        Object names = beanAnnotation.get("name");
         for (String n : (String[]) names) {
             if (name.equals(n)) {
                 continue;
@@ -79,11 +83,11 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
 
     private void processAnnotation(Class<?> clazz) {
         ScopeType scopeType = this.getScoopType(clazz);
-        Bean anno = AnnotationUtils.getAnnotation(clazz, Bean.class);
+        MergeAnnotation anno = AnnotationUtils.getAnnotation(clazz, Bean.class);
         if (anno == null) {
             return;
         }
-        Bean.BindType bindType = anno.bindType();
+        Bean.BindType bindType = anno.get("bindType");
         Method[] initAndDestroyMethod =
             this.getInitAndDestroyMethod(anno, clazz);
         // Class 的 Bean 默认绑定 Type
@@ -93,7 +97,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         ) {
             this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
         }
-        Object names = anno.name();
+        Object names = anno.get("name");
         for (String name : (String[]) names) {
             this.app.alias(name, clazz, binding.getScope());
         }
@@ -114,9 +118,12 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         return scopeType == null ? ScopeType.SINGLETON : scopeType;
     }
 
-    private Method[] getInitAndDestroyMethod(Bean annotation, Class<?> clazz) {
-        String initMethodName = annotation.initMethod();
-        String destroyMethodName = annotation.destroyMethod();
+    private Method[] getInitAndDestroyMethod(
+        MergeAnnotation annotation,
+        Class<?> clazz
+    ) {
+        String initMethodName = annotation.get("initMethod");
+        String destroyMethodName = annotation.get("destroyMethod");
         Method initMethod = StrUtil.isEmpty(initMethodName)
             ? null
             : ReflectUtil.getMethod(clazz, initMethodName);

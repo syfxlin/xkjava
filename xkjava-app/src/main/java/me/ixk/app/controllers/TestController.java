@@ -9,13 +9,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import me.ixk.app.beans.User;
 import me.ixk.app.beans.User2;
-import me.ixk.framework.annotations.*;
+import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.annotations.Bean;
+import me.ixk.framework.annotations.Controller;
+import me.ixk.framework.annotations.DataBind;
+import me.ixk.framework.annotations.GetMapping;
+import me.ixk.framework.annotations.InitBinder;
+import me.ixk.framework.annotations.PostMapping;
+import me.ixk.framework.annotations.RequestMapping;
 import me.ixk.framework.http.WebDataBinder;
 import me.ixk.framework.http.converter.TestConverter;
 import me.ixk.framework.utils.ValidGroup;
 import me.ixk.framework.utils.ValidResult;
 
-// @Controller
+@Controller
 @Bean(destroyMethod = "destroy")
 @RequestMapping("/test")
 public class TestController {

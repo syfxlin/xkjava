@@ -4,15 +4,11 @@
 
 package me.ixk.framework.utils;
 
-import cn.hutool.core.lang.SimpleCache;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import me.ixk.framework.ioc.XkJava;
 import org.reflections.Reflections;
 import org.reflections.scanners.FieldAnnotationsScanner;
@@ -27,9 +23,6 @@ public abstract class ReflectionsUtils {
     private static final Reflections GLOBAL_APP_REFLECTIONS = make(
         XkJava.of().scanPackage().toArray(new String[0])
     );
-
-    private static final SimpleCache<Class<? extends Annotation>, Set<Class<?>>> CLASS_ANNOTATION_CACHE = new SimpleCache<>();
-    private static final SimpleCache<Class<? extends Annotation>, Set<Method>> METHOD_ANNOTATION_CACHE = new SimpleCache<>();
 
     public static Reflections make() {
         return GLOBAL_APP_REFLECTIONS;
@@ -70,37 +63,5 @@ public abstract class ReflectionsUtils {
 
     public static Reflections make(URL... urls) {
         return make(Arrays.asList(urls));
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Set<Class<?>> getTypesAnnotatedWith(
-        Class<? extends Annotation> annotation
-    ) {
-        Set<Class<?>> cache = CLASS_ANNOTATION_CACHE.get(annotation);
-        if (cache != null) {
-            return cache;
-        }
-        return CLASS_ANNOTATION_CACHE.put(
-            annotation,
-            (Set<Class<?>>) AnnotationUtils.sortByOrderAnnotation(
-                make().getTypesAnnotatedWith(annotation)
-            )
-        );
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Set<Method> getMethodsAnnotatedWith(
-        Class<? extends Annotation> annotation
-    ) {
-        Set<Method> cache = METHOD_ANNOTATION_CACHE.get(annotation);
-        if (cache != null) {
-            return cache;
-        }
-        return METHOD_ANNOTATION_CACHE.put(
-            annotation,
-            (Set<Method>) AnnotationUtils.sortByOrderAnnotation(
-                make().getMethodsAnnotatedWith(annotation)
-            )
-        );
     }
 }

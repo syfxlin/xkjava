@@ -4,7 +4,9 @@
 
 package me.ixk.framework.ioc;
 
+import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.lang.SimpleCache;
+import cn.hutool.core.util.ClassUtil;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +16,6 @@ import me.ixk.framework.annotations.PreDestroy;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.exceptions.BindingException;
 import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.ClassUtils;
 
 public class Binding {
     protected static final SimpleCache<Class<?>, BindingCache> BINDING_CACHE = new SimpleCache<>();
@@ -64,7 +65,13 @@ public class Binding {
     }
 
     public void setInstanceType(String instanceName) {
-        this.setInstanceType(ClassUtils.forName(instanceName));
+        Class<?> type = null;
+        try {
+            type = ClassUtil.loadClass(instanceName);
+        } catch (UtilException e) {
+            //
+        }
+        this.setInstanceType(type);
     }
 
     public void setInstanceType(Class<?> instanceType) {

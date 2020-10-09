@@ -19,6 +19,7 @@ import me.ixk.framework.helpers.Util;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.route.AnnotationMiddlewareDefinition;
 import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergeAnnotation;
 
 @AnnotationProcessor
 @Order(Order.HIGHEST_PRECEDENCE + 6)
@@ -77,7 +78,7 @@ public class MiddlewareAnnotationProcessor extends AbstractAnnotationProcessor {
         }
         // use
         for (Method method : this.getMethodsAnnotated(Middleware.class)) {
-            Middleware annotation = AnnotationUtils.getAnnotation(
+            MergeAnnotation annotation = AnnotationUtils.getAnnotation(
                 method,
                 Middleware.class
             );
@@ -89,8 +90,8 @@ public class MiddlewareAnnotationProcessor extends AbstractAnnotationProcessor {
                 annotationMiddlewareDefinitions.put(
                     handler,
                     new AnnotationMiddlewareDefinition(
-                        annotation.name(),
-                        annotation.middleware(),
+                        annotation.get("name"),
+                        annotation.get("middleware"),
                         handler
                     )
                 );

@@ -4,6 +4,8 @@
 
 package me.ixk.framework.kernel;
 
+import cn.hutool.core.exceptions.UtilException;
+import cn.hutool.core.util.ClassUtil;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +36,8 @@ public class ControllerHandler implements Handler {
     public ControllerHandler(String handler) {
         String[] handlerArr = handler.split("@");
         try {
-            this.controllerClass = Class.forName(handlerArr[0]);
-        } catch (ClassNotFoundException e) {
+            this.controllerClass = ClassUtil.loadClass(handlerArr[0]);
+        } catch (UtilException e) {
             this.controllerClass = null;
         }
         this.methodName = handlerArr[1];

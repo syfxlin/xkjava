@@ -4,6 +4,8 @@
 
 package me.ixk.framework.kernel;
 
+import cn.hutool.core.exceptions.UtilException;
+import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
 import java.util.Map;
 import java.util.Set;
@@ -42,12 +44,12 @@ public class AnnotationProcessorManager {
     protected AnnotationProcessor getProcessorInstance(String name) {
         try {
             AnnotationProcessor processor = (AnnotationProcessor) ReflectUtil.newInstance(
-                Class.forName(name),
+                ClassUtil.loadClass(name),
                 this.app
             );
             this.setProcessor(name, processor);
             return processor;
-        } catch (ClassNotFoundException e) {
+        } catch (UtilException e) {
             throw new AnnotationProcessorException(
                 "Instantiating annotation processor failed",
                 e

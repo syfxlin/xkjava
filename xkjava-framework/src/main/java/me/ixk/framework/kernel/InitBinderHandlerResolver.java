@@ -15,11 +15,7 @@ public class InitBinderHandlerResolver {
 
     public InitBinderHandlerResolver(Class<?> clazz) {
         for (Method method : clazz.getDeclaredMethods()) {
-            InitBinder initBinder = AnnotationUtils.getAnnotation(
-                method,
-                InitBinder.class
-            );
-            if (initBinder != null) {
+            if (AnnotationUtils.hasAnnotation(method, InitBinder.class)) {
                 this.methodList.add(method);
             }
         }

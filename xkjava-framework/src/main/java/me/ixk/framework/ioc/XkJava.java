@@ -20,6 +20,7 @@ import me.ixk.framework.server.JettyServer;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Ansi;
 import me.ixk.framework.utils.Ansi.Color;
+import me.ixk.framework.utils.MergeAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -202,15 +203,19 @@ public class XkJava extends Container {
         scanPackage.add("me.ixk.framework");
         for (Class<?> source : this.primarySource) {
             scanPackage.add(source.getPackageName());
-            ComponentScan componentScan = AnnotationUtils.getAnnotation(
+            MergeAnnotation componentScan = AnnotationUtils.getAnnotation(
                 source,
                 ComponentScan.class
             );
             if (componentScan != null) {
-                scanPackage.addAll(Arrays.asList(componentScan.basePackages()));
+                scanPackage.addAll(
+                    Arrays.asList(componentScan.get("basePackages"))
+                );
                 log.debug(
                     "Application add base packages: {}",
-                    Arrays.toString(componentScan.basePackages())
+                    Arrays.toString(
+                        (String[]) componentScan.get("basePackages")
+                    )
                 );
             }
         }
