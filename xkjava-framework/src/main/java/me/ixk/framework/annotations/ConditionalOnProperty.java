@@ -15,6 +15,7 @@ import me.ixk.framework.conditional.OnPropertyCondition;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Documented
 @Conditional({ OnPropertyCondition.class })
+@Order(Order.HIGHEST_PRECEDENCE + 2)
 public @interface ConditionalOnProperty {
     @AliasFor("name")
     String[] value() default {  };

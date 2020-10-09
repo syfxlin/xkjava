@@ -23,7 +23,7 @@ public class ProcessAnnotation extends AbstractBootstrap {
 
     @Override
     public void boot() {
-        Set<Class<?>> processors = AnnotationUtils.getTypesAnnotatedWith(
+        Set<Class<?>> processors = AnnotationUtils.getTypesAnnotated(
             me.ixk.framework.annotations.AnnotationProcessor.class
         );
         for (Class<?> processorType : processors) {

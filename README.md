@@ -61,7 +61,7 @@ ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf, FreeMarker 渲染，Http
 -   添加完整的 Test Case
 -   日志
 -   缓存注解
--   @Conditional
+-   自动装配
 -   接口 Bean 绑定的解决方案
 -   RequestAttributeResolver、InterfaceBeanResolver、...Resolver
 

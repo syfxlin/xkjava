@@ -15,6 +15,7 @@ import me.ixk.framework.conditional.OnResourceCondition;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Conditional({ OnResourceCondition.class })
+@Order(Order.HIGHEST_PRECEDENCE + 3)
 public @interface ConditionalOnResource {
     String[] resources() default {  };
 }

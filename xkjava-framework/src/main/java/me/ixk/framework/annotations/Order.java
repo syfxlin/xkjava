@@ -19,8 +19,8 @@ public @interface Order {
     int LOWEST_PRECEDENCE = Integer.MAX_VALUE;
 
     @AliasFor("order")
-    int value() default LOWEST_PRECEDENCE;
+    int value() default MEDIUM_PRECEDENCE;
 
     @AliasFor("value")
-    int order() default LOWEST_PRECEDENCE;
+    int order() default MEDIUM_PRECEDENCE;
 }

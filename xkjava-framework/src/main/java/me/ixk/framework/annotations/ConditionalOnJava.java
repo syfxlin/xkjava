@@ -15,6 +15,7 @@ import me.ixk.framework.conditional.OnJavaCondition;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Conditional({ OnJavaCondition.class })
+@Order(Order.HIGHEST_PRECEDENCE)
 public @interface ConditionalOnJava {
     JavaVersion version();
 }

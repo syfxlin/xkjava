@@ -9,7 +9,9 @@ import cn.hutool.core.util.StrUtil;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.Bean;
 import me.ixk.framework.annotations.Lazy;
@@ -32,12 +34,25 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void process() {
-        for (Class<?> clazz : this.getTypesAnnotated(Bean.class)) {
-            this.processAnnotation(clazz);
+        Set<Class<?>> classes = this.getTypesAnnotated(Bean.class);
+        Iterator<Class<?>> classIterator = classes.iterator();
+        while (classIterator.hasNext()) {
+            Class<?> next = classIterator.next();
+            if (classes.contains(next)) {
+                this.processAnnotation(next);
+                classes = AnnotationUtils.filterConditionAnnotation(classes);
+            }
         }
-        for (Method method : this.getMethodsAnnotated(Bean.class)) {
-            this.processAnnotation(method);
+        Set<Method> methods = this.getMethodsAnnotated(Bean.class);
+        Iterator<Method> methodIterator = methods.iterator();
+        while (methodIterator.hasNext()) {
+            Method next = methodIterator.next();
+            if (methods.contains(next)) {
+                this.processAnnotation(next);
+                methods = AnnotationUtils.filterConditionAnnotation(methods);
+            }
         }
         this.app.setAttribute("makeSingletonBeanList", this.makeList);
     }
@@ -61,7 +76,6 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
             this.app.bind(
                     name,
                     wrapper,
-                    // Method 的 Bean 默认是不绑定 Type 的
                     (bindType == Bean.BindType.BIND) ? clazz.getName() : null,
                     scopeType
                 );
@@ -90,11 +104,8 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         Bean.BindType bindType = anno.get("bindType");
         Method[] initAndDestroyMethod =
             this.getInitAndDestroyMethod(anno, clazz);
-        // Class 的 Bean 默认绑定 Type
         Binding binding = this.app.bind(clazz, clazz, null, scopeType);
-        if (
-            bindType == Bean.BindType.NO_SET || bindType == Bean.BindType.BIND
-        ) {
+        if (bindType == Bean.BindType.BIND) {
             this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
         }
         Object names = anno.get("name");

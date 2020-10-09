@@ -13,6 +13,7 @@ import me.ixk.framework.conditional.OnClassCondition;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Conditional({ OnClassCondition.class })
+@Order(Order.HIGHEST_PRECEDENCE + 1)
 public @interface ConditionalOnMissingClass {
     Class<?>[] value() default {  };
 

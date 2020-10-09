@@ -5,7 +5,6 @@
 package me.ixk.app.controllers;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import me.ixk.app.annotations.Log;
 import me.ixk.app.beans.User;
@@ -16,7 +15,6 @@ import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.Controller;
 import me.ixk.framework.annotations.ExceptionHandler;
 import me.ixk.framework.annotations.GetMapping;
-import me.ixk.framework.annotations.Middleware;
 import me.ixk.framework.annotations.PostConstruct;
 import me.ixk.framework.annotations.PostMapping;
 import me.ixk.framework.annotations.PreDestroy;
@@ -28,7 +26,6 @@ import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.TextResult;
 import me.ixk.framework.http.result.ViewResult;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.view.FreeMarker;
 
 @Controller
 public class IndexController {
@@ -82,13 +79,10 @@ public class IndexController {
         return XkJava.of().make(TestConfigurationProperties.class);
     }
 
-    @Middleware(name = "auth")
-    @GetMapping("/free-marker")
-    public String freeMarker() {
-        FreeMarker freeMarker = new FreeMarker();
-        Map<String, Object> map = new ConcurrentHashMap<>();
-        map.put("name", "FreeMarker");
-        return freeMarker.process("index.ftl", map);
+    // @Middleware(name = "auth")
+    @GetMapping("/home")
+    public ViewResult home() {
+        return Result.view("index", Map.of("name", "Home"));
     }
 
     @GetMapping("/upload")

@@ -15,6 +15,7 @@ import me.ixk.framework.conditional.OnExpressionCondition;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Documented
 @Conditional({ OnExpressionCondition.class })
+@Order(Order.LOWEST_PRECEDENCE - 1)
 public @interface ConditionalOnExpression {
     String value() default "true";
 }

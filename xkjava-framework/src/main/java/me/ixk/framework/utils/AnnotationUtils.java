@@ -39,16 +39,10 @@ public abstract class AnnotationUtils {
     private static final SimpleCache<Class<? extends Annotation>, Set<Method>> METHOD_ANNOTATION_CACHE = new SimpleCache<>();
 
     private static final Comparator<Object> ORDER_ANNOTATION_COMPARATOR = (o1, o2) -> {
-        MergeAnnotation or1 = null, or2 = null;
-        if (o1 instanceof Class && o2 instanceof Class) {
-            or1 = getAnnotation((Class<?>) o1, Order.class);
-            or2 = getAnnotation((Class<?>) o2, Order.class);
-        } else if (o1 instanceof Method && o2 instanceof Method) {
-            or1 = getAnnotation((Method) o1, Order.class);
-            or2 = getAnnotation((Method) o1, Order.class);
-        }
-        int i1 = or1 == null ? Order.LOWEST_PRECEDENCE : or1.get("order");
-        int i2 = or2 == null ? Order.LOWEST_PRECEDENCE : or2.get("order");
+        MergeAnnotation or1 = getAnnotation((AnnotatedElement) o1, Order.class);
+        MergeAnnotation or2 = getAnnotation((AnnotatedElement) o2, Order.class);
+        int i1 = or1 == null ? Order.MEDIUM_PRECEDENCE : or1.get("order");
+        int i2 = or2 == null ? Order.MEDIUM_PRECEDENCE : or2.get("order");
         return i1 - i2;
     };
 
@@ -244,11 +238,45 @@ public abstract class AnnotationUtils {
     public static Set<Class<?>> getTypesAnnotated(
         final Class<? extends Annotation> annotation
     ) {
+        final Set<Class<?>> cache = CLASS_ANNOTATION_CACHE.get(annotation);
+        if (cache != null) {
+            return cache;
+        }
+        return CLASS_ANNOTATION_CACHE.put(
+            annotation,
+            (Set<Class<?>>) filterConditionAnnotation(
+                sortByOrderAnnotation(getTypesAnnotatedWith(annotation))
+            )
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Set<Method> getMethodsAnnotated(
+        final Class<? extends Annotation> annotation
+    ) {
+        final Set<Method> cache = METHOD_ANNOTATION_CACHE.get(annotation);
+        if (cache != null) {
+            return cache;
+        }
+        return METHOD_ANNOTATION_CACHE.put(
+            annotation,
+            (Set<Method>) filterConditionAnnotation(
+                sortByOrderAnnotation(getMethodsAnnotatedWith(annotation))
+            )
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Set<Class<?>> getTypesAnnotatedWith(
+        final Class<? extends Annotation> annotation
+    ) {
         final Set<Class<?>> set = new LinkedHashSet<>();
-        for (final Class<?> item : getTypesAnnotatedWith(annotation)) {
+        for (final Class<?> item : ReflectionsUtils
+            .make()
+            .getTypesAnnotatedWith(annotation)) {
             if (item.isAnnotation()) {
                 set.addAll(
-                    getTypesAnnotated((Class<? extends Annotation>) item)
+                    getTypesAnnotatedWith((Class<? extends Annotation>) item)
                 );
             } else {
                 set.add(item);
@@ -258,14 +286,18 @@ public abstract class AnnotationUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static Set<Method> getMethodsAnnotated(
+    private static Set<Method> getMethodsAnnotatedWith(
         final Class<? extends Annotation> annotation
     ) {
-        final Set<Method> set = getMethodsAnnotatedWith(annotation);
-        for (final Class<?> item : getTypesAnnotatedWith(annotation)) {
+        final Set<Method> set = ReflectionsUtils
+            .make()
+            .getMethodsAnnotatedWith(annotation);
+        for (final Class<?> item : ReflectionsUtils
+            .make()
+            .getTypesAnnotatedWith(annotation)) {
             if (item.isAnnotation()) {
                 set.addAll(
-                    getMethodsAnnotated((Class<? extends Annotation>) item)
+                    getMethodsAnnotatedWith((Class<? extends Annotation>) item)
                 );
             }
         }
@@ -362,42 +394,6 @@ public abstract class AnnotationUtils {
             }
         }
         return true;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Set<Class<?>> getTypesAnnotatedWith(
-        final Class<? extends Annotation> annotation
-    ) {
-        final Set<Class<?>> cache = CLASS_ANNOTATION_CACHE.get(annotation);
-        if (cache != null) {
-            return cache;
-        }
-        return CLASS_ANNOTATION_CACHE.put(
-            annotation,
-            (Set<Class<?>>) sortByOrderAnnotation(
-                filterConditionAnnotation(
-                    ReflectionsUtils.make().getTypesAnnotatedWith(annotation)
-                )
-            )
-        );
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Set<Method> getMethodsAnnotatedWith(
-        final Class<? extends Annotation> annotation
-    ) {
-        final Set<Method> cache = METHOD_ANNOTATION_CACHE.get(annotation);
-        if (cache != null) {
-            return cache;
-        }
-        return METHOD_ANNOTATION_CACHE.put(
-            annotation,
-            (Set<Method>) sortByOrderAnnotation(
-                filterConditionAnnotation(
-                    ReflectionsUtils.make().getMethodsAnnotatedWith(annotation)
-                )
-            )
-        );
     }
 
     private static class MergeAnnotationImpl implements MergeAnnotation {

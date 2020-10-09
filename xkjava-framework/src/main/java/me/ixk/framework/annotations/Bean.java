@@ -22,10 +22,9 @@ public @interface Bean {
 
     String destroyMethod() default "";
 
-    BindType bindType() default BindType.NO_SET;
+    BindType bindType() default BindType.BIND;
 
     enum BindType {
-        NO_SET,
         BIND,
         NO_BIND,
     }
