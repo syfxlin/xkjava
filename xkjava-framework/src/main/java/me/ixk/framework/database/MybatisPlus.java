@@ -35,8 +35,10 @@ public class MybatisPlus
             dataSource
         );
         Configuration configuration = new MybatisConfiguration(environment);
-        for (final String mapperPackage : mapperPackages) {
-            configuration.addMappers(mapperPackage);
+        if (mapperPackages != null) {
+            for (final String mapperPackage : mapperPackages) {
+                configuration.addMappers(mapperPackage);
+            }
         }
         this.sqlSessionManager =
             org.apache.ibatis.session.SqlSessionManager.newInstance(

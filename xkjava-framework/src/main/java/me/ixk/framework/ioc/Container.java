@@ -24,7 +24,6 @@ import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.ProxyCreator;
-import me.ixk.framework.bootstrap.LoadConfiguration;
 import me.ixk.framework.bootstrap.LoadEnvironmentVariables;
 import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.ioc.context.ContextName;
@@ -373,10 +372,7 @@ public class Container implements Context {
             return false;
         }
         // Disable some bootstrap
-        if (
-            type == LoadConfiguration.class ||
-            type == LoadEnvironmentVariables.class
-        ) {
+        if (type == LoadEnvironmentVariables.class) {
             return false;
         }
         if (ClassUtils.isSkipBuildType(type)) {

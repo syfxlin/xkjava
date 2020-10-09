@@ -13,9 +13,7 @@ import me.ixk.framework.annotations.processor.BootstrapAnnotationProcessor;
 import me.ixk.framework.ioc.context.ApplicationContext;
 import me.ixk.framework.ioc.context.RequestContext;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
-import me.ixk.framework.kernel.Config;
 import me.ixk.framework.kernel.Environment;
-import me.ixk.framework.kernel.ProviderManager;
 import me.ixk.framework.server.JettyServer;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Ansi;
@@ -66,21 +64,11 @@ public class XkJava extends Container {
     );
 
     /**
-     * 服务提供者管理器
-     */
-    protected ProviderManager providerManager = new ProviderManager(this);
-
-    /**
      * 注解处理器
      */
     protected AnnotationProcessorManager annotationProcessorManager = new AnnotationProcessorManager(
         this
     );
-
-    /**
-     * Jetty Server
-     */
-    protected JettyServer server = new JettyServer(this);
 
     /**
      * 启动前回调
@@ -190,7 +178,7 @@ public class XkJava extends Container {
 
         this.booted = true;
         // 启动 Jetty 服务
-        this.server.start();
+        this.call(JettyServer.class, "start", Void.class);
 
         log.info("Application booted");
     }
@@ -231,14 +219,6 @@ public class XkJava extends Container {
         this.registerContext(requestContext);
 
         this.instance(XkJava.class, this, "app");
-
-        this.instance(JettyServer.class, this.server, "server");
-
-        this.instance(
-                ProviderManager.class,
-                this.providerManager,
-                "providerManager"
-            );
 
         this.instance(
                 AnnotationProcessor.class,
@@ -295,21 +275,8 @@ public class XkJava extends Container {
         return this;
     }
 
-    public Config config() {
-        return this.make(Config.class);
-    }
-
     public Environment env() {
         return this.make(Environment.class);
-    }
-
-    public ProviderManager providerManager() {
-        return providerManager;
-    }
-
-    public XkJava providerManager(ProviderManager providerManager) {
-        this.providerManager = providerManager;
-        return this;
     }
 
     public AnnotationProcessorManager annotationProcessorManager() {

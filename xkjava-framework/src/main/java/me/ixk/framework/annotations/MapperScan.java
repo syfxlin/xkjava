@@ -8,17 +8,18 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.registrar.MapperRegistrar;
+import me.ixk.framework.registrar.MapperScannerRegistrar;
 
-@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Scope(type = ScopeType.PROTOTYPE)
+@Target(ElementType.TYPE)
+@Import(MapperScannerRegistrar.class)
 @Bean
-@Import(MapperRegistrar.class)
-public @interface Mapper {
-    @AliasFor("name")
+public @interface MapperScan {
+    @AliasFor("basePackages")
     String[] value() default {  };
 
     @AliasFor("value")
-    String[] name() default {  };
+    String[] basePackages() default {  };
+
+    Class<?>[] basePackageClasses() default {  };
 }

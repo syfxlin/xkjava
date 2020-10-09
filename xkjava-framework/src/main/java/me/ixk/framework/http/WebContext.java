@@ -5,13 +5,11 @@
 package me.ixk.framework.http;
 
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.kernel.Config;
 import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.servlet.DispatcherServlet;
 
 public class WebContext {
     private XkJava application;
-    private Config config;
     private Environment environment;
     private DispatcherServlet servlet;
     private Request request;
@@ -26,7 +24,6 @@ public class WebContext {
 
     public WebContext(XkJava application) {
         this.application = application;
-        this.config = application.make(Config.class);
         this.environment = application.make(Environment.class);
         this.servlet = application.make(DispatcherServlet.class);
         this.request = application.make(Request.class);
@@ -37,10 +34,6 @@ public class WebContext {
 
     public XkJava getApplication() {
         return application;
-    }
-
-    public Config getConfig() {
-        return config;
     }
 
     public Environment getEnvironment() {

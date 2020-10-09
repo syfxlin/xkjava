@@ -4,6 +4,7 @@
 
 package me.ixk.framework.server;
 
+import me.ixk.framework.annotations.Component;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.ErrorHandler;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
@@ -14,8 +15,15 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.webapp.*;
+import org.eclipse.jetty.webapp.Configuration;
+import org.eclipse.jetty.webapp.FragmentConfiguration;
+import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
+import org.eclipse.jetty.webapp.MetaInfConfiguration;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.webapp.WebInfConfiguration;
+import org.eclipse.jetty.webapp.WebXmlConfiguration;
 
+@Component(name = { " jetty ", "server" })
 public class JettyServer {
     private final XkJava application;
     private Server server;
@@ -26,7 +34,7 @@ public class JettyServer {
 
     public void start() {
         Resource resource = Resource.newClassPathResource("/public");
-        int port = this.application.config().get("app.port", Integer.class);
+        int port = this.application.env().get("app.port", 8080);
         this.server = this.buildServer(port, resource);
         this.startServer();
     }

@@ -12,7 +12,6 @@ import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SessionManager;
 import me.ixk.framework.http.WebContext;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.kernel.Config;
 import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.route.RouteManager;
 import me.ixk.framework.servlet.DispatcherServlet;
@@ -28,10 +27,6 @@ public abstract class Facade {
 
     public static Environment env() {
         return make(Environment.class);
-    }
-
-    public static Config config() {
-        return make(Config.class);
     }
 
     public static CookieManager cookie() {

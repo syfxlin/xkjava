@@ -57,12 +57,10 @@ ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf, FreeMarker 渲染，Http
 ## TODO
 
 -   @ThreadSafe
--   组件与微框架的依赖，使组件更换更为便利（如更换 FreeMarker 或 Thymeleaf）
 -   添加完整的 Test Case
 -   日志
 -   缓存注解
--   自动装配
--   接口 Bean 绑定的解决方案
+-   自动配置
 -   RequestAttributeResolver、InterfaceBeanResolver、...Resolver
 
 ## 文档 Doc

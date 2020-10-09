@@ -6,6 +6,7 @@ package me.ixk.framework.ioc;
 
 import java.util.Map;
 import me.ixk.framework.annotations.ScopeType;
+import me.ixk.framework.utils.Convert;
 
 public interface Context {
     String ATTRIBUTE_PREFIX = "$";
@@ -114,7 +115,7 @@ public interface Context {
     }
 
     default <T> T getAttribute(String name, Class<T> returnType) {
-        return returnType.cast(this.getAttribute(name));
+        return Convert.convert(returnType, this.getAttribute(name));
     }
 
     @SuppressWarnings("unchecked")

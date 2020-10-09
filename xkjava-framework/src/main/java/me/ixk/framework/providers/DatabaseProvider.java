@@ -2,33 +2,31 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.config;
+package me.ixk.framework.providers;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.List;
-import java.util.Map;
 import javax.sql.DataSource;
 import me.ixk.framework.annotations.Bean;
 import me.ixk.framework.annotations.ConditionalOnMissingBean;
-import me.ixk.framework.annotations.Configuration;
+import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.database.MybatisPlus;
 import me.ixk.framework.database.SqlSessionManager;
-import me.ixk.framework.kernel.Config;
+import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.kernel.Environment;
 
-@Configuration
+@Provider
 public class DatabaseProvider {
 
     @Bean(name = "dataSource")
     @ConditionalOnMissingBean(name = "dataSource", value = DataSource.class)
-    @SuppressWarnings("unchecked")
-    public DataSource dataSource(final Config config) {
-        final Map<String, String> item = config.get("database", Map.class);
+    public DataSource dataSource(final Environment env) {
         final HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setDriverClassName(item.get("driver"));
-        hikariConfig.setJdbcUrl(item.get("url"));
-        hikariConfig.setUsername(item.get("username"));
-        hikariConfig.setPassword(item.get("password"));
+        hikariConfig.setDriverClassName(env.get("database.driver"));
+        hikariConfig.setJdbcUrl(env.get("database.url"));
+        hikariConfig.setUsername(env.get("database.username"));
+        hikariConfig.setPassword(env.get("database.password"));
         return new HikariDataSource(hikariConfig);
     }
 
@@ -40,11 +38,11 @@ public class DatabaseProvider {
     @SuppressWarnings("unchecked")
     public SqlSessionManager sqlSessionManager(
         final DataSource dataSource,
-        final Config config
+        final XkJava app
     ) {
         return new MybatisPlus(
             dataSource,
-            config.get("database.mapper_packages", List.class)
+            app.getAttribute("mapperScanPackages", List.class)
         );
     }
 }

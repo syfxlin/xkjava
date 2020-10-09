@@ -78,7 +78,6 @@ public class ViewResult extends HttpResult {
         // 注入
         this.data.put("$context", context);
         this.data.put("$application", context.getApplication());
-        this.data.put("$config", context.getConfig());
         this.data.put("$environment", context.getEnvironment());
         this.data.put("$servlet", context.getServlet());
         this.data.put("$request", context.getRequest());
