@@ -8,10 +8,24 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import me.ixk.framework.registrar.ExceptionHandlerRegistrar;
+import me.ixk.framework.registrar.InitBinderRegistrar;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Lazy
 @Bean
+@Attributes(
+    {
+        @Attribute(
+            name = "adviceInitBinderHandlerResolver",
+            registrar = InitBinderRegistrar.class
+        ),
+        @Attribute(
+            name = "adviceExceptionHandlerResolvers",
+            registrar = ExceptionHandlerRegistrar.class
+        ),
+    }
+)
 public @interface ControllerAdvice {
 }

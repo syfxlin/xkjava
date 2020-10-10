@@ -8,10 +8,9 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.registrar.RouteRegistrar;
 
-@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Attribute(name = "routeDefinition", registrar = RouteRegistrar.class)
-public @interface Route {
+@Target(ElementType.TYPE)
+public @interface ComponentScans {
+    ComponentScan[] value();
 }

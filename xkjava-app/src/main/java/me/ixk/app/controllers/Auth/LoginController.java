@@ -32,7 +32,7 @@ public class LoginController {
     public Response login(final LoginUser user) {
         final Auth.Result result = XkJava.of().make(Auth.class).login(user);
         if (result.isOk()) {
-            return response().redirect("/free-marker");
+            return response().redirect("/home");
         }
         return response().text(result.getErrors().toString());
     }

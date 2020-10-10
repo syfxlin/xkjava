@@ -8,12 +8,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import me.ixk.framework.annotations.ComponentScan;
-import me.ixk.framework.annotations.processor.AnnotationProcessor;
-import me.ixk.framework.annotations.processor.BootstrapAnnotationProcessor;
+import me.ixk.framework.annotations.ComponentScans;
 import me.ixk.framework.ioc.context.ApplicationContext;
 import me.ixk.framework.ioc.context.RequestContext;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.kernel.Environment;
+import me.ixk.framework.processor.AnnotationProcessor;
+import me.ixk.framework.processor.BootstrapAnnotationProcessor;
 import me.ixk.framework.server.JettyServer;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Ansi;
@@ -143,7 +144,7 @@ public class XkJava extends Container {
      * @param primarySource 传入类
      * @param args          传入参数
      */
-    public void boot(Class<?> primarySource, String... args) {
+    public void boot(final Class<?> primarySource, final String... args) {
         this.boot(new Class[] { primarySource }, args);
     }
 
@@ -153,7 +154,7 @@ public class XkJava extends Container {
      * @param primarySource 传入类
      * @param args          传入参数
      */
-    public void boot(Class<?>[] primarySource, String... args) {
+    public void boot(final Class<?>[] primarySource, final String... args) {
         this.primarySource = primarySource;
         this.args = args;
 
@@ -187,35 +188,53 @@ public class XkJava extends Container {
      * 配置要扫描的包
      */
     protected void loadPackageScanAnnotation() {
-        List<String> scanPackage = this.scanPackage();
+        final List<String> scanPackage = this.scanPackage();
         scanPackage.add("me.ixk.framework");
-        for (Class<?> source : this.primarySource) {
+        for (final Class<?> source : this.primarySource) {
             scanPackage.add(source.getPackageName());
-            MergeAnnotation componentScan = AnnotationUtils.getAnnotation(
+            final MergeAnnotation componentScan = AnnotationUtils.getAnnotation(
                 source,
                 ComponentScan.class
             );
+            final MergeAnnotation componentScans = AnnotationUtils.getAnnotation(
+                source,
+                ComponentScans.class
+            );
             if (componentScan != null) {
-                scanPackage.addAll(
-                    Arrays.asList(componentScan.get("basePackages"))
-                );
-                log.debug(
-                    "Application add base packages: {}",
-                    Arrays.toString(
-                        (String[]) componentScan.get("basePackages")
-                    )
-                );
+                this.loadPackageScanAnnotationItem(scanPackage, componentScan);
+            }
+            if (componentScans != null) {
+                for (final ComponentScan scan : (ComponentScan[]) componentScans.get(
+                    ComponentScans.class,
+                    "value"
+                )) {
+                    this.loadPackageScanAnnotationItem(
+                            scanPackage,
+                            AnnotationUtils.wrapAnnotation(scan)
+                        );
+                }
             }
         }
+    }
+
+    protected void loadPackageScanAnnotationItem(
+        List<String> scanPackage,
+        MergeAnnotation componentScan
+    ) {
+        scanPackage.addAll(Arrays.asList(componentScan.get("basePackages")));
+        log.debug(
+            "Application add base packages: {}",
+            Arrays.toString((String[]) componentScan.get("basePackages"))
+        );
     }
 
     /**
      * 注册实例
      */
     protected void registerInstance() {
-        ApplicationContext applicationContext = new ApplicationContext();
+        final ApplicationContext applicationContext = new ApplicationContext();
         this.registerContext(applicationContext);
-        RequestContext requestContext = new RequestContext();
+        final RequestContext requestContext = new RequestContext();
         this.registerContext(requestContext);
 
         this.instance(XkJava.class, this, "app");
@@ -254,7 +273,7 @@ public class XkJava extends Container {
         if (this.bannerText != null) {
             System.out.println(this.bannerText + "\n");
         }
-        String text =
+        final String text =
             Ansi.make(Color.CYAN).format(" :: XK-Java :: ") +
             Ansi.split() +
             Ansi.make(Color.MAGENTA).format("(" + VERSION + ")") +
@@ -270,7 +289,7 @@ public class XkJava extends Container {
         return this.getOrDefaultAttribute("scanPackage", new ArrayList<>());
     }
 
-    public XkJava scanPackage(List<String> scanPackage) {
+    public XkJava scanPackage(final List<String> scanPackage) {
         this.setAttribute("scanPackage", scanPackage);
         return this;
     }
@@ -284,7 +303,7 @@ public class XkJava extends Container {
     }
 
     public XkJava annotationProcessorManager(
-        AnnotationProcessorManager annotationProcessorManager
+        final AnnotationProcessorManager annotationProcessorManager
     ) {
         this.annotationProcessorManager = annotationProcessorManager;
         return this;
@@ -298,22 +317,22 @@ public class XkJava extends Container {
         return this.booted;
     }
 
-    public XkJava booting(Callback callback) {
+    public XkJava booting(final Callback callback) {
         this.bootingCallback = callback;
         return this;
     }
 
-    public XkJava booted(Callback callback) {
+    public XkJava booted(final Callback callback) {
         this.bootedCallback = callback;
         return this;
     }
 
-    public XkJava destroying(Callback callback) {
+    public XkJava destroying(final Callback callback) {
         this.destroyingCallback = callback;
         return this;
     }
 
-    public XkJava destroyed(Callback callback) {
+    public XkJava destroyed(final Callback callback) {
         this.destroyedCallback = callback;
         return this;
     }
@@ -322,7 +341,7 @@ public class XkJava extends Container {
         return this.bannerText;
     }
 
-    public XkJava bannerText(String bannerText) {
+    public XkJava bannerText(final String bannerText) {
         this.bannerText = bannerText;
         return this;
     }

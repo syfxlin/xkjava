@@ -6,22 +6,23 @@ package me.ixk.framework.registrar;
 
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.database.SqlSessionManager;
+import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.MergeAnnotation;
 
 public class MapperRegistrar implements ImportBeanRegistrar {
 
     @Override
-    public void register(
+    public Binding register(
         XkJava app,
-        Class<?> element,
+        Class<?> clazz,
         ScopeType scopeType,
         MergeAnnotation annotation
     ) {
-        app.bind(
-            element,
+        return app.bind(
+            clazz,
             (container, with) ->
-                container.make(SqlSessionManager.class).getMapper(element),
+                container.make(SqlSessionManager.class).getMapper(clazz),
             null,
             scopeType
         );

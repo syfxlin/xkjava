@@ -7,10 +7,10 @@ package me.ixk.framework.bootstrap;
 import java.util.Set;
 import me.ixk.framework.annotations.Bootstrap;
 import me.ixk.framework.annotations.Order;
-import me.ixk.framework.annotations.processor.AnnotationProcessor;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
+import me.ixk.framework.processor.AnnotationProcessor;
 import me.ixk.framework.utils.AnnotationUtils;
 
 @Bootstrap

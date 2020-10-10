@@ -12,8 +12,10 @@ import me.ixk.framework.registrar.MapperScannerRegistrar;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@Import(MapperScannerRegistrar.class)
-@Bean
+@Attribute(
+    name = "mapperScanPackages",
+    registrar = MapperScannerRegistrar.class
+)
 public @interface MapperScan {
     @AliasFor("basePackages")
     String[] value() default {  };

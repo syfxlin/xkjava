@@ -8,16 +8,16 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.registrar.AspectRegistrar;
+import me.ixk.framework.conditional.OnAttributeCondition;
 
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@Bean
-@BeforeImport(AspectRegistrar.class)
-public @interface Aspect {
-    @AliasFor("pointcut")
-    String value() default "";
+@Conditional({ OnAttributeCondition.class })
+@Order(Order.LOWEST_PRECEDENCE)
+public @interface ConditionalOnAttribute {
+    @AliasFor("name")
+    String[] value() default {  };
 
     @AliasFor("value")
-    String pointcut() default "";
+    String[] name() default {  };
 }

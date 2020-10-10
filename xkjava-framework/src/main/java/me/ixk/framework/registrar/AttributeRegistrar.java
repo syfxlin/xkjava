@@ -4,15 +4,16 @@
 
 package me.ixk.framework.registrar;
 
+import java.lang.reflect.AnnotatedElement;
 import me.ixk.framework.annotations.ScopeType;
-import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.MergeAnnotation;
 
-public interface ImportBeanRegistrar {
-    Binding register(
+public interface AttributeRegistrar {
+    Object register(
         XkJava app,
-        Class<?> clazz,
+        String attributeName,
+        AnnotatedElement element,
         ScopeType scopeType,
         MergeAnnotation annotation
     );

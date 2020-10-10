@@ -58,19 +58,23 @@ public class RouteCollector {
         this.routeParser = routeParser;
         this.routeGenerator = routeGenerator;
         this.globalMiddleware =
-            (List<Class<? extends Middleware>>) this.app.getAttribute(
-                    "globalMiddleware"
+            this.app.getOrDefaultAttribute(
+                    "globalMiddleware",
+                    new ArrayList<>()
                 );
         this.routeMiddleware =
-            (Map<String, Class<? extends Middleware>>) this.app.getAttribute(
-                    "routeMiddleware"
+            this.app.getOrDefaultAttribute(
+                    "routeMiddleware",
+                    new ConcurrentHashMap<>()
                 );
         this.annotationMiddlewareDefinitions =
-            (Map<String, AnnotationMiddlewareDefinition>) this.app.getAttribute(
-                    "annotationMiddlewareDefinitions"
+            this.app.getOrDefaultAttribute(
+                    "annotationMiddlewareDefinitions",
+                    new ConcurrentHashMap<>()
                 );
-        for (Class<? extends RouteDefinition> clazz : (List<Class<? extends RouteDefinition>>) this.app.getAttribute(
-                "routeDefinition"
+        for (Class<? extends RouteDefinition> clazz : this.app.getOrDefaultAttribute(
+                "routeDefinition",
+                new ArrayList<Class<? extends RouteDefinition>>()
             )) {
             try {
                 ReflectUtil.newInstance(clazz).routes(this);

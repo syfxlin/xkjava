@@ -292,6 +292,25 @@ public class Container implements Context {
             );
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T getOrDefaultAttribute(
+        final String name,
+        final T _default,
+        final ScopeType scopeType
+    ) {
+        Binding binding = this.getBinding(ATTRIBUTE_PREFIX + name);
+        if (binding == null || binding.getScope() != scopeType) {
+            this.setAttribute(name, _default, scopeType);
+            return _default;
+        }
+        return (T) binding.getInstance();
+    }
+
+    public boolean hasAttribute(final String name, ScopeType scopeType) {
+        Binding binding = this.getBinding(ATTRIBUTE_PREFIX + name);
+        return binding != null && binding.getScope() == scopeType;
+    }
+
     /* ===================== Base ===================== */
 
     protected void checkHasBinding(

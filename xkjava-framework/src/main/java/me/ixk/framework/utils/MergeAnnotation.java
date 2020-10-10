@@ -50,7 +50,29 @@ public interface MergeAnnotation {
         return (A) this.annotations().get(indexes.get(index));
     }
 
+    default boolean hasAnnotation(Class<? extends Annotation> annotationType) {
+        return this.annotations().containsKey(annotationType);
+    }
+
     default int size() {
         return this.indexes().size();
+    }
+
+    default void addAnnotation(Annotation annotation) {
+        throw new UnsupportedOperationException(
+            "Unsupported add annotation to merge annotation"
+        );
+    }
+
+    default void removeAnnotation(Class<? extends Annotation> annotationType) {
+        throw new UnsupportedOperationException(
+            "Unsupported remove annotation to merge annotation"
+        );
+    }
+
+    default void removeAnnotation(int index) {
+        throw new UnsupportedOperationException(
+            "Unsupported add annotation to merge annotation"
+        );
     }
 }

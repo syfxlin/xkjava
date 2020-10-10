@@ -53,6 +53,20 @@ public abstract class AnnotationUtils {
         return walkAnnotation(element, annotationType);
     }
 
+    public static MergeAnnotation wrapAnnotation(final Annotation annotation) {
+        return new MergeAnnotationWrap(annotation);
+    }
+
+    public static MergeAnnotation cloneAnnotation(
+        final MergeAnnotation annotation
+    ) {
+        MergeAnnotation result = new MergeAnnotationList();
+        for (Class<? extends Annotation> value : annotation.indexes()) {
+            result.addAnnotation(annotation.getAnnotation(value));
+        }
+        return result;
+    }
+
     public static <T> T getAnnotationValue(
         final AnnotatedElement element,
         final Class<? extends Annotation> annotationType,
@@ -304,7 +318,7 @@ public abstract class AnnotationUtils {
         return set;
     }
 
-    public static MergeAnnotationImpl walkAnnotation(
+    public static MergeAnnotationList walkAnnotation(
         final AnnotatedElement element,
         final Class<? extends Annotation> annotationType
     ) {
@@ -315,7 +329,7 @@ public abstract class AnnotationUtils {
                 if (isJdkAnnotation(annotationClass)) {
                     continue;
                 }
-                final MergeAnnotationImpl typeAnnotation = walkAnnotation(
+                final MergeAnnotationList typeAnnotation = walkAnnotation(
                     annotationClass,
                     annotationType
                 );
@@ -326,7 +340,7 @@ public abstract class AnnotationUtils {
             }
         }
         if (annotation != null) {
-            final MergeAnnotationImpl walkAnnotation = new MergeAnnotationImpl();
+            final MergeAnnotationList walkAnnotation = new MergeAnnotationList();
             walkAnnotation.addAnnotation(annotation);
             return walkAnnotation;
         }
@@ -396,16 +410,53 @@ public abstract class AnnotationUtils {
         return true;
     }
 
-    private static class MergeAnnotationImpl implements MergeAnnotation {
+    private static class MergeAnnotationList implements MergeAnnotation {
         private final List<Class<? extends Annotation>> indexes = new ArrayList<>();
         private final Map<Class<? extends Annotation>, Annotation> annotations = new LinkedHashMap<>();
-
-        public MergeAnnotationImpl() {}
 
         public void addAnnotation(final Annotation annotation) {
             final Class<? extends Annotation> annotationType = annotation.annotationType();
             this.indexes.add(annotationType);
             this.annotations.put(annotationType, parseAnnotation(annotation));
+        }
+
+        @Override
+        public void removeAnnotation(
+            Class<? extends Annotation> annotationType
+        ) {
+            if (annotationType == null) {
+                return;
+            }
+            this.indexes.remove(annotationType);
+            this.annotations.remove(annotationType);
+        }
+
+        @Override
+        public void removeAnnotation(int index) {
+            this.removeAnnotation(this.getAnnotation(index));
+        }
+
+        @Override
+        public Map<Class<? extends Annotation>, Annotation> annotations() {
+            return this.annotations;
+        }
+
+        @Override
+        public List<Class<? extends Annotation>> indexes() {
+            return this.indexes;
+        }
+    }
+
+    private static class MergeAnnotationWrap implements MergeAnnotation {
+        private final List<Class<? extends Annotation>> indexes = new ArrayList<>();
+        private final Map<Class<? extends Annotation>, Annotation> annotations = new LinkedHashMap<>();
+
+        public MergeAnnotationWrap(Annotation annotation) {
+            this.indexes.add(annotation.annotationType());
+            this.annotations.put(
+                    annotation.annotationType(),
+                    parseAnnotation(annotation)
+                );
         }
 
         @Override

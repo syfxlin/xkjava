@@ -8,10 +8,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.registrar.RouteRegistrar;
+import me.ixk.framework.registrar.BeforeImportBeanRegistrar;
 
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Attribute(name = "routeDefinition", registrar = RouteRegistrar.class)
-public @interface Route {
+public @interface BeforeImport {
+    Class<? extends BeforeImportBeanRegistrar>[] value();
 }

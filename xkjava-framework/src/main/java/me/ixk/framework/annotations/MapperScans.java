@@ -8,10 +8,14 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.registrar.RouteRegistrar;
+import me.ixk.framework.registrar.MapperScannerRegistrar;
 
-@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Attribute(name = "routeDefinition", registrar = RouteRegistrar.class)
-public @interface Route {
+@Target(ElementType.TYPE)
+@Attribute(
+    name = "mapperScanPackages",
+    registrar = MapperScannerRegistrar.class
+)
+public @interface MapperScans {
+    MapperScan[] value();
 }

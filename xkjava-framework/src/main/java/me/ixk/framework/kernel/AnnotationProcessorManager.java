@@ -7,13 +7,14 @@ package me.ixk.framework.kernel;
 import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import me.ixk.framework.annotations.processor.AnnotationProcessor;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.processor.AnnotationProcessor;
 
 public class AnnotationProcessorManager {
     protected final XkJava app;
@@ -22,7 +23,7 @@ public class AnnotationProcessorManager {
 
     public AnnotationProcessorManager(XkJava app) {
         this.app = app;
-        this.processors = new ConcurrentHashMap<>();
+        this.processors = new LinkedHashMap<>();
     }
 
     public AnnotationProcessor getProcessor(String name) {
@@ -43,7 +44,7 @@ public class AnnotationProcessorManager {
 
     protected AnnotationProcessor getProcessorInstance(String name) {
         try {
-            AnnotationProcessor processor = (AnnotationProcessor) ReflectUtil.newInstance(
+            AnnotationProcessor processor = ReflectUtil.newInstance(
                 ClassUtil.loadClass(name),
                 this.app
             );
@@ -82,7 +83,7 @@ public class AnnotationProcessorManager {
         return processors
             .stream()
             .map(this::register)
-            .collect(Collectors.toSet());
+            .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public void process() {

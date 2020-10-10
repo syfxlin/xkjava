@@ -2,17 +2,16 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.annotations.processor;
+package me.ixk.framework.registrar;
 
-import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import me.ixk.framework.annotations.AnnotationProcessor;
-import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.RequestMapping;
 import me.ixk.framework.annotations.RequestMethod;
 import me.ixk.framework.annotations.Route;
+import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.helpers.Util;
 import me.ixk.framework.ioc.XkJava;
@@ -21,51 +20,43 @@ import me.ixk.framework.route.RouteDefinition;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergeAnnotation;
 
-@AnnotationProcessor
-@Order(Order.HIGHEST_PRECEDENCE + 5)
-public class RouteAnnotationProcessor extends AbstractAnnotationProcessor {
-
-    public RouteAnnotationProcessor(final XkJava app) {
-        super(app);
-    }
+public class RouteRegistrar implements AttributeRegistrar {
 
     @Override
-    public void process() {
-        // definition
-        this.processDefinitionAnnotation();
-        // mapping
-        this.processAnnotation(RequestMapping.class);
-    }
-
     @SuppressWarnings("unchecked")
-    public void processDefinitionAnnotation() {
-        final List<Class<? extends RouteDefinition>> routeDefinition =
-            this.app.getOrDefaultAttribute(
-                    "routeDefinition",
-                    new ArrayList<>()
-                );
-        for (final Class<?> clazz : this.getTypesAnnotated(Route.class)) {
-            if (RouteDefinition.class.isAssignableFrom(clazz)) {
-                routeDefinition.add((Class<? extends RouteDefinition>) clazz);
-            }
-        }
-    }
-
-    public void processAnnotation(
-        final Class<? extends Annotation> annotation
+    public Object register(
+        XkJava app,
+        String attributeName,
+        AnnotatedElement element,
+        ScopeType scopeType,
+        MergeAnnotation annotation
     ) {
-        final List<AnnotationRouteDefinition> annotationRouteDefinitions =
-            this.app.getOrDefaultAttribute(
-                    "annotationRouteDefinitions",
-                    new ArrayList<>()
-                );
-        for (final Method method : this.getMethodsAnnotated(annotation)) {
+        if (
+            annotation.hasAnnotation(Route.class) &&
+            RouteDefinition.class.isAssignableFrom((Class<?>) element)
+        ) {
+            final List<Class<? extends RouteDefinition>> routeDefinition = app.getOrDefaultAttribute(
+                attributeName,
+                new ArrayList<>()
+            );
+            routeDefinition.add((Class<? extends RouteDefinition>) element);
+            return routeDefinition;
+        }
+        if (
+            annotation.hasAnnotation(RequestMapping.class) &&
+            element instanceof Method
+        ) {
+            final List<AnnotationRouteDefinition> annotationRouteDefinitions = app.getOrDefaultAttribute(
+                attributeName,
+                new ArrayList<>()
+            );
+            Method method = (Method) element;
             final MergeAnnotation a = AnnotationUtils.getAnnotation(
                 method,
-                annotation
+                RequestMapping.class
             );
             if (a == null) {
-                continue;
+                return null;
             }
             final MergeAnnotation baseMapping = AnnotationUtils.getAnnotation(
                 method.getDeclaringClass(),
@@ -84,6 +75,7 @@ public class RouteAnnotationProcessor extends AbstractAnnotationProcessor {
                         Util.routeHandler(method)
                     )
                 );
+                return annotationRouteDefinitions;
             } catch (final Exception e) {
                 throw new AnnotationProcessorException(
                     "Route annotation process error",
@@ -91,5 +83,6 @@ public class RouteAnnotationProcessor extends AbstractAnnotationProcessor {
                 );
             }
         }
+        return null;
     }
 }
