@@ -6,16 +6,17 @@ package me.ixk.framework.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import me.ixk.framework.test.XkJavaRunner;
 import me.ixk.framework.utils.annotation.Parent;
-import me.ixk.framework.utils.annotation.SuperParent;
 import me.ixk.framework.utils.entity.FalseConditional;
-import me.ixk.framework.utils.entity.Test1;
+import me.ixk.framework.utils.entity.Test2;
 import me.ixk.framework.utils.entity.TrueConditional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,24 +28,6 @@ class AnnotationUtilsTest {
     void getTypesAnnotated() {
         Set<Class<?>> list = AnnotationUtils.getTypesAnnotated(Parent.class);
         assertEquals(list.size(), 3);
-    }
-
-    @Test
-    void getAnnotation() {
-        MergeAnnotation parent = AnnotationUtils.getAnnotation(
-            Test1.class,
-            SuperParent.class
-        );
-        assertNotNull(parent);
-    }
-
-    @Test
-    void getAnnotationValues() {
-        MultiValueMap<String, Object> map = AnnotationUtils.getAnnotationValues(
-            Test1.class,
-            SuperParent.class
-        );
-        assertNotNull(map);
     }
 
     @Test
@@ -61,5 +44,12 @@ class AnnotationUtilsTest {
             .getTypesAnnotatedWith(Parent.class);
         Set<Class<?>> set = AnnotationUtils.filterConditionAnnotation(classes);
         assertSame(classes.size(), set.size() + 1);
+    }
+
+    @Test
+    void mergeAnnotation() {
+        Map<Class<? extends Annotation>, List<Annotation>> map = AnnotationUtils.mergeAnnotation(
+            Test2.class
+        );
     }
 }

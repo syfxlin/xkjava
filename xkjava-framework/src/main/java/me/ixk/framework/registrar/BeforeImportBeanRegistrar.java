@@ -6,12 +6,12 @@ package me.ixk.framework.registrar;
 
 import java.lang.reflect.AnnotatedElement;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 
 public interface BeforeImportBeanRegistrar {
     void before(
         XkJava app,
         AnnotatedElement element,
-        MergeAnnotation annotation
+        MergedAnnotation annotation
     );
 }

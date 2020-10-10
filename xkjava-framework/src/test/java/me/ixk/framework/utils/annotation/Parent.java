@@ -12,11 +12,19 @@ import me.ixk.framework.annotations.AliasFor;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@SuperParent(name = "456")
+@SuperParent
 public @interface Parent {
-    @AliasFor("name")
+    @AliasFor(
+        annotation = SuperParent.class,
+        attribute = "value",
+        value = "name"
+    )
     String value() default "";
 
-    @AliasFor("value")
+    @AliasFor(
+        annotation = SuperParent.class,
+        attribute = "name",
+        value = "value"
+    )
     String name() default "";
 }

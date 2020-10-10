@@ -11,6 +11,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@RepeatItem(ComponentScan.class)
 public @interface ComponentScans {
     ComponentScan[] value();
 }

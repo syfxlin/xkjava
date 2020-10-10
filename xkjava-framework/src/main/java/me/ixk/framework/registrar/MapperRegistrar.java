@@ -8,7 +8,7 @@ import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.database.SqlSessionManager;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 
 public class MapperRegistrar implements ImportBeanRegistrar {
 
@@ -17,7 +17,7 @@ public class MapperRegistrar implements ImportBeanRegistrar {
         XkJava app,
         Class<?> clazz,
         ScopeType scopeType,
-        MergeAnnotation annotation
+        MergedAnnotation annotation
     ) {
         return app.bind(
             clazz,

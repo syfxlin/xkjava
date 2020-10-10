@@ -5,13 +5,13 @@
 package me.ixk.framework.ioc;
 
 import java.lang.reflect.AnnotatedElement;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 
 @FunctionalInterface
 public interface Condition {
     boolean matches(
         XkJava app,
         AnnotatedElement element,
-        MergeAnnotation annotation
+        MergedAnnotation annotation
     );
 }

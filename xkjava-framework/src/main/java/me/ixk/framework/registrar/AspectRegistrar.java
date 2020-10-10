@@ -11,8 +11,7 @@ import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.AspectPointcut;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 
 public class AspectRegistrar implements BeforeImportBeanRegistrar {
 
@@ -20,15 +19,11 @@ public class AspectRegistrar implements BeforeImportBeanRegistrar {
     public void before(
         XkJava app,
         AnnotatedElement element,
-        MergeAnnotation annotation
+        MergedAnnotation annotation
     ) {
         final AspectManager aspectManager = app.make(AspectManager.class);
         if (Advice.class.isAssignableFrom((Class<?>) element)) {
-            String pointcut = AnnotationUtils.getAnnotationValue(
-                element,
-                Aspect.class,
-                "pointcut"
-            );
+            String pointcut = annotation.get(Aspect.class, "pointcut");
             if (pointcut == null) {
                 return;
             }

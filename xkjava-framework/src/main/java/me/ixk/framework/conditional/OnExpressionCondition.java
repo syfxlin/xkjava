@@ -6,10 +6,11 @@ package me.ixk.framework.conditional;
 
 import cn.hutool.core.convert.Convert;
 import java.lang.reflect.AnnotatedElement;
+import me.ixk.framework.annotations.ConditionalOnExpression;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.Express;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 
 public class OnExpressionCondition implements Condition {
 
@@ -17,11 +18,13 @@ public class OnExpressionCondition implements Condition {
     public boolean matches(
         XkJava app,
         AnnotatedElement element,
-        MergeAnnotation annotation
+        MergedAnnotation annotation
     ) {
         return Convert.convert(
             Boolean.class,
-            Express.executeEnv(annotation.get("value"))
+            Express.executeEnv(
+                annotation.get(ConditionalOnExpression.class, "value")
+            )
         );
     }
 }

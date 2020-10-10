@@ -11,7 +11,7 @@ import me.ixk.framework.annotations.ControllerAdvice;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.ExceptionHandlerResolver;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 
 public class ExceptionHandlerRegistrar implements AttributeRegistrar {
 
@@ -21,7 +21,7 @@ public class ExceptionHandlerRegistrar implements AttributeRegistrar {
         String attributeName,
         AnnotatedElement element,
         ScopeType scopeType,
-        MergeAnnotation annotation
+        MergedAnnotation annotation
     ) {
         LinkedHashMap<Object, Object> resolvers = null;
         if (annotation.hasAnnotation(ControllerAdvice.class)) {

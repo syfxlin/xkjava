@@ -111,7 +111,8 @@ public interface Context {
 
     // attribute 是一种特殊的 binding，也可以认为是已经创建好的单例，attribute 会自动在名称前添加 $ 前缀用以区分
     default Object getAttribute(String name) {
-        return this.getBinding(ATTRIBUTE_PREFIX + name).getInstance();
+        Binding binding = this.getBinding(ATTRIBUTE_PREFIX + name);
+        return binding == null ? null : binding.getInstance();
     }
 
     default <T> T getAttribute(String name, Class<T> returnType) {

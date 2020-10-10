@@ -14,7 +14,7 @@ import me.ixk.framework.annotations.ControllerAdvice;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.InitBinderHandlerResolver;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 
 public class InitBinderRegistrar implements AttributeRegistrar {
 
@@ -24,7 +24,7 @@ public class InitBinderRegistrar implements AttributeRegistrar {
         String attributeName,
         AnnotatedElement element,
         ScopeType scopeType,
-        MergeAnnotation annotation
+        MergedAnnotation annotation
     ) {
         if (annotation.hasAnnotation(ControllerAdvice.class)) {
             List<InitBinderHandlerResolver> handlerResolvers = app.getOrDefaultAttribute(

@@ -85,8 +85,9 @@ public class RouteCollector {
                 );
             }
         }
-        for (AnnotationRouteDefinition definition : (List<AnnotationRouteDefinition>) this.app.getAttribute(
-                "annotationRouteDefinitions"
+        for (AnnotationRouteDefinition definition : this.app.getOrDefaultAttribute(
+                "annotationRouteDefinitions",
+                new ArrayList<AnnotationRouteDefinition>()
             )) {
             this.match(
                     definition.getMethod(),

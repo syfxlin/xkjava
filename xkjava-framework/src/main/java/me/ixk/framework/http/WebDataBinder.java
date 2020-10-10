@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.utils.Convert;
-import me.ixk.framework.utils.MergeAnnotation;
 
 public class WebDataBinder implements DataBinder {
     public static final String DEFAULT_VALUE_PREFIX = "&";
@@ -43,16 +43,12 @@ public class WebDataBinder implements DataBinder {
 
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T getObject(
-        String name,
-        Class<T> type,
-        MergeAnnotation dataBind
-    ) {
+    public <T> T getObject(String name, Class<T> type, DataBind dataBind) {
         if (dataBind != null) {
             name =
-                ((String) dataBind.get("name")).length() == 0
+                ((String) dataBind.name()).length() == 0
                     ? Request.REQUEST_BODY
-                    : dataBind.get("name");
+                    : dataBind.name();
             this.prefix = name;
         }
         String concatName = this.concat(name);

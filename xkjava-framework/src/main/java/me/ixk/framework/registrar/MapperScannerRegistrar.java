@@ -10,11 +10,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import me.ixk.framework.annotations.MapperScan;
-import me.ixk.framework.annotations.MapperScans;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 
 public class MapperScannerRegistrar implements AttributeRegistrar {
 
@@ -24,24 +22,12 @@ public class MapperScannerRegistrar implements AttributeRegistrar {
         String attributeName,
         AnnotatedElement element,
         ScopeType scopeType,
-        MergeAnnotation annotation
+        MergedAnnotation annotation
     ) {
         final List<String> scanPackages = app.getOrDefaultAttribute(
             attributeName,
             new ArrayList<>()
         );
-        if (annotation.hasAnnotation(MapperScans.class)) {
-            for (MapperScan mapperScan : (MapperScan[]) annotation.get(
-                MapperScans.class,
-                "value"
-            )) {
-                MergeAnnotation clone = AnnotationUtils.cloneAnnotation(
-                    annotation
-                );
-                clone.addAnnotation(mapperScan);
-                this.processMapper(scanPackages, clone);
-            }
-        }
         if (annotation.hasAnnotation(MapperScan.class)) {
             this.processMapper(scanPackages, annotation);
         }
@@ -50,14 +36,16 @@ public class MapperScannerRegistrar implements AttributeRegistrar {
 
     private void processMapper(
         List<String> scanPackages,
-        MergeAnnotation annotation
+        MergedAnnotation annotation
     ) {
-        scanPackages.addAll(Arrays.asList(annotation.get("basePackages")));
-        scanPackages.addAll(
-            Arrays
-                .stream((Class<?>[]) annotation.get("basePackageClasses"))
-                .map(Class::getPackageName)
-                .collect(Collectors.toList())
-        );
+        for (MapperScan scan : annotation.getAnnotations(MapperScan.class)) {
+            scanPackages.addAll(Arrays.asList(scan.basePackages()));
+            scanPackages.addAll(
+                Arrays
+                    .stream(scan.basePackageClasses())
+                    .map(Class::getPackageName)
+                    .collect(Collectors.toList())
+            );
+        }
     }
 }

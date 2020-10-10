@@ -4,11 +4,13 @@
 
 package me.ixk.framework.conditional;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import me.ixk.framework.annotations.ConditionalOnBean;
+import me.ixk.framework.annotations.ConditionalOnMissingBean;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,18 +23,20 @@ public class OnBeanCondition implements Condition {
     public boolean matches(
         XkJava app,
         AnnotatedElement element,
-        MergeAnnotation annotation
+        MergedAnnotation annotation
     ) {
-        boolean match =
-            annotation.getAnnotation(ConditionalOnBean.class) != null;
+        boolean match = annotation.hasAnnotation(ConditionalOnBean.class);
         String msg = match ? "Missing bean: {}" : "Visible bean: {}";
-        for (Class<?> beanType : (Class<?>[]) annotation.get("value")) {
+        Class<? extends Annotation> type = match
+            ? ConditionalOnBean.class
+            : ConditionalOnMissingBean.class;
+        for (Class<?> beanType : (Class<?>[]) annotation.get(type, "value")) {
             if (!app.hasBinding(beanType)) {
                 log.debug(msg, beanType.getName());
                 return !match;
             }
         }
-        for (String beanName : (String[]) annotation.get("name")) {
+        for (String beanName : (String[]) annotation.get(type, "name")) {
             if (!app.hasBinding(beanName)) {
                 log.debug(msg, beanName);
                 return !match;

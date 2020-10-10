@@ -7,7 +7,7 @@ package me.ixk.framework.registrar;
 import java.lang.reflect.AnnotatedElement;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 
 public interface AttributeRegistrar {
     Object register(
@@ -15,6 +15,6 @@ public interface AttributeRegistrar {
         String attributeName,
         AnnotatedElement element,
         ScopeType scopeType,
-        MergeAnnotation annotation
+        MergedAnnotation annotation
     );
 }

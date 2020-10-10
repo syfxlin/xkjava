@@ -18,8 +18,7 @@ import me.ixk.framework.helpers.Util;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Middleware;
 import me.ixk.framework.route.AnnotationMiddlewareDefinition;
-import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 
 public class MiddlewareRegistrar implements AttributeRegistrar {
 
@@ -30,7 +29,7 @@ public class MiddlewareRegistrar implements AttributeRegistrar {
         final String attributeName,
         final AnnotatedElement element,
         final ScopeType scopeType,
-        final MergeAnnotation annotation
+        final MergedAnnotation annotation
     ) {
         if (
             annotation.hasAnnotation(GlobalMiddleware.class) &&
@@ -53,11 +52,7 @@ public class MiddlewareRegistrar implements AttributeRegistrar {
                 attributeName,
                 new ConcurrentHashMap<>()
             );
-            final String name = AnnotationUtils.getAnnotationValue(
-                element,
-                RouteMiddleware.class,
-                "name"
-            );
+            final String name = annotation.get(RouteMiddleware.class, "name");
             routeMiddleware.put(
                 name,
                 (Class<? extends me.ixk.framework.middleware.Middleware>) element
@@ -73,8 +68,7 @@ public class MiddlewareRegistrar implements AttributeRegistrar {
                 attributeName,
                 new ConcurrentHashMap<>()
             );
-            final MergeAnnotation middlewareAnnotation = AnnotationUtils.getAnnotation(
-                element,
+            final me.ixk.framework.annotations.Middleware middlewareAnnotation = annotation.getAnnotation(
                 me.ixk.framework.annotations.Middleware.class
             );
             if (middlewareAnnotation != null) {
@@ -83,8 +77,8 @@ public class MiddlewareRegistrar implements AttributeRegistrar {
                     annotationMiddlewareDefinitions.put(
                         handler,
                         new AnnotationMiddlewareDefinition(
-                            middlewareAnnotation.get("name"),
-                            middlewareAnnotation.get("middleware"),
+                            middlewareAnnotation.name(),
+                            middlewareAnnotation.middleware(),
                             handler
                         )
                     );

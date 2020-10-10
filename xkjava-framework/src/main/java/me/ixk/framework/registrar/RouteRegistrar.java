@@ -18,7 +18,7 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.route.AnnotationRouteDefinition;
 import me.ixk.framework.route.RouteDefinition;
 import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 
 public class RouteRegistrar implements AttributeRegistrar {
 
@@ -29,7 +29,7 @@ public class RouteRegistrar implements AttributeRegistrar {
         String attributeName,
         AnnotatedElement element,
         ScopeType scopeType,
-        MergeAnnotation annotation
+        MergedAnnotation annotation
     ) {
         if (
             annotation.hasAnnotation(Route.class) &&
@@ -51,36 +51,36 @@ public class RouteRegistrar implements AttributeRegistrar {
                 new ArrayList<>()
             );
             Method method = (Method) element;
-            final MergeAnnotation a = AnnotationUtils.getAnnotation(
-                method,
+            final RequestMapping a = annotation.getAnnotation(
                 RequestMapping.class
             );
             if (a == null) {
                 return null;
             }
-            final MergeAnnotation baseMapping = AnnotationUtils.getAnnotation(
-                method.getDeclaringClass(),
-                RequestMapping.class
-            );
-            try {
-                final RequestMethod[] requestMethods = a.get("method");
-                String requestUrl = baseMapping != null
-                    ? baseMapping.get("path")
-                    : "";
-                requestUrl += a.get("path");
-                annotationRouteDefinitions.add(
-                    new AnnotationRouteDefinition(
-                        requestMethods,
-                        requestUrl,
-                        Util.routeHandler(method)
-                    )
-                );
-                return annotationRouteDefinitions;
-            } catch (final Exception e) {
-                throw new AnnotationProcessorException(
-                    "Route annotation process error",
-                    e
-                );
+            final RequestMapping baseMapping = AnnotationUtils
+                .getAnnotation(method.getDeclaringClass())
+                .getAnnotation(RequestMapping.class);
+            for (String basePath : baseMapping == null
+                ? new String[] { "" }
+                : baseMapping.path()) {
+                try {
+                    final RequestMethod[] requestMethods = a.method();
+                    for (String path : a.path()) {
+                        annotationRouteDefinitions.add(
+                            new AnnotationRouteDefinition(
+                                requestMethods,
+                                basePath + path,
+                                Util.routeHandler(method)
+                            )
+                        );
+                    }
+                    return annotationRouteDefinitions;
+                } catch (final Exception e) {
+                    throw new AnnotationProcessorException(
+                        "Route annotation process error",
+                        e
+                    );
+                }
             }
         }
         return null;

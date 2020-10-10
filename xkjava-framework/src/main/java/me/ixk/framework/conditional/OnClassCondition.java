@@ -6,11 +6,13 @@ package me.ixk.framework.conditional;
 
 import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.util.ClassUtil;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import me.ixk.framework.annotations.ConditionalOnClass;
+import me.ixk.framework.annotations.ConditionalOnMissingClass;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,12 +25,14 @@ public class OnClassCondition implements Condition {
     public boolean matches(
         final XkJava app,
         final AnnotatedElement element,
-        final MergeAnnotation annotation
+        final MergedAnnotation annotation
     ) {
-        boolean match =
-            annotation.getAnnotation(ConditionalOnClass.class) != null;
+        boolean match = annotation.hasAnnotation(ConditionalOnClass.class);
+        Class<? extends Annotation> type = match
+            ? ConditionalOnClass.class
+            : ConditionalOnMissingClass.class;
         String msg = match ? "Missing class: {}" : "Visible class: {}";
-        for (Class<?> clazz : (Class<?>[]) annotation.get("value")) {
+        for (Class<?> clazz : (Class<?>[]) annotation.get(type, "value")) {
             try {
                 ClassUtil.loadClass(clazz.getName());
             } catch (UtilException e) {
@@ -36,7 +40,7 @@ public class OnClassCondition implements Condition {
                 return !match;
             }
         }
-        for (String name : (String[]) annotation.get("name")) {
+        for (String name : (String[]) annotation.get(type, "name")) {
             try {
                 ClassUtil.loadClass(name);
             } catch (UtilException e) {

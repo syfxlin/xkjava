@@ -5,7 +5,6 @@
 package me.ixk.framework.processor;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Set;
@@ -14,6 +13,7 @@ import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergedAnnotation;
 
 public abstract class AbstractAnnotationProcessor
     implements AnnotationProcessor {
@@ -35,12 +35,8 @@ public abstract class AbstractAnnotationProcessor
         return AnnotationUtils.getMethodsAnnotated(annotation);
     }
 
-    protected ScopeType getScoopType(final AnnotatedElement element) {
-        final ScopeType scopeType = AnnotationUtils.getAnnotationValue(
-            element,
-            Scope.class,
-            "type"
-        );
+    protected ScopeType getScoopType(final MergedAnnotation annotation) {
+        final ScopeType scopeType = annotation.get(Scope.class, "type");
         return scopeType == null ? ScopeType.SINGLETON : scopeType;
     }
 

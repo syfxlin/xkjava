@@ -24,7 +24,6 @@ import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.Express;
-import me.ixk.framework.utils.MergeAnnotation;
 
 public class PropertiesValueInjector implements InstanceInjector {
 
@@ -44,14 +43,13 @@ public class PropertiesValueInjector implements InstanceInjector {
             return instance;
         }
         Field[] fields = instanceClass.getDeclaredFields();
-        MergeAnnotation config = AnnotationUtils.getAnnotation(
-            instanceClass,
-            ConfigurationProperties.class
-        );
+        ConfigurationProperties config = AnnotationUtils
+            .getAnnotation(instanceClass)
+            .getAnnotation(ConfigurationProperties.class);
         Environment environment = container.make(Environment.class);
         Map<String, Object> prefixProps = null;
         if (config != null) {
-            prefixProps = environment.getPrefix(config.get("prefix"));
+            prefixProps = environment.getPrefix(config.prefix());
         }
         for (Field field : fields) {
             Value valueAnno = field.getAnnotation(Value.class);
@@ -90,14 +88,14 @@ public class PropertiesValueInjector implements InstanceInjector {
 
     protected Object injectConfigurationProperties(
         Field field,
-        MergeAnnotation config,
+        ConfigurationProperties config,
         Map<String, Object> properties
     ) {
         Object value = caseGet(field.getName(), properties::get);
-        if (value == null && !((boolean) config.get("ignoreUnknownFields"))) {
+        if (value == null && !((boolean) config.ignoreUnknownFields())) {
             throw new NullPointerException(
                 "Unknown property [" +
-                config.get("prefix") +
+                config.prefix() +
                 "." +
                 field.getName() +
                 "]"
@@ -106,10 +104,10 @@ public class PropertiesValueInjector implements InstanceInjector {
         try {
             value = Convert.convert(field.getType(), value);
         } catch (Exception e) {
-            if (!((boolean) config.get("ignoreInvalidFields"))) {
+            if (!((boolean) config.ignoreInvalidFields())) {
                 throw new RuntimeException(
                     "Invalid property [" +
-                    config.get("prefix") +
+                    config.prefix() +
                     "." +
                     field.getName() +
                     "]",

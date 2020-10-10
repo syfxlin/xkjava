@@ -11,6 +11,7 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
+@RepeatItem(Attribute.class)
 public @interface Attributes {
     Attribute[] value();
 }

@@ -25,7 +25,7 @@ import me.ixk.framework.registrar.AfterImportBeanRegistrar;
 import me.ixk.framework.registrar.BeforeImportBeanRegistrar;
 import me.ixk.framework.registrar.ImportBeanRegistrar;
 import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 
 @AnnotationProcessor
 public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
@@ -46,21 +46,18 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     }
 
     private void processAnnotation(final Method method) {
-        this.invokeBeforeImport(method);
-        final ScopeType scopeType = this.getScoopType(method);
+        final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
+            method
+        );
+        this.invokeBeforeImport(annotation, method);
+        final ScopeType scopeType = this.getScoopType(annotation);
         final String name = method.getName();
         final Class<?> clazz = method.getReturnType();
-        final MergeAnnotation beanAnnotation = AnnotationUtils.getAnnotation(
-            method,
-            Bean.class
-        );
+        final Bean beanAnnotation = annotation.getAnnotation(Bean.class);
         if (beanAnnotation == null) {
             return;
         }
-        final BindType bindType = beanAnnotation.get(
-            "bindType",
-            BindType.class
-        );
+        final BindType bindType = beanAnnotation.bindType();
         final Method[] initAndDestroyMethod =
             this.getInitAndDestroyMethod(beanAnnotation, clazz);
         final Wrapper wrapper = (container, with) -> container.call(method);
@@ -72,59 +69,53 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
                     scopeType
                 );
         this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
-        final Object names = beanAnnotation.get("name");
+        final Object names = beanAnnotation.name();
         for (final String n : (String[]) names) {
             if (name.equals(n)) {
                 continue;
             }
             this.app.alias(n, name, scopeType);
         }
-        this.invokeAfterImport(method, binding);
-        if (
-            scopeType.isSingleton() &&
-            !AnnotationUtils.hasAnnotation(clazz, Lazy.class)
-        ) {
+        this.invokeAfterImport(annotation, method, binding);
+        if (scopeType.isSingleton() && annotation.notAnnotation(Lazy.class)) {
             makeList.add(name);
         }
     }
 
     private void processAnnotation(final Class<?> clazz) {
-        final MergeAnnotation beanAnnotation = AnnotationUtils.getAnnotation(
-            clazz,
-            Bean.class
+        final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
+            clazz
         );
+        final Bean beanAnnotation = annotation.getAnnotation(Bean.class);
         if (beanAnnotation == null) {
             return;
         }
-        this.invokeBeforeImport(clazz);
-        final ScopeType scopeType = this.getScoopType(clazz);
-        final BindType bindType = beanAnnotation.get("bindType");
+        this.invokeBeforeImport(annotation, clazz);
+        final ScopeType scopeType = this.getScoopType(annotation);
+        final BindType bindType = beanAnnotation.bindType();
         final Method[] initAndDestroyMethod =
             this.getInitAndDestroyMethod(beanAnnotation, clazz);
-        Binding binding = this.invokeImport(clazz, scopeType);
+        final Binding binding = this.invokeImport(annotation, clazz, scopeType);
         if (bindType == BindType.BIND) {
             this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
         }
-        final Object names = beanAnnotation.get("name");
+        final Object names = beanAnnotation.name();
         for (final String name : (String[]) names) {
             this.app.alias(name, clazz, scopeType);
         }
-        this.invokeAfterImport(clazz, binding);
+        this.invokeAfterImport(annotation, clazz, binding);
         // Add singleton to make list
-        if (
-            scopeType.isSingleton() &&
-            !AnnotationUtils.hasAnnotation(clazz, Lazy.class)
-        ) {
+        if (scopeType.isSingleton() && annotation.notAnnotation(Lazy.class)) {
             makeList.add(clazz.getName());
         }
     }
 
     private Method[] getInitAndDestroyMethod(
-        final MergeAnnotation annotation,
+        final Bean annotation,
         final Class<?> clazz
     ) {
-        final String initMethodName = annotation.get("initMethod");
-        final String destroyMethodName = annotation.get("destroyMethod");
+        final String initMethodName = annotation.initMethod();
+        final String destroyMethodName = annotation.destroyMethod();
         final Method initMethod = StrUtil.isEmpty(initMethodName)
             ? null
             : ReflectUtil.getMethod(clazz, initMethodName);
@@ -147,57 +138,55 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     }
 
     @SuppressWarnings("unchecked")
-    private void invokeBeforeImport(AnnotatedElement element) {
-        final MergeAnnotation beforeAnnotation = AnnotationUtils.getAnnotation(
-            element,
-            BeforeImport.class
-        );
+    private void invokeBeforeImport(
+        final MergedAnnotation annotation,
+        final AnnotatedElement element
+    ) {
         // @BeforeImport
-        if (beforeAnnotation != null) {
-            for (Class<BeforeImportBeanRegistrar> registrar : (Class<BeforeImportBeanRegistrar>[]) beforeAnnotation.get(
+        if (annotation.hasAnnotation(BeforeImport.class)) {
+            for (final Class<BeforeImportBeanRegistrar> registrar : (Class<BeforeImportBeanRegistrar>[]) annotation.get(
                 BeforeImport.class,
                 "value"
             )) {
-                this.app.make(registrar)
-                    .before(this.app, element, beforeAnnotation);
+                this.app.make(registrar).before(this.app, element, annotation);
             }
         }
     }
 
     @SuppressWarnings("unchecked")
-    private Binding invokeImport(Class<?> clazz, ScopeType scopeType) {
-        final MergeAnnotation importAnnotation = AnnotationUtils.getAnnotation(
-            clazz,
-            Import.class
-        );
+    private Binding invokeImport(
+        final MergedAnnotation annotation,
+        final Class<?> clazz,
+        final ScopeType scopeType
+    ) {
         // @Import
-        if (importAnnotation == null) {
+        if (annotation.notAnnotation(Import.class)) {
             return this.app.bind(clazz, clazz, null, scopeType);
         } else {
             return this.app.make(
-                    (Class<ImportBeanRegistrar>) importAnnotation.get(
+                    (Class<ImportBeanRegistrar>) annotation.get(
                         Import.class,
                         "value"
                     )
                 )
-                .register(this.app, clazz, scopeType, importAnnotation);
+                .register(this.app, clazz, scopeType, annotation);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private void invokeAfterImport(AnnotatedElement element, Binding binding) {
-        final MergeAnnotation afterAnnotation = AnnotationUtils.getAnnotation(
-            element,
-            AfterImport.class
-        );
+    private void invokeAfterImport(
+        MergedAnnotation annotation,
+        final AnnotatedElement element,
+        final Binding binding
+    ) {
         // @AfterImport
-        if (afterAnnotation != null) {
-            for (Class<AfterImportBeanRegistrar> registrar : (Class<AfterImportBeanRegistrar>[]) afterAnnotation.get(
-                BeforeImport.class,
+        if (annotation.hasAnnotation(AfterImport.class)) {
+            for (final Class<AfterImportBeanRegistrar> registrar : (Class<AfterImportBeanRegistrar>[]) annotation.get(
+                AfterImport.class,
                 "value"
             )) {
                 this.app.make(registrar)
-                    .after(this.app, element, afterAnnotation, binding);
+                    .after(this.app, element, annotation, binding);
             }
         }
     }

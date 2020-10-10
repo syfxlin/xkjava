@@ -16,6 +16,7 @@ import me.ixk.framework.registrar.MapperScannerRegistrar;
     name = "mapperScanPackages",
     registrar = MapperScannerRegistrar.class
 )
+@RepeatItem(MapperScan.class)
 public @interface MapperScans {
     MapperScan[] value();
 }

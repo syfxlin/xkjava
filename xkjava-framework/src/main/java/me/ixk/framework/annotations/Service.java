@@ -14,9 +14,9 @@ import java.lang.annotation.Target;
 @Scope(type = ScopeType.PROTOTYPE)
 @Bean
 public @interface Service {
-    @AliasFor("name")
+    @AliasFor(value = "name", annotation = Bean.class, attribute = "value")
     String[] value() default {  };
 
-    @AliasFor("value")
+    @AliasFor(value = "value", annotation = Bean.class, attribute = "name")
     String[] name() default {  };
 }

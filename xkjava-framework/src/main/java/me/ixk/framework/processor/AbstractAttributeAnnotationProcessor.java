@@ -7,12 +7,11 @@ package me.ixk.framework.processor;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import me.ixk.framework.annotations.Attribute;
-import me.ixk.framework.annotations.Attributes;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.registrar.AttributeRegistrar;
 import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 
 public abstract class AbstractAttributeAnnotationProcessor
     extends AbstractAnnotationProcessor {
@@ -24,11 +23,6 @@ public abstract class AbstractAttributeAnnotationProcessor
     @Override
     public void process() {
         this.processAnnotation(
-                Attributes.class,
-                this::processAttributes,
-                this::processAttributes
-            );
-        this.processAnnotation(
                 Attribute.class,
                 this::processAttribute,
                 this::processAttribute
@@ -37,75 +31,58 @@ public abstract class AbstractAttributeAnnotationProcessor
 
     protected abstract void processAttributeItem(
         final AnnotatedElement element,
-        final MergeAnnotation attributeAnnotation
+        final MergedAnnotation attributeAnnotation
     );
 
-    protected void processAttributes(final AnnotatedElement element) {
-        final MergeAnnotation attributesAnnotation = AnnotationUtils.getAnnotation(
-            element,
-            Attributes.class
-        );
-        for (Attribute attribute : (Attribute[]) attributesAnnotation.get(
-            Attributes.class,
-            "value"
-        )) {
-            MergeAnnotation clone = AnnotationUtils.cloneAnnotation(
-                attributesAnnotation
-            );
-            clone.addAnnotation(attribute);
-            this.processAttributeItem(element, clone);
-        }
-    }
-
     protected void processAttribute(final AnnotatedElement element) {
-        final MergeAnnotation attributeAnnotation = AnnotationUtils.getAnnotation(
-            element,
-            Attribute.class
+        final MergedAnnotation attributeAnnotation = AnnotationUtils.getAnnotation(
+            element
         );
         this.processAttributeItem(element, attributeAnnotation);
     }
 
     protected void processAnnotation(
         final AnnotatedElement element,
-        final MergeAnnotation attributeAnnotation
+        final MergedAnnotation attributeAnnotation
     ) {
-        ScopeType scoopType = this.getScoopType(element);
-        Class<AttributeRegistrar> registrar = attributeAnnotation.get(
-            Attribute.class,
-            "registrar"
-        );
-        String name = attributeAnnotation.get(Attribute.class, "name");
-        if ("".equals(name)) {
-            // TODO: custom exception
-            throw new RuntimeException("Attribute not set name");
-        }
-        if (registrar != AttributeRegistrar.class) {
-            Object value =
-                this.app.make(registrar)
-                    .register(
-                        this.app,
-                        name,
-                        element,
-                        scoopType,
-                        attributeAnnotation
-                    );
-            if (value != null) {
-                this.app.setAttribute(name, value, scoopType);
+        ScopeType scoopType = this.getScoopType(attributeAnnotation);
+        for (Attribute attribute : attributeAnnotation.getAnnotations(
+            Attribute.class
+        )) {
+            Class<? extends AttributeRegistrar> registrar = attribute.registrar();
+            String name = attribute.name();
+            if ("".equals(name)) {
+                // TODO: custom exception
+                throw new RuntimeException("Attribute not set name");
             }
-            return;
-        }
-        if (element instanceof Class) {
-            this.app.setAttribute(
-                    name,
-                    this.app.make((Class<?>) element),
-                    scoopType
-                );
-        } else if (element instanceof Method) {
-            this.app.setAttribute(
-                    name,
-                    this.app.call((Method) element),
-                    scoopType
-                );
+            if (registrar != AttributeRegistrar.class) {
+                Object value =
+                    this.app.make(registrar)
+                        .register(
+                            this.app,
+                            name,
+                            element,
+                            scoopType,
+                            attributeAnnotation
+                        );
+                if (value != null) {
+                    this.app.setAttribute(name, value, scoopType);
+                }
+                continue;
+            }
+            if (element instanceof Class) {
+                this.app.setAttribute(
+                        name,
+                        this.app.make((Class<?>) element),
+                        scoopType
+                    );
+            } else if (element instanceof Method) {
+                this.app.setAttribute(
+                        name,
+                        this.app.call((Method) element),
+                        scoopType
+                    );
+            }
         }
     }
 }

@@ -5,10 +5,11 @@
 package me.ixk.framework.conditional;
 
 import java.lang.reflect.AnnotatedElement;
+import me.ixk.framework.annotations.ConditionalOnJava;
 import me.ixk.framework.annotations.JavaVersion;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 
 public class OnJavaCondition implements Condition {
 
@@ -16,9 +17,12 @@ public class OnJavaCondition implements Condition {
     public boolean matches(
         final XkJava app,
         final AnnotatedElement element,
-        final MergeAnnotation annotation
+        final MergedAnnotation annotation
     ) {
-        JavaVersion version = annotation.get("version");
+        JavaVersion version = annotation.get(
+            ConditionalOnJava.class,
+            "version"
+        );
         return (
             version == null ||
             version.isEqualOrNewerThan(JavaVersion.getCurrentVersion())

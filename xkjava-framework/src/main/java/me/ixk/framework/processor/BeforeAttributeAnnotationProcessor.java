@@ -6,9 +6,10 @@ package me.ixk.framework.processor;
 
 import java.lang.reflect.AnnotatedElement;
 import me.ixk.framework.annotations.AnnotationProcessor;
+import me.ixk.framework.annotations.Attribute;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 
 @AnnotationProcessor
 @Order(Order.MEDIUM_PRECEDENCE - 1)
@@ -21,9 +22,9 @@ public class BeforeAttributeAnnotationProcessor
 
     protected void processAttributeItem(
         AnnotatedElement element,
-        MergeAnnotation attributeAnnotation
+        MergedAnnotation attributeAnnotation
     ) {
-        if (!((Boolean) attributeAnnotation.get("after"))) {
+        if (!((Boolean) attributeAnnotation.get(Attribute.class, "after"))) {
             this.processAnnotation(element, attributeAnnotation);
         }
     }

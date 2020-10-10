@@ -5,6 +5,7 @@
 package me.ixk.framework.annotations;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -16,6 +17,7 @@ import me.ixk.framework.registrar.MapperScannerRegistrar;
     name = "mapperScanPackages",
     registrar = MapperScannerRegistrar.class
 )
+@Repeatable(MapperScans.class)
 public @interface MapperScan {
     @AliasFor("basePackages")
     String[] value() default {  };

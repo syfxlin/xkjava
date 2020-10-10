@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import me.ixk.framework.annotations.ComponentScan;
-import me.ixk.framework.annotations.ComponentScans;
 import me.ixk.framework.ioc.context.ApplicationContext;
 import me.ixk.framework.ioc.context.RequestContext;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
@@ -19,7 +18,6 @@ import me.ixk.framework.server.JettyServer;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Ansi;
 import me.ixk.framework.utils.Ansi.Color;
-import me.ixk.framework.utils.MergeAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -192,26 +190,12 @@ public class XkJava extends Container {
         scanPackage.add("me.ixk.framework");
         for (final Class<?> source : this.primarySource) {
             scanPackage.add(source.getPackageName());
-            final MergeAnnotation componentScan = AnnotationUtils.getAnnotation(
-                source,
-                ComponentScan.class
-            );
-            final MergeAnnotation componentScans = AnnotationUtils.getAnnotation(
-                source,
-                ComponentScans.class
-            );
+            final List<ComponentScan> componentScan = AnnotationUtils
+                .getAnnotation(source)
+                .getAnnotations(ComponentScan.class);
             if (componentScan != null) {
-                this.loadPackageScanAnnotationItem(scanPackage, componentScan);
-            }
-            if (componentScans != null) {
-                for (final ComponentScan scan : (ComponentScan[]) componentScans.get(
-                    ComponentScans.class,
-                    "value"
-                )) {
-                    this.loadPackageScanAnnotationItem(
-                            scanPackage,
-                            AnnotationUtils.wrapAnnotation(scan)
-                        );
+                for (ComponentScan scan : componentScan) {
+                    this.loadPackageScanAnnotationItem(scanPackage, scan);
                 }
             }
         }
@@ -219,12 +203,12 @@ public class XkJava extends Container {
 
     protected void loadPackageScanAnnotationItem(
         List<String> scanPackage,
-        MergeAnnotation componentScan
+        ComponentScan componentScan
     ) {
-        scanPackage.addAll(Arrays.asList(componentScan.get("basePackages")));
+        scanPackage.addAll(Arrays.asList(componentScan.basePackages()));
         log.debug(
             "Application add base packages: {}",
-            Arrays.toString((String[]) componentScan.get("basePackages"))
+            Arrays.toString(componentScan.basePackages())
         );
     }
 

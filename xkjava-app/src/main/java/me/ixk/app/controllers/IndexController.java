@@ -15,6 +15,7 @@ import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.Controller;
 import me.ixk.framework.annotations.ExceptionHandler;
 import me.ixk.framework.annotations.GetMapping;
+import me.ixk.framework.annotations.Middleware;
 import me.ixk.framework.annotations.PostConstruct;
 import me.ixk.framework.annotations.PostMapping;
 import me.ixk.framework.annotations.PreDestroy;
@@ -79,7 +80,7 @@ public class IndexController {
         return XkJava.of().make(TestConfigurationProperties.class);
     }
 
-    // @Middleware(name = "auth")
+    @Middleware(name = "auth")
     @GetMapping("/home")
     public ViewResult home() {
         return Result.view("index", Map.of("name", "Home"));

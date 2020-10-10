@@ -16,7 +16,6 @@ import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.MergeAnnotation;
 
 public class DefaultPropertyInjector implements InstanceInjector {
 
@@ -36,10 +35,9 @@ public class DefaultPropertyInjector implements InstanceInjector {
             if (field.getAnnotation(SkipPropertyAutowired.class) != null) {
                 continue;
             }
-            MergeAnnotation autowired = AnnotationUtils.getAnnotation(
-                field,
-                Autowired.class
-            );
+            Autowired autowired = AnnotationUtils
+                .getAnnotation(field)
+                .getAnnotation(Autowired.class);
             if (autowired == null) {
                 PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
                     instanceClass,
@@ -62,8 +60,8 @@ public class DefaultPropertyInjector implements InstanceInjector {
                 ReflectUtil.invoke(instance, writeMethod, dependency);
             } else {
                 Object dependency;
-                String name = autowired.get("name");
-                Class<?> type = autowired.get("type");
+                String name = autowired.name();
+                Class<?> type = autowired.type();
                 if (!"".equals(name)) {
                     dependency = container.make(name, field.getType());
                 } else {
@@ -80,7 +78,7 @@ public class DefaultPropertyInjector implements InstanceInjector {
                     dependency = ReflectUtil.getFieldValue(instance, field);
                 }
                 // 如果必须注入，但是为 null，则抛出错误
-                if (dependency == null && (boolean) autowired.get("required")) {
+                if (dependency == null && (boolean) autowired.required()) {
                     throw new NullPointerException(
                         "Target [" +
                         instanceClass.getName() +

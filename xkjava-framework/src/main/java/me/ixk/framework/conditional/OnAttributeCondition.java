@@ -6,9 +6,10 @@ package me.ixk.framework.conditional;
 
 import java.lang.reflect.AnnotatedElement;
 import me.ixk.framework.annotations.ConditionalOnAttribute;
+import me.ixk.framework.annotations.ConditionalOnMissingAttribute;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,12 +22,16 @@ public class OnAttributeCondition implements Condition {
     public boolean matches(
         XkJava app,
         AnnotatedElement element,
-        MergeAnnotation annotation
+        MergedAnnotation annotation
     ) {
-        boolean match =
-            annotation.getAnnotation(ConditionalOnAttribute.class) != null;
+        boolean match = annotation.hasAnnotation(ConditionalOnAttribute.class);
         String msg = match ? "Missing attribute: {}" : "Visible attribute: {}";
-        for (String beanName : (String[]) annotation.get("name")) {
+        for (String beanName : (String[]) annotation.get(
+            match
+                ? ConditionalOnAttribute.class
+                : ConditionalOnMissingAttribute.class,
+            "name"
+        )) {
             if (!app.hasAttribute(beanName)) {
                 log.debug(msg, beanName);
                 return !match;

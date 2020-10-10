@@ -7,7 +7,7 @@ package me.ixk.framework.utils.conditional;
 import java.lang.reflect.AnnotatedElement;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.MergeAnnotation;
+import me.ixk.framework.utils.MergedAnnotation;
 
 public class TrueCondition implements Condition {
 
@@ -15,7 +15,7 @@ public class TrueCondition implements Condition {
     public boolean matches(
         final XkJava app,
         final AnnotatedElement element,
-        MergeAnnotation annotation
+        MergedAnnotation annotation
     ) {
         return true;
     }

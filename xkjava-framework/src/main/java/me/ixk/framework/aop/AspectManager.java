@@ -31,11 +31,9 @@ public class AspectManager {
         public AdviceEntry(AspectPointcut pointcut, Advice advice) {
             this.pointcut = pointcut;
             this.advice = advice;
-            Integer order = AnnotationUtils.getAnnotationValue(
-                advice.getClass(),
-                Order.class,
-                "order"
-            );
+            Integer order = AnnotationUtils
+                .getAnnotation(advice.getClass())
+                .get(Order.class, "order");
             this.order =
                 Objects.requireNonNullElse(order, Order.LOWEST_PRECEDENCE);
         }

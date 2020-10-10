@@ -18,10 +18,10 @@ import me.ixk.framework.registrar.RouteRegistrar;
 )
 public @interface RequestMapping {
     @AliasFor("path")
-    String value() default "";
+    String[] value() default {  };
 
     @AliasFor("value")
-    String path() default "";
+    String[] path() default {  };
 
     RequestMethod[] method() default RequestMethod.GET;
 }

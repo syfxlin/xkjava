@@ -12,22 +12,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.ExceptionHandler;
 import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.MergeAnnotation;
 
 public class ExceptionHandlerResolver {
     private final Map<Class<? extends Throwable>, Method> methodMap = new ConcurrentHashMap<>();
 
-    @SuppressWarnings("unchecked")
     public ExceptionHandlerResolver(Class<?> clazz) {
         for (Method method : clazz.getDeclaredMethods()) {
-            MergeAnnotation exceptionHandler = AnnotationUtils.getAnnotation(
-                method,
-                ExceptionHandler.class
-            );
+            ExceptionHandler exceptionHandler = AnnotationUtils
+                .getAnnotation(method)
+                .getAnnotation(ExceptionHandler.class);
             if (exceptionHandler != null) {
-                for (Class<? extends Throwable> exceptionType : (Class<? extends Throwable>[]) exceptionHandler.get(
-                    "exception"
-                )) {
+                for (Class<? extends Throwable> exceptionType : exceptionHandler.exception()) {
                     this.addExceptionMapping(exceptionType, method);
                 }
             }

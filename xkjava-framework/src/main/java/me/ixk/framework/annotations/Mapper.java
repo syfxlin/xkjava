@@ -16,9 +16,9 @@ import me.ixk.framework.registrar.MapperRegistrar;
 @Bean
 @Import(MapperRegistrar.class)
 public @interface Mapper {
-    @AliasFor("name")
+    @AliasFor(value = "name", annotation = Bean.class, attribute = "value")
     String[] value() default {  };
 
-    @AliasFor("value")
+    @AliasFor(value = "value", annotation = Bean.class, attribute = "name")
     String[] name() default {  };
 }

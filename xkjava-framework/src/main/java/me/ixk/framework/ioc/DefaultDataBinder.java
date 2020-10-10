@@ -5,8 +5,8 @@
 package me.ixk.framework.ioc;
 
 import java.util.Map;
+import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.utils.Convert;
-import me.ixk.framework.utils.MergeAnnotation;
 
 public class DefaultDataBinder implements DataBinder {
     private final Container container;
@@ -34,13 +34,9 @@ public class DefaultDataBinder implements DataBinder {
     }
 
     @Override
-    public <T> T getObject(
-        String name,
-        Class<T> type,
-        MergeAnnotation dataBind
-    ) {
-        if (dataBind != null && ((String) dataBind.get("name")).length() != 0) {
-            name = dataBind.get("name");
+    public <T> T getObject(String name, Class<T> type, DataBind dataBind) {
+        if (dataBind != null && dataBind.name().length() != 0) {
+            name = dataBind.name();
         }
         return this.getObject(name, type);
     }

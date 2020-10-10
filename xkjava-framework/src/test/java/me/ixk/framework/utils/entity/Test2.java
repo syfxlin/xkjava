@@ -6,5 +6,5 @@ package me.ixk.framework.utils.entity;
 
 import me.ixk.framework.utils.annotation.Parent;
 
-@Parent
+@Parent(name = "123")
 public class Test2 {}
