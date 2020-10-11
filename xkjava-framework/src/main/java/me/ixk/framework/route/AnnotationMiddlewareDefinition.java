@@ -4,19 +4,20 @@
 
 package me.ixk.framework.route;
 
+import java.lang.reflect.Method;
 import me.ixk.framework.middleware.Middleware;
 
 public class AnnotationMiddlewareDefinition {
-    protected String value;
+    protected final String[] value;
 
-    protected Class<? extends Middleware>[] middleware;
+    protected final Class<? extends Middleware>[] middleware;
 
-    protected String handler;
+    protected final Method handler;
 
     public AnnotationMiddlewareDefinition(
-        String value,
+        String[] value,
         Class<? extends Middleware>[] middleware,
-        String handler
+        Method handler
     ) {
         this.value = value;
         this.middleware = middleware;
@@ -24,30 +25,18 @@ public class AnnotationMiddlewareDefinition {
     }
 
     public boolean isClass() {
-        return "".equals(this.value);
+        return this.value.length == 0;
     }
 
-    public String getValue() {
+    public String[] getValue() {
         return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
     public Class<? extends Middleware>[] getMiddleware() {
         return middleware;
     }
 
-    public void setMiddleware(Class<? extends Middleware>[] middleware) {
-        this.middleware = middleware;
-    }
-
-    public String getHandler() {
+    public Method getHandler() {
         return handler;
-    }
-
-    public void setHandler(String handler) {
-        this.handler = handler;
     }
 }

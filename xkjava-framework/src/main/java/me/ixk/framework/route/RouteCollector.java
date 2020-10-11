@@ -4,9 +4,8 @@
 
 package me.ixk.framework.route;
 
-import static me.ixk.framework.helpers.Facade.response;
-
 import cn.hutool.core.util.ReflectUtil;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,13 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.exceptions.RouteCollectorException;
-import me.ixk.framework.helpers.Util;
-import me.ixk.framework.http.result.Result;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.kernel.ControllerHandler;
-import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.middleware.Middleware;
-import me.ixk.framework.middleware.Runner;
 import me.ixk.framework.utils.AnnotationUtils;
 import org.eclipse.jetty.http.HttpMethod;
 
@@ -44,9 +38,8 @@ public class RouteCollector {
 
     protected final List<Class<? extends me.ixk.framework.middleware.Middleware>> globalMiddleware;
     protected final Map<String, Class<? extends me.ixk.framework.middleware.Middleware>> routeMiddleware;
-    protected final Map<String, AnnotationMiddlewareDefinition> annotationMiddlewareDefinitions;
+    protected final Map<Method, AnnotationMiddlewareDefinition> annotationMiddlewareDefinitions;
 
-    @SuppressWarnings("unchecked")
     public RouteCollector(
         XkJava app,
         RouteParser routeParser,
@@ -97,7 +90,8 @@ public class RouteCollector {
         }
     }
 
-    protected RouteHandler getHandler(Handler handler) {
+    protected RouteHandler getHandler(Method handler) {
+        this.registerAnnotationMiddleware(handler);
         List<Class<? extends Middleware>> middleware = this.middleware;
         this.middleware = new ArrayList<>();
         if (this.useGroupMiddleware != null) {
@@ -108,19 +102,13 @@ public class RouteCollector {
         }
         // 重新排序
         AnnotationUtils.sortByOrderAnnotation(middleware);
-        return (request, response) -> {
-            Runner runner = new Runner(
-                handler,
-                middleware
-                    .stream()
-                    .map(ReflectUtil::newInstance)
-                    .collect(Collectors.toList())
-            );
-            return runner.then(request, response);
-        };
+        return new RouteHandler(
+            handler,
+            middleware.stream().map(this.app::make).collect(Collectors.toList())
+        );
     }
 
-    protected void registerAnnotationMiddleware(String handler) {
+    protected void registerAnnotationMiddleware(Method handler) {
         AnnotationMiddlewareDefinition definition =
             this.annotationMiddlewareDefinitions.get(handler);
         if (definition == null) {
@@ -133,25 +121,25 @@ public class RouteCollector {
         }
     }
 
-    public void addRoute(HttpMethod httpMethod, String route, Handler handler) {
+    public void addRoute(HttpMethod httpMethod, String route, Method handler) {
         this.addRoute(httpMethod.asString(), route, handler);
     }
 
     public void addRoute(
         HttpMethod[] httpMethods,
         String route,
-        Handler handler
+        Method handler
     ) {
         for (HttpMethod httpMethod : httpMethods) {
             this.addRoute(httpMethod.asString(), route, handler);
         }
     }
 
-    public void addRoute(String httpMethod, String route, Handler handler) {
+    public void addRoute(String httpMethod, String route, Method handler) {
         this.addRoute(new String[] { httpMethod }, route, handler);
     }
 
-    public void addRoute(String[] httpMethods, String route, Handler handler) {
+    public void addRoute(String[] httpMethods, String route, Method handler) {
         route = this.routeGroupPrefix + route;
         RouteData routeData = this.routeParser.parse(route);
         for (String method : httpMethods) {
@@ -171,33 +159,6 @@ public class RouteCollector {
         }
     }
 
-    public void addRoute(HttpMethod httpMethod, String route, String handler) {
-        this.addRoute(httpMethod.asString(), route, handler);
-    }
-
-    public void addRoute(
-        HttpMethod[] httpMethod,
-        String route,
-        String handler
-    ) {
-        for (HttpMethod method : httpMethod) {
-            this.addRoute(method.asString(), route, handler);
-        }
-    }
-
-    public void addRoute(String httpMethod, String route, String handler) {
-        this.addRoute(new String[] { httpMethod }, route, handler);
-    }
-
-    public void addRoute(String[] httpMethod, String route, String handler) {
-        this.registerAnnotationMiddleware(handler);
-        this.addRoute(
-                httpMethod,
-                route,
-                new ControllerHandler(Util.routeHandler(handler))
-            );
-    }
-
     public RouteCollector addGroup(
         String prefix,
         RouteDefinition routeDefinition
@@ -212,95 +173,43 @@ public class RouteCollector {
         return this;
     }
 
-    public void get(String route, Handler handler) {
+    public void get(String route, Method handler) {
         this.addRoute("GET", route, handler);
     }
 
-    public void post(String route, Handler handler) {
+    public void post(String route, Method handler) {
         this.addRoute("POST", route, handler);
     }
 
-    public void put(String route, Handler handler) {
+    public void put(String route, Method handler) {
         this.addRoute("PUT", route, handler);
     }
 
-    public void delete(String route, Handler handler) {
+    public void delete(String route, Method handler) {
         this.addRoute("DELETE", route, handler);
     }
 
-    public void patch(String route, Handler handler) {
+    public void patch(String route, Method handler) {
         this.addRoute("PATCH", route, handler);
     }
 
-    public void head(String route, Handler handler) {
+    public void head(String route, Method handler) {
         this.addRoute("HEAD", route, handler);
     }
 
-    public void options(String route, Handler handler) {
+    public void options(String route, Method handler) {
         this.addRoute("OPTIONS", route, handler);
     }
 
-    public void match(String[] httpMethods, String route, Handler handler) {
+    public void match(String[] httpMethods, String route, Method handler) {
         this.addRoute(httpMethods, route, handler);
     }
 
-    public void match(HttpMethod[] httpMethods, String route, Handler handler) {
+    public void match(HttpMethod[] httpMethods, String route, Method handler) {
         this.addRoute(httpMethods, route, handler);
     }
 
-    public void any(String route, Handler handler) {
-        this.addRoute(
-                new String[] {
-                    "GET",
-                    "POST",
-                    "PUT",
-                    "DELETE",
-                    "PATCH",
-                    "HEAD",
-                    "OPTIONS",
-                },
-                route,
-                handler
-            );
-    }
-
-    public void get(String route, String handler) {
-        this.addRoute("GET", route, handler);
-    }
-
-    public void post(String route, String handler) {
-        this.addRoute("POST", route, handler);
-    }
-
-    public void put(String route, String handler) {
-        this.addRoute("PUT", route, handler);
-    }
-
-    public void delete(String route, String handler) {
-        this.addRoute("DELETE", route, handler);
-    }
-
-    public void patch(String route, String handler) {
-        this.addRoute("PATCH", route, handler);
-    }
-
-    public void head(String route, String handler) {
-        this.addRoute("HEAD", route, handler);
-    }
-
-    public void options(String route, String handler) {
-        this.addRoute("OPTIONS", route, handler);
-    }
-
-    public void match(String[] httpMethods, String route, String handler) {
-        this.addRoute(httpMethods, route, handler);
-    }
-
-    public void match(HttpMethod[] httpMethods, String route, String handler) {
-        this.addRoute(httpMethods, route, handler);
-    }
-
-    public void any(String route, String handler) {
+    public void any(String route, Method handler) {
         this.addRoute(
                 new String[] {
                     "GET",
@@ -332,14 +241,6 @@ public class RouteCollector {
         return this.addGroup(prefix, routeDefinition);
     }
 
-    public void redirect(String oldRoute, String newRoute) {
-        this.redirect(oldRoute, newRoute, 301);
-    }
-
-    public void redirect(String oldRoute, String newRoute, int status) {
-        this.get(oldRoute, request -> response().redirect(newRoute, status));
-    }
-
     public RouteCollector middleware(Class<? extends Middleware> middleware) {
         this.middleware.add(middleware);
         return this;
@@ -368,10 +269,6 @@ public class RouteCollector {
             this.middleware(m);
         }
         return this;
-    }
-
-    public void view(String route, String view, Map<String, Object> data) {
-        this.get(route, request -> Result.view(view, data));
     }
 
     protected boolean isStaticRoute(RouteData routeData) {

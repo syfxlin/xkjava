@@ -34,6 +34,8 @@ IoC 容器可以自定义注入器，默认的注入器可以支持大部分场�
 
 添加了很多同 Spring 的注解，不过有一些小改动，注解大部分都支持通过 @Order 进行排序，同时注解也可以使用 @AliasFor 使用别名，同时提供一个通用的注解处理抽象类，如果需要处理自定义注解可以通过继承该类快速实现。
 
+支持组合注解（注解继承），子注解设置的值如果设置了 @AliasFor 到父注解，则在获取的时候会进行一次扫描，扫描时会将子注解的值同步到父注解上。
+
 支持 AspectJ 切面，需要经过 IoC 容器处理后才能生效，同时需要实现 Advice 接口，可以直接继承自 AbstractAdvice，从容器中 Make 或者 Call，以及绑定到容器的 Bean 都可以注入切面。切面实现使用的是 Cglib。
 
 路由是参考 PHP 的 FastRoute 制作而成的，RouteCollector 会将 Handler 封装成集成了中间件的 RouteHandler，然后依照静态路由或动态路由的方式存入到 staticRoutes 或 variableRoutes。路由匹配的方式采用的是和 FastRoute 一样的匹配方式，在路由调度器创建的时候，RouteGenerator 会将所有动态路由的表达式合成成一个路由表达式，在匹配的时候就只需要进行一次匹配，可以在一定程度上提高路由的匹配速度。
@@ -61,7 +63,10 @@ ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf, FreeMarker 渲染，Http
 -   日志
 -   缓存注解
 -   自动配置
--   RequestAttributeResolver、InterfaceBeanResolver、...Resolver
+-   RequestParameterResolver、ResponseReturnValueResolver
+-   注解控制 Injector、Processor
+-   封装部分 Attribute 到 Registry
+-   ResponseStatus
 
 ## 文档 Doc
 

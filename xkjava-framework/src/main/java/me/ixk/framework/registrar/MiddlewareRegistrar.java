@@ -14,7 +14,6 @@ import me.ixk.framework.annotations.GlobalMiddleware;
 import me.ixk.framework.annotations.RouteMiddleware;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
-import me.ixk.framework.helpers.Util;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Middleware;
 import me.ixk.framework.route.AnnotationMiddlewareDefinition;
@@ -64,7 +63,7 @@ public class MiddlewareRegistrar implements AttributeRegistrar {
                 me.ixk.framework.annotations.Middleware.class
             )
         ) {
-            final Map<String, AnnotationMiddlewareDefinition> annotationMiddlewareDefinitions = app.getOrDefaultAttribute(
+            final Map<Method, AnnotationMiddlewareDefinition> annotationMiddlewareDefinitions = app.getOrDefaultAttribute(
                 attributeName,
                 new ConcurrentHashMap<>()
             );
@@ -73,13 +72,12 @@ public class MiddlewareRegistrar implements AttributeRegistrar {
             );
             if (middlewareAnnotation != null) {
                 try {
-                    final String handler = Util.routeHandler((Method) element);
                     annotationMiddlewareDefinitions.put(
-                        handler,
+                        (Method) element,
                         new AnnotationMiddlewareDefinition(
                             middlewareAnnotation.name(),
                             middlewareAnnotation.middleware(),
-                            handler
+                            (Method) element
                         )
                     );
                     return annotationMiddlewareDefinitions;

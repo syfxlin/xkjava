@@ -2,8 +2,12 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.http;
+package me.ixk.framework.web;
 
+import me.ixk.framework.http.CookieManager;
+import me.ixk.framework.http.Request;
+import me.ixk.framework.http.Response;
+import me.ixk.framework.http.SessionManager;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.servlet.DispatcherServlet;

@@ -118,10 +118,10 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         final String destroyMethodName = annotation.destroyMethod();
         final Method initMethod = StrUtil.isEmpty(initMethodName)
             ? null
-            : ReflectUtil.getMethod(clazz, initMethodName);
+            : ReflectUtil.getMethodByName(clazz, initMethodName);
         final Method destroyMethod = StrUtil.isEmpty(destroyMethodName)
             ? null
-            : ReflectUtil.getMethod(clazz, destroyMethodName);
+            : ReflectUtil.getMethodByName(clazz, destroyMethodName);
         return new Method[] { initMethod, destroyMethod };
     }
 

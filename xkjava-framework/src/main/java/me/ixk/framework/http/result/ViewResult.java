@@ -6,10 +6,10 @@ package me.ixk.framework.http.result;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.http.WebContext;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.view.FilterCallback;
 import me.ixk.framework.view.TemplateProcessor;
+import me.ixk.framework.web.WebContext;
 import org.eclipse.jetty.http.MimeTypes;
 
 public class ViewResult extends HttpResult {

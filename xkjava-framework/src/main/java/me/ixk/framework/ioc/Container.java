@@ -31,7 +31,6 @@ import me.ixk.framework.ioc.injector.DefaultMethodInjector;
 import me.ixk.framework.ioc.injector.DefaultParameterInjector;
 import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
 import me.ixk.framework.ioc.injector.PropertiesValueInjector;
-import me.ixk.framework.ioc.injector.ValidationParameterInjector;
 import me.ixk.framework.ioc.processor.PostConstructProcessor;
 import me.ixk.framework.ioc.processor.PreDestroyProcessor;
 import me.ixk.framework.utils.ClassUtils;
@@ -66,7 +65,6 @@ public class Container implements Context {
             );
 
         this.addParameterInjector(new DefaultParameterInjector());
-        this.addParameterInjector(new ValidationParameterInjector());
 
         this.addInstanceInjector(new DefaultPropertyInjector());
         this.addInstanceInjector(new DefaultMethodInjector());

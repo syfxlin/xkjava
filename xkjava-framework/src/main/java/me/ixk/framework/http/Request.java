@@ -6,7 +6,6 @@ package me.ixk.framework.http;
 
 import cn.hutool.core.io.IoUtil;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.BufferedReader;
 import java.io.File;
@@ -232,6 +231,9 @@ public class Request implements HttpServletRequest {
         }
         if (object == null && REQUEST_BODY.equals(name)) {
             object = this.getParseBody();
+            if (object != null && ((JsonNode) object).isNull()) {
+                object = null;
+            }
         }
         if (object == null) {
             object = _default;
@@ -285,15 +287,9 @@ public class Request implements HttpServletRequest {
         if (this._parseBody == null) {
             node = JSON.convertToNode(_base.getParameter(name));
         } else {
-            node =
-                Util.dataGet(
-                    this._parseBody,
-                    name,
-                    NullNode.getInstance(),
-                    JsonNode.class
-                );
+            node = Util.dataGet(this._parseBody, name);
         }
-        if (node.isNull()) {
+        if (node != null && node.isNull()) {
             node = null;
         }
         return node;
@@ -303,19 +299,16 @@ public class Request implements HttpServletRequest {
         return this.getOrDefault(this.input(name), _default);
     }
 
-    public MultiMap<String> query() {
-        return _base.getQueryParameters();
+    public Map<String, String[]> query() {
+        return _base.getParameterMap();
     }
 
     public String query(String name) {
-        return _base.getQueryParameters().getValue(name, 0);
+        return _base.getParameter(name);
     }
 
     public String query(String name, String _default) {
-        return this.getOrDefault(
-                _base.getQueryParameters().getValue(name, 0),
-                _default
-            );
+        return this.getOrDefault(_base.getParameter(name), _default);
     }
 
     public RouteResult route() {

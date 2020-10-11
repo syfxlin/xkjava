@@ -18,7 +18,6 @@ import org.apache.ibatis.session.SqlSession;
 public class TransactionalAspect extends AbstractAdvice {
 
     @Override
-    @SuppressWarnings("unchecked")
     public Object around(ProceedingJoinPoint joinPoint) {
         final SqlSessionManager sqlSessionManager = XkJava
             .of()

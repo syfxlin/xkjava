@@ -4,6 +4,8 @@
 
 package me.ixk.framework.helpers;
 
+import cn.hutool.core.util.ClassUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -20,6 +22,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import me.ixk.framework.utils.ClassUtils;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.JSON;
 
@@ -29,7 +32,7 @@ public abstract class Util {
     protected static final SecureRandom RANDOM = new SecureRandom();
 
     public static JsonNode dataGet(JsonNode target, String key) {
-        return dataGet(target, key, NullNode.getInstance());
+        return dataGet(target, key, (JsonNode) null);
     }
 
     public static JsonNode dataGet(
@@ -42,7 +45,7 @@ public abstract class Util {
     }
 
     public static JsonNode dataGet(JsonNode target, String[] keys) {
-        return dataGet(target, keys, NullNode.getInstance());
+        return dataGet(target, keys, (JsonNode) null);
     }
 
     public static JsonNode dataGet(
@@ -109,7 +112,7 @@ public abstract class Util {
                 break;
             }
         }
-        if (target == null) {
+        if (target == null || target.isNull()) {
             return _default;
         }
         return target;
@@ -346,13 +349,6 @@ public abstract class Util {
         return stringBuilder.toString();
     }
 
-    public static String routeHandler(String handler) {
-        if (handler.indexOf('.') == -1) {
-            handler = "me.ixk.app.controllers." + handler;
-        }
-        return handler;
-    }
-
     public static String routeHandler(Class<?> clazz, String method) {
         return clazz.getName() + "@" + method;
     }
@@ -363,6 +359,15 @@ public abstract class Util {
 
     public static String routeHandler(String[] handler) {
         return handler[0] + "@" + handler[1];
+    }
+
+    public static HandlerDefinition routeHandler(String handler) {
+        final String[] handlerArr = handler.split("@");
+        final Class<?> clazz = ClassUtil.loadClass(handlerArr[0]);
+        final Method method = (Method) ClassUtils.getUserMethod(
+            ReflectUtil.getMethodByName(clazz, handlerArr[1])
+        );
+        return new HandlerDefinition(clazz, method);
     }
 
     public static <T> T caseGet(String name, Function<String, T> fun) {
@@ -397,11 +402,32 @@ public abstract class Util {
                             ? StrUtil.toCamelCase(name)
                             : StrUtil.toSymbolCase(name, split)
                     );
+                if (target == NullNode.getInstance()) {
+                    target = null;
+                }
                 if (predicate.test(target)) {
                     break;
                 }
             }
         }
         return target;
+    }
+
+    public static class HandlerDefinition {
+        private final Class<?> controllerClass;
+        private final Method method;
+
+        public HandlerDefinition(Class<?> controllerClass, Method method) {
+            this.controllerClass = controllerClass;
+            this.method = method;
+        }
+
+        public Class<?> getControllerClass() {
+            return controllerClass;
+        }
+
+        public Method getMethod() {
+            return method;
+        }
     }
 }

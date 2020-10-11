@@ -5,23 +5,21 @@
 package me.ixk.framework.annotations;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.registrar.MiddlewareRegistrar;
+import me.ixk.framework.registrar.RequestAttributeRegistrar;
 
 @Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Attribute(
-    name = "annotationMiddlewareDefinitions",
-    registrar = MiddlewareRegistrar.class
-)
-public @interface Middleware {
+@Repeatable(RequestAttributes.class)
+public @interface RequestAttribute {
     @AliasFor("name")
-    String[] value() default {  };
+    String value() default "";
 
     @AliasFor("value")
-    String[] name() default {  };
+    String name() default "";
 
-    Class<? extends me.ixk.framework.middleware.Middleware>[] middleware() default me.ixk.framework.middleware.Middleware.class;
+    Class<? extends RequestAttributeRegistrar> registrar();
 }

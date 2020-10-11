@@ -12,102 +12,113 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.annotations.ScopeType;
-import me.ixk.framework.http.*;
+import me.ixk.framework.http.CookieManager;
+import me.ixk.framework.http.Request;
+import me.ixk.framework.http.Response;
+import me.ixk.framework.http.SessionManager;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.context.ContextName;
 import me.ixk.framework.ioc.context.RequestContext;
 import me.ixk.framework.route.RouteManager;
+import me.ixk.framework.web.WebContext;
 
 @WebServlet(urlPatterns = "/*")
 @MultipartConfig
 public class DispatcherServlet extends FrameworkServlet {
-  protected final XkJava app;
-  protected final RequestContext requestContext;
+    protected final XkJava app;
+    protected final RequestContext requestContext;
 
-  @Deprecated
-  public DispatcherServlet() {
-    super();
-    this.app = XkJava.of();
-    this.requestContext =
-      (RequestContext) this.app.getContextByName(ContextName.REQUEST.getName());
-  }
-
-  @Override
-  public void init() throws ServletException {
-    super.init();
-  }
-
-  @Override
-  public void destroy() {
-    super.destroy();
-  }
-
-  @Override
-  protected void dispatch(Request request, Response response) {
-    try {
-      this.beforeDispatch(request, response);
-      this.doDispatch(request, response);
-    } finally {
-      this.afterDispatch(request, response);
+    @Deprecated
+    public DispatcherServlet() {
+        super();
+        this.app = XkJava.of();
+        this.requestContext =
+            (RequestContext) this.app.getContextByName(
+                    ContextName.REQUEST.getName()
+                );
     }
-  }
 
-  protected void beforeDispatch(Request request, Response response) {
-    this.requestContext.createContext();
+    @Override
+    protected void dispatch(Request request, Response response) {
+        try {
+            this.beforeDispatch(request, response);
+            this.doDispatch(request, response);
+        } finally {
+            this.afterDispatch(request, response);
+        }
+    }
 
-    Cookie[] cookies = request.getCookies();
-    this.app.instance(
-        DispatcherServlet.class,
-        this,
-        "dispatcherServlet",
-        ScopeType.REQUEST
-      );
-    this.app.instance(
-        HttpServlet.class,
-        this,
-        "httpServlet",
-        ScopeType.REQUEST
-      );
-    this.app.instance(Request.class, request, "request", ScopeType.REQUEST);
-    this.app.instance(
-        HttpServletRequest.class,
-        request,
-        "httpServletRequest",
-        ScopeType.REQUEST
-      );
-    this.app.instance(Response.class, response, "response", ScopeType.REQUEST);
-    this.app.instance(
-        HttpServletResponse.class,
-        response,
-        "httpServletResponse",
-        ScopeType.REQUEST
-      );
-    this.app.instance(
-        CookieManager.class,
-        new CookieManager(cookies),
-        "cookieManager",
-        ScopeType.REQUEST
-      );
-    this.app.instance(
-        SessionManager.class,
-        new SessionManager(request.getSession()),
-        "sessionManager",
-        ScopeType.REQUEST
-      );
+    @Override
+    public void destroy() {
+        super.destroy();
+    }
 
-    this.app.instance(
-        WebContext.class,
-        new WebContext(this.app),
-        "webContext",
-        ScopeType.REQUEST
-      );
-  }
+    @Override
+    public void init() throws ServletException {
+        super.init();
+    }
 
-  protected void doDispatch(Request request, Response response) {
-    this.app.make(RouteManager.class).dispatch(request, response);
-  }
+    protected void beforeDispatch(Request request, Response response) {
+        this.requestContext.createContext();
 
-  protected void afterDispatch(Request request, Response response) {
-    this.requestContext.removeContext();
-  }
+        Cookie[] cookies = request.getCookies();
+        this.app.instance(
+                DispatcherServlet.class,
+                this,
+                "dispatcherServlet",
+                ScopeType.REQUEST
+            );
+        this.app.instance(
+                HttpServlet.class,
+                this,
+                "httpServlet",
+                ScopeType.REQUEST
+            );
+        this.app.instance(Request.class, request, "request", ScopeType.REQUEST);
+        this.app.instance(
+                HttpServletRequest.class,
+                request,
+                "httpServletRequest",
+                ScopeType.REQUEST
+            );
+        this.app.instance(
+                Response.class,
+                response,
+                "response",
+                ScopeType.REQUEST
+            );
+        this.app.instance(
+                HttpServletResponse.class,
+                response,
+                "httpServletResponse",
+                ScopeType.REQUEST
+            );
+        this.app.instance(
+                CookieManager.class,
+                new CookieManager(cookies),
+                "cookieManager",
+                ScopeType.REQUEST
+            );
+        this.app.instance(
+                SessionManager.class,
+                new SessionManager(request.getSession()),
+                "sessionManager",
+                ScopeType.REQUEST
+            );
+
+        this.app.instance(
+                WebContext.class,
+                new WebContext(this.app),
+                "webContext",
+                ScopeType.REQUEST
+            );
+    }
+
+    protected void doDispatch(Request request, Response response) {
+        this.app.make(RouteManager.class).dispatch(request, response);
+    }
+
+    protected void afterDispatch(Request request, Response response) {
+        this.requestContext.removeContext();
+    }
 }

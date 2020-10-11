@@ -13,7 +13,6 @@ import me.ixk.framework.annotations.RequestMethod;
 import me.ixk.framework.annotations.Route;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
-import me.ixk.framework.helpers.Util;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.route.AnnotationRouteDefinition;
 import me.ixk.framework.route.RouteDefinition;
@@ -70,7 +69,7 @@ public class RouteRegistrar implements AttributeRegistrar {
                             new AnnotationRouteDefinition(
                                 requestMethods,
                                 basePath + path,
-                                Util.routeHandler(method)
+                                method
                             )
                         );
                     }

@@ -4,11 +4,11 @@
 
 package me.ixk.framework.conditional;
 
-import cn.hutool.core.convert.Convert;
 import java.lang.reflect.AnnotatedElement;
 import me.ixk.framework.annotations.ConditionalOnExpression;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.Express;
 import me.ixk.framework.utils.MergedAnnotation;
 

@@ -11,19 +11,22 @@ import me.ixk.app.beans.User;
 import me.ixk.app.beans.User2;
 import me.ixk.app.converter.TestConverter;
 import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.annotations.Bean;
+import me.ixk.framework.annotations.BodyValue;
 import me.ixk.framework.annotations.Controller;
+import me.ixk.framework.annotations.CrossOrigin;
 import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.annotations.GetMapping;
+import me.ixk.framework.annotations.HeaderValue;
 import me.ixk.framework.annotations.InitBinder;
 import me.ixk.framework.annotations.PostMapping;
+import me.ixk.framework.annotations.PreDestroy;
+import me.ixk.framework.annotations.QueryValue;
 import me.ixk.framework.annotations.RequestMapping;
-import me.ixk.framework.http.WebDataBinder;
 import me.ixk.framework.utils.ValidGroup;
 import me.ixk.framework.utils.ValidResult;
+import me.ixk.framework.web.WebDataBinder;
 
 @Controller
-@Bean(destroyMethod = "destroy")
 @RequestMapping("/test")
 public class TestController {
     @Autowired(value = "name", required = false)
@@ -32,6 +35,22 @@ public class TestController {
     @GetMapping("/{id}")
     public String test(int id) {
         return "test";
+    }
+
+    @GetMapping("/get-a")
+    public int getAnnotation(@QueryValue int id) {
+        return id;
+    }
+
+    @PostMapping("/post-a")
+    public int postAnnotation(@BodyValue int id) {
+        return id;
+    }
+
+    @CrossOrigin
+    @GetMapping("/header-a")
+    public String headerAnnotation(@HeaderValue String host) {
+        return host;
     }
 
     @PostMapping("/post")
@@ -70,6 +89,7 @@ public class TestController {
         binder.addConverter("user4.name", new TestConverter());
     }
 
+    @PreDestroy
     public void destroy() {
         System.out.println("TestController destroy");
     }

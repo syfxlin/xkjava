@@ -2,16 +2,17 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.http;
+package me.ixk.framework.web;
 
 import static me.ixk.framework.helpers.Util.caseGet;
 
-import com.fasterxml.jackson.databind.node.NullNode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.DataBind;
+import me.ixk.framework.http.Converter;
+import me.ixk.framework.http.Request;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.utils.Convert;
@@ -46,7 +47,7 @@ public class WebDataBinder implements DataBinder {
     public <T> T getObject(String name, Class<T> type, DataBind dataBind) {
         if (dataBind != null) {
             name =
-                ((String) dataBind.name()).length() == 0
+                dataBind.name().length() == 0
                     ? Request.REQUEST_BODY
                     : dataBind.name();
             this.prefix = name;
@@ -57,7 +58,7 @@ public class WebDataBinder implements DataBinder {
             concatName,
             n -> {
                 Object target = this.request.all(n);
-                if (target == NullNode.getInstance()) {
+                if (target == null) {
                     target = this.data.get(DEFAULT_VALUE_PREFIX + n);
                 }
                 return target;

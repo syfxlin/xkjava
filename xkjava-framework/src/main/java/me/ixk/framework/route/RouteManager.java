@@ -4,6 +4,8 @@
 
 package me.ixk.framework.route;
 
+import java.util.Map;
+import java.util.Map.Entry;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.HttpStatus;
@@ -11,6 +13,8 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.ResponseProcessor;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.web.RequestAttributeRegistry;
+import me.ixk.framework.web.RequestAttributeRegistry.RequestAttributeDefinition;
 
 @Component(name = "routeManager")
 public class RouteManager {
@@ -21,7 +25,7 @@ public class RouteManager {
     protected final RouteCollector collector;
     protected final RouteDispatcher dispatcher;
 
-    public RouteManager(XkJava app) {
+    public RouteManager(final XkJava app) {
         this.app = app;
         this.parser = this.app.make(RouteParser.class);
         this.generator = this.app.make(RouteGenerator.class);
@@ -29,16 +33,16 @@ public class RouteManager {
         this.dispatcher = this.app.make(RouteDispatcher.class);
     }
 
-    public Response dispatch(Request request, Response response) {
+    public Response dispatch(final Request request, final Response response) {
         return this.handleRequest(this.dispatcher, request, response);
     }
 
     public Response handleRequest(
-        RouteDispatcher dispatcher,
-        Request request,
-        Response response
+        final RouteDispatcher dispatcher,
+        final Request request,
+        final Response response
     ) {
-        RouteResult routeResult = dispatcher.dispatch(
+        final RouteResult routeResult = dispatcher.dispatch(
             request.getMethod(),
             request.getHttpURI().getPath()
         );
@@ -58,11 +62,41 @@ public class RouteManager {
                     "Method \"" + request.getMethod() + "\" is not allowed."
                 );
             case FOUND:
-                routeResult.getHandler().handle(request, response);
+                handleFound(routeResult.getHandler(), request, response);
                 break;
             default:
             //
         }
         return ResponseProcessor.dispatchResponse(response);
+    }
+
+    public void handleFound(
+        RouteHandler handler,
+        Request request,
+        Response response
+    ) {
+        RequestAttributeRegistry registry =
+            this.app.make(RequestAttributeRegistry.class);
+        Map<String, RequestAttributeDefinition> registrar = registry.getRegistrar(
+            handler.getMethod()
+        );
+        if (registrar != null) {
+            for (Entry<String, RequestAttributeDefinition> entry : registrar.entrySet()) {
+                String attributeName = entry.getKey();
+                RequestAttributeDefinition definition = entry.getValue();
+                request.setAttribute(
+                    attributeName,
+                    definition
+                        .getRegistrar()
+                        .register(
+                            this.app,
+                            attributeName,
+                            definition.getMethod(),
+                            definition.getAnnotation()
+                        )
+                );
+            }
+        }
+        handler.handle(request, response);
     }
 }

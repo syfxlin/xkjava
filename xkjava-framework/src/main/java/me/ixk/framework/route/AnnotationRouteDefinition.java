@@ -4,20 +4,21 @@
 
 package me.ixk.framework.route;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import me.ixk.framework.annotations.RequestMethod;
 
 public class AnnotationRouteDefinition {
-    protected String[] method;
+    protected final String[] method;
 
-    protected String route;
+    protected final String route;
 
-    protected String handler;
+    protected final Method handler;
 
     public AnnotationRouteDefinition(
         RequestMethod[] methods,
         String route,
-        String handler
+        Method handler
     ) {
         this.method =
             Arrays
@@ -32,23 +33,11 @@ public class AnnotationRouteDefinition {
         return method;
     }
 
-    public void setMethod(String[] method) {
-        this.method = method;
-    }
-
     public String getRoute() {
         return route;
     }
 
-    public void setRoute(String route) {
-        this.route = route;
-    }
-
-    public String getHandler() {
+    public Method getHandler() {
         return handler;
-    }
-
-    public void setHandler(String handler) {
-        this.handler = handler;
     }
 }

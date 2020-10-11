@@ -2,37 +2,46 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.ioc.injector;
+package me.ixk.framework.web;
 
-import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 import javax.validation.Valid;
 import me.ixk.framework.exceptions.ValidException;
-import me.ixk.framework.ioc.Binding;
-import me.ixk.framework.ioc.Container;
-import me.ixk.framework.ioc.DataBinder;
-import me.ixk.framework.ioc.ParameterInjector;
 import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ValidGroup;
 import me.ixk.framework.utils.ValidResult;
 import me.ixk.framework.utils.Validation;
 
-public class ValidationParameterInjector implements ParameterInjector {
+public class ValidationParametersResolver
+    implements RequestParametersPostResolver {
 
     @Override
-    public Object[] inject(
-        Container container,
-        Binding binding,
-        Executable method,
-        Parameter[] parameters,
-        String[] parameterNames,
-        Object[] dependencies,
-        DataBinder dataBinder
+    public boolean supportsParameters(
+        Object[] parameters,
+        MethodParameter parameter
+    ) {
+        for (MergedAnnotation annotation : parameter.getParameterAnnotations()) {
+            if (annotation.hasAnnotation(Valid.class)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Object[] resolveParameters(
+        Object[] values,
+        MethodParameter methodParameter,
+        WebContext context,
+        WebDataBinder binder
     ) {
         int validResultIndex = -1;
         int validGroupIndex = -1;
         ValidResult<Object> validResult = null;
         ValidGroup validGroup = null;
+        Parameter[] parameters = methodParameter.getParameters();
+        String[] parameterNames = methodParameter.getParameterNames();
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
             String parameterName = parameterNames[i];
@@ -46,7 +55,7 @@ public class ValidationParameterInjector implements ParameterInjector {
                     Valid.class
                 );
                 if (valid) {
-                    validResult = Validation.validate(dependencies[i]);
+                    validResult = Validation.validate(values[i]);
                     if (validGroup == null) {
                         validGroup = new ValidGroup();
                     }
@@ -57,17 +66,17 @@ public class ValidationParameterInjector implements ParameterInjector {
         if (validResult != null) {
             boolean isThrow = true;
             if (validResultIndex != -1) {
-                dependencies[validResultIndex] = validResult;
+                values[validResultIndex] = validResult;
                 isThrow = false;
             }
             if (validGroupIndex != -1) {
-                dependencies[validGroupIndex] = validGroup;
+                values[validGroupIndex] = validGroup;
                 isThrow = false;
             }
             if (isThrow && validResult.isFail()) {
                 throw new ValidException(validGroup);
             }
         }
-        return dependencies;
+        return values;
     }
 }

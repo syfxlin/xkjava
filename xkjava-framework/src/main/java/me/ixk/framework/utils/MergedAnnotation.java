@@ -7,6 +7,7 @@ package me.ixk.framework.utils;
 import cn.hutool.core.util.ReflectUtil;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +42,8 @@ public interface MergedAnnotation {
     default <A extends Annotation> List<A> getAnnotations(
         Class<A> annotationType
     ) {
-        return (List<A>) this.annotations().get(annotationType);
+        return (List<A>) this.annotations()
+            .getOrDefault(annotationType, new ArrayList<>());
     }
 
     default boolean hasAnnotation(
@@ -94,7 +96,7 @@ public interface MergedAnnotation {
         int index
     ) {
         final Annotation annotation = this.getAnnotation(annotationType, index);
-        final Method method = ReflectUtil.getMethod(annotationType, name);
+        final Method method = ReflectUtil.getMethodByName(annotationType, name);
         if (annotation == null || method == null) {
             return null;
         }
