@@ -14,7 +14,7 @@ import me.ixk.framework.database.MybatisPlus;
 import me.ixk.framework.database.SqlSessionManager;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.Environment;
-import me.ixk.framework.registry.attribute.MapperScannerRegistry;
+import me.ixk.framework.registry.after.MapperScannerRegistry;
 
 @Provider
 public class DatabaseProvider {
@@ -31,17 +31,10 @@ public class DatabaseProvider {
     }
 
     @Bean(name = "sqlSessionManager")
-    @ConditionalOnMissingBean(
-        name = "sqlSessionManager",
-        value = SqlSessionManager.class
-    )
-    public SqlSessionManager sqlSessionManager(
-        final DataSource dataSource,
-        final XkJava app
-    ) {
-        return new MybatisPlus(
-            dataSource,
-            app.make(MapperScannerRegistry.class).getScanPackages()
-        );
+    @ConditionalOnMissingBean(name = "sqlSessionManager", value = SqlSessionManager.class)
+    public SqlSessionManager sqlSessionManager(final DataSource dataSource,
+        final XkJava app) {
+        return new MybatisPlus(dataSource,
+            app.make(MapperScannerRegistry.class).getScanPackages());
     }
 }

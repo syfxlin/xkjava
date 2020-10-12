@@ -19,6 +19,7 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.registry.after.ExceptionHandlerRegistry;
 import me.ixk.framework.registry.after.InitBinderRegistry;
+import me.ixk.framework.registry.after.WebResolverRegistry;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.MergedAnnotation;
@@ -30,14 +31,13 @@ import me.ixk.framework.web.RequestParametersPostResolver;
 import me.ixk.framework.web.ResponseReturnValueResolver;
 import me.ixk.framework.web.WebContext;
 import me.ixk.framework.web.WebDataBinder;
-import me.ixk.framework.web.WebHandlerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ControllerHandler implements Handler {
-    private static final Logger log = LoggerFactory.getLogger(
-        ControllerHandler.class
-    );
+
+    private static final Logger log = LoggerFactory
+        .getLogger(ControllerHandler.class);
 
     private final Class<?> controllerClass;
     private final Method method;
@@ -55,31 +55,19 @@ public class ControllerHandler implements Handler {
     @Override
     public Object handle(final Request request) {
         // 将控制器信息注入 RequestContext
-        this.app.setAttribute(
-                "controllerClass",
-                this.controllerClass,
-                ScopeType.REQUEST
-            );
-        this.app.setAttribute(
-                "controllerMethod",
-                this.method,
-                ScopeType.REQUEST
-            );
+        this.app.setAttribute("controllerClass", this.controllerClass,
+            ScopeType.REQUEST);
+        this.app
+            .setAttribute("controllerMethod", this.method, ScopeType.REQUEST);
         try {
-            final WebDataBinder webDataBinder = new WebDataBinder(
-                this.app,
-                request
-            );
-            final Object controller =
-                this.app.make(this.controllerClass, webDataBinder);
+            final WebDataBinder webDataBinder = new WebDataBinder(this.app,
+                request);
+            final Object controller = this.app
+                .make(this.controllerClass, webDataBinder);
             this.processInitBinder(webDataBinder);
-            return this.callMethodHandler(
-                    controller,
-                    this.method,
-                    this.app.make(WebHandlerRegistry.class),
-                    this.app.make(WebContext.class),
-                    webDataBinder
-                );
+            return this.callMethodHandler(controller, this.method,
+                this.app.make(WebResolverRegistry.class),
+                this.app.make(WebContext.class), webDataBinder);
         } catch (final java.lang.Exception e) {
             log.error("ControllerHandler Exception", e);
             // 处理 ExceptionHandler 注解定义的错误处理器
@@ -99,17 +87,17 @@ public class ControllerHandler implements Handler {
         args.put("dataBinder", binder);
         args.put(WebDataBinder.class.getName(), binder);
         args.put(DataBinder.class.getName(), binder);
-        final InitBinderRegistry registry =
-            this.app.make(InitBinderRegistry.class);
+        final InitBinderRegistry registry = this.app
+            .make(InitBinderRegistry.class);
         final InitBinderHandlerResolver resolver = registry
-            .getControllerResolvers()
-            .get(this.controllerClass);
+            .getControllerResolvers().get(this.controllerClass);
         if (resolver != null) {
             for (final Method method : resolver.resolveMethods()) {
                 this.app.call(this.controllerClass, method, Object.class, args);
             }
         }
-        for (final InitBinderHandlerResolver handlerResolver : registry.getAdviceResolvers()) {
+        for (final InitBinderHandlerResolver handlerResolver : registry
+            .getAdviceResolvers()) {
             for (final Method method : handlerResolver.resolveMethods()) {
                 this.app.call(this.controllerClass, method, Object.class, args);
             }
@@ -118,31 +106,21 @@ public class ControllerHandler implements Handler {
 
     protected Object processException(final Throwable exception) {
         Object result = NO_RESOLVER;
-        final ExceptionHandlerRegistry registry =
-            this.app.make(ExceptionHandlerRegistry.class);
+        final ExceptionHandlerRegistry registry = this.app
+            .make(ExceptionHandlerRegistry.class);
         final ExceptionHandlerResolver resolver = registry
-            .getControllerResolvers()
-            .get(this.controllerClass);
+            .getControllerResolvers().get(this.controllerClass);
         if (resolver != null) {
-            result =
-                this.processException(
-                        exception,
-                        this.controllerClass,
-                        resolver
-                    );
+            result = this
+                .processException(exception, this.controllerClass, resolver);
             if (!result.equals(NO_RESOLVER)) {
                 return result;
             }
         }
         for (final Map.Entry<Class<?>, ExceptionHandlerResolver> entry : registry
-            .getAdviceResolvers()
-            .entrySet()) {
-            result =
-                this.processException(
-                        exception,
-                        entry.getKey(),
-                        entry.getValue()
-                    );
+            .getAdviceResolvers().entrySet()) {
+            result = this
+                .processException(exception, entry.getKey(), entry.getValue());
             if (!result.equals(NO_RESOLVER)) {
                 return result;
             }
@@ -151,11 +129,8 @@ public class ControllerHandler implements Handler {
         return result;
     }
 
-    protected Object processException(
-        final Throwable exception,
-        final Class<?> clazz,
-        final ExceptionHandlerResolver resolver
-    ) {
+    protected Object processException(final Throwable exception,
+        final Class<?> clazz, final ExceptionHandlerResolver resolver) {
         try {
             final Method method = resolver.resolveMethod(exception);
             if (method != null) {
@@ -171,64 +146,44 @@ public class ControllerHandler implements Handler {
             }
         } catch (final Throwable e) {
             throw new DispatchServletException(
-                "Process ExceptionHandlerResolver failed",
-                e
-            );
+                "Process ExceptionHandlerResolver failed", e);
         }
         return NO_RESOLVER;
     }
 
-    protected Object callMethodHandler(
-        final Object controller,
-        Method method,
-        final WebHandlerRegistry registry,
-        final WebContext context,
-        final WebDataBinder binder
-    )
+    protected Object callMethodHandler(final Object controller,
+        final Method method, final WebResolverRegistry registry,
+        final WebContext context, final WebDataBinder binder)
         throws java.lang.Exception {
         Object[] dependencies = new Object[method.getParameterCount()];
         final Parameter[] parameters = method.getParameters();
         final Class<?>[] parameterTypes = method.getParameterTypes();
-        final String[] parameterNames = ParameterNameDiscoverer.getParameterNames(
-            method
-        );
-        MergedAnnotation methodAnnotation = AnnotationUtils.getAnnotation(
-            method
-        );
-        MethodParameter methodParameter = new MethodParameter(
-            controller,
-            this.controllerClass,
-            method,
-            parameters,
-            parameterNames,
-            methodAnnotation
-        );
-        for (final RequestParameterResolver resolver : registry.getRequestParameterResolvers()) {
+        final String[] parameterNames = ParameterNameDiscoverer
+            .getParameterNames(method);
+        final MergedAnnotation methodAnnotation = AnnotationUtils
+            .getAnnotation(method);
+        final MethodParameter methodParameter = new MethodParameter(controller,
+            this.controllerClass, method, parameters, parameterNames,
+            methodAnnotation);
+        for (final RequestParameterResolver resolver : registry
+            .getRequestParameterResolvers()) {
             for (int i = 0; i < parameters.length; i++) {
                 methodParameter.setParameterIndex(i);
-                if (
-                    resolver.supportsParameter(dependencies[i], methodParameter)
-                ) {
-                    dependencies[i] =
-                        resolver.resolveParameter(
-                            dependencies[i],
-                            methodParameter,
-                            context,
-                            binder
-                        );
+                if (resolver
+                    .supportsParameter(dependencies[i], methodParameter)) {
+                    dependencies[i] = resolver
+                        .resolveParameter(dependencies[i], methodParameter,
+                            context, binder);
                 }
             }
         }
         methodParameter.setParameterIndex(-1);
-        for (RequestParametersPostResolver resolver : registry.getRequestParametersPostResolvers()) {
+        for (final RequestParametersPostResolver resolver : registry
+            .getRequestParametersPostResolvers()) {
             if (resolver.supportsParameters(dependencies, methodParameter)) {
-                dependencies =
-                    resolver.resolveParameters(
-                        dependencies,
-                        methodParameter,
-                        context,
-                        binder
-                    );
+                dependencies = resolver
+                    .resolveParameters(dependencies, methodParameter, context,
+                        binder);
             }
         }
         // call
@@ -236,36 +191,26 @@ public class ControllerHandler implements Handler {
         for (int i = 0; i < parameters.length; i++) {
             if (null == dependencies[i]) {
                 dependencies[i] = ClassUtil.getDefaultValue(parameterTypes[i]);
-            } else if (
-                !parameterTypes[i].isAssignableFrom(dependencies[i].getClass())
-            ) {
-                final Object targetValue = Convert.convert(
-                    parameterTypes[i],
-                    dependencies[i]
-                );
+            } else if (!parameterTypes[i]
+                .isAssignableFrom(dependencies[i].getClass())) {
+                final Object targetValue = Convert
+                    .convert(parameterTypes[i], dependencies[i]);
                 if (null != targetValue) {
                     dependencies[i] = targetValue;
                 }
             }
         }
-        Object returnValue = method.invoke(
-            ClassUtil.isStatic(method) ? null : controller,
-            dependencies
-        );
-        MethodReturnValue methodReturnValue = new MethodReturnValue(
-            controller,
-            this.controllerClass,
-            method,
-            methodAnnotation
-        );
-        for (ResponseReturnValueResolver resolver : registry.getResponseReturnValueResolvers()) {
+        Object returnValue = method
+            .invoke(ClassUtil.isStatic(method) ? null : controller,
+                dependencies);
+        final MethodReturnValue methodReturnValue = new MethodReturnValue(
+            controller, this.controllerClass, method, methodAnnotation);
+        for (final ResponseReturnValueResolver resolver : registry
+            .getResponseReturnValueResolvers()) {
             if (resolver.supportsReturnType(returnValue, methodReturnValue)) {
-                returnValue =
-                    resolver.resolveReturnValue(
-                        returnValue,
-                        methodReturnValue,
-                        context
-                    );
+                returnValue = resolver
+                    .resolveReturnValue(returnValue, methodReturnValue,
+                        context);
             }
         }
         return returnValue;

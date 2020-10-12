@@ -9,18 +9,17 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.registry.attribute.MapperScannerRegistry;
+import me.ixk.framework.registry.after.MapperScannerRegistry;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @AfterImport(MapperScannerRegistry.class)
 @Repeatable(MapperScans.class)
 public @interface MapperScan {
-    @AliasFor("basePackages")
-    String[] value() default {  };
 
-    @AliasFor("value")
-    String[] basePackages() default {  };
+    @AliasFor("basePackages") String[] value() default {};
 
-    Class<?>[] basePackageClasses() default {  };
+    @AliasFor("value") String[] basePackages() default {};
+
+    Class<?>[] basePackageClasses() default {};
 }

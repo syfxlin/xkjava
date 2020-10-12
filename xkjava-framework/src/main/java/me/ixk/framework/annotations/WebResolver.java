@@ -8,13 +8,9 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.registry.after.MapperScannerRegistry;
+import me.ixk.framework.registry.after.WebResolverRegistry;
 
-@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@AfterImport(MapperScannerRegistry.class)
-@RepeatItem(MapperScan.class)
-public @interface MapperScans {
-
-    MapperScan[] value();
-}
+@Retention(RetentionPolicy.RUNTIME)
+@AfterImport(WebResolverRegistry.class)
+public @interface WebResolver {}

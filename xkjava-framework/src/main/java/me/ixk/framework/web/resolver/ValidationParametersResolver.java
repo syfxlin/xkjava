@@ -2,26 +2,33 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.web;
+package me.ixk.framework.web.resolver;
 
 import java.lang.reflect.Parameter;
 import javax.validation.Valid;
+import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.exceptions.ValidException;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ValidGroup;
 import me.ixk.framework.utils.ValidResult;
 import me.ixk.framework.utils.Validation;
+import me.ixk.framework.web.MethodParameter;
+import me.ixk.framework.web.RequestParametersPostResolver;
+import me.ixk.framework.web.WebContext;
+import me.ixk.framework.web.WebDataBinder;
 
-public class ValidationParametersResolver
-    implements RequestParametersPostResolver {
+@WebResolver
+@Order(Order.LOWEST_PRECEDENCE)
+public class ValidationParametersResolver implements
+    RequestParametersPostResolver {
 
     @Override
-    public boolean supportsParameters(
-        Object[] parameters,
-        MethodParameter parameter
-    ) {
-        for (MergedAnnotation annotation : parameter.getParameterAnnotations()) {
+    public boolean supportsParameters(final Object[] parameters,
+        final MethodParameter parameter) {
+        for (final MergedAnnotation annotation : parameter
+            .getParameterAnnotations()) {
             if (annotation.hasAnnotation(Valid.class)) {
                 return true;
             }
@@ -30,30 +37,25 @@ public class ValidationParametersResolver
     }
 
     @Override
-    public Object[] resolveParameters(
-        Object[] values,
-        MethodParameter methodParameter,
-        WebContext context,
-        WebDataBinder binder
-    ) {
+    public Object[] resolveParameters(final Object[] values,
+        final MethodParameter methodParameter, final WebContext context,
+        final WebDataBinder binder) {
         int validResultIndex = -1;
         int validGroupIndex = -1;
         ValidResult<Object> validResult = null;
         ValidGroup validGroup = null;
-        Parameter[] parameters = methodParameter.getParameters();
-        String[] parameterNames = methodParameter.getParameterNames();
+        final Parameter[] parameters = methodParameter.getParameters();
+        final String[] parameterNames = methodParameter.getParameterNames();
         for (int i = 0; i < parameters.length; i++) {
-            Parameter parameter = parameters[i];
-            String parameterName = parameterNames[i];
+            final Parameter parameter = parameters[i];
+            final String parameterName = parameterNames[i];
             if (parameter.getType() == ValidResult.class) {
                 validResultIndex = i;
             } else if (parameter.getType() == ValidGroup.class) {
                 validGroupIndex = i;
             } else {
-                boolean valid = AnnotationUtils.hasAnnotation(
-                    parameter,
-                    Valid.class
-                );
+                final boolean valid = AnnotationUtils
+                    .hasAnnotation(parameter, Valid.class);
                 if (valid) {
                     validResult = Validation.validate(values[i]);
                     if (validGroup == null) {
