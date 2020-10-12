@@ -15,6 +15,8 @@ import me.ixk.framework.annotations.Component;
 import me.ixk.framework.exceptions.RouteCollectorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Middleware;
+import me.ixk.framework.registry.after.MiddlewareRegistry;
+import me.ixk.framework.registry.after.RouteRegistry;
 import me.ixk.framework.utils.AnnotationUtils;
 import org.eclipse.jetty.http.HttpMethod;
 
@@ -36,39 +38,22 @@ public class RouteCollector {
 
     protected List<Class<? extends Middleware>> middleware = new ArrayList<>();
 
-    protected final List<Class<? extends me.ixk.framework.middleware.Middleware>> globalMiddleware;
-    protected final Map<String, Class<? extends me.ixk.framework.middleware.Middleware>> routeMiddleware;
-    protected final Map<Method, AnnotationMiddlewareDefinition> annotationMiddlewareDefinitions;
+    protected final MiddlewareRegistry middlewareRegistry;
 
     public RouteCollector(
         XkJava app,
         RouteParser routeParser,
-        RouteGenerator routeGenerator
+        RouteGenerator routeGenerator,
+        RouteRegistry routeRegistry,
+        MiddlewareRegistry middlewareRegistry
     ) {
         this.app = app;
+        this.middlewareRegistry = middlewareRegistry;
         this.staticRoutes = new ConcurrentHashMap<>();
         this.variableRoutes = new ConcurrentHashMap<>();
         this.routeParser = routeParser;
         this.routeGenerator = routeGenerator;
-        this.globalMiddleware =
-            this.app.getOrDefaultAttribute(
-                    "globalMiddleware",
-                    new ArrayList<>()
-                );
-        this.routeMiddleware =
-            this.app.getOrDefaultAttribute(
-                    "routeMiddleware",
-                    new ConcurrentHashMap<>()
-                );
-        this.annotationMiddlewareDefinitions =
-            this.app.getOrDefaultAttribute(
-                    "annotationMiddlewareDefinitions",
-                    new ConcurrentHashMap<>()
-                );
-        for (Class<? extends RouteDefinition> clazz : this.app.getOrDefaultAttribute(
-                "routeDefinition",
-                new ArrayList<Class<? extends RouteDefinition>>()
-            )) {
+        for (Class<? extends RouteDefinition> clazz : routeRegistry.getRouteDefinition()) {
             try {
                 ReflectUtil.newInstance(clazz).routes(this);
             } catch (Exception e) {
@@ -78,10 +63,7 @@ public class RouteCollector {
                 );
             }
         }
-        for (AnnotationRouteDefinition definition : this.app.getOrDefaultAttribute(
-                "annotationRouteDefinitions",
-                new ArrayList<AnnotationRouteDefinition>()
-            )) {
+        for (AnnotationRouteDefinition definition : routeRegistry.getAnnotationRouteDefinitions()) {
             this.match(
                     definition.getMethod(),
                     definition.getRoute(),
@@ -97,9 +79,7 @@ public class RouteCollector {
         if (this.useGroupMiddleware != null) {
             middleware.addAll(this.useGroupMiddleware);
         }
-        if (this.globalMiddleware != null) {
-            middleware.addAll(this.globalMiddleware);
-        }
+        middleware.addAll(this.middlewareRegistry.getGlobalMiddleware());
         // 重新排序
         AnnotationUtils.sortByOrderAnnotation(middleware);
         return new RouteHandler(
@@ -110,7 +90,8 @@ public class RouteCollector {
 
     protected void registerAnnotationMiddleware(Method handler) {
         AnnotationMiddlewareDefinition definition =
-            this.annotationMiddlewareDefinitions.get(handler);
+            this.middlewareRegistry.getAnnotationMiddlewareDefinitions()
+                .get(handler);
         if (definition == null) {
             return;
         }
@@ -247,7 +228,8 @@ public class RouteCollector {
     }
 
     public RouteCollector middleware(String name) {
-        Class<? extends Middleware> middleware = this.routeMiddleware.get(name);
+        Class<? extends Middleware> middleware =
+            this.middlewareRegistry.getRouteMiddleware().get(name);
         if (middleware == null) {
             throw new RouteCollectorException(
                 "Middleware [" + name + "] not register"

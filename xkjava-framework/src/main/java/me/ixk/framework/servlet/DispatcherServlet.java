@@ -59,7 +59,7 @@ public class DispatcherServlet extends FrameworkServlet {
     }
 
     protected void beforeDispatch(Request request, Response response) {
-        this.requestContext.createContext();
+        this.requestContext.setContext(request);
 
         Cookie[] cookies = request.getCookies();
         this.app.instance(

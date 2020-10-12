@@ -5,12 +5,11 @@
 package me.ixk.framework.ioc;
 
 import java.util.Map;
-import me.ixk.framework.annotations.ScopeType;
 
 public interface ThreadLocalContext extends Context {
-    BindingAndAlias getContext();
+    ContextItem getContext();
 
-    void setContext(BindingAndAlias bindingAndAlias);
+    void setContext(ContextItem contextItem);
 
     void removeContext();
 
@@ -18,7 +17,7 @@ public interface ThreadLocalContext extends Context {
     boolean isCreated();
 
     default void createContext() {
-        this.setContext(new BindingAndAlias());
+        this.setContext(new ContextItem());
     }
 
     @Override
@@ -32,10 +31,7 @@ public interface ThreadLocalContext extends Context {
     }
 
     @Override
-    default Binding setAttribute(String name, Object attribute) {
-        return this.setBinding(
-                ATTRIBUTE_PREFIX + name,
-                new Binding(attribute, ScopeType.REQUEST)
-            );
+    default Map<String, Object> getAttributes() {
+        return this.getContext().getAttributes();
     }
 }

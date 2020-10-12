@@ -4,15 +4,15 @@
 
 package me.ixk.framework.ioc.context;
 
+import javax.servlet.http.HttpServletRequest;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.factory.ObjectFactory;
 import me.ixk.framework.ioc.Binding;
-import me.ixk.framework.ioc.BindingAndAlias;
-import me.ixk.framework.ioc.ThreadLocalContext;
+import me.ixk.framework.ioc.RequestAttributeContext;
 import me.ixk.framework.utils.ReflectUtils;
 
-public class RequestContext implements ThreadLocalContext {
-    private final ThreadLocal<BindingAndAlias> bindingAndAlias = new InheritableThreadLocal<>();
+public class RequestContext implements RequestAttributeContext {
+    private final ThreadLocal<HttpServletRequest> request = new InheritableThreadLocal<>();
 
     @Override
     public String getName() {
@@ -20,27 +20,26 @@ public class RequestContext implements ThreadLocalContext {
     }
 
     @Override
-    public BindingAndAlias getContext() {
-        BindingAndAlias bindingAndAlias = this.bindingAndAlias.get();
-        if (bindingAndAlias == null) {
-            throw new NullPointerException("ThreadLocal content is null");
-        }
-        return bindingAndAlias;
+    public void setContext(HttpServletRequest request) {
+        this.request.set(request);
     }
 
     @Override
-    public void setContext(BindingAndAlias bindingAndAlias) {
-        this.bindingAndAlias.set(bindingAndAlias);
+    public HttpServletRequest getContext() {
+        if (this.isCreated()) {
+            return this.request.get();
+        }
+        throw new NullPointerException("RequestContext not created");
     }
 
     @Override
     public void removeContext() {
-        this.bindingAndAlias.remove();
+        this.request.remove();
     }
 
     @Override
     public boolean isCreated() {
-        return this.bindingAndAlias.get() != null;
+        return this.request.get() != null;
     }
 
     @Override

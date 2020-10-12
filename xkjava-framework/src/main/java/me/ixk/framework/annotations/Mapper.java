@@ -8,13 +8,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.registrar.MapperRegistrar;
+import me.ixk.framework.registry.MapperRegistry;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Scope(type = ScopeType.PROTOTYPE)
 @Bean
-@Import(MapperRegistrar.class)
+@Import(MapperRegistry.class)
 public @interface Mapper {
     @AliasFor(value = "name", annotation = Bean.class, attribute = "value")
     String[] value() default {  };

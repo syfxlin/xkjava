@@ -2,56 +2,54 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.registrar;
+package me.ixk.framework.registry.after;
 
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Controller;
 import me.ixk.framework.annotations.ControllerAdvice;
-import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.InitBinderHandlerResolver;
 import me.ixk.framework.utils.MergedAnnotation;
 
-public class InitBinderRegistrar implements AttributeRegistrar {
+@Component(name = "initBinderRegistry")
+public class InitBinderRegistry implements AfterImportBeanRegistry {
+    private final List<InitBinderHandlerResolver> adviceResolvers = new ArrayList<>();
+    private final Map<Class<?>, InitBinderHandlerResolver> controllerResolvers = new ConcurrentHashMap<>();
 
     @Override
-    public Object register(
+    public void after(
         XkJava app,
-        String attributeName,
         AnnotatedElement element,
-        ScopeType scopeType,
         MergedAnnotation annotation
     ) {
         if (annotation.hasAnnotation(ControllerAdvice.class)) {
-            List<InitBinderHandlerResolver> handlerResolvers = app.getOrDefaultAttribute(
-                attributeName,
-                new ArrayList<>()
-            );
             InitBinderHandlerResolver resolver = new InitBinderHandlerResolver(
                 (Class<?>) element
             );
             if (resolver.hasInitBinderList()) {
-                handlerResolvers.add(resolver);
+                this.adviceResolvers.add(resolver);
             }
-            return handlerResolvers;
         }
         if (annotation.hasAnnotation(Controller.class)) {
-            Map<Class<?>, InitBinderHandlerResolver> controllerResolvers = app.getOrDefaultAttribute(
-                attributeName,
-                new LinkedHashMap<>()
-            );
             InitBinderHandlerResolver resolver = new InitBinderHandlerResolver(
                 (Class<?>) element
             );
             if (resolver.hasInitBinderList()) {
-                controllerResolvers.put((Class<?>) element, resolver);
+                this.controllerResolvers.put((Class<?>) element, resolver);
             }
-            return controllerResolvers;
         }
-        return null;
+    }
+
+    public List<InitBinderHandlerResolver> getAdviceResolvers() {
+        return adviceResolvers;
+    }
+
+    public Map<Class<?>, InitBinderHandlerResolver> getControllerResolvers() {
+        return controllerResolvers;
     }
 }

@@ -77,17 +77,17 @@ public class RouteManager {
     ) {
         RequestAttributeRegistry registry =
             this.app.make(RequestAttributeRegistry.class);
-        Map<String, RequestAttributeDefinition> registrar = registry.getRegistrar(
+        Map<String, RequestAttributeDefinition> definitionMap = registry.getRegistry(
             handler.getMethod()
         );
-        if (registrar != null) {
-            for (Entry<String, RequestAttributeDefinition> entry : registrar.entrySet()) {
+        if (definitionMap != null) {
+            for (Entry<String, RequestAttributeDefinition> entry : definitionMap.entrySet()) {
                 String attributeName = entry.getKey();
                 RequestAttributeDefinition definition = entry.getValue();
                 request.setAttribute(
                     attributeName,
                     definition
-                        .getRegistrar()
+                        .getRegistry()
                         .register(
                             this.app,
                             attributeName,

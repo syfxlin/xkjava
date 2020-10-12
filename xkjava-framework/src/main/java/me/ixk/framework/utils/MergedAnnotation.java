@@ -10,8 +10,12 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public interface MergedAnnotation {
+    Logger log = LoggerFactory.getLogger(MergedAnnotation.class);
+
     Map<Class<? extends Annotation>, List<Annotation>> annotations();
 
     default <A extends Annotation> A getAnnotation(
@@ -34,6 +38,12 @@ public interface MergedAnnotation {
             index >= annotations.size()
         ) {
             return null;
+        }
+        if (annotations.size() > 1) {
+            log.warn(
+                "Annotation [{}] is multi, but only get one",
+                annotationType.getName()
+            );
         }
         return (A) annotations.get(index);
     }

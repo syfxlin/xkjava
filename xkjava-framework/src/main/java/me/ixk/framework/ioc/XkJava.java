@@ -4,9 +4,10 @@
 
 package me.ixk.framework.ioc;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import me.ixk.framework.annotations.ComponentScan;
 import me.ixk.framework.ioc.context.ApplicationContext;
 import me.ixk.framework.ioc.context.RequestContext;
@@ -52,6 +53,11 @@ public class XkJava extends Container {
      * 外部传入的参数
      */
     protected String[] args;
+
+    /**
+     * 扫描组件的包
+     */
+    protected Set<String> scansPackages = new HashSet<>();
 
     /**
      * XkJava 是否已经启动
@@ -186,7 +192,7 @@ public class XkJava extends Container {
      * 配置要扫描的包
      */
     protected void loadPackageScanAnnotation() {
-        final List<String> scanPackage = this.scanPackage();
+        final Set<String> scanPackage = this.scanPackage();
         scanPackage.add("me.ixk.framework");
         for (final Class<?> source : this.primarySource) {
             scanPackage.add(source.getPackageName());
@@ -202,7 +208,7 @@ public class XkJava extends Container {
     }
 
     protected void loadPackageScanAnnotationItem(
-        List<String> scanPackage,
+        Set<String> scanPackage,
         ComponentScan componentScan
     ) {
         scanPackage.addAll(Arrays.asList(componentScan.basePackages()));
@@ -269,12 +275,12 @@ public class XkJava extends Container {
 
     /* Quick get set context attribute */
 
-    public List<String> scanPackage() {
-        return this.getOrDefaultAttribute("scanPackage", new ArrayList<>());
+    public Set<String> scanPackage() {
+        return this.scansPackages;
     }
 
-    public XkJava scanPackage(final List<String> scanPackage) {
-        this.setAttribute("scanPackage", scanPackage);
+    public XkJava scanPackage(final Set<String> scanPackage) {
+        this.scansPackages.addAll(scanPackage);
         return this;
     }
 

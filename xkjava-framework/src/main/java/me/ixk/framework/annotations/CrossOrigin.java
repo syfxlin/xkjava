@@ -9,11 +9,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import me.ixk.framework.middleware.Cors;
-import me.ixk.framework.registrar.CrossOriginRegistrar;
+import me.ixk.framework.registry.request.CrossOriginRegistry;
 
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@RequestAttribute(name = "crossOrigin", registrar = CrossOriginRegistrar.class)
+@RequestAttribute(
+    name = "me.ixk.framework.annotation.CrossOrigin",
+    registry = CrossOriginRegistry.class
+)
 @Middleware(middleware = Cors.class)
 public @interface CrossOrigin {
     String DYNAMIC_ORIGIN = "DYNAMIC";

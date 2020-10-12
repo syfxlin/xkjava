@@ -8,7 +8,6 @@ import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.ScopeType;
@@ -18,6 +17,8 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Handler;
+import me.ixk.framework.registry.after.ExceptionHandlerRegistry;
+import me.ixk.framework.registry.after.InitBinderRegistry;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.MergedAnnotation;
@@ -91,7 +92,6 @@ public class ControllerHandler implements Handler {
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected void processInitBinder(final WebDataBinder binder) {
         final Map<String, Object> args = new ConcurrentHashMap<>();
         args.put("binder", binder);
@@ -99,84 +99,55 @@ public class ControllerHandler implements Handler {
         args.put("dataBinder", binder);
         args.put(WebDataBinder.class.getName(), binder);
         args.put(DataBinder.class.getName(), binder);
-        final Map<Class<?>, InitBinderHandlerResolver> controllerResolvers =
-            this.app.getAttribute(
-                    "controllerInitBinderHandlerResolver",
-                    Map.class
-                );
-        if (controllerResolvers != null) {
-            final InitBinderHandlerResolver resolver = controllerResolvers.get(
-                this.controllerClass
-            );
-            if (resolver != null) {
-                for (final Method method : resolver.resolveMethods()) {
-                    this.app.call(
-                            this.controllerClass,
-                            method,
-                            Object.class,
-                            args
-                        );
-                }
+        final InitBinderRegistry registry =
+            this.app.make(InitBinderRegistry.class);
+        final InitBinderHandlerResolver resolver = registry
+            .getControllerResolvers()
+            .get(this.controllerClass);
+        if (resolver != null) {
+            for (final Method method : resolver.resolveMethods()) {
+                this.app.call(this.controllerClass, method, Object.class, args);
             }
         }
-        final List<InitBinderHandlerResolver> handlerResolvers =
-            this.app.getAttribute(
-                    "adviceInitBinderHandlerResolver",
-                    List.class
-                );
-        if (handlerResolvers != null) {
-            for (final InitBinderHandlerResolver handlerResolver : handlerResolvers) {
-                for (final Method method : handlerResolver.resolveMethods()) {
-                    this.app.call(
-                            this.controllerClass,
-                            method,
-                            Object.class,
-                            args
-                        );
-                }
+        for (final InitBinderHandlerResolver handlerResolver : registry.getAdviceResolvers()) {
+            for (final Method method : handlerResolver.resolveMethods()) {
+                this.app.call(this.controllerClass, method, Object.class, args);
             }
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected Object processException(final Throwable exception) {
         Object result = NO_RESOLVER;
-        final Map<Class<?>, ExceptionHandlerResolver> controllerResolvers =
-            this.app.getAttribute(
-                    "controllerExceptionHandlerResolvers",
-                    Map.class
-                );
-        if (controllerResolvers != null) {
-            final ExceptionHandlerResolver resolver = controllerResolvers.get(
-                this.controllerClass
-            );
-            if (resolver != null) {
-                result =
-                    this.processException(
-                            exception,
-                            this.controllerClass,
-                            resolver
-                        );
-                if (!result.equals(NO_RESOLVER)) {
-                    return result;
-                }
+        final ExceptionHandlerRegistry registry =
+            this.app.make(ExceptionHandlerRegistry.class);
+        final ExceptionHandlerResolver resolver = registry
+            .getControllerResolvers()
+            .get(this.controllerClass);
+        if (resolver != null) {
+            result =
+                this.processException(
+                        exception,
+                        this.controllerClass,
+                        resolver
+                    );
+            if (!result.equals(NO_RESOLVER)) {
+                return result;
             }
         }
-        final Map<Class<?>, ExceptionHandlerResolver> handlerResolvers =
-            this.app.getAttribute("adviceExceptionHandlerResolvers", Map.class);
-        if (handlerResolvers != null) {
-            for (final Map.Entry<Class<?>, ExceptionHandlerResolver> entry : handlerResolvers.entrySet()) {
-                result =
-                    this.processException(
-                            exception,
-                            entry.getKey(),
-                            entry.getValue()
-                        );
-                if (!result.equals(NO_RESOLVER)) {
-                    return result;
-                }
+        for (final Map.Entry<Class<?>, ExceptionHandlerResolver> entry : registry
+            .getAdviceResolvers()
+            .entrySet()) {
+            result =
+                this.processException(
+                        exception,
+                        entry.getKey(),
+                        entry.getValue()
+                    );
+            if (!result.equals(NO_RESOLVER)) {
+                return result;
             }
         }
+
         return result;
     }
 

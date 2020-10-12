@@ -8,8 +8,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.registrar.ExceptionHandlerRegistrar;
-import me.ixk.framework.registrar.InitBinderRegistrar;
+import me.ixk.framework.registry.after.ExceptionHandlerRegistry;
+import me.ixk.framework.registry.after.InitBinderRegistry;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,16 +17,18 @@ import me.ixk.framework.registrar.InitBinderRegistrar;
 @Bean
 @Attributes(
     {
-        @Attribute(
-            name = "controllerInitBinderHandlerResolver",
-            registrar = InitBinderRegistrar.class
-        ),
-        @Attribute(
-            name = "controllerExceptionHandlerResolvers",
-            registrar = ExceptionHandlerRegistrar.class
-        ),
+        ,
+        // @Attribute(
+        //     name = "controllerInitBinderHandlerResolver",
+        //     registry = InitBinderRegistry.class
+        // ),
+        // @Attribute(
+        //     name = "controllerExceptionHandlerResolvers",
+        //     registry = ExceptionHandlerRegistry.class
+        // ),
     }
 )
+@AfterImport({ ExceptionHandlerRegistry.class, InitBinderRegistry.class })
 public @interface Controller {
     @AliasFor(value = "name", annotation = Bean.class, attribute = "value")
     String[] value() default {  };

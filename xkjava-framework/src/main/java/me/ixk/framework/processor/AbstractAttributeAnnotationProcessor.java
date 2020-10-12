@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
 import me.ixk.framework.annotations.Attribute;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.registrar.AttributeRegistrar;
+import me.ixk.framework.registry.attribute.AttributeRegistry;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 
@@ -49,15 +49,15 @@ public abstract class AbstractAttributeAnnotationProcessor
         for (Attribute attribute : attributeAnnotation.getAnnotations(
             Attribute.class
         )) {
-            Class<? extends AttributeRegistrar> registrar = attribute.registrar();
+            Class<? extends AttributeRegistry> registry = attribute.registry();
             String name = attribute.name();
             if ("".equals(name)) {
                 // TODO: custom exception
                 throw new RuntimeException("Attribute not set name");
             }
-            if (registrar != AttributeRegistrar.class) {
+            if (registry != AttributeRegistry.class) {
                 Object value =
-                    this.app.make(registrar)
+                    this.app.make(registry)
                         .register(
                             this.app,
                             name,

@@ -2,36 +2,32 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.registrar;
+package me.ixk.framework.registry.attribute;
 
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.MapperScan;
-import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.registry.after.AfterImportBeanRegistry;
 import me.ixk.framework.utils.MergedAnnotation;
 
-public class MapperScannerRegistrar implements AttributeRegistrar {
+@Component(name = "mapperScannerRegistry")
+public class MapperScannerRegistry implements AfterImportBeanRegistry {
+    private final List<String> scanPackages = new ArrayList<>();
 
     @Override
-    public Object register(
+    public void after(
         XkJava app,
-        String attributeName,
         AnnotatedElement element,
-        ScopeType scopeType,
         MergedAnnotation annotation
     ) {
-        final List<String> scanPackages = app.getOrDefaultAttribute(
-            attributeName,
-            new ArrayList<>()
-        );
         if (annotation.hasAnnotation(MapperScan.class)) {
             this.processMapper(scanPackages, annotation);
         }
-        return scanPackages;
     }
 
     private void processMapper(
@@ -47,5 +43,9 @@ public class MapperScannerRegistrar implements AttributeRegistrar {
                     .collect(Collectors.toList())
             );
         }
+    }
+
+    public List<String> getScanPackages() {
+        return scanPackages;
     }
 }

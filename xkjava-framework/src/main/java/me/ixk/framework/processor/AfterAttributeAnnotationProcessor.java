@@ -25,7 +25,8 @@ public class AfterAttributeAnnotationProcessor
         AnnotatedElement element,
         MergedAnnotation attributeAnnotation
     ) {
-        if (attributeAnnotation.get(Attribute.class, "after")) {
+        final Boolean after = attributeAnnotation.get(Attribute.class, "after");
+        if (after != null && after) {
             this.processAnnotation(element, attributeAnnotation);
         }
     }

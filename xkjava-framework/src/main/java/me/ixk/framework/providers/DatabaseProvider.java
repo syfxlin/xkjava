@@ -6,7 +6,6 @@ package me.ixk.framework.providers;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import java.util.List;
 import javax.sql.DataSource;
 import me.ixk.framework.annotations.Bean;
 import me.ixk.framework.annotations.ConditionalOnMissingBean;
@@ -15,6 +14,7 @@ import me.ixk.framework.database.MybatisPlus;
 import me.ixk.framework.database.SqlSessionManager;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.Environment;
+import me.ixk.framework.registry.attribute.MapperScannerRegistry;
 
 @Provider
 public class DatabaseProvider {
@@ -35,14 +35,13 @@ public class DatabaseProvider {
         name = "sqlSessionManager",
         value = SqlSessionManager.class
     )
-    @SuppressWarnings("unchecked")
     public SqlSessionManager sqlSessionManager(
         final DataSource dataSource,
         final XkJava app
     ) {
         return new MybatisPlus(
             dataSource,
-            app.getAttribute("mapperScanPackages", List.class)
+            app.make(MapperScannerRegistry.class).getScanPackages()
         );
     }
 }

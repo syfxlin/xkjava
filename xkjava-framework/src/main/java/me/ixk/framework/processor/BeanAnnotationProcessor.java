@@ -21,9 +21,9 @@ import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Wrapper;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.registrar.AfterImportBeanRegistrar;
-import me.ixk.framework.registrar.BeforeImportBeanRegistrar;
-import me.ixk.framework.registrar.ImportBeanRegistrar;
+import me.ixk.framework.registry.ImportBeanRegistry;
+import me.ixk.framework.registry.after.AfterImportBeanRegistry;
+import me.ixk.framework.registry.before.BeforeImportBeanRegistry;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 
@@ -37,19 +37,34 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
 
     @Override
     public void process() {
+        // Before
+        this.processAnnotation(
+                BeforeImport.class,
+                this::invokeBeforeImport,
+                this::invokeBeforeImport
+            );
+        // Bind bean
         this.processAnnotation(
                 Bean.class,
                 this::processAnnotation,
                 this::processAnnotation
             );
-        this.app.setAttribute("makeSingletonBeanList", this.makeList);
+        // After
+        this.processAnnotation(
+                AfterImport.class,
+                this::invokeAfterImport,
+                this::invokeAfterImport
+            );
+        // Make bean
+        for (String beanName : this.makeList) {
+            this.app.make(beanName);
+        }
     }
 
     private void processAnnotation(final Method method) {
         final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
             method
         );
-        this.invokeBeforeImport(annotation, method);
         final ScopeType scopeType = this.getScoopType(annotation);
         final String name = method.getName();
         final Class<?> clazz = method.getReturnType();
@@ -76,7 +91,6 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
             }
             this.app.alias(n, name, scopeType);
         }
-        this.invokeAfterImport(annotation, method, binding);
         if (scopeType.isSingleton() && annotation.notAnnotation(Lazy.class)) {
             makeList.add(name);
         }
@@ -90,7 +104,6 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         if (beanAnnotation == null) {
             return;
         }
-        this.invokeBeforeImport(annotation, clazz);
         final ScopeType scopeType = this.getScoopType(annotation);
         final BindType bindType = beanAnnotation.bindType();
         final Method[] initAndDestroyMethod =
@@ -103,7 +116,6 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         for (final String name : (String[]) names) {
             this.app.alias(name, clazz, scopeType);
         }
-        this.invokeAfterImport(annotation, clazz, binding);
         // Add singleton to make list
         if (scopeType.isSingleton() && annotation.notAnnotation(Lazy.class)) {
             makeList.add(clazz.getName());
@@ -137,18 +149,19 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void invokeBeforeImport(
-        final MergedAnnotation annotation,
-        final AnnotatedElement element
-    ) {
+    private void invokeBeforeImport(final AnnotatedElement element) {
+        final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
+            element
+        );
         // @BeforeImport
         if (annotation.hasAnnotation(BeforeImport.class)) {
-            for (final Class<BeforeImportBeanRegistrar> registrar : (Class<BeforeImportBeanRegistrar>[]) annotation.get(
-                BeforeImport.class,
-                "value"
+            for (BeforeImport beforeImport : annotation.getAnnotations(
+                BeforeImport.class
             )) {
-                this.app.make(registrar).before(this.app, element, annotation);
+                for (Class<? extends BeforeImportBeanRegistry> registry : beforeImport.value()) {
+                    this.app.make(registry)
+                        .before(this.app, element, annotation);
+                }
             }
         }
     }
@@ -164,7 +177,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
             return this.app.bind(clazz, clazz, null, scopeType);
         } else {
             return this.app.make(
-                    (Class<ImportBeanRegistrar>) annotation.get(
+                    (Class<ImportBeanRegistry>) annotation.get(
                         Import.class,
                         "value"
                     )
@@ -173,20 +186,19 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void invokeAfterImport(
-        MergedAnnotation annotation,
-        final AnnotatedElement element,
-        final Binding binding
-    ) {
+    private void invokeAfterImport(final AnnotatedElement element) {
+        final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
+            element
+        );
         // @AfterImport
         if (annotation.hasAnnotation(AfterImport.class)) {
-            for (final Class<AfterImportBeanRegistrar> registrar : (Class<AfterImportBeanRegistrar>[]) annotation.get(
-                AfterImport.class,
-                "value"
+            for (AfterImport afterImport : annotation.getAnnotations(
+                AfterImport.class
             )) {
-                this.app.make(registrar)
-                    .after(this.app, element, annotation, binding);
+                for (Class<? extends AfterImportBeanRegistry> registry : afterImport.value()) {
+                    this.app.make(registry)
+                        .after(this.app, element, annotation);
+                }
             }
         }
     }

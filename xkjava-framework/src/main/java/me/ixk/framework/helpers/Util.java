@@ -413,6 +413,10 @@ public abstract class Util {
         return target;
     }
 
+    public static String attributeName(Class<?> clazz, String name) {
+        return clazz.getName() + "." + name;
+    }
+
     public static class HandlerDefinition {
         private final Class<?> controllerClass;
         private final Method method;

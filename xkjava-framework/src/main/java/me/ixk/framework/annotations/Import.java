@@ -8,10 +8,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.registrar.ImportBeanRegistrar;
+import me.ixk.framework.registry.ImportBeanRegistry;
 
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Import {
-    Class<? extends ImportBeanRegistrar> value();
+    Class<? extends ImportBeanRegistry> value();
 }

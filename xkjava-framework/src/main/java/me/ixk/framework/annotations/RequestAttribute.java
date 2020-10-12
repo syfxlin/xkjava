@@ -9,7 +9,7 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.registrar.RequestAttributeRegistrar;
+import me.ixk.framework.registry.request.RequestAttributeRegistry;
 
 @Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
@@ -21,5 +21,5 @@ public @interface RequestAttribute {
     @AliasFor("value")
     String name() default "";
 
-    Class<? extends RequestAttributeRegistrar> registrar();
+    Class<? extends RequestAttributeRegistry> registry();
 }

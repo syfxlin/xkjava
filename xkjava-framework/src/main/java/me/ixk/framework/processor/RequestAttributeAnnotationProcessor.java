@@ -9,10 +9,9 @@ import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.RequestAttribute;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.registrar.RequestAttributeRegistrar;
+import me.ixk.framework.registry.request.RequestAttributeRegistry;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
-import me.ixk.framework.web.RequestAttributeRegistry;
 
 @AnnotationProcessor
 @Order(Order.MEDIUM_PRECEDENCE + 2)
@@ -39,14 +38,14 @@ public class RequestAttributeAnnotationProcessor
     @SuppressWarnings("unchecked")
     public void processAnnotation(Method method) {
         MergedAnnotation annotation = AnnotationUtils.getAnnotation(method);
-        this.app.make(RequestAttributeRegistry.class)
-            .addRegistrar(
+        this.app.make(me.ixk.framework.web.RequestAttributeRegistry.class)
+            .addRegistry(
                 method,
                 annotation,
                 this.app.make(
-                        (Class<RequestAttributeRegistrar>) annotation.get(
+                        (Class<RequestAttributeRegistry>) annotation.get(
                             RequestAttribute.class,
-                            "registrar"
+                            "registry"
                         )
                     )
             );

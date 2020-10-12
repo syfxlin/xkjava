@@ -166,6 +166,16 @@ public class Container implements Context {
     }
 
     @Override
+    public Map<String, Object> getAttributes() {
+        final Map<String, Object> attributes = new ConcurrentHashMap<>();
+        this.walkContexts(
+                (Consumer<Context>) context ->
+                    attributes.putAll(context.getAttributes())
+            );
+        return attributes;
+    }
+
+    @Override
     public Binding getBinding(final String name) {
         return this.walkContexts(
                 (Function<Context, Binding>) context -> context.getBinding(name)
@@ -189,7 +199,8 @@ public class Container implements Context {
     @Override
     public Binding setBinding(final String name, final Binding binding) {
         log.debug("Container set binding: {}", name);
-        return this.getContextByBinding(binding).setBinding(name, binding);
+        Context context = this.getContextByScope(binding.getScope());
+        return context == null ? null : context.setBinding(name, binding);
     }
 
     @Override
@@ -265,29 +276,46 @@ public class Container implements Context {
         return this.contexts.get(contextName);
     }
 
-    public String getContextNameByBinding(final Binding binding) {
+    @Override
+    public Object getAttribute(String name) {
+        return this.getAttribute(name, ScopeType.SINGLETON);
+    }
+
+    @Override
+    public void setAttribute(String name, Object attribute) {
+        this.setAttribute(name, attribute, ScopeType.SINGLETON);
+    }
+
+    @Override
+    public void removeAttribute(String name) {
+        this.removeAttribute(name, ScopeType.SINGLETON);
+    }
+
+    public Context getContextByScope(ScopeType scopeType) {
         for (final Context context : this.contexts.values()) {
-            if (context.matchesScope(binding.getScope())) {
-                return context.getName();
+            if (context.matchesScope(scopeType)) {
+                return context;
             }
         }
         return null;
     }
 
-    public Context getContextByBinding(final Binding binding) {
-        return this.getContextByName(this.getContextNameByBinding(binding));
+    public String getContextNameByScope(ScopeType scopeType) {
+        Context context = this.getContextByScope(scopeType);
+        return context == null ? null : context.getName();
     }
 
-    public Binding setAttribute(
+    public Object getAttribute(final String name, final ScopeType scopeType) {
+        return this.getContextByScope(scopeType).getAttribute(name);
+    }
+
+    public void setAttribute(
         final String name,
         final Object attribute,
         final ScopeType scopeType
     ) {
         log.debug("Container set attribute: {} - {}", scopeType, name);
-        return this.setBinding(
-                Context.ATTRIBUTE_PREFIX + name,
-                new Binding(attribute, scopeType)
-            );
+        this.getContextByScope(scopeType).setAttribute(name, attribute);
     }
 
     @SuppressWarnings("unchecked")
@@ -296,17 +324,20 @@ public class Container implements Context {
         final T _default,
         final ScopeType scopeType
     ) {
-        Binding binding = this.getBinding(ATTRIBUTE_PREFIX + name);
-        if (binding == null || binding.getScope() != scopeType) {
-            this.setAttribute(name, _default, scopeType);
+        Object attribute = this.getAttribute(name, scopeType);
+        if (attribute == null) {
+            this.setAttribute(name, _default);
             return _default;
         }
-        return (T) binding.getInstance();
+        return (T) attribute;
     }
 
     public boolean hasAttribute(final String name, ScopeType scopeType) {
-        Binding binding = this.getBinding(ATTRIBUTE_PREFIX + name);
-        return binding != null && binding.getScope() == scopeType;
+        return this.getAttribute(name, scopeType) != null;
+    }
+
+    public void removeAttribute(String name, ScopeType scopeType) {
+        this.getContextByScope(scopeType).removeAttribute(name);
     }
 
     /* ===================== Base ===================== */
@@ -467,7 +498,11 @@ public class Container implements Context {
             alias
         );
         if (alias != null) {
-            this.alias(alias, bindName, this.getContextNameByBinding(binding));
+            this.alias(
+                    alias,
+                    bindName,
+                    this.getContextNameByScope(binding.getScope())
+                );
         }
         return this.setBinding(bindName, binding);
     }

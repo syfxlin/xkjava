@@ -8,12 +8,12 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.registrar.AspectRegistrar;
+import me.ixk.framework.registry.before.AspectRegistry;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Bean
-@BeforeImport(AspectRegistrar.class)
+@BeforeImport(AspectRegistry.class)
 public @interface Aspect {
     @AliasFor("pointcut")
     String value() default "";

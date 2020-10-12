@@ -9,14 +9,11 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.registrar.MapperScannerRegistrar;
+import me.ixk.framework.registry.attribute.MapperScannerRegistry;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@Attribute(
-    name = "mapperScanPackages",
-    registrar = MapperScannerRegistrar.class
-)
+@AfterImport(MapperScannerRegistry.class)
 @Repeatable(MapperScans.class)
 public @interface MapperScan {
     @AliasFor("basePackages")

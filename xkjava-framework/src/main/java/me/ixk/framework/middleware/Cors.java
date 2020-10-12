@@ -19,7 +19,7 @@ public class Cors implements Middleware {
     public Response handle(final Request request, final Runner next) {
         final Response response = next.handle(request);
         final CrossOrigin crossOrigin = (CrossOrigin) request.getAttribute(
-            "crossOrigin"
+            "me.ixk.framework.annotation.CrossOrigin"
         );
         String origin;
         if (CrossOrigin.DYNAMIC_ORIGIN.equals(crossOrigin.origins())) {

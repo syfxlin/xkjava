@@ -7,10 +7,12 @@ package me.ixk.framework.ioc;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class BindingAndAlias {
+public final class ContextItem {
     private final Map<String, Binding> bindings = new ConcurrentHashMap<>(256);
 
     private final Map<String, String> aliases = new ConcurrentHashMap<>(256);
+
+    private final Map<String, Object> attributes = new ConcurrentHashMap<>(256);
 
     public Map<String, Binding> getBindings() {
         return bindings;
@@ -18,5 +20,9 @@ public final class BindingAndAlias {
 
     public Map<String, String> getAliases() {
         return aliases;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
     }
 }

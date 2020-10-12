@@ -7,11 +7,11 @@ package me.ixk.framework.ioc.context;
 import java.util.Map;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.Binding;
-import me.ixk.framework.ioc.BindingAndAlias;
 import me.ixk.framework.ioc.Context;
+import me.ixk.framework.ioc.ContextItem;
 
 public class ApplicationContext implements Context {
-    private final BindingAndAlias bindingAndAlias = new BindingAndAlias();
+    private final ContextItem contextItem = new ContextItem();
 
     @Override
     public String getName() {
@@ -19,13 +19,18 @@ public class ApplicationContext implements Context {
     }
 
     @Override
-    public Map<String, Binding> getBindings() {
-        return this.bindingAndAlias.getBindings();
+    public Map<String, String> getAliases() {
+        return this.contextItem.getAliases();
     }
 
     @Override
-    public Map<String, String> getAliases() {
-        return this.bindingAndAlias.getAliases();
+    public Map<String, Binding> getBindings() {
+        return this.contextItem.getBindings();
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return this.contextItem.getAttributes();
     }
 
     @Override

@@ -9,12 +9,12 @@ import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.utils.Convert;
 
 public interface Context {
-    String ATTRIBUTE_PREFIX = "$";
-
     // 基础字段
     Map<String, String> getAliases();
 
     Map<String, Binding> getBindings();
+
+    Map<String, Object> getAttributes();
 
     String getName();
 
@@ -109,10 +109,16 @@ public interface Context {
 
     /* ====================== attribute ======================= */
 
-    // attribute 是一种特殊的 binding，也可以认为是已经创建好的单例，attribute 会自动在名称前添加 $ 前缀用以区分
     default Object getAttribute(String name) {
-        Binding binding = this.getBinding(ATTRIBUTE_PREFIX + name);
-        return binding == null ? null : binding.getInstance();
+        return this.getAttributes().get(name);
+    }
+
+    default void setAttribute(String name, Object attribute) {
+        this.getAttributes().put(name, attribute);
+    }
+
+    default void removeAttribute(String name) {
+        this.getAttributes().remove(name);
     }
 
     default <T> T getAttribute(String name, Class<T> returnType) {
@@ -121,27 +127,16 @@ public interface Context {
 
     @SuppressWarnings("unchecked")
     default <T> T getOrDefaultAttribute(String name, T _default) {
-        Binding result = this.getBinding(ATTRIBUTE_PREFIX + name);
-        if (result == null) {
+        Object attribute = this.getAttribute(name);
+        if (attribute == null) {
             this.setAttribute(name, _default);
             return _default;
         }
-        return (T) result.getInstance();
-    }
-
-    default Binding setAttribute(String name, Object attribute) {
-        return this.setBinding(
-                ATTRIBUTE_PREFIX + name,
-                new Binding(attribute, ScopeType.SINGLETON)
-            );
-    }
-
-    default void removeAttribute(String name) {
-        this.removeBinding(ATTRIBUTE_PREFIX + name);
+        return (T) attribute;
     }
 
     default boolean hasAttribute(String name) {
-        return this.hasBinding(ATTRIBUTE_PREFIX + name);
+        return this.getAttribute(name) != null;
     }
 
     /* ====================== instance ======================= */

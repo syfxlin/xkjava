@@ -65,7 +65,6 @@ ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf, FreeMarker 渲染，Http
 -   自动配置
 -   RequestParameterResolver、ResponseReturnValueResolver
 -   注解控制 Injector、Processor
--   封装部分 Attribute 到 Registry
 -   ResponseStatus
 
 ## 文档 Doc

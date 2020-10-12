@@ -9,52 +9,51 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.RequestAttribute;
-import me.ixk.framework.registrar.RequestAttributeRegistrar;
 import me.ixk.framework.utils.MergedAnnotation;
 
 @Component(name = "requestAttributeRegistry")
 public class RequestAttributeRegistry {
-    private final Map<Method, Map<String, RequestAttributeDefinition>> registrars = new ConcurrentHashMap<>();
+    private final Map<Method, Map<String, RequestAttributeDefinition>> registries = new ConcurrentHashMap<>();
 
-    public void addRegistrar(
+    public void addRegistry(
         final Method method,
         final MergedAnnotation annotation,
-        final RequestAttributeRegistrar registrar
+        final me.ixk.framework.registry.request.RequestAttributeRegistry registry
     ) {
         final Map<String, RequestAttributeDefinition> definitionMap =
-            this.registrars.getOrDefault(method, new ConcurrentHashMap<>());
+            this.registries.getOrDefault(method, new ConcurrentHashMap<>());
         for (final RequestAttribute requestAttribute : annotation.getAnnotations(
             RequestAttribute.class
         )) {
             definitionMap.put(
                 requestAttribute.name(),
-                new RequestAttributeDefinition(method, annotation, registrar)
+                new RequestAttributeDefinition(method, annotation, registry)
             );
         }
-        this.registrars.put(method, definitionMap);
+        this.registries.put(method, definitionMap);
     }
 
-    public Map<String, RequestAttributeDefinition> getRegistrar(Method method) {
-        return this.registrars.get(method);
+    public Map<String, RequestAttributeDefinition> getRegistry(Method method) {
+        return this.registries.get(method);
     }
 
     public static class RequestAttributeDefinition {
-        private final RequestAttributeRegistrar registrar;
+        private final me.ixk.framework.registry.request.RequestAttributeRegistry registry;
         private final MergedAnnotation annotation;
         private final Method method;
 
         public RequestAttributeDefinition(
             final Method method,
             final MergedAnnotation annotation,
-            final RequestAttributeRegistrar registrar
+            final me.ixk.framework.registry.request.RequestAttributeRegistry registry
         ) {
             this.method = method;
-            this.registrar = registrar;
+            this.registry = registry;
             this.annotation = annotation;
         }
 
-        public RequestAttributeRegistrar getRegistrar() {
-            return registrar;
+        public me.ixk.framework.registry.request.RequestAttributeRegistry getRegistry() {
+            return registry;
         }
 
         public MergedAnnotation getAnnotation() {
