@@ -9,9 +9,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import me.ixk.framework.http.HttpStatus;
+import me.ixk.framework.registry.request.ResponseStatusRegistry;
 
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
+@RequestAttribute(
+    name = "me.ixk.framework.annotations.ResponseStatus",
+    registry = ResponseStatusRegistry.class
+)
+@Middleware(middleware = me.ixk.framework.middleware.ResponseStatus.class)
 public @interface ResponseStatus {
     @AliasFor("code")
     HttpStatus value() default HttpStatus.INTERNAL_SERVER_ERROR;

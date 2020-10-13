@@ -55,16 +55,15 @@ public class MiddlewareRegistry implements AfterImportBeanRegistry {
                 me.ixk.framework.annotations.Middleware.class
             )
         ) {
-            final me.ixk.framework.annotations.Middleware middlewareAnnotation = annotation.getAnnotation(
+            for (me.ixk.framework.annotations.Middleware middleware : annotation.getAnnotations(
                 me.ixk.framework.annotations.Middleware.class
-            );
-            if (middlewareAnnotation != null) {
+            )) {
                 try {
                     this.annotationMiddlewareDefinitions.put(
                             (Method) element,
                             new AnnotationMiddlewareDefinition(
-                                middlewareAnnotation.name(),
-                                middlewareAnnotation.middleware(),
+                                middleware.name(),
+                                middleware.middleware(),
                                 (Method) element
                             )
                         );

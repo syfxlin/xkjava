@@ -21,6 +21,8 @@ import me.ixk.framework.annotations.PostMapping;
 import me.ixk.framework.annotations.PreDestroy;
 import me.ixk.framework.annotations.QueryValue;
 import me.ixk.framework.annotations.RequestMapping;
+import me.ixk.framework.annotations.ResponseStatus;
+import me.ixk.framework.annotations.VerifyCsrf;
 import me.ixk.framework.utils.ValidGroup;
 import me.ixk.framework.utils.ValidResult;
 import me.ixk.framework.web.WebDataBinder;
@@ -53,6 +55,8 @@ public class TestController {
     }
 
     @PostMapping("/post")
+    @ResponseStatus
+    @VerifyCsrf
     public String post(
         User user,
         @DataBind(name = "user") User user2,

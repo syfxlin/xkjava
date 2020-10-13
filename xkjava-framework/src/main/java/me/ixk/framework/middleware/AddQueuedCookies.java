@@ -13,7 +13,7 @@ import me.ixk.framework.http.SetCookie;
 import me.ixk.framework.ioc.XkJava;
 
 @GlobalMiddleware
-@Order(Order.HIGHEST_PRECEDENCE + 2)
+@Order(Order.HIGHEST_PRECEDENCE + 3)
 public class AddQueuedCookies implements Middleware {
 
     @Override

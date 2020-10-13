@@ -70,25 +70,21 @@ public class ErrorHandler
     )
         throws IOException {
         if (this instanceof ErrorPageMapper) {
-            String error_page = ((ErrorPageMapper) this).getErrorPage(request);
-            if (error_page != null && request.getServletContext() != null) {
-                String old_error_page = (String) request.getAttribute(
-                    ERROR_PAGE
-                );
-                if (
-                    old_error_page == null || !old_error_page.equals(error_page)
-                ) {
-                    request.setAttribute(ERROR_PAGE, error_page);
+            String errorPage = ((ErrorPageMapper) this).getErrorPage(request);
+            if (errorPage != null && request.getServletContext() != null) {
+                String oldErrorPage = (String) request.getAttribute(ERROR_PAGE);
+                if (oldErrorPage == null || !oldErrorPage.equals(errorPage)) {
+                    request.setAttribute(ERROR_PAGE, errorPage);
 
                     Dispatcher dispatcher = (Dispatcher) request
                         .getServletContext()
-                        .getRequestDispatcher(error_page);
+                        .getRequestDispatcher(errorPage);
                     try {
                         if (dispatcher != null) {
                             dispatcher.error(request, response);
                             return;
                         }
-                        LOG.warn("No error page " + error_page);
+                        LOG.warn("No error page " + errorPage);
                     } catch (ServletException e) {
                         LOG.warn(Log.EXCEPTION, e);
                         return;

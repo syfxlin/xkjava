@@ -63,9 +63,7 @@ ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf, FreeMarker 渲染，Http
 -   日志
 -   缓存注解
 -   自动配置
--   RequestParameterResolver、ResponseReturnValueResolver
 -   注解控制 Injector、Processor
--   ResponseStatus
 
 ## 文档 Doc
 

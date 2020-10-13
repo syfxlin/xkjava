@@ -6,7 +6,11 @@ package me.ixk.framework.http;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import javax.servlet.ServletOutputStream;
@@ -14,7 +18,12 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.exceptions.ResponseException;
 import me.ixk.framework.utils.JSON;
-import org.eclipse.jetty.http.*;
+import org.eclipse.jetty.http.HttpContent;
+import org.eclipse.jetty.http.HttpCookie;
+import org.eclipse.jetty.http.HttpFields;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.MetaData;
+import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.util.Callback;
@@ -213,6 +222,10 @@ public class Response implements HttpServletResponse {
                 status.getValue(),
                 status.getReasonPhrase()
             );
+    }
+
+    public Response status(int sc, String reason) {
+        return this.setStatusWithReason(sc, reason);
     }
 
     public Response header(String name, String value) {
