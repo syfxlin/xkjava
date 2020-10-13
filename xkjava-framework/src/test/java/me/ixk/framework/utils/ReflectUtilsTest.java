@@ -2,7 +2,7 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package framework.utils;
+package me.ixk.framework.utils;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;

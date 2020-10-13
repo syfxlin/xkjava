@@ -4,10 +4,9 @@
 
 package me.ixk.framework.web.resolver;
 
-import static me.ixk.framework.helpers.Util.caseGet;
-
 import com.fasterxml.jackson.databind.node.NullNode;
 import java.lang.annotation.Annotation;
+import java.util.Collections;
 import java.util.function.Function;
 import me.ixk.framework.annotations.BodyValue;
 import me.ixk.framework.annotations.CookieValue;
@@ -20,6 +19,7 @@ import me.ixk.framework.annotations.RequestValue;
 import me.ixk.framework.annotations.SessionValue;
 import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.http.Request;
+import me.ixk.framework.ioc.ObjectWrapperDataBinder;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.web.MethodParameter;
 import me.ixk.framework.web.RequestParameterResolver;
@@ -31,32 +31,41 @@ import me.ixk.framework.web.WebDataBinder;
 public class AnnotatedParameterResolver implements RequestParameterResolver {
 
     @Override
-    public boolean supportsParameter(final Object value,
-        final MethodParameter parameter) {
+    public boolean supportsParameter(
+        final Object value,
+        final MethodParameter parameter
+    ) {
         if (value == null) {
-            final MergedAnnotation annotation = parameter
-                .getParameterAnnotation();
-            return (annotation.hasAnnotation(QueryValue.class) || annotation
-                .hasAnnotation(BodyValue.class) || annotation
-                .hasAnnotation(PathValue.class) || annotation
-                .hasAnnotation(PartValue.class) || annotation
-                .hasAnnotation(HeaderValue.class) || annotation
-                .hasAnnotation(CookieValue.class) || annotation
-                .hasAnnotation(SessionValue.class) || annotation
-                .hasAnnotation(RequestValue.class));
+            final MergedAnnotation annotation = parameter.getParameterAnnotation();
+            return (
+                annotation.hasAnnotation(QueryValue.class) ||
+                annotation.hasAnnotation(BodyValue.class) ||
+                annotation.hasAnnotation(PathValue.class) ||
+                annotation.hasAnnotation(PartValue.class) ||
+                annotation.hasAnnotation(HeaderValue.class) ||
+                annotation.hasAnnotation(CookieValue.class) ||
+                annotation.hasAnnotation(SessionValue.class) ||
+                annotation.hasAnnotation(RequestValue.class)
+            );
         }
         return false;
     }
 
     @Override
-    public Object resolveParameter(final Object value,
-        final MethodParameter parameter, final WebContext context,
-        final WebDataBinder binder) {
-        return this.getValue(parameter, context.getRequest());
+    public Object resolveParameter(
+        final Object value,
+        final MethodParameter parameter,
+        final WebContext context,
+        final WebDataBinder binder
+    ) {
+        return this.getValue(parameter, context.getRequest(), binder);
     }
 
-    private Object getValue(final MethodParameter parameter,
-        final Request request) {
+    private Object getValue(
+        final MethodParameter parameter,
+        final Request request,
+        final WebDataBinder binder
+    ) {
         final MergedAnnotation annotation = parameter.getParameterAnnotation();
         Class<? extends Annotation> annotationType = null;
         Function<String, Object> fun = n -> null;
@@ -89,14 +98,24 @@ public class AnnotatedParameterResolver implements RequestParameterResolver {
         if (name.isEmpty()) {
             name = parameter.getParameterName();
         }
-        final Object value = caseGet(name, fun);
-        if ((value == null || value == NullNode.getInstance())
-            && (boolean) annotation.get(annotationType, "required")) {
+        final Object value = new ObjectWrapperDataBinder(
+            binder.getContainer(),
+            Collections.singletonList(fun)
+        )
+        .getObject(name, parameter.getParameterType());
+        if (
+            (value == null || value == NullNode.getInstance()) &&
+            (boolean) annotation.get(annotationType, "required")
+        ) {
             throw new NullPointerException(
-                "Target [" + parameter.getControllerClass().getName() + "@"
-                    + parameter.getMethod().getName() + "(" + parameter
-                    .getParameterName()
-                    + ")] is required, but inject value is null");
+                "Target [" +
+                parameter.getControllerClass().getName() +
+                "@" +
+                parameter.getMethod().getName() +
+                "(" +
+                parameter.getParameterName() +
+                ")] is required, but inject value is null"
+            );
         }
         return value;
     }

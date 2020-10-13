@@ -4,119 +4,44 @@
 
 package me.ixk.framework.web;
 
-import static me.ixk.framework.helpers.Util.caseGet;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotations.DataBind;
-import me.ixk.framework.http.Converter;
+import java.util.function.Function;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.ioc.Container;
-import me.ixk.framework.ioc.DataBinder;
-import me.ixk.framework.utils.Convert;
+import me.ixk.framework.ioc.ObjectWrapperDataBinder;
 
-public class WebDataBinder implements DataBinder {
+public class WebDataBinder extends ObjectWrapperDataBinder {
     public static final String DEFAULT_VALUE_PREFIX = "&";
-
-    private String prefix = "";
-
-    private boolean first = true;
-
-    private final Request request;
-
-    private final Container container;
 
     private final Map<String, Object> data = new ConcurrentHashMap<>();
 
-    private final Map<String, List<Converter<?>>> converter = new ConcurrentHashMap<>();
-
     public WebDataBinder(Container container, Request request) {
-        this.container = container;
-        this.request = request;
+        this(container, request, new ArrayList<>());
     }
 
-    @Override
-    public <T> T getObject(String name, Class<T> type) {
-        return this.getObject(name, type, null);
+    public WebDataBinder(
+        Container container,
+        Request request,
+        List<Function<String, Object>> getters
+    ) {
+        super(container, getters);
+        this.getters.add(request::all);
+        this.getters.add(data::get);
     }
 
-    @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T getObject(String name, Class<T> type, DataBind dataBind) {
-        if (dataBind != null) {
-            name =
-                dataBind.name().length() == 0
-                    ? Request.REQUEST_BODY
-                    : dataBind.name();
-            this.prefix = name;
-        }
-        String concatName = this.concat(name);
-        String typeName = type.getName();
-        Object object = caseGet(
-            concatName,
-            n -> {
-                Object target = this.request.all(n);
-                if (target == null) {
-                    target = this.data.get(DEFAULT_VALUE_PREFIX + n);
-                }
-                return target;
-            }
-        );
-        if (object == null) {
-            object = this.data.get(typeName);
-        }
-        if (object == null) {
-            object = this.data.get(DEFAULT_VALUE_PREFIX + typeName);
-        }
-        if (object == null) {
-            String oldPrefix = this.prefix;
-            boolean oldFirst = this.first;
-            this.prefix = this.concatPrefix(name);
-            this.first = false;
-            object = container.make(concatName, type, this);
-            if (object == null) {
-                object = container.make(type.getName(), (Class<?>) type, this);
-            }
-            this.prefix = oldPrefix;
-            this.first = oldFirst;
-        }
-        List<Converter<?>> converters = this.converter.get(concatName);
-        if (converters != null) {
-            for (Converter converter : converters) {
-                object = converter.before(object);
-            }
-        }
-        object = Convert.convert(type, object);
-        if (converters != null) {
-            for (Converter converter : converters) {
-                object = converter.after(object);
-            }
-        }
-        return (T) object;
-    }
-
-    protected String concatPrefix(String name) {
-        if (this.first) {
-            return this.prefix;
-        }
-        return (this.prefix.length() == 0 ? "" : this.prefix + ".") + name;
-    }
-
-    protected String concat(String name) {
-        return (
-            (this.first || this.prefix.length() == 0 ? "" : this.prefix + ".") +
-            name
-        );
+    public WebDataBinder(
+        Container container,
+        String prefix,
+        List<Function<String, Object>> getters
+    ) {
+        super(container, prefix, getters);
     }
 
     public Map<String, Object> getData() {
         return data;
-    }
-
-    public Map<String, List<Converter<?>>> getConverter() {
-        return converter;
     }
 
     public WebDataBinder add(String name, Object object) {
@@ -138,16 +63,8 @@ public class WebDataBinder implements DataBinder {
         return this;
     }
 
-    public WebDataBinder addConverter(String name, Converter<?> converter) {
-        List<Converter<?>> converters =
-            this.converter.getOrDefault(name, new ArrayList<>());
-        converters.add(converter);
-        this.converter.put(name, converters);
-        return this;
-    }
-
-    public WebDataBinder removeConverter(String name) {
-        this.converter.remove(name);
-        return this;
+    @Override
+    protected String getDefaultDataBindName() {
+        return Request.REQUEST_BODY;
     }
 }

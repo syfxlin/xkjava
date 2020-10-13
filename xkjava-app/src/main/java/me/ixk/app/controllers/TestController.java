@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import me.ixk.app.beans.User;
 import me.ixk.app.beans.User2;
-import me.ixk.app.converter.TestConverter;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.BodyValue;
 import me.ixk.framework.annotations.Controller;
@@ -56,8 +55,9 @@ public class TestController {
     @PostMapping("/post")
     public String post(
         User user,
-        @Valid @DataBind(name = "user1") User2 user1,
-        @Valid @DataBind(name = "user2") User2 user2,
+        @DataBind(name = "user") User user2,
+        @DataBind(name = "user3") User2 user3,
+        @Valid @DataBind(name = "user4") User2 user4,
         // 如果不传入这两个其中一个参数，则会抛出异常
         ValidGroup validGroup,
         ValidResult<User2> validResult
@@ -86,7 +86,6 @@ public class TestController {
         user2.setAge(17);
         binder.addDefault("user3", user2);
         binder.addDefault("user4.name", "user4");
-        binder.addConverter("user4.name", new TestConverter());
     }
 
     @PreDestroy
