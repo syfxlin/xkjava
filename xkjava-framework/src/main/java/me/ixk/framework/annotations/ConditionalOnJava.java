@@ -11,6 +11,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import me.ixk.framework.conditional.OnJavaCondition;
 
+/**
+ * 条件注解（OnJava）
+ * <p>
+ * 当 Java 的版本高于或等于时进行操作
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 4:35
+ */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

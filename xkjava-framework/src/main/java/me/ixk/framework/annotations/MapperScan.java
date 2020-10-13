@@ -11,15 +11,22 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import me.ixk.framework.registry.after.MapperScannerRegistry;
 
+/**
+ * Mybatis Mapper 扫描的包
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 5:01
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @AfterImport(MapperScannerRegistry.class)
 @Repeatable(MapperScans.class)
 public @interface MapperScan {
+    @AliasFor("basePackages")
+    String[] value() default {  };
 
-    @AliasFor("basePackages") String[] value() default {};
+    @AliasFor("value")
+    String[] basePackages() default {  };
 
-    @AliasFor("value") String[] basePackages() default {};
-
-    Class<?>[] basePackageClasses() default {};
+    Class<?>[] basePackageClasses() default {  };
 }

@@ -10,6 +10,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * 组件扫描
+ * <p>
+ * 标记注解扫描器扫描的包，只有被扫描到的包才能被应用知晓并操作。
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 4:28
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Repeatable(ComponentScans.class)

@@ -58,7 +58,6 @@ ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf, FreeMarker 渲染，Http
 
 ## TODO
 
--   @ThreadSafe
 -   添加完整的 Test Case
 -   日志
 -   缓存注解

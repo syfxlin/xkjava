@@ -11,7 +11,15 @@ import java.lang.annotation.Target;
 import me.ixk.framework.middleware.Cors;
 import me.ixk.framework.registry.request.CrossOriginRegistry;
 
-@Target({ ElementType.TYPE, ElementType.METHOD })
+/**
+ * 跨域资源共享
+ * <p>
+ * 标记该注解的路由才允许跨域
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 4:47
+ */
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @RequestAttribute(
     name = "me.ixk.framework.annotation.CrossOrigin",

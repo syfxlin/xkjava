@@ -9,6 +9,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * 数据绑定
+ * <p>
+ * 标记容器注入的信息
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 4:49
+ */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DataBind {

@@ -9,6 +9,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * 组件
+ * <p>
+ * 效果同 Bean，是 Bean 的语义化别名
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 4:28
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Bean

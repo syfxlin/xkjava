@@ -4,9 +4,24 @@
 
 package me.ixk.framework.annotations;
 
+/**
+ * 作用域类型
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 5:48
+ */
 public enum ScopeType {
+    /**
+     * 单例
+     */
     SINGLETON("singleton"),
+    /**
+     * 多例
+     */
     PROTOTYPE("prototype"),
+    /**
+     * 请求
+     */
     REQUEST("request"),;
 
     private final String name;

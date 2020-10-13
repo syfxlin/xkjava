@@ -10,6 +10,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import me.ixk.framework.registry.after.MiddlewareRegistry;
 
+/**
+ * 路由中间件
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 5:47
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @AfterImport(MiddlewareRegistry.class)

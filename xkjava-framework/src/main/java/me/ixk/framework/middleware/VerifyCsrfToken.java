@@ -15,7 +15,6 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
 
-// @GlobalMiddleware
 @Order(Order.HIGHEST_PRECEDENCE + 4)
 public class VerifyCsrfToken implements Middleware {
     /**

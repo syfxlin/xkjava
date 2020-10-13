@@ -9,6 +9,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Mybatis Plus Service
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 5:49
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Scope(type = ScopeType.PROTOTYPE)

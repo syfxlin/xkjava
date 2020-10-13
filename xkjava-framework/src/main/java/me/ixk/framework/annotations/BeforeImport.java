@@ -10,6 +10,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import me.ixk.framework.registry.before.BeforeImportBeanRegistry;
 
+/**
+ * 前置 Import
+ * <p>
+ * 在 Bean 绑定前执行，一般用于注册一些属性到 Registry 中。
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 4:23
+ */
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface BeforeImport {

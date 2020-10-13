@@ -9,6 +9,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * 配置项
+ * <p>
+ * 自动注入配置项
+ * <p>
+ * ignoreInvalidFields 是否忽略不可用的字段
+ * <p>
+ * ignoreUnknownFields 是否忽略Java类不存在的字段
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 4:42
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Bean

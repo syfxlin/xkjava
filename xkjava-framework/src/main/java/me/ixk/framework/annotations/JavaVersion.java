@@ -4,14 +4,44 @@
 
 package me.ixk.framework.annotations;
 
+/**
+ * Java 版本
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 4:59
+ */
 public enum JavaVersion {
+    /**
+     * Java 8
+     */
     EIGHT(8),
+    /**
+     * Java 8
+     */
     NINE(9),
+    /**
+     * Java 10
+     */
     TEN(10),
+    /**
+     * Java 11
+     */
     ELEVEN(11),
+    /**
+     * Java 12
+     */
     TWELVE(12),
+    /**
+     * Java 13
+     */
     THIRTEEN(13),
+    /**
+     * Java 14
+     */
     FOURTEEN(14),
+    /**
+     * Java 15
+     */
     FIFTEEN(15),;
 
     private final int version;
@@ -20,6 +50,7 @@ public enum JavaVersion {
         this.version = version;
     }
 
+    @Override
     public String toString() {
         return this.version + "";
     }

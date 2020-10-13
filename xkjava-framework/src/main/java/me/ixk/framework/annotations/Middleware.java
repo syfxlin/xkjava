@@ -10,6 +10,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import me.ixk.framework.registry.after.MiddlewareRegistry;
 
+/**
+ * 中间件
+ * <p>
+ * 标记了该注解的路由会使用指定的中间件
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 5:01
+ */
 @Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @AfterImport(MiddlewareRegistry.class)

@@ -9,6 +9,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * 排序
+ * <p>
+ * 排序注解可用于框架中所有的注解上，值越小优先级越高
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 5:02
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Order {

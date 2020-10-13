@@ -11,6 +11,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import me.ixk.framework.conditional.OnResourceCondition;
 
+/**
+ * 条件注解（OnResource）
+ * <p>
+ * 当资源存在的时候操作
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 4:41
+ */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

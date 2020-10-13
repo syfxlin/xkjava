@@ -11,6 +11,14 @@ import java.lang.annotation.Target;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.registry.request.ResponseStatusRegistry;
 
+/**
+ * 响应码
+ * <p>
+ * 声明式设置响应码
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 5:46
+ */
 @Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @RequestAttribute(

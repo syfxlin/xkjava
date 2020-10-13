@@ -10,6 +10,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import me.ixk.framework.registry.MapperRegistry;
 
+/**
+ * 标记 Mybatis 的 Mapper
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 5:01
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Scope(type = ScopeType.PROTOTYPE)

@@ -11,6 +11,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import me.ixk.framework.conditional.OnExpressionCondition;
 
+/**
+ * 条件注解（OnExpression）
+ * <p>
+ * 当表达式为 true 的时候进行操作
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 4:35
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Documented

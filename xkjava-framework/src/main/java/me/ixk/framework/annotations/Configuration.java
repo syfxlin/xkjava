@@ -10,7 +10,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 配置
+ * <p>
  * Configuration 主要用于实例 Bean 的定义，是 Component 的一种
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 4:42
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

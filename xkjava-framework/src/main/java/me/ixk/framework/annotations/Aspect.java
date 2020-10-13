@@ -10,6 +10,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import me.ixk.framework.registry.before.AspectRegistry;
 
+/**
+ * 切面
+ * <p>
+ * pointcut 为 AspectJ 的表达式
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 4:12
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Bean

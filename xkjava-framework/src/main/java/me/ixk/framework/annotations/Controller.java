@@ -11,23 +11,18 @@ import java.lang.annotation.Target;
 import me.ixk.framework.registry.after.ExceptionHandlerRegistry;
 import me.ixk.framework.registry.after.InitBinderRegistry;
 
+/**
+ * 控制器
+ * <p>
+ * 用于定义路由方法的类
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 4:45
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Lazy
 @Bean
-@Attributes(
-    {
-        ,
-        // @Attribute(
-        //     name = "controllerInitBinderHandlerResolver",
-        //     registry = InitBinderRegistry.class
-        // ),
-        // @Attribute(
-        //     name = "controllerExceptionHandlerResolvers",
-        //     registry = ExceptionHandlerRegistry.class
-        // ),
-    }
-)
 @AfterImport({ ExceptionHandlerRegistry.class, InitBinderRegistry.class })
 public @interface Controller {
     @AliasFor(value = "name", annotation = Bean.class, attribute = "value")

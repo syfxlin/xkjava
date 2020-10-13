@@ -9,6 +9,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * 请求 Attribute 注入（多）
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 5:14
+ */
 @Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @RepeatItem(RequestAttribute.class)

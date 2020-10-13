@@ -9,6 +9,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * 请求属性值
+ * <p>
+ * 注入 RequestAttribute 到参数
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 5:46
+ */
 @Target({ ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestValue {
