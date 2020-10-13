@@ -7,6 +7,7 @@ package me.ixk.app.beans;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.ixk.framework.annotations.Bean;
+import me.ixk.framework.annotations.ConfigurationProperties;
 import me.ixk.framework.annotations.Value;
 
 @Data
@@ -23,10 +24,11 @@ import me.ixk.framework.annotations.Value;
 // @ConditionalOnExpression("2 > 1")
 // @ConditionalOnResource(resources = { "banner.txt" })
 // @ConditionalOnJava(version = JavaVersion.FIFTEEN)
+@ConfigurationProperties
 public class User3 {
-    @Value("$('test.name')")
+    @Value("#e['test.name']")
     String name;
 
-    @Value("$('age:21')")
+    @Value("#e['age'] ?: 21")
     int age;
 }

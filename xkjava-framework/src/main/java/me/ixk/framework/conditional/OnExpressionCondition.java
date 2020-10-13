@@ -22,8 +22,9 @@ public class OnExpressionCondition implements Condition {
     ) {
         return Convert.convert(
             Boolean.class,
-            Express.executeEnv(
-                annotation.get(ConditionalOnExpression.class, "value")
+            Express.evaluateApp(
+                annotation.get(ConditionalOnExpression.class, "value"),
+                Boolean.class
             )
         );
     }

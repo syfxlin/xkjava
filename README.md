@@ -46,7 +46,7 @@ IoC 容器可以自定义注入器，默认的注入器可以支持大部分场�
 
 最新版去掉了门面，改用 Helper 静态方法，你可以使用静态导入的方式使用这些 Helper 方法。
 
-ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf, FreeMarker 渲染，HttpServer 采用 Jetty，参数验证使用的是 HibernateValidator（由于后续才引入的 HuTool，就懒得改了），类型转换器和一些其他工具使用的是 HuTool，数据源使用的是 HikariCP，JSON 库采用的是 Jackson，由于 Java 默认不会保留参数名称，加编译选项在我这出现时好时坏的情况，所以本项目直接采用了 ASM 来获取参数名称。使用 QLExpress 来解析 @Value 的表达式。
+ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf, FreeMarker 渲染，HttpServer 采用 Jetty，参数验证使用的是 HibernateValidator（由于后续才引入的 HuTool，就懒得改了），类型转换器和一些其他工具使用的是 HuTool，数据源使用的是 HikariCP，JSON 库采用的是 Jackson，由于 Java 默认不会保留参数名称，加编译选项在我这出现时好时坏的情况，所以本项目直接采用了 ASM 来获取参数名称。使用 SpringEL（第三方库，去除了 Spring Core 依赖） 来解析 @Value 的表达式。
 
 添加了 @PostConstruct 和 @PreDestroy 的支持
 

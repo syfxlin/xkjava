@@ -13,7 +13,7 @@ import me.ixk.framework.annotations.Value;
 public class TestConfigurationProperties {
     private String name;
 
-    @Value("env.get('test.age1')")
+    @Value("#e['test.age1']")
     private Integer age;
 
     private String nickName;

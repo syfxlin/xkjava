@@ -59,9 +59,9 @@
     </dependency>
     <!-- Tools -->
     <dependency>
-      <groupId>com.alibaba</groupId>
-      <artifactId>QLExpress</artifactId>
-      <version>3.2.4</version>
+      <artifactId>spel</artifactId>
+      <groupId>io.github.imsejin</groupId>
+      <version>5.2.9</version>
     </dependency>
     <dependency>
       <groupId>org.aspectj</groupId>

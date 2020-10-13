@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 /**
  * 表达式注入
  * <p>
- * 使用 QLExpression 作为表达式解析
+ * 使用 SpringEL 作为表达式解析
  *
  * @author Otstar Lin
  * @date 2020/10/13 下午 5:52

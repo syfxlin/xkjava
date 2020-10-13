@@ -120,6 +120,6 @@ public class PropertiesValueInjector implements InstanceInjector {
     }
 
     protected Object injectValue(Value value) {
-        return Express.executeEnv(value.value());
+        return Express.evaluateApp(value.value(), Object.class);
     }
 }
