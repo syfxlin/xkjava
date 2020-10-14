@@ -8,6 +8,12 @@ import java.util.Map;
 import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.utils.Convert;
 
+/**
+ * 默认数据绑定器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 11:38
+ */
 public class DefaultDataBinder implements DataBinder {
     private final Container container;
 

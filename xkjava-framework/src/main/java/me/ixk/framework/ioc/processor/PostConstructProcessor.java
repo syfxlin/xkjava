@@ -9,6 +9,12 @@ import me.ixk.framework.ioc.BeanBeforeProcessor;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
 
+/**
+ * 构造器后处理器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 11:07
+ */
 public class PostConstructProcessor implements BeanBeforeProcessor {
 
     @Override

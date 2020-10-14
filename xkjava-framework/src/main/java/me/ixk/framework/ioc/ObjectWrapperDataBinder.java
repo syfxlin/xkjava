@@ -12,6 +12,12 @@ import java.util.function.Function;
 import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.utils.Convert;
 
+/**
+ * 对象包装数据绑定器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 11:41
+ */
 public class ObjectWrapperDataBinder implements DataBinder {
     public static final String DEFAULT_VALUE_PREFIX = "&";
     public static final String DEFAULT_DATABIND_NAME = "default";
@@ -20,7 +26,7 @@ public class ObjectWrapperDataBinder implements DataBinder {
 
     protected final List<Function<String, Object>> getters;
 
-    protected String prefix = null;
+    protected volatile String prefix = null;
 
     public ObjectWrapperDataBinder(
         Container container,

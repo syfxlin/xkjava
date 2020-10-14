@@ -12,8 +12,19 @@ import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.ParameterInjector;
 import me.ixk.framework.utils.AnnotationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * 默认的参数注入器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 10:44
+ */
 public class DefaultParameterInjector implements ParameterInjector {
+    private static final Logger log = LoggerFactory.getLogger(
+        DefaultParameterInjector.class
+    );
 
     @Override
     public Object[] inject(
@@ -42,7 +53,7 @@ public class DefaultParameterInjector implements ParameterInjector {
                 dataBind != null &&
                 dataBind.required()
             ) {
-                throw new NullPointerException(
+                final NullPointerException exception = new NullPointerException(
                     "Target [" +
                     method.getDeclaringClass().getName() +
                     "@" +
@@ -51,6 +62,13 @@ public class DefaultParameterInjector implements ParameterInjector {
                     parameterName +
                     ")] is required, but inject value is null"
                 );
+                log.error(
+                    "Target [{}@{}({})] is required, but inject value is null",
+                    method.getDeclaringClass().getName(),
+                    method.getName(),
+                    parameterName
+                );
+                throw exception;
             }
         }
         return dependencies;

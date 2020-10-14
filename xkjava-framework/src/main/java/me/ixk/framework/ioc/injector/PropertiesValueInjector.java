@@ -24,8 +24,19 @@ import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.Express;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * Properties 值默认注入器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 11:04
+ */
 public class PropertiesValueInjector implements InstanceInjector {
+    private static final Logger log = LoggerFactory.getLogger(
+        PropertiesValueInjector.class
+    );
 
     @Override
     public Object inject(
@@ -52,8 +63,8 @@ public class PropertiesValueInjector implements InstanceInjector {
             prefixProps = environment.getPrefix(config.prefix());
         }
         for (Field field : fields) {
-            Value valueAnno = field.getAnnotation(Value.class);
-            if (config == null && valueAnno == null) {
+            Value valueAnnotation = field.getAnnotation(Value.class);
+            if (config == null && valueAnnotation == null) {
                 continue;
             }
             PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
@@ -65,7 +76,7 @@ public class PropertiesValueInjector implements InstanceInjector {
             }
             Method writeMethod = propertyDescriptor.getWriteMethod();
             Object value;
-            if (config != null && valueAnno == null) {
+            if (config != null && valueAnnotation == null) {
                 // @ConfigurationProperties 没有 @Value 注解
                 value =
                     this.injectConfigurationProperties(
@@ -75,7 +86,7 @@ public class PropertiesValueInjector implements InstanceInjector {
                         );
             } else {
                 // 有 @Value 注解就优先使用
-                value = this.injectValue(valueAnno);
+                value = this.injectValue(valueAnnotation);
             }
             if (writeMethod != null) {
                 ReflectUtil.invoke(instance, writeMethod, value);
@@ -93,19 +104,25 @@ public class PropertiesValueInjector implements InstanceInjector {
     ) {
         Object value = caseGet(field.getName(), properties::get);
         if (value == null && !((boolean) config.ignoreUnknownFields())) {
-            throw new NullPointerException(
+            final NullPointerException exception = new NullPointerException(
                 "Unknown property [" +
                 config.prefix() +
                 "." +
                 field.getName() +
                 "]"
             );
+            log.error(
+                "Unknown property [{}.{}]",
+                config.prefix(),
+                field.getName()
+            );
+            throw exception;
         }
         try {
             value = Convert.convert(field.getType(), value);
         } catch (Exception e) {
             if (!((boolean) config.ignoreInvalidFields())) {
-                throw new RuntimeException(
+                final RuntimeException exception = new RuntimeException(
                     "Invalid property [" +
                     config.prefix() +
                     "." +
@@ -113,6 +130,12 @@ public class PropertiesValueInjector implements InstanceInjector {
                     "]",
                     e
                 );
+                log.error(
+                    "Invalid property [{}.{}]",
+                    config.prefix(),
+                    field.getName()
+                );
+                throw exception;
             }
             value = ClassUtil.getDefaultValue(field.getType());
         }

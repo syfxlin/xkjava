@@ -4,7 +4,23 @@
 
 package me.ixk.framework.ioc;
 
+/**
+ * Wrapper
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 12:44
+ */
 @FunctionalInterface
 public interface Wrapper {
-    Object getInstance(Container container, DataBinder dataBinder) throws Throwable;
+    /**
+     * 获取实例
+     *
+     * @param container  容器
+     * @param dataBinder 数据绑定器
+     *
+     * @return 实例
+     * @throws Throwable 创建时抛出的异常
+     */
+    Object getInstance(Container container, DataBinder dataBinder)
+        throws Throwable;
 }

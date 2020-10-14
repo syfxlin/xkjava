@@ -8,6 +8,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.sf.cglib.proxy.MethodProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 切面处理器
@@ -18,6 +20,10 @@ import net.sf.cglib.proxy.MethodProxy;
  * @date 2020/10/14 上午 8:15
  */
 public class AspectHandler {
+    private static final Logger log = LoggerFactory.getLogger(
+        AspectHandler.class
+    );
+
     /**
      * 切面代理类的原始对象
      */
@@ -94,6 +100,12 @@ public class AspectHandler {
         } catch (Throwable e) {
             // 抛出异常的时候保存异常
             this.error = e;
+            log.error(
+                "Aspect [" +
+                this.aspect.getClass().getName() +
+                "] invoke throws exception: ",
+                e
+            );
         }
         // After
         this.aspect.after(this.makeJoinPoint(result));

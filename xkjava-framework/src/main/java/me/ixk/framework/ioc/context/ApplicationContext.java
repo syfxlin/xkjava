@@ -10,6 +10,14 @@ import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Context;
 import me.ixk.framework.ioc.ContextItem;
 
+/**
+ * ApplicationContext
+ * <p>
+ * 保存 App 全局共享的 Bean
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 10:39
+ */
 public class ApplicationContext implements Context {
     private final ContextItem contextItem = new ContextItem();
 

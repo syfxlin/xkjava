@@ -16,8 +16,17 @@ import me.ixk.framework.annotations.PreDestroy;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.exceptions.BindingException;
 import me.ixk.framework.utils.AnnotationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * Binding
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 11:09
+ */
 public class Binding {
+    private static final Logger log = LoggerFactory.getLogger(Binding.class);
     protected static final SimpleCache<Class<?>, BindingCache> BINDING_CACHE = new SimpleCache<>();
 
     private ScopeType scope;
@@ -120,6 +129,7 @@ public class Binding {
 
     public Object getInstance() {
         if (this.instance == NoCreated.class) {
+            log.error("Instance is not create or set");
             throw new BindingException("Instance is not create or set");
         }
         return instance;

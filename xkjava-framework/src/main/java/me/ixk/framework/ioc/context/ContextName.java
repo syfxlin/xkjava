@@ -4,9 +4,21 @@
 
 package me.ixk.framework.ioc.context;
 
+/**
+ * 内置 Context 的名称枚举
+ */
 public enum ContextName {
+    /**
+     * 应用
+     */
     APPLICATION("application"),
+    /**
+     * 请求
+     */
     REQUEST("request"),
+    /**
+     * 容器
+     */
     CONTAINER("container"),;
 
     final String name;

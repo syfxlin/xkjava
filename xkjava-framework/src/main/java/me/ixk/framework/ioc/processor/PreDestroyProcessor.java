@@ -9,6 +9,12 @@ import me.ixk.framework.ioc.BeanAfterProcessor;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
 
+/**
+ * 销毁前处理器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 11:07
+ */
 public class PreDestroyProcessor implements BeanAfterProcessor {
 
     @Override

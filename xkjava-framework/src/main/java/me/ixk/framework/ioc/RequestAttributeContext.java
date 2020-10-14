@@ -10,6 +10,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import me.ixk.framework.helpers.Util;
 
+/**
+ * RequestAttributeContext
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 12:39
+ */
 public interface RequestAttributeContext extends Context {
     String BINDINGS_ATTRIBUTE_NAME = Util.attributeName(
         RequestAttributeContext.class,
@@ -20,12 +26,30 @@ public interface RequestAttributeContext extends Context {
         "ALIAS_ATTRIBUTE_NAME"
     );
 
+    /**
+     * 删除 Context
+     */
     void removeContext();
 
+    /**
+     * 获取 Context
+     *
+     * @return Request 对象
+     */
     HttpServletRequest getContext();
 
+    /**
+     * 设置 Context
+     *
+     * @param request Request 对象
+     */
     void setContext(HttpServletRequest request);
 
+    /**
+     * 别名
+     *
+     * @return 别名 Map
+     */
     @Override
     @SuppressWarnings("unchecked")
     default Map<String, String> getAliases() {
@@ -38,6 +62,11 @@ public interface RequestAttributeContext extends Context {
         return alias;
     }
 
+    /**
+     * Bindings
+     *
+     * @return Binding Map
+     */
     @Override
     @SuppressWarnings("unchecked")
     default Map<String, Binding> getBindings() {
@@ -50,6 +79,11 @@ public interface RequestAttributeContext extends Context {
         return bindings;
     }
 
+    /**
+     * 属性
+     *
+     * @return 属性 Map
+     */
     @Override
     default Map<String, Object> getAttributes() {
         Enumeration<String> names = this.getContext().getAttributeNames();
@@ -61,6 +95,11 @@ public interface RequestAttributeContext extends Context {
         return attributes;
     }
 
+    /**
+     * 是否启动
+     *
+     * @return 是否启动
+     */
     @Override
     boolean isCreated();
 }

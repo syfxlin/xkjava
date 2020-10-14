@@ -23,7 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * App 核心
+ * <p>
  * XkJava 继承自 IoC 容器，并在其之上扩充一些应用部分的功能，同时也是框架的核心
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 12:45
  */
 public class XkJava extends Container {
     private static final Logger log = LoggerFactory.getLogger(XkJava.class);
@@ -64,6 +69,9 @@ public class XkJava extends Container {
      */
     protected boolean booted = false;
 
+    /**
+     * 启动处理器
+     */
     protected BootstrapAnnotationProcessor bootstrapAnnotationProcessor = new BootstrapAnnotationProcessor(
         this
     );

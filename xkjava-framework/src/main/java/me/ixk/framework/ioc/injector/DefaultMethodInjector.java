@@ -11,6 +11,14 @@ import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.InstanceInjector;
 
+/**
+ * 默认的方法注入器
+ * <p>
+ * 执行被 @Autowired 标注的方法
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 10:43
+ */
 public class DefaultMethodInjector implements InstanceInjector {
 
     @Override

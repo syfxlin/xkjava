@@ -16,8 +16,19 @@ import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.utils.AnnotationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * 默认字段注入器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 11:01
+ */
 public class DefaultPropertyInjector implements InstanceInjector {
+    private static final Logger log = LoggerFactory.getLogger(
+        DefaultPropertyInjector.class
+    );
 
     @Override
     public Object inject(
@@ -79,13 +90,19 @@ public class DefaultPropertyInjector implements InstanceInjector {
                 }
                 // 如果必须注入，但是为 null，则抛出错误
                 if (dependency == null && (boolean) autowired.required()) {
-                    throw new NullPointerException(
+                    final NullPointerException exception = new NullPointerException(
                         "Target [" +
                         instanceClass.getName() +
                         "::" +
                         field.getName() +
                         "] is required, but inject value is null"
                     );
+                    log.error(
+                        "Target [{}::{}] is required, but inject value is null",
+                        instanceClass.getName(),
+                        field.getName()
+                    );
+                    throw exception;
                 }
                 ReflectUtil.setFieldValue(instance, field, dependency);
             }

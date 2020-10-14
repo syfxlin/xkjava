@@ -40,25 +40,47 @@ import me.ixk.framework.utils.ReflectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * IoC 容器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 11:17
+ */
 public class Container implements Context {
     private static final Logger log = LoggerFactory.getLogger(Container.class);
-    // 各种注入器
+
+    private static final int ARRAY_METHOD_DEF_LENGTH = 2;
+    /**
+     * 参数注入器
+     */
     private final Map<Class<? extends ParameterInjector>, ParameterInjector> parameterInjectors = new LinkedHashMap<>();
+
+    /**
+     * 实例注入器
+     */
     private final Map<Class<? extends InstanceInjector>, InstanceInjector> instanceInjectors = new LinkedHashMap<>();
 
-    // 前置处理和后置处理，前置处理在初始化后进行，后置处理在删除前进行
+    /**
+     * 前置处理器，在初始化后进行
+     */
     private final Map<Class<? extends BeanBeforeProcessor>, BeanBeforeProcessor> beanBeforeProcessors = new LinkedHashMap<>();
+    /**
+     * 后置处理,在删除前进行
+     */
     private final Map<Class<? extends BeanAfterProcessor>, BeanAfterProcessor> beanAfterProcessors = new LinkedHashMap<>();
 
-    // Contexts，存储实例和别名的空间
+    /**
+     * Contexts，存储实例和别名的空间
+     */
     private final Map<String, Context> contexts = Collections.synchronizedMap(
         new LinkedHashMap<>(5)
     );
 
-    // 注入的临时变量
+    /**
+     * 注入的临时变量
+     */
     private final ThreadLocal<DataBinder> dataBinder = new InheritableThreadLocal<>();
 
-    // 构造器
     public Container() {
         this.dataBinder.set(
                 new DefaultDataBinder(this, new ConcurrentHashMap<>())
@@ -76,7 +98,9 @@ public class Container implements Context {
         log.info("Container created");
     }
 
-    // 销毁方法
+    /**
+     * 销毁方法
+     */
     public void destroy() {
         while (this.contexts.values().iterator().hasNext()) {
             final Context context = this.contexts.values().iterator().next();
@@ -147,7 +171,7 @@ public class Container implements Context {
 
     @Override
     public Map<String, String> getAliases() {
-        final Map<String, String> aliases = new ConcurrentHashMap<>();
+        final Map<String, String> aliases = new ConcurrentHashMap<>(256);
         this.walkContexts(
                 (Consumer<Context>) context ->
                     aliases.putAll(context.getAliases())
@@ -157,7 +181,7 @@ public class Container implements Context {
 
     @Override
     public Map<String, Binding> getBindings() {
-        final Map<String, Binding> bindings = new ConcurrentHashMap<>();
+        final Map<String, Binding> bindings = new ConcurrentHashMap<>(256);
         this.walkContexts(
                 (Consumer<Context>) context ->
                     bindings.putAll(context.getBindings())
@@ -167,7 +191,7 @@ public class Container implements Context {
 
     @Override
     public Map<String, Object> getAttributes() {
-        final Map<String, Object> attributes = new ConcurrentHashMap<>();
+        final Map<String, Object> attributes = new ConcurrentHashMap<>(256);
         this.walkContexts(
                 (Consumer<Context>) context ->
                     attributes.putAll(context.getAttributes())
@@ -321,13 +345,13 @@ public class Container implements Context {
     @SuppressWarnings("unchecked")
     public <T> T getOrDefaultAttribute(
         final String name,
-        final T _default,
+        final T defaultValue,
         final ScopeType scopeType
     ) {
         Object attribute = this.getAttribute(name, scopeType);
         if (attribute == null) {
-            this.setAttribute(name, _default);
-            return _default;
+            this.setAttribute(name, defaultValue);
+            return defaultValue;
         }
         return (T) attribute;
     }
@@ -1145,7 +1169,7 @@ public class Container implements Context {
     /* ====================== call ========================= */
 
     public <T> T call(final String[] target, final Class<T> returnType) {
-        if (target.length != 2) {
+        if (target.length != ARRAY_METHOD_DEF_LENGTH) {
             throw new ContainerException(
                 "The length of the target array must be 2"
             );
@@ -1169,7 +1193,7 @@ public class Container implements Context {
         final Class<?>[] paramTypes,
         final Class<T> returnType
     ) {
-        if (target.length != 2) {
+        if (target.length != ARRAY_METHOD_DEF_LENGTH) {
             throw new ContainerException(
                 "The length of the target array must be 2"
             );
@@ -1379,7 +1403,7 @@ public class Container implements Context {
 
     public Container resetWith() {
         this.dataBinder.set(
-                new DefaultDataBinder(this, new ConcurrentHashMap<>())
+                new DefaultDataBinder(this, new ConcurrentHashMap<>(256))
             );
         return this;
     }

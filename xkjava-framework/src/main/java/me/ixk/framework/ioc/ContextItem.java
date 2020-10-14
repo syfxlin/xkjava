@@ -7,6 +7,12 @@ package me.ixk.framework.ioc;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * ContextItem
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 11:35
+ */
 public final class ContextItem {
     private final Map<String, Binding> bindings = new ConcurrentHashMap<>(256);
 
