@@ -13,13 +13,13 @@ import java.util.List;
  * @date 2020/10/14 下午 4:50
  */
 public class RouteData {
-    protected String regex;
+    protected volatile String regex;
 
-    protected String route;
+    protected volatile String route;
 
-    protected RouteHandler handler;
+    protected volatile RouteHandler handler;
 
-    protected List<String> variableNames;
+    protected volatile List<String> variableNames;
 
     public RouteData(String route, String regex, List<String> variableNames) {
         this.route = route;

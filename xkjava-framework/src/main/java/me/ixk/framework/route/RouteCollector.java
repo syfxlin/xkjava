@@ -44,7 +44,7 @@ public class RouteCollector {
 
     protected final RouteGenerator routeGenerator;
 
-    protected String routeGroupPrefix = "";
+    protected volatile String routeGroupPrefix = "";
 
     protected List<Class<? extends Middleware>> useGroupMiddleware = null;
 

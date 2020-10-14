@@ -13,9 +13,9 @@ import java.util.Map;
  * @date 2020/10/14 下午 4:49
  */
 public class MergeRouteData {
-    protected String regex;
+    protected final String regex;
 
-    protected Map<Integer, RouteData> routeMap;
+    protected final Map<Integer, RouteData> routeMap;
 
     public MergeRouteData(String regex, Map<Integer, RouteData> routeMap) {
         this.regex = regex;
@@ -26,15 +26,7 @@ public class MergeRouteData {
         return regex;
     }
 
-    public void setRegex(String regex) {
-        this.regex = regex;
-    }
-
     public Map<Integer, RouteData> getRouteMap() {
         return routeMap;
-    }
-
-    public void setRouteMap(Map<Integer, RouteData> routeMap) {
-        this.routeMap = routeMap;
     }
 }

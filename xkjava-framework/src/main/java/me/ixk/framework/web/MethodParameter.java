@@ -24,7 +24,7 @@ public class MethodParameter {
     private final String[] parameterNames;
     private final MergedAnnotation methodAnnotation;
     private final MergedAnnotation[] parameterAnnotations;
-    private int parameterIndex;
+    private volatile int parameterIndex;
 
     public MethodParameter(
         Object controller,

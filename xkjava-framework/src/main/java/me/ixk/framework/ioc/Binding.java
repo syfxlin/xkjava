@@ -29,15 +29,15 @@ public class Binding {
     private static final Logger log = LoggerFactory.getLogger(Binding.class);
     protected static final SimpleCache<Class<?>, BindingCache> BINDING_CACHE = new SimpleCache<>();
 
-    private ScopeType scope;
-
-    private Class<?> instanceType;
+    private final ScopeType scope;
 
     private final BindingCache bindingCache;
 
-    private Wrapper wrapper;
+    private volatile Class<?> instanceType;
 
-    private Object instance = NoCreated.class;
+    private volatile Wrapper wrapper;
+
+    private volatile Object instance = NoCreated.class;
 
     public Binding(Wrapper wrapper, ScopeType scope) {
         this.wrapper = wrapper;
@@ -63,10 +63,6 @@ public class Binding {
 
     public ScopeType getScope() {
         return scope;
-    }
-
-    public void setScope(ScopeType scope) {
-        this.scope = scope;
     }
 
     public Class<?> getInstanceType() {

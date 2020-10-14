@@ -14,11 +14,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2020/10/14 下午 4:52
  */
 public class RouteResult {
-    protected RouteStatus status = RouteStatus.NOT_FOUND;
+    protected volatile RouteStatus status = RouteStatus.NOT_FOUND;
 
-    protected String route = null;
+    protected volatile String route = null;
 
-    protected RouteHandler handler = null;
+    protected volatile RouteHandler handler = null;
 
     protected Map<String, String> params = null;
 
