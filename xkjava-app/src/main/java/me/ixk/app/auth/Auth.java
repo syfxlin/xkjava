@@ -73,7 +73,7 @@ public class Auth {
             return new Result(errors);
         }
         this.user = dbUser;
-        this.updateLogin(this.user, user.isRemember_me());
+        this.updateLogin(this.user, user.isRememberMe());
         return new Result(dbUser);
     }
 

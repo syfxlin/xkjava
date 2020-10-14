@@ -18,9 +18,9 @@ import me.ixk.framework.view.FilterCallback;
  * @author Otstar Lin
  * @date 2020/10/14 上午 9:11
  */
-public abstract class Result {
+public class Result {
 
-    public static <T extends HttpResult> T custom(
+    public static <T extends AbstractHttpResult> T custom(
         Class<T> resultHandler,
         Object... parameters
     ) {

@@ -24,27 +24,29 @@ import java.util.Set;
  * @date 2020/10/14 下午 5:02
  */
 public class ClassUtils extends ClassUtil {
-    private static final Map<Class<?>, Class<?>> primitiveWrapperTypeMap = new IdentityHashMap<>(
+    private static final String CGLIB_SPLIT = "$$";
+
+    private static final Map<Class<?>, Class<?>> PRIMITIVE_WRAPPER_TYPE_MAP = new IdentityHashMap<>(
         8
     );
 
-    private static final Map<Class<?>, Class<?>> primitiveTypeToWrapperMap = new IdentityHashMap<>(
+    private static final Map<Class<?>, Class<?>> PRIMITIVE_TYPE_TO_WRAPPER_MAP = new IdentityHashMap<>(
         8
     );
 
     static {
-        primitiveWrapperTypeMap.put(Boolean.class, boolean.class);
-        primitiveWrapperTypeMap.put(Byte.class, byte.class);
-        primitiveWrapperTypeMap.put(Character.class, char.class);
-        primitiveWrapperTypeMap.put(Double.class, double.class);
-        primitiveWrapperTypeMap.put(Float.class, float.class);
-        primitiveWrapperTypeMap.put(Integer.class, int.class);
-        primitiveWrapperTypeMap.put(Long.class, long.class);
-        primitiveWrapperTypeMap.put(Short.class, short.class);
-        primitiveWrapperTypeMap.put(Void.class, void.class);
+        PRIMITIVE_WRAPPER_TYPE_MAP.put(Boolean.class, boolean.class);
+        PRIMITIVE_WRAPPER_TYPE_MAP.put(Byte.class, byte.class);
+        PRIMITIVE_WRAPPER_TYPE_MAP.put(Character.class, char.class);
+        PRIMITIVE_WRAPPER_TYPE_MAP.put(Double.class, double.class);
+        PRIMITIVE_WRAPPER_TYPE_MAP.put(Float.class, float.class);
+        PRIMITIVE_WRAPPER_TYPE_MAP.put(Integer.class, int.class);
+        PRIMITIVE_WRAPPER_TYPE_MAP.put(Long.class, long.class);
+        PRIMITIVE_WRAPPER_TYPE_MAP.put(Short.class, short.class);
+        PRIMITIVE_WRAPPER_TYPE_MAP.put(Void.class, void.class);
 
-        for (Map.Entry<Class<?>, Class<?>> entry : primitiveWrapperTypeMap.entrySet()) {
-            primitiveTypeToWrapperMap.put(entry.getValue(), entry.getKey());
+        for (Map.Entry<Class<?>, Class<?>> entry : PRIMITIVE_WRAPPER_TYPE_MAP.entrySet()) {
+            PRIMITIVE_TYPE_TO_WRAPPER_MAP.put(entry.getValue(), entry.getKey());
         }
     }
 
@@ -84,7 +86,7 @@ public class ClassUtils extends ClassUtil {
     }
 
     public static Class<?> getUserClass(Class<?> clazz) {
-        if (clazz.getName().contains("$$")) {
+        if (clazz.getName().contains(CGLIB_SPLIT)) {
             Class<?> superClass = clazz.getSuperclass();
             if (superClass != null && superClass != Object.class) {
                 return superClass;
@@ -119,10 +121,14 @@ public class ClassUtils extends ClassUtil {
             return true;
         }
         if (lhsType.isPrimitive()) {
-            Class<?> resolvedPrimitive = primitiveWrapperTypeMap.get(rhsType);
+            Class<?> resolvedPrimitive = PRIMITIVE_WRAPPER_TYPE_MAP.get(
+                rhsType
+            );
             return (lhsType == resolvedPrimitive);
         } else {
-            Class<?> resolvedWrapper = primitiveTypeToWrapperMap.get(rhsType);
+            Class<?> resolvedWrapper = PRIMITIVE_TYPE_TO_WRAPPER_MAP.get(
+                rhsType
+            );
             return (
                 resolvedWrapper != null &&
                 lhsType.isAssignableFrom(resolvedWrapper)
@@ -187,15 +193,15 @@ public class ClassUtils extends ClassUtil {
     }
 
     public static Class<?> primitiveTypeToWrapper(Class<?> type) {
-        return primitiveTypeToWrapperMap.get(type);
+        return PRIMITIVE_TYPE_TO_WRAPPER_MAP.get(type);
     }
 
     public static Class<?> primitiveWrapperToType(Class<?> type) {
-        return primitiveWrapperTypeMap.get(type);
+        return PRIMITIVE_WRAPPER_TYPE_MAP.get(type);
     }
 
     public static Class<?> primitiveTypeToWrapper(String type) {
-        for (Map.Entry<Class<?>, Class<?>> entry : primitiveTypeToWrapperMap.entrySet()) {
+        for (Map.Entry<Class<?>, Class<?>> entry : PRIMITIVE_TYPE_TO_WRAPPER_MAP.entrySet()) {
             if (entry.getKey().getName().equals(type)) {
                 return entry.getValue();
             }
@@ -204,7 +210,7 @@ public class ClassUtils extends ClassUtil {
     }
 
     public static Class<?> primitiveWrapperToType(String type) {
-        for (Map.Entry<Class<?>, Class<?>> entry : primitiveWrapperTypeMap.entrySet()) {
+        for (Map.Entry<Class<?>, Class<?>> entry : PRIMITIVE_WRAPPER_TYPE_MAP.entrySet()) {
             if (entry.getKey().getName().equals(type)) {
                 return entry.getValue();
             }

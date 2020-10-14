@@ -12,6 +12,8 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.processor.AnnotationProcessor;
 import me.ixk.framework.utils.AnnotationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 处理注解
@@ -22,6 +24,9 @@ import me.ixk.framework.utils.AnnotationUtils;
 @Bootstrap
 @Order(Order.HIGHEST_PRECEDENCE + 4)
 public class ProcessAnnotation extends AbstractBootstrap {
+    private static final Logger log = LoggerFactory.getLogger(
+        ProcessAnnotation.class
+    );
 
     public ProcessAnnotation(XkJava app) {
         super(app);
@@ -35,6 +40,9 @@ public class ProcessAnnotation extends AbstractBootstrap {
         );
         for (Class<?> processorType : processors) {
             if (!AnnotationProcessor.class.isAssignableFrom(processorType)) {
+                log.error(
+                    "Classes marked by the AnnotationProcessor annotation should implement the AnnotationProcessor interface"
+                );
                 throw new AnnotationProcessorException(
                     "Classes marked by the AnnotationProcessor annotation should implement the AnnotationProcessor interface"
                 );

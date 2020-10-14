@@ -14,6 +14,8 @@ import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 验证 CSRF Token
@@ -23,6 +25,10 @@ import me.ixk.framework.http.SetCookie;
  */
 @Order(Order.HIGHEST_PRECEDENCE + 4)
 public class VerifyCsrfToken implements Middleware {
+    private static final Logger log = LoggerFactory.getLogger(
+        VerifyCsrfToken.class
+    );
+
     /**
      * 排除使用 CSRF 的 URL（正则）
      */
@@ -37,6 +43,7 @@ public class VerifyCsrfToken implements Middleware {
         ) {
             return this.setToken(request, next.handle(request));
         }
+        log.error("CSRF Token needs to be updated");
         throw new HttpException(
             HttpStatus.REQUEST_EXPIRED,
             "CSRF Token needs to be updated."

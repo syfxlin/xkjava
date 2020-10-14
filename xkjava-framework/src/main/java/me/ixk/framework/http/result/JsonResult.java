@@ -14,7 +14,7 @@ import org.eclipse.jetty.http.MimeTypes;
  * @author Otstar Lin
  * @date 2020/10/14 上午 9:10
  */
-public class JsonResult extends HttpResult {
+public class JsonResult extends AbstractHttpResult {
     protected JsonNode jsonNode;
 
     public JsonResult() {

@@ -12,7 +12,7 @@ import org.eclipse.jetty.http.MimeTypes;
  * @author Otstar Lin
  * @date 2020/10/14 上午 9:10
  */
-public class HtmlResult extends HttpResult {
+public class HtmlResult extends AbstractHttpResult {
     protected String html;
 
     public HtmlResult(String html) {

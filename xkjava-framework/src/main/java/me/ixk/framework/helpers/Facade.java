@@ -25,7 +25,7 @@ import me.ixk.framework.web.WebContext;
  * @author Otstar Lin
  * @date 2020/10/14 上午 9:09
  */
-public abstract class Facade {
+public class Facade {
 
     protected static <T> T make(Class<T> clazz) {
         return XkJava.of().make(clazz);

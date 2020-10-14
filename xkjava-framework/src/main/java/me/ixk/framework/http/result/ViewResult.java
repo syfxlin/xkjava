@@ -18,7 +18,7 @@ import org.eclipse.jetty.http.MimeTypes;
  * @author Otstar Lin
  * @date 2020/10/14 上午 9:12
  */
-public class ViewResult extends HttpResult {
+public class ViewResult extends AbstractHttpResult {
     protected String view;
 
     protected Map<String, Object> data = new ConcurrentHashMap<>();

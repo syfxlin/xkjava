@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.processor.AnnotationProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 注解处理管理器
@@ -23,6 +25,10 @@ import me.ixk.framework.processor.AnnotationProcessor;
  * @date 2020/10/14 下午 1:11
  */
 public class AnnotationProcessorManager {
+    private static final Logger log = LoggerFactory.getLogger(
+        AnnotationProcessorManager.class
+    );
+
     protected final XkJava app;
 
     protected final Map<String, AnnotationProcessor> processors;
@@ -57,6 +63,7 @@ public class AnnotationProcessorManager {
             this.setProcessor(name, processor);
             return processor;
         } catch (UtilException e) {
+            log.error("Instantiating annotation processor failed");
             throw new AnnotationProcessorException(
                 "Instantiating annotation processor failed",
                 e

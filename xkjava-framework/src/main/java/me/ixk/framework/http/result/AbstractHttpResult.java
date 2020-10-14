@@ -21,59 +21,59 @@ import org.eclipse.jetty.http.HttpHeader;
  * @author Otstar Lin
  * @date 2020/10/14 上午 9:10
  */
-public abstract class HttpResult implements Renderable {
+public abstract class AbstractHttpResult implements Renderable {
     private final Response response = XkJava.of().make(Response.class);
 
     public final Response getResponse() {
         return response;
     }
 
-    public final HttpResult status(int sc) {
+    public final AbstractHttpResult status(int sc) {
         response.status(sc);
         return this;
     }
 
-    public final HttpResult status(HttpStatus status) {
+    public final AbstractHttpResult status(HttpStatus status) {
         response.status(status);
         return this;
     }
 
-    public final HttpResult header(String name, String value) {
+    public final AbstractHttpResult header(String name, String value) {
         response.header(name, value);
         return this;
     }
 
-    public final HttpResult header(HttpHeader name, String value) {
+    public final AbstractHttpResult header(HttpHeader name, String value) {
         response.header(name, value);
         return this;
     }
 
-    public final HttpResult headers(Map<Object, String> headers) {
+    public final AbstractHttpResult headers(Map<Object, String> headers) {
         response.headers(headers);
         return this;
     }
 
-    public final HttpResult headers(HttpHeaders headers) {
+    public final AbstractHttpResult headers(HttpHeaders headers) {
         response.headers(headers);
         return this;
     }
 
-    public final HttpResult cookie(HttpCookie cookie) {
+    public final AbstractHttpResult cookie(HttpCookie cookie) {
         response.cookie(cookie);
         return this;
     }
 
-    public final HttpResult cookie(Cookie cookie) {
+    public final AbstractHttpResult cookie(Cookie cookie) {
         response.cookie(cookie);
         return this;
     }
 
-    public final HttpResult cookie(SetCookie cookie) {
+    public final AbstractHttpResult cookie(SetCookie cookie) {
         response.cookie(cookie);
         return this;
     }
 
-    public final HttpResult cookie(
+    public final AbstractHttpResult cookie(
         String name,
         String value,
         String domain,

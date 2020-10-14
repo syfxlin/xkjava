@@ -14,7 +14,7 @@ import me.ixk.framework.http.Response;
  * @author Otstar Lin
  * @date 2020/10/14 上午 9:11
  */
-public class RedirectResult extends HttpResult {
+public class RedirectResult extends AbstractHttpResult {
     protected String url;
 
     public RedirectResult(String url) {

@@ -32,7 +32,7 @@ import me.ixk.framework.utils.JSON;
  * @author Otstar Lin
  * @date 2020/10/14 上午 9:09
  */
-public abstract class Util {
+public class Util {
     protected static final String BASE_STRING =
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     protected static final SecureRandom RANDOM = new SecureRandom();
@@ -44,10 +44,10 @@ public abstract class Util {
     public static JsonNode dataGet(
         JsonNode target,
         String key,
-        JsonNode _default
+        JsonNode defaultValue
     ) {
         String[] keys = key.split("\\.");
-        return dataGet(target, keys, _default);
+        return dataGet(target, keys, defaultValue);
     }
 
     public static JsonNode dataGet(JsonNode target, String[] keys) {
@@ -57,7 +57,7 @@ public abstract class Util {
     public static JsonNode dataGet(
         JsonNode target,
         String[] keys,
-        JsonNode _default
+        JsonNode defaultValue
     ) {
         if (keys == null) {
             return target;
@@ -119,7 +119,7 @@ public abstract class Util {
             }
         }
         if (target == null || target.isNull()) {
-            return _default;
+            return defaultValue;
         }
         return target;
     }
@@ -128,9 +128,13 @@ public abstract class Util {
         return dataGet(target, key, null);
     }
 
-    public static Object dataGet(Object target, String key, Object _default) {
+    public static Object dataGet(
+        Object target,
+        String key,
+        Object defaultValue
+    ) {
         String[] keys = key.split("\\.");
-        return dataGet(target, keys, _default, Object.class);
+        return dataGet(target, keys, defaultValue, Object.class);
     }
 
     public static Object dataGet(Object target, String[] keys) {
@@ -148,11 +152,11 @@ public abstract class Util {
     public static <T> T dataGet(
         Object target,
         String key,
-        T _default,
+        T defaultValue,
         Class<T> returnType
     ) {
         String[] keys = key.split("\\.");
-        return dataGet(target, keys, _default, returnType);
+        return dataGet(target, keys, defaultValue, returnType);
     }
 
     public static <T> T dataGet(
@@ -167,7 +171,7 @@ public abstract class Util {
     public static <T> T dataGet(
         Object target,
         String[] keys,
-        T _default,
+        T defaultValue,
         Class<T> returnType
     ) {
         if (keys == null) {
@@ -226,7 +230,7 @@ public abstract class Util {
             }
         }
         if (target == null) {
-            return _default;
+            return defaultValue;
         }
         return Convert.convert(returnType, target);
     }

@@ -10,7 +10,7 @@ package me.ixk.framework.http.result;
  * @author Otstar Lin
  * @date 2020/10/14 上午 9:09
  */
-public class EmptyResult extends HttpResult {
+public class EmptyResult extends AbstractHttpResult {
 
     @Override
     public String render() {

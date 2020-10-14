@@ -16,7 +16,7 @@ import org.hibernate.validator.HibernateValidator;
  * @date 2020/10/14 下午 5:14
  */
 public class Validation {
-    protected static final Validator validator = javax
+    protected static final Validator VALIDATOR = javax
         .validation.Validation.byProvider(HibernateValidator.class)
         .configure()
         .failFast(false)
@@ -26,7 +26,7 @@ public class Validation {
     @SuppressWarnings("unchecked")
     public static <T> ValidResult<T> validate(T obj, Class<?>... groups) {
         obj = (T) ReflectUtils.getProxyTarget(obj);
-        Set<ConstraintViolation<T>> violationSet = validator.validate(
+        Set<ConstraintViolation<T>> violationSet = VALIDATOR.validate(
             obj,
             groups
         );
@@ -36,7 +36,7 @@ public class Validation {
     @SuppressWarnings("unchecked")
     public static <T> ValidResult<T> validate(T obj, String propertyName) {
         obj = (T) ReflectUtils.getProxyTarget(obj);
-        Set<ConstraintViolation<T>> violationSet = validator.validateProperty(
+        Set<ConstraintViolation<T>> violationSet = VALIDATOR.validateProperty(
             obj,
             propertyName
         );

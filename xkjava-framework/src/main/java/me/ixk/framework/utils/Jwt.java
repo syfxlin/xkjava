@@ -25,13 +25,13 @@ public class Jwt {
 
     protected Map<String, String> defaultPayload;
 
-    protected static final Map<String, String> supported;
+    protected static final Map<String, String> SUPPORTED;
 
     static {
-        supported = new ConcurrentHashMap<>();
-        supported.put("HS256", "SHA256");
-        supported.put("HS384", "SHA384");
-        supported.put("HS512", "SHA512");
+        SUPPORTED = new ConcurrentHashMap<>();
+        SUPPORTED.put("HS256", "SHA256");
+        SUPPORTED.put("HS384", "SHA384");
+        SUPPORTED.put("HS512", "SHA512");
     }
 
     public Jwt(String key, String algo) {
@@ -57,7 +57,7 @@ public class Jwt {
     }
 
     public String sign(String token, boolean raw, String key, String algo) {
-        String sign = Mac.make("Hmac" + supported.get(algo), token, key, true);
+        String sign = Mac.make("Hmac" + SUPPORTED.get(algo), token, key, true);
         return raw ? sign : Base64.encode(sign);
     }
 
@@ -170,7 +170,7 @@ public class Jwt {
         String sign = Base64.decode(deArray[2]);
         if (
             !header.containsKey("alg") ||
-            supported.containsKey(header.get("alg"))
+            SUPPORTED.containsKey(header.get("alg"))
         ) {
             if (algo == null) {
                 throw new RuntimeException("Algorithm not supported or empty");

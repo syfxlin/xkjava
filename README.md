@@ -63,7 +63,6 @@ ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf, FreeMarker 渲染，Http
 ## TODO
 
 -   添加完整的 Test Case
--   日志
 -   缓存注解
 -   自动配置
 -   注解控制 Injector、Processor

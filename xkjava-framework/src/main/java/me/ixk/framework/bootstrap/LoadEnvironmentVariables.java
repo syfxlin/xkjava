@@ -11,6 +11,8 @@ import me.ixk.framework.annotations.Order;
 import me.ixk.framework.exceptions.LoadEnvironmentFileException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.Environment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 读取配置文件
@@ -21,6 +23,9 @@ import me.ixk.framework.kernel.Environment;
 @Bootstrap
 @Order(Order.HIGHEST_PRECEDENCE + 1)
 public class LoadEnvironmentVariables extends AbstractBootstrap {
+    private static final Logger log = LoggerFactory.getLogger(
+        LoadEnvironmentVariables.class
+    );
 
     public LoadEnvironmentVariables(XkJava app) {
         super(app);
@@ -34,6 +39,7 @@ public class LoadEnvironmentVariables extends AbstractBootstrap {
                 this.getClass().getResourceAsStream("/application.properties")
             );
         } catch (IOException e) {
+            log.error("Load environment [application.properties] failed");
             throw new LoadEnvironmentFileException(
                 "Load environment [application.properties] failed",
                 e

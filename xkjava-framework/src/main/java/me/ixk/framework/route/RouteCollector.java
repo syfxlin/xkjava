@@ -19,6 +19,8 @@ import me.ixk.framework.registry.after.MiddlewareRegistry;
 import me.ixk.framework.registry.after.RouteRegistry;
 import me.ixk.framework.utils.AnnotationUtils;
 import org.eclipse.jetty.http.HttpMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 路由收集器
@@ -28,6 +30,10 @@ import org.eclipse.jetty.http.HttpMethod;
  */
 @Component(name = "routeCollector")
 public class RouteCollector {
+    private static final Logger log = LoggerFactory.getLogger(
+        RouteCollector.class
+    );
+
     protected final XkJava app;
 
     protected final Map<String, Map<String, RouteHandler>> staticRoutes;
@@ -63,6 +69,10 @@ public class RouteCollector {
             try {
                 ReflectUtil.newInstance(clazz).routes(this);
             } catch (Exception e) {
+                log.error(
+                    "Route collector [" + clazz.getSimpleName() + "] error",
+                    e
+                );
                 throw new RouteCollectorException(
                     "Route collector [" + clazz.getSimpleName() + "] error",
                     e
@@ -237,6 +247,7 @@ public class RouteCollector {
         Class<? extends Middleware> middleware =
             this.middlewareRegistry.getRouteMiddleware().get(name);
         if (middleware == null) {
+            log.error("Middleware [{}] not register", name);
             throw new RouteCollectorException(
                 "Middleware [" + name + "] not register"
             );

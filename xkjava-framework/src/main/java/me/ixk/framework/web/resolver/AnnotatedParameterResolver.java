@@ -25,6 +25,8 @@ import me.ixk.framework.web.MethodParameter;
 import me.ixk.framework.web.RequestParameterResolver;
 import me.ixk.framework.web.WebContext;
 import me.ixk.framework.web.WebDataBinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 注解参数解析器
@@ -35,6 +37,9 @@ import me.ixk.framework.web.WebDataBinder;
 @WebResolver
 @Order(Order.LOWEST_PRECEDENCE - 1)
 public class AnnotatedParameterResolver implements RequestParameterResolver {
+    private static final Logger log = LoggerFactory.getLogger(
+        AnnotatedParameterResolver.class
+    );
 
     @Override
     public boolean supportsParameter(
@@ -113,6 +118,12 @@ public class AnnotatedParameterResolver implements RequestParameterResolver {
             (value == null || value == NullNode.getInstance()) &&
             (boolean) annotation.get(annotationType, "required")
         ) {
+            log.error(
+                "Target [{}@{}({})] is required, but inject value is null",
+                parameter.getControllerClass().getName(),
+                parameter.getMethod().getName(),
+                parameter.getParameterName()
+            );
             throw new NullPointerException(
                 "Target [" +
                 parameter.getControllerClass().getName() +

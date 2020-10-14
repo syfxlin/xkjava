@@ -38,8 +38,8 @@ public class ReflectionsUtils {
         return make(ClasspathHelper.forClass(clazz));
     }
 
-    public static Reflections make(String _package) {
-        return make(ClasspathHelper.forPackage(_package));
+    public static Reflections make(String packageName) {
+        return make(ClasspathHelper.forPackage(packageName));
     }
 
     public static Reflections make(String prefix, Scanner... scanners) {
