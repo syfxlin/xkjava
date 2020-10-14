@@ -11,6 +11,12 @@ import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.MergedAnnotation;
 
+/**
+ * 条件（OnJava）
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 8:57
+ */
 public class OnJavaCondition implements Condition {
 
     @Override

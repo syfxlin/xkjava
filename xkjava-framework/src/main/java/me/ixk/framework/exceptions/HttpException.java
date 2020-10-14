@@ -8,6 +8,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.http.HttpStatus;
 
+/**
+ * HTTP 状态异常
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:05
+ */
 public class HttpException extends Exception {
     private HttpStatus status;
     private Map<String, String> headers;

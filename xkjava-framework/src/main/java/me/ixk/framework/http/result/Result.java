@@ -12,6 +12,12 @@ import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.view.FilterCallback;
 
+/**
+ * 响应工具类
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:11
+ */
 public abstract class Result {
 
     public static <T extends HttpResult> T custom(

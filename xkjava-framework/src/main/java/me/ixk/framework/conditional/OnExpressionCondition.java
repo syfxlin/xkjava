@@ -12,6 +12,12 @@ import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.Express;
 import me.ixk.framework.utils.MergedAnnotation;
 
+/**
+ * 条件（OnExpression）
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 8:56
+ */
 public class OnExpressionCondition implements Condition {
 
     @Override

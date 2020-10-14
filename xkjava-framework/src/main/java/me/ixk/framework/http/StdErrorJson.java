@@ -11,12 +11,18 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 标准 JSON 错误响应
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 10:29
+ */
 public class StdErrorJson {
-    protected int status;
+    protected final int status;
 
-    protected String message;
+    protected final String message;
 
-    protected String errors;
+    protected final String errors;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("@stacks")
@@ -58,24 +64,12 @@ public class StdErrorJson {
         return status;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public String getErrors() {
         return errors;
-    }
-
-    public void setErrors(String errors) {
-        this.errors = errors;
     }
 
     public List<String> getThrowable() {

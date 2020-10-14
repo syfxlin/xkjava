@@ -8,6 +8,12 @@ import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 
+/**
+ * 跳转响应
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:11
+ */
 public class RedirectResult extends HttpResult {
     protected String url;
 

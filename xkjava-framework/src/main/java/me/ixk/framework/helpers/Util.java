@@ -26,6 +26,12 @@ import me.ixk.framework.utils.ClassUtils;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.JSON;
 
+/**
+ * 静态 Helper 工具类
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:09
+ */
 public abstract class Util {
     protected static final String BASE_STRING =
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";

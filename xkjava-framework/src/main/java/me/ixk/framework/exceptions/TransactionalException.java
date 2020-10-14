@@ -4,7 +4,14 @@
 
 package me.ixk.framework.exceptions;
 
+/**
+ * 事务异常
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:07
+ */
 public class TransactionalException extends Exception {
+
     public TransactionalException() {
         super();
     }
@@ -21,7 +28,12 @@ public class TransactionalException extends Exception {
         super(cause);
     }
 
-    protected TransactionalException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected TransactionalException(
+        String message,
+        Throwable cause,
+        boolean enableSuppression,
+        boolean writableStackTrace
+    ) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

@@ -6,6 +6,12 @@ package me.ixk.framework.http.result;
 
 import org.eclipse.jetty.http.MimeTypes;
 
+/**
+ * 文本工具类
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:11
+ */
 public class TextResult extends HttpResult {
     protected String text;
 

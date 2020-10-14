@@ -4,6 +4,12 @@
 
 package me.ixk.framework.http.result;
 
+/**
+ * 空响应
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:09
+ */
 public class EmptyResult extends HttpResult {
 
     @Override

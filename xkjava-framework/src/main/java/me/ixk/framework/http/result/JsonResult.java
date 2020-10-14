@@ -8,6 +8,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import me.ixk.framework.utils.JSON;
 import org.eclipse.jetty.http.MimeTypes;
 
+/**
+ * JSON 响应
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:10
+ */
 public class JsonResult extends HttpResult {
     protected JsonNode jsonNode;
 

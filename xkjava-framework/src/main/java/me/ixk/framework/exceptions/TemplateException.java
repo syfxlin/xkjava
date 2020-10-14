@@ -4,7 +4,14 @@
 
 package me.ixk.framework.exceptions;
 
+/**
+ * 模板解析异常
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:07
+ */
 public class TemplateException extends Exception {
+
     public TemplateException() {
         super();
     }
@@ -21,7 +28,12 @@ public class TemplateException extends Exception {
         super(cause);
     }
 
-    protected TemplateException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected TemplateException(
+        String message,
+        Throwable cause,
+        boolean enableSuppression,
+        boolean writableStackTrace
+    ) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

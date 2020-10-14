@@ -4,6 +4,12 @@
 
 package me.ixk.framework.exceptions;
 
+/**
+ * SqlSession 异常
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:07
+ */
 public class SqlSessionException extends Exception {
 
     public SqlSessionException() {

@@ -17,9 +17,20 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.session.TransactionIsolationLevel;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * MybatisPlus
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 8:58
+ */
 public class MybatisPlus
     implements me.ixk.framework.database.SqlSessionManager {
+    private static final Logger log = LoggerFactory.getLogger(
+        MybatisPlus.class
+    );
     private final org.apache.ibatis.session.SqlSessionManager sqlSessionManager;
 
     // 当全局 SqlSession 被设置的时候就认为是开启了事务
@@ -112,6 +123,7 @@ public class MybatisPlus
 
     @Override
     public SqlSession startTransactionSession(TransactionIsolationLevel level) {
+        log.debug("Start transaction session: level {}", level);
         this.sqlSessionManager.startManagedSession(level);
         return this.sqlSessionManager;
     }

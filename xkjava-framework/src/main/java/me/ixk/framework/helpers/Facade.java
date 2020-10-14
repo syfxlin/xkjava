@@ -19,6 +19,12 @@ import me.ixk.framework.utils.Hash;
 import me.ixk.framework.utils.JWT;
 import me.ixk.framework.web.WebContext;
 
+/**
+ * 门面工具类
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:09
+ */
 public abstract class Facade {
 
     protected static <T> T make(Class<T> clazz) {

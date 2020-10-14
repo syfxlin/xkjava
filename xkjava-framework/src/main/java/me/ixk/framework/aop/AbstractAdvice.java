@@ -6,6 +6,12 @@ package me.ixk.framework.aop;
 
 import me.ixk.framework.exceptions.AspectProcessException;
 
+/**
+ * 通知（抽象）
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 8:09
+ */
 public abstract class AbstractAdvice implements Advice {
 
     @Override

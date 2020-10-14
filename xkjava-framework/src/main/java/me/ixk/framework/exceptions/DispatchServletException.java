@@ -4,7 +4,14 @@
 
 package me.ixk.framework.exceptions;
 
+/**
+ * 中央 Servlet 异常
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:03
+ */
 public class DispatchServletException extends Exception {
+
     public DispatchServletException() {
         super();
     }
@@ -21,7 +28,12 @@ public class DispatchServletException extends Exception {
         super(cause);
     }
 
-    protected DispatchServletException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected DispatchServletException(
+        String message,
+        Throwable cause,
+        boolean enableSuppression,
+        boolean writableStackTrace
+    ) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

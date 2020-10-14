@@ -10,6 +10,12 @@ import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.utils.ValidGroup;
 import me.ixk.framework.utils.ValidResult;
 
+/**
+ * 验证异常
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:07
+ */
 public class ValidException extends HttpException {
 
     public ValidException(ValidGroup validGroup) {

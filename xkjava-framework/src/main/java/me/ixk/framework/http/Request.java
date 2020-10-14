@@ -61,29 +61,36 @@ import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.util.Attributes;
 import org.eclipse.jetty.util.MultiMap;
 
+/**
+ * 请求对象
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:43
+ */
 public class Request implements HttpServletRequest {
     public static final String REQUEST_BODY = "&body";
 
-    protected org.eclipse.jetty.server.Request _base;
-    protected String _body;
-    protected JsonNode _parseBody = null;
-    protected Map<String, Cookie> _cookies;
-    protected RouteResult _route;
+    protected final org.eclipse.jetty.server.Request base;
+    protected volatile String body;
+    protected volatile JsonNode parseBody = null;
+    protected Map<String, Cookie> cookies;
+    protected volatile RouteResult route;
 
     @Deprecated
     public Request() {
         // only used cglib
+        this.base = null;
     }
 
     public Request(org.eclipse.jetty.server.Request request) {
-        this._base = request;
+        this.base = request;
         this.initRequest();
     }
 
     protected void initRequest() {
         // 如果是 JSON 就解析 JSON，一旦解析后就无法使用 getOutStream
         String baseType = HttpFields.valueParameters(
-            this._base.getContentType(),
+            this.base.getContentType(),
             null
         );
         if (
@@ -91,34 +98,34 @@ public class Request implements HttpServletRequest {
             MimeTypes.Type.TEXT_JSON.is(baseType)
         ) {
             try {
-                this._body =
-                    _base.getReader().lines().collect(Collectors.joining());
+                this.body =
+                    base.getReader().lines().collect(Collectors.joining());
             } catch (IOException e) {
-                this._body = null;
+                this.body = null;
             }
             this.parseBody();
         }
-        Cookie[] cookies = _base.getCookies();
-        this._cookies = new ConcurrentHashMap<>();
+        Cookie[] cookies = base.getCookies();
+        this.cookies = new ConcurrentHashMap<>();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                this._cookies.put(cookie.getName(), cookie);
+                this.cookies.put(cookie.getName(), cookie);
             }
         }
     }
 
     public RouteResult getRoute() {
-        return _route;
+        return route;
     }
 
     public Request setRoute(RouteResult route) {
-        this._route = route;
+        this.route = route;
         return this;
     }
 
-    protected <T> T getOrDefault(T result, T _default) {
+    protected <T> T getOrDefault(T result, T defaultValue) {
         if (result == null) {
-            return _default;
+            return defaultValue;
         }
         return result;
     }
@@ -127,24 +134,24 @@ public class Request implements HttpServletRequest {
         if (!this.isJson()) {
             return;
         }
-        this._parseBody = JSON.parse(this._body);
+        this.parseBody = JSON.parse(this.body);
     }
 
     public String getBody() {
-        return _body;
+        return body;
     }
 
     public Request setBody(String body) {
-        this._body = body;
+        this.body = body;
         return this;
     }
 
     public JsonNode getParseBody() {
-        return _parseBody;
+        return parseBody;
     }
 
     public Request setParseBody(JsonNode parseBody) {
-        this._parseBody = parseBody;
+        this.parseBody = parseBody;
         return this;
     }
 
@@ -153,44 +160,44 @@ public class Request implements HttpServletRequest {
     }
 
     public String header(String name) {
-        return _base.getHeader(name);
+        return base.getHeader(name);
     }
 
     public Enumeration<String> headers(String name) {
-        return _base.getHeaders(name);
+        return base.getHeaders(name);
     }
 
-    public String header(String name, String _default) {
-        return this.getOrDefault(_base.getHeader(name), _default);
+    public String header(String name, String defaultValue) {
+        return this.getOrDefault(base.getHeader(name), defaultValue);
     }
 
     public Enumeration<String> headers(
         String name,
-        Enumeration<String> _default
+        Enumeration<String> defaultValue
     ) {
-        return this.getOrDefault(_base.getHeaders(name), _default);
+        return this.getOrDefault(base.getHeaders(name), defaultValue);
     }
 
     public Map<String, Object> all() {
         Map<String, Object> map = new ConcurrentHashMap<>();
-        for (Map.Entry<String, String[]> entry : _base
+        for (Map.Entry<String, String[]> entry : base
             .getParameterMap()
             .entrySet()) {
             String[] value = entry.getValue();
             map.put(entry.getKey(), value.length == 1 ? value[0] : value);
         }
-        map.putAll(this._route.getParams());
-        map.putAll(this._cookies);
+        map.putAll(this.route.getParams());
+        map.putAll(this.cookies);
         try {
-            for (Part part : _base.getParts()) {
+            for (Part part : base.getParts()) {
                 map.put(part.getName(), part);
             }
         } catch (IOException | ServletException e) {
             // no code
         }
-        if (this._parseBody != null) {
-            if (this._parseBody.isObject()) {
-                ObjectNode object = (ObjectNode) this._parseBody;
+        if (this.parseBody != null) {
+            if (this.parseBody.isObject()) {
+                ObjectNode object = (ObjectNode) this.parseBody;
                 for (
                     Iterator<Map.Entry<String, JsonNode>> it = object.fields();
                     it.hasNext();
@@ -199,7 +206,7 @@ public class Request implements HttpServletRequest {
                     map.put(entry.getKey(), entry.getValue());
                 }
             } else {
-                map.put(REQUEST_BODY, this._parseBody);
+                map.put(REQUEST_BODY, this.parseBody);
             }
         }
         return map;
@@ -209,7 +216,7 @@ public class Request implements HttpServletRequest {
         return this.all(name, null);
     }
 
-    public Object all(String name, Object _default) {
+    public Object all(String name, Object defaultValue) {
         Object object = this.getParameterValues(name);
         if (object != null) {
             String[] arr = (String[]) object;
@@ -236,31 +243,31 @@ public class Request implements HttpServletRequest {
             }
         }
         if (object == null) {
-            object = _default;
+            object = defaultValue;
         }
         return object;
     }
 
     public boolean has(String name) {
-        if (_base.getParameterMap().containsKey(name)) {
+        if (base.getParameterMap().containsKey(name)) {
             return true;
         }
-        if (_route.getParams().containsKey(name)) {
+        if (route.getParams().containsKey(name)) {
             return true;
         }
-        if (_cookies.containsKey(name)) {
+        if (cookies.containsKey(name)) {
             return true;
         }
         try {
-            if (_base.getPart(name) != null) {
+            if (base.getPart(name) != null) {
                 return true;
             }
         } catch (IOException | ServletException e) {
             // no code
         }
-        if (this._parseBody != null) {
-            if (this._parseBody.isObject()) {
-                ObjectNode object = (ObjectNode) this._parseBody;
+        if (this.parseBody != null) {
+            if (this.parseBody.isObject()) {
+                ObjectNode object = (ObjectNode) this.parseBody;
                 return object.has(name);
             } else {
                 return name.equals(REQUEST_BODY);
@@ -271,8 +278,8 @@ public class Request implements HttpServletRequest {
 
     public JsonNode input() {
         JsonNode node;
-        if (this._parseBody != null) {
-            node = this._parseBody;
+        if (this.parseBody != null) {
+            node = this.parseBody;
         } else {
             node = JSON.convertToNode(this.getParameterMap());
         }
@@ -284,10 +291,10 @@ public class Request implements HttpServletRequest {
 
     public JsonNode input(String name) {
         JsonNode node;
-        if (this._parseBody == null) {
-            node = JSON.convertToNode(_base.getParameter(name));
+        if (this.parseBody == null) {
+            node = JSON.convertToNode(base.getParameter(name));
         } else {
-            node = Util.dataGet(this._parseBody, name);
+            node = Util.dataGet(this.parseBody, name);
         }
         if (node != null && node.isNull()) {
             node = null;
@@ -295,88 +302,88 @@ public class Request implements HttpServletRequest {
         return node;
     }
 
-    public JsonNode input(String name, JsonNode _default) {
-        return this.getOrDefault(this.input(name), _default);
+    public JsonNode input(String name, JsonNode defaultValue) {
+        return this.getOrDefault(this.input(name), defaultValue);
     }
 
     public Map<String, String[]> query() {
-        return _base.getParameterMap();
+        return base.getParameterMap();
     }
 
     public String query(String name) {
-        return _base.getParameter(name);
+        return base.getParameter(name);
     }
 
-    public String query(String name, String _default) {
-        return this.getOrDefault(_base.getParameter(name), _default);
+    public String query(String name, String defaultValue) {
+        return this.getOrDefault(base.getParameter(name), defaultValue);
     }
 
     public RouteResult route() {
-        return this._route;
+        return this.route;
     }
 
     public String route(String name) {
-        return this._route.getParams().get(name);
+        return this.route.getParams().get(name);
     }
 
-    public String route(String name, String _default) {
-        return this._route.getParams().getOrDefault(name, _default);
+    public String route(String name, String defaultValue) {
+        return this.route.getParams().getOrDefault(name, defaultValue);
     }
 
     public Cookie cookie(String name) {
-        return this._cookies.get(name);
+        return this.cookies.get(name);
     }
 
-    public Cookie cookie(String name, Cookie _default) {
-        return this._cookies.getOrDefault(name, _default);
+    public Cookie cookie(String name, Cookie defaultValue) {
+        return this.cookies.getOrDefault(name, defaultValue);
     }
 
     public HttpSession session() {
-        return _base.getSession();
+        return base.getSession();
     }
 
     public Object session(String name) {
-        return _base.getSession().getAttribute(name);
+        return base.getSession().getAttribute(name);
     }
 
-    public Object session(String name, Object _default) {
+    public Object session(String name, Object defaultValue) {
         return this.getOrDefault(
-                _base.getSession().getAttribute(name),
-                _default
+                base.getSession().getAttribute(name),
+                defaultValue
             );
     }
 
     public String path() {
-        return _base.getHttpURI().getPath();
+        return base.getHttpURI().getPath();
     }
 
     public String url() {
-        HttpURI uri = _base.getHttpURI();
+        HttpURI uri = base.getHttpURI();
         return uri.getScheme() + "://" + uri.getAuthority() + uri.getPath();
     }
 
     public String fullUrl() {
-        return _base.getHttpURI().toString();
+        return base.getHttpURI().toString();
     }
 
     public String method() {
-        return _base.getMethod();
+        return base.getMethod();
     }
 
     public boolean isMethod(String method) {
-        return _base.getMethod().equalsIgnoreCase(method);
+        return base.getMethod().equalsIgnoreCase(method);
     }
 
     public boolean isMethod(HttpMethod method) {
-        return method.is(_base.getMethod());
+        return method.is(base.getMethod());
     }
 
     public boolean pattern(String regex) {
-        return Pattern.matches(regex, _base.getHttpURI().getPath());
+        return Pattern.matches(regex, base.getHttpURI().getPath());
     }
 
     public boolean pattern(Pattern pattern) {
-        return pattern.matcher(_base.getHttpURI().getPath()).matches();
+        return pattern.matcher(base.getHttpURI().getPath()).matches();
     }
 
     public boolean ajax() {
@@ -393,8 +400,8 @@ public class Request implements HttpServletRequest {
 
     public boolean isJson() {
         return (
-            _base.getContentType() != null &&
-            _base
+            base.getContentType() != null &&
+            base
                 .getContentType()
                 .startsWith(MimeTypes.Type.APPLICATION_JSON.asString())
         );
@@ -402,7 +409,7 @@ public class Request implements HttpServletRequest {
 
     public Part file(String name) {
         try {
-            return _base.getPart(name);
+            return base.getPart(name);
         } catch (IOException | ServletException e) {
             return null;
         }
@@ -426,8 +433,8 @@ public class Request implements HttpServletRequest {
     public boolean hasFile(String name) {
         try {
             return (
-                _base.getPart(name) != null ||
-                _base.getPart(name).getSubmittedFileName() != null
+                base.getPart(name) != null ||
+                base.getPart(name).getSubmittedFileName() != null
             );
         } catch (IOException | ServletException e) {
             return false;
@@ -436,7 +443,7 @@ public class Request implements HttpServletRequest {
 
     public boolean moveFileTo(String name, String path) {
         try {
-            Part part = _base.getPart(name);
+            Part part = base.getPart(name);
             if (part == null) {
                 return false;
             }
@@ -462,575 +469,186 @@ public class Request implements HttpServletRequest {
     /* ================== */
 
     public HttpFields getHttpFields() {
-        return _base.getHttpFields();
+        return base.getHttpFields();
     }
 
     public HttpInput getHttpInput() {
-        return _base.getHttpInput();
+        return base.getHttpInput();
     }
 
     public Request addEventListener(EventListener listener) {
-        _base.addEventListener(listener);
+        base.addEventListener(listener);
         return this;
     }
 
     public Request extractFormParameters(MultiMap<String> params) {
-        _base.extractFormParameters(params);
+        base.extractFormParameters(params);
         return this;
     }
 
-    @Override
-    public AsyncContext getAsyncContext() {
-        return _base.getAsyncContext();
-    }
-
     public HttpChannelState getHttpChannelState() {
-        return _base.getHttpChannelState();
+        return base.getHttpChannelState();
     }
 
     @Override
     public Object getAttribute(String name) {
-        return _base.getAttribute(name);
+        return base.getAttribute(name);
     }
 
     @Override
     public Enumeration<String> getAttributeNames() {
-        return _base.getAttributeNames();
-    }
-
-    public Attributes getAttributes() {
-        return _base.getAttributes();
-    }
-
-    public Authentication getAuthentication() {
-        return _base.getAuthentication();
-    }
-
-    @Override
-    public String getAuthType() {
-        return _base.getAuthType();
+        return base.getAttributeNames();
     }
 
     @Override
     public String getCharacterEncoding() {
-        return _base.getCharacterEncoding();
-    }
-
-    public HttpChannel getHttpChannel() {
-        return _base.getHttpChannel();
-    }
-
-    @Override
-    public int getContentLength() {
-        return _base.getContentLength();
-    }
-
-    @Override
-    public long getContentLengthLong() {
-        return _base.getContentLengthLong();
-    }
-
-    public long getContentRead() {
-        return _base.getContentRead();
-    }
-
-    @Override
-    public String getContentType() {
-        return _base.getContentType();
-    }
-
-    public ContextHandler.Context getContext() {
-        return _base.getContext();
-    }
-
-    @Override
-    public String getContextPath() {
-        return _base.getContextPath();
-    }
-
-    @Override
-    public Cookie[] getCookies() {
-        Cookie[] cookies = _base.getCookies();
-        if (cookies == null) {
-            return new Cookie[0];
-        }
-        return cookies;
-    }
-
-    @Override
-    public long getDateHeader(String name) {
-        return _base.getDateHeader(name);
-    }
-
-    @Override
-    public DispatcherType getDispatcherType() {
-        return _base.getDispatcherType();
-    }
-
-    @Override
-    public String getHeader(String name) {
-        return _base.getHeader(name);
-    }
-
-    @Override
-    public Enumeration<String> getHeaderNames() {
-        return _base.getHeaderNames();
-    }
-
-    @Override
-    public Enumeration<String> getHeaders(String name) {
-        return _base.getHeaders(name);
-    }
-
-    public int getInputState() {
-        return _base.getInputState();
-    }
-
-    @Override
-    public ServletInputStream getInputStream() throws IOException {
-        return _base.getInputStream();
-    }
-
-    @Override
-    public int getIntHeader(String name) {
-        return _base.getIntHeader(name);
-    }
-
-    @Override
-    public Locale getLocale() {
-        return _base.getLocale();
-    }
-
-    @Override
-    public Enumeration<Locale> getLocales() {
-        return _base.getLocales();
-    }
-
-    @Override
-    public String getLocalAddr() {
-        return _base.getLocalAddr();
-    }
-
-    @Override
-    public String getLocalName() {
-        return _base.getLocalName();
-    }
-
-    @Override
-    public int getLocalPort() {
-        return _base.getLocalPort();
-    }
-
-    @Override
-    public String getMethod() {
-        return _base.getMethod();
-    }
-
-    @Override
-    public String getParameter(String name) {
-        return _base.getParameter(name);
-    }
-
-    @Override
-    public Map<String, String[]> getParameterMap() {
-        return _base.getParameterMap();
-    }
-
-    @Override
-    public Enumeration<String> getParameterNames() {
-        return _base.getParameterNames();
-    }
-
-    @Override
-    public String[] getParameterValues(String name) {
-        return _base.getParameterValues(name);
-    }
-
-    public MultiMap<String> getQueryParameters() {
-        return _base.getQueryParameters();
-    }
-
-    public Request setQueryParameters(MultiMap<String> queryParameters) {
-        _base.setQueryParameters(queryParameters);
-        return this;
-    }
-
-    public Request setContentParameters(MultiMap<String> contentParameters) {
-        _base.setContentParameters(contentParameters);
-        return this;
-    }
-
-    public Request resetParameters() {
-        _base.resetParameters();
-        return this;
-    }
-
-    @Override
-    public String getPathInfo() {
-        return _base.getPathInfo();
-    }
-
-    @Override
-    public String getPathTranslated() {
-        return _base.getPathTranslated();
-    }
-
-    @Override
-    public String getProtocol() {
-        return _base.getProtocol();
-    }
-
-    public HttpVersion getHttpVersion() {
-        return _base.getHttpVersion();
-    }
-
-    public String getQueryEncoding() {
-        return _base.getQueryEncoding();
-    }
-
-    @Override
-    public String getQueryString() {
-        return _base.getQueryString();
-    }
-
-    @Override
-    public BufferedReader getReader() throws IOException {
-        return _base.getReader();
-    }
-
-    public InetSocketAddress getRemoteInetSocketAddress() {
-        return _base.getRemoteInetSocketAddress();
-    }
-
-    @Override
-    public String getRemoteAddr() {
-        return _base.getRemoteAddr();
-    }
-
-    @Override
-    public String getRemoteHost() {
-        return _base.getRemoteHost();
-    }
-
-    @Override
-    public int getRemotePort() {
-        return _base.getRemotePort();
-    }
-
-    @Override
-    public String getRemoteUser() {
-        return _base.getRemoteUser();
-    }
-
-    @Override
-    public RequestDispatcher getRequestDispatcher(String path) {
-        return _base.getRequestDispatcher(path);
-    }
-
-    @Override
-    public String getRealPath(String path) {
-        return _base.getRealPath(path);
-    }
-
-    @Override
-    public String getRequestedSessionId() {
-        return _base.getRequestedSessionId();
-    }
-
-    @Override
-    public String getRequestURI() {
-        return _base.getRequestURI();
-    }
-
-    @Override
-    public StringBuffer getRequestURL() {
-        return _base.getRequestURL();
-    }
-
-    public Response getResponse() {
-        return _base.getResponse();
-    }
-
-    public StringBuilder getRootURL() {
-        return _base.getRootURL();
-    }
-
-    @Override
-    public String getScheme() {
-        return _base.getScheme();
-    }
-
-    @Override
-    public String getServerName() {
-        return _base.getServerName();
-    }
-
-    @Override
-    public int getServerPort() {
-        return _base.getServerPort();
-    }
-
-    @Override
-    public ServletContext getServletContext() {
-        return _base.getServletContext();
-    }
-
-    public String getServletName() {
-        return _base.getServletName();
-    }
-
-    @Override
-    public String getServletPath() {
-        return _base.getServletPath();
-    }
-
-    public ServletResponse getServletResponse() {
-        return _base.getServletResponse();
-    }
-
-    @Override
-    public String changeSessionId() {
-        return _base.changeSessionId();
-    }
-
-    @Override
-    public HttpSession getSession() {
-        return _base.getSession();
-    }
-
-    @Override
-    public HttpSession getSession(boolean create) {
-        return _base.getSession(create);
-    }
-
-    public long getTimeStamp() {
-        return _base.getTimeStamp();
-    }
-
-    public HttpURI getHttpURI() {
-        return _base.getHttpURI();
-    }
-
-    public UserIdentity getUserIdentity() {
-        return _base.getUserIdentity();
-    }
-
-    public UserIdentity getResolvedUserIdentity() {
-        return _base.getResolvedUserIdentity();
-    }
-
-    public UserIdentity.Scope getUserIdentityScope() {
-        return _base.getUserIdentityScope();
-    }
-
-    @Override
-    public Principal getUserPrincipal() {
-        return _base.getUserPrincipal();
-    }
-
-    public boolean isHandled() {
-        return _base.isHandled();
-    }
-
-    @Override
-    public boolean isAsyncStarted() {
-        return _base.isAsyncStarted();
-    }
-
-    @Override
-    public boolean isAsyncSupported() {
-        return _base.isAsyncSupported();
-    }
-
-    @Override
-    public boolean isRequestedSessionIdFromCookie() {
-        return _base.isRequestedSessionIdFromCookie();
-    }
-
-    @Override
-    public boolean isRequestedSessionIdFromURL() {
-        return _base.isRequestedSessionIdFromURL();
-    }
-
-    @Override
-    public boolean isRequestedSessionIdFromUrl() {
-        return _base.isRequestedSessionIdFromUrl();
-    }
-
-    @Override
-    public boolean isRequestedSessionIdValid() {
-        return _base.isRequestedSessionIdValid();
-    }
-
-    @Override
-    public boolean isSecure() {
-        return _base.isSecure();
-    }
-
-    public Request setSecure(boolean secure) {
-        _base.setSecure(secure);
-        return this;
-    }
-
-    @Override
-    public boolean isUserInRole(String role) {
-        return _base.isUserInRole(role);
-    }
-
-    @Override
-    public void removeAttribute(String name) {
-        _base.removeAttribute(name);
-    }
-
-    public Request removeEventListener(EventListener listener) {
-        _base.removeEventListener(listener);
-        return this;
-    }
-
-    public Request setAsyncSupported(boolean supported, String source) {
-        _base.setAsyncSupported(supported, source);
-        return this;
-    }
-
-    @Override
-    public void setAttribute(String name, Object value) {
-        _base.setAttribute(name, value);
-    }
-
-    public Request setAttributes(Attributes attributes) {
-        _base.setAttributes(attributes);
-        return this;
-    }
-
-    public Request setAuthentication(Authentication authentication) {
-        _base.setAuthentication(authentication);
-        return this;
+        return base.getCharacterEncoding();
     }
 
     @Override
     public void setCharacterEncoding(String encoding)
         throws UnsupportedEncodingException {
-        _base.setCharacterEncoding(encoding);
+        base.setCharacterEncoding(encoding);
     }
 
-    public Request setCharacterEncodingUnchecked(String encoding) {
-        _base.setCharacterEncodingUnchecked(encoding);
-        return this;
+    @Override
+    public int getContentLength() {
+        return base.getContentLength();
     }
 
-    public Request setContentType(String contentType) {
-        _base.setContentType(contentType);
-        return this;
+    @Override
+    public long getContentLengthLong() {
+        return base.getContentLengthLong();
     }
 
-    public Request setContext(ContextHandler.Context context) {
-        _base.setContext(context);
-        return this;
+    @Override
+    public String getContentType() {
+        return base.getContentType();
     }
 
-    public boolean takeNewContext() {
-        return _base.takeNewContext();
+    @Override
+    public ServletInputStream getInputStream() throws IOException {
+        return base.getInputStream();
     }
 
-    public Request setContextPath(String contextPath) {
-        _base.setContextPath(contextPath);
-        return this;
+    @Override
+    public String getParameter(String name) {
+        return base.getParameter(name);
     }
 
-    public Request setCookies(Cookie[] cookies) {
-        _base.setCookies(cookies);
-        return this;
+    @Override
+    public Enumeration<String> getParameterNames() {
+        return base.getParameterNames();
     }
 
-    public Request setDispatcherType(DispatcherType type) {
-        _base.setDispatcherType(type);
-        return this;
+    @Override
+    public String[] getParameterValues(String name) {
+        return base.getParameterValues(name);
     }
 
-    public Request setHandled(boolean h) {
-        _base.setHandled(h);
-        return this;
+    @Override
+    public Map<String, String[]> getParameterMap() {
+        return base.getParameterMap();
     }
 
-    public Request setMethod(String method) {
-        _base.setMethod(method);
-        return this;
+    @Override
+    public String getProtocol() {
+        return base.getProtocol();
     }
 
-    public boolean isHead() {
-        return _base.isHead();
+    @Override
+    public String getScheme() {
+        return base.getScheme();
     }
 
-    public Request setPathInfo(String pathInfo) {
-        _base.setPathInfo(pathInfo);
-        return this;
+    @Override
+    public String getServerName() {
+        return base.getServerName();
     }
 
-    public Request setHttpVersion(HttpVersion version) {
-        _base.setHttpVersion(version);
-        return this;
+    @Override
+    public int getServerPort() {
+        return base.getServerPort();
     }
 
-    public Request setQueryEncoding(String queryEncoding) {
-        _base.setQueryEncoding(queryEncoding);
-        return this;
+    @Override
+    public BufferedReader getReader() throws IOException {
+        return base.getReader();
     }
 
-    public Request setQueryString(String queryString) {
-        _base.setQueryString(queryString);
-        return this;
+    @Override
+    public String getRemoteAddr() {
+        return base.getRemoteAddr();
     }
 
-    public Request setRemoteAddr(InetSocketAddress addr) {
-        _base.setRemoteAddr(addr);
-        return this;
+    @Override
+    public String getRemoteHost() {
+        return base.getRemoteHost();
     }
 
-    public Request setRequestedSessionId(String requestedSessionId) {
-        _base.setRequestedSessionId(requestedSessionId);
-        return this;
+    @Override
+    public void setAttribute(String name, Object value) {
+        base.setAttribute(name, value);
     }
 
-    public Request setRequestedSessionIdFromCookie(
-        boolean requestedSessionIdCookie
-    ) {
-        _base.setRequestedSessionIdFromCookie(requestedSessionIdCookie);
-        return this;
+    @Override
+    public void removeAttribute(String name) {
+        base.removeAttribute(name);
     }
 
-    public Request setScheme(String scheme) {
-        _base.setScheme(scheme);
-        return this;
+    @Override
+    public Locale getLocale() {
+        return base.getLocale();
     }
 
-    public Request setServletPath(String servletPath) {
-        _base.setServletPath(servletPath);
-        return this;
+    @Override
+    public Enumeration<Locale> getLocales() {
+        return base.getLocales();
     }
 
-    public Request setSession(HttpSession session) {
-        _base.setSession(session);
-        return this;
+    @Override
+    public boolean isSecure() {
+        return base.isSecure();
     }
 
-    public Request setTimeStamp(long ts) {
-        _base.setTimeStamp(ts);
-        return this;
+    @Override
+    public RequestDispatcher getRequestDispatcher(String path) {
+        return base.getRequestDispatcher(path);
     }
 
-    public Request setHttpURI(HttpURI uri) {
-        _base.setHttpURI(uri);
-        return this;
+    @Override
+    public String getRealPath(String path) {
+        return base.getRealPath(path);
     }
 
-    public Request setUserIdentityScope(UserIdentity.Scope scope) {
-        _base.setUserIdentityScope(scope);
-        return this;
+    @Override
+    public int getRemotePort() {
+        return base.getRemotePort();
+    }
+
+    @Override
+    public String getLocalName() {
+        return base.getLocalName();
+    }
+
+    @Override
+    public String getLocalAddr() {
+        return base.getLocalAddr();
+    }
+
+    @Override
+    public int getLocalPort() {
+        return base.getLocalPort();
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+        return base.getServletContext();
     }
 
     @Override
     public AsyncContext startAsync() throws IllegalStateException {
-        return _base.startAsync();
+        return base.startAsync();
     }
 
     @Override
@@ -1039,39 +657,434 @@ public class Request implements HttpServletRequest {
         ServletResponse servletResponse
     )
         throws IllegalStateException {
-        return _base.startAsync(servletRequest, servletResponse);
+        return base.startAsync(servletRequest, servletResponse);
     }
 
     @Override
-    public String toString() {
-        return _base.toString();
+    public boolean isAsyncStarted() {
+        return base.isAsyncStarted();
+    }
+
+    @Override
+    public boolean isAsyncSupported() {
+        return base.isAsyncSupported();
+    }
+
+    @Override
+    public AsyncContext getAsyncContext() {
+        return base.getAsyncContext();
+    }
+
+    @Override
+    public DispatcherType getDispatcherType() {
+        return base.getDispatcherType();
+    }
+
+    public Request setDispatcherType(DispatcherType type) {
+        base.setDispatcherType(type);
+        return this;
+    }
+
+    public Request setSecure(boolean secure) {
+        base.setSecure(secure);
+        return this;
+    }
+
+    public Request setRemoteAddr(InetSocketAddress addr) {
+        base.setRemoteAddr(addr);
+        return this;
+    }
+
+    public Request setScheme(String scheme) {
+        base.setScheme(scheme);
+        return this;
+    }
+
+    public Request setContentType(String contentType) {
+        base.setContentType(contentType);
+        return this;
+    }
+
+    public Attributes getAttributes() {
+        return base.getAttributes();
+    }
+
+    public Request setAttributes(Attributes attributes) {
+        base.setAttributes(attributes);
+        return this;
+    }
+
+    public Authentication getAuthentication() {
+        return base.getAuthentication();
+    }
+
+    public Request setAuthentication(Authentication authentication) {
+        base.setAuthentication(authentication);
+        return this;
+    }
+
+    @Override
+    public String getAuthType() {
+        return base.getAuthType();
+    }
+
+    @Override
+    public Cookie[] getCookies() {
+        Cookie[] cookies = base.getCookies();
+        if (cookies == null) {
+            return new Cookie[0];
+        }
+        return cookies;
+    }
+
+    @Override
+    public long getDateHeader(String name) {
+        return base.getDateHeader(name);
+    }
+
+    @Override
+    public String getHeader(String name) {
+        return base.getHeader(name);
+    }
+
+    @Override
+    public Enumeration<String> getHeaders(String name) {
+        return base.getHeaders(name);
+    }
+
+    @Override
+    public Enumeration<String> getHeaderNames() {
+        return base.getHeaderNames();
+    }
+
+    @Override
+    public int getIntHeader(String name) {
+        return base.getIntHeader(name);
+    }
+
+    @Override
+    public String getMethod() {
+        return base.getMethod();
+    }
+
+    @Override
+    public String getPathInfo() {
+        return base.getPathInfo();
+    }
+
+    @Override
+    public String getPathTranslated() {
+        return base.getPathTranslated();
+    }
+
+    @Override
+    public String getContextPath() {
+        return base.getContextPath();
+    }
+
+    @Override
+    public String getQueryString() {
+        return base.getQueryString();
+    }
+
+    @Override
+    public String getRemoteUser() {
+        return base.getRemoteUser();
+    }
+
+    @Override
+    public boolean isUserInRole(String role) {
+        return base.isUserInRole(role);
+    }
+
+    @Override
+    public Principal getUserPrincipal() {
+        return base.getUserPrincipal();
+    }
+
+    @Override
+    public String getRequestedSessionId() {
+        return base.getRequestedSessionId();
+    }
+
+    @Override
+    public String getRequestURI() {
+        return base.getRequestURI();
+    }
+
+    @Override
+    public StringBuffer getRequestURL() {
+        return base.getRequestURL();
+    }
+
+    @Override
+    public String getServletPath() {
+        return base.getServletPath();
+    }
+
+    @Override
+    public HttpSession getSession(boolean create) {
+        return base.getSession(create);
+    }
+
+    @Override
+    public HttpSession getSession() {
+        return base.getSession();
+    }
+
+    @Override
+    public String changeSessionId() {
+        return base.changeSessionId();
+    }
+
+    @Override
+    public boolean isRequestedSessionIdValid() {
+        return base.isRequestedSessionIdValid();
+    }
+
+    @Override
+    public boolean isRequestedSessionIdFromCookie() {
+        return base.isRequestedSessionIdFromCookie();
+    }
+
+    @Override
+    public boolean isRequestedSessionIdFromURL() {
+        return base.isRequestedSessionIdFromURL();
+    }
+
+    @Override
+    public boolean isRequestedSessionIdFromUrl() {
+        return base.isRequestedSessionIdFromUrl();
     }
 
     @Override
     public boolean authenticate(HttpServletResponse response)
         throws IOException, ServletException {
-        return _base.authenticate(response);
-    }
-
-    @Override
-    public Part getPart(String name) throws IOException, ServletException {
-        return _base.getPart(name);
-    }
-
-    @Override
-    public Collection<Part> getParts() throws IOException, ServletException {
-        return _base.getParts();
+        return base.authenticate(response);
     }
 
     @Override
     public void login(String username, String password)
         throws ServletException {
-        _base.login(username, password);
+        base.login(username, password);
     }
 
     @Override
     public void logout() throws ServletException {
-        _base.logout();
+        base.logout();
+    }
+
+    @Override
+    public Collection<Part> getParts() throws IOException, ServletException {
+        return base.getParts();
+    }
+
+    @Override
+    public Part getPart(String name) throws IOException, ServletException {
+        return base.getPart(name);
+    }
+
+    @Override
+    public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass)
+        throws IOException, ServletException {
+        return base.upgrade(handlerClass);
+    }
+
+    public Request setRequestedSessionIdFromCookie(
+        boolean requestedSessionIdCookie
+    ) {
+        base.setRequestedSessionIdFromCookie(requestedSessionIdCookie);
+        return this;
+    }
+
+    public Request setSession(HttpSession session) {
+        base.setSession(session);
+        return this;
+    }
+
+    public Request setServletPath(String servletPath) {
+        base.setServletPath(servletPath);
+        return this;
+    }
+
+    public Request setRequestedSessionId(String requestedSessionId) {
+        base.setRequestedSessionId(requestedSessionId);
+        return this;
+    }
+
+    public Request setQueryString(String queryString) {
+        base.setQueryString(queryString);
+        return this;
+    }
+
+    public Request setContextPath(String contextPath) {
+        base.setContextPath(contextPath);
+        return this;
+    }
+
+    public Request setPathInfo(String pathInfo) {
+        base.setPathInfo(pathInfo);
+        return this;
+    }
+
+    public Request setMethod(String method) {
+        base.setMethod(method);
+        return this;
+    }
+
+    public Request setCookies(Cookie[] cookies) {
+        base.setCookies(cookies);
+        return this;
+    }
+
+    public HttpChannel getHttpChannel() {
+        return base.getHttpChannel();
+    }
+
+    public long getContentRead() {
+        return base.getContentRead();
+    }
+
+    public ContextHandler.Context getContext() {
+        return base.getContext();
+    }
+
+    public Request setContext(ContextHandler.Context context) {
+        base.setContext(context);
+        return this;
+    }
+
+    public int getInputState() {
+        return base.getInputState();
+    }
+
+    public MultiMap<String> getQueryParameters() {
+        return base.getQueryParameters();
+    }
+
+    public Request setQueryParameters(MultiMap<String> queryParameters) {
+        base.setQueryParameters(queryParameters);
+        return this;
+    }
+
+    public Request setContentParameters(MultiMap<String> contentParameters) {
+        base.setContentParameters(contentParameters);
+        return this;
+    }
+
+    public Request resetParameters() {
+        base.resetParameters();
+        return this;
+    }
+
+    public HttpVersion getHttpVersion() {
+        return base.getHttpVersion();
+    }
+
+    public Request setHttpVersion(HttpVersion version) {
+        base.setHttpVersion(version);
+        return this;
+    }
+
+    public String getQueryEncoding() {
+        return base.getQueryEncoding();
+    }
+
+    public Request setQueryEncoding(String queryEncoding) {
+        base.setQueryEncoding(queryEncoding);
+        return this;
+    }
+
+    public InetSocketAddress getRemoteInetSocketAddress() {
+        return base.getRemoteInetSocketAddress();
+    }
+
+    public Response getResponse() {
+        return base.getResponse();
+    }
+
+    public StringBuilder getRootUri() {
+        return base.getRootURL();
+    }
+
+    public String getServletName() {
+        return base.getServletName();
+    }
+
+    public ServletResponse getServletResponse() {
+        return base.getServletResponse();
+    }
+
+    public long getTimeStamp() {
+        return base.getTimeStamp();
+    }
+
+    public Request setTimeStamp(long ts) {
+        base.setTimeStamp(ts);
+        return this;
+    }
+
+    public HttpURI getHttpUri() {
+        return base.getHttpURI();
+    }
+
+    public Request setHttpUri(HttpURI uri) {
+        base.setHttpURI(uri);
+        return this;
+    }
+
+    public UserIdentity getUserIdentity() {
+        return base.getUserIdentity();
+    }
+
+    public UserIdentity getResolvedUserIdentity() {
+        return base.getResolvedUserIdentity();
+    }
+
+    public UserIdentity.Scope getUserIdentityScope() {
+        return base.getUserIdentityScope();
+    }
+
+    public Request setUserIdentityScope(UserIdentity.Scope scope) {
+        base.setUserIdentityScope(scope);
+        return this;
+    }
+
+    public boolean isHandled() {
+        return base.isHandled();
+    }
+
+    public Request setHandled(boolean h) {
+        base.setHandled(h);
+        return this;
+    }
+
+    public Request removeEventListener(EventListener listener) {
+        base.removeEventListener(listener);
+        return this;
+    }
+
+    public Request setAsyncSupported(boolean supported, String source) {
+        base.setAsyncSupported(supported, source);
+        return this;
+    }
+
+    public Request setCharacterEncodingUnchecked(String encoding) {
+        base.setCharacterEncodingUnchecked(encoding);
+        return this;
+    }
+
+    public boolean takeNewContext() {
+        return base.takeNewContext();
+    }
+
+    public boolean isHead() {
+        return base.isHead();
+    }
+
+    @Override
+    public String toString() {
+        return base.toString();
     }
 
     public Request mergeQueryParameters(
@@ -1079,102 +1092,91 @@ public class Request implements HttpServletRequest {
         String newQuery,
         boolean updateQueryString
     ) {
-        _base.mergeQueryParameters(oldQuery, newQuery, updateQueryString);
+        base.mergeQueryParameters(oldQuery, newQuery, updateQueryString);
         return this;
     }
 
     public HttpFields getTrailers() {
-        return _base.getTrailers();
+        return base.getTrailers();
     }
 
     public boolean isPush() {
-        return _base.isPush();
+        return base.isPush();
     }
 
     public boolean isPushSupported() {
-        return _base.isPushSupported();
+        return base.isPushSupported();
     }
 
     public PushBuilder getPushBuilder() {
-        return _base.getPushBuilder();
+        return base.getPushBuilder();
     }
 
     public SessionHandler getSessionHandler() {
-        return _base.getSessionHandler();
+        return base.getSessionHandler();
     }
 
-    public String getOriginalURI() {
-        return _base.getOriginalURI();
-    }
-
-    public Request setMetaData(MetaData.Request request) {
-        _base.setMetaData(request);
+    public Request setSessionHandler(SessionHandler sessionHandler) {
+        base.setSessionHandler(sessionHandler);
         return this;
     }
 
+    public String getOriginalUri() {
+        return base.getOriginalURI();
+    }
+
     public MetaData.Request getMetaData() {
-        return _base.getMetaData();
+        return base.getMetaData();
+    }
+
+    public Request setMetaData(MetaData.Request request) {
+        base.setMetaData(request);
+        return this;
     }
 
     public boolean hasMetaData() {
-        return _base.hasMetaData();
+        return base.hasMetaData();
     }
 
-    public Request setURIPathQuery(String requestURI) {
-        _base.setURIPathQuery(requestURI);
+    public Request setUriPathQuery(String requestUri) {
+        base.setURIPathQuery(requestUri);
         return this;
     }
 
     public Request setAuthority(String host, int port) {
-        _base.setAuthority(host, port);
+        base.setAuthority(host, port);
         return this;
-    }
-
-    public Request setSessionHandler(SessionHandler sessionHandler) {
-        _base.setSessionHandler(sessionHandler);
-        return this;
-    }
-
-    @Override
-    public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass)
-        throws IOException, ServletException {
-        return _base.upgrade(handlerClass);
     }
 
     public org.eclipse.jetty.server.Request getOriginRequest() {
-        return this._base;
-    }
-
-    public Request setOriginRequest(org.eclipse.jetty.server.Request request) {
-        this._base = request;
-        return this;
+        return this.base;
     }
 
     public Request enterSession(HttpSession s) {
-        _base.enterSession(s);
+        base.enterSession(s);
         return this;
     }
 
     public ContextHandler.Context getErrorContext() {
-        return _base.getErrorContext();
+        return base.getErrorContext();
     }
 
     public Request onCompleted() {
-        _base.onCompleted();
+        base.onCompleted();
         return this;
     }
 
     public Request onResponseCommit() {
-        _base.onResponseCommit();
+        base.onResponseCommit();
         return this;
     }
 
     public HttpSession getSession(SessionHandler sessionHandler) {
-        return _base.getSession(sessionHandler);
+        return base.getSession(sessionHandler);
     }
 
     public Request setAsyncAttributes() {
-        _base.setAsyncAttributes();
+        base.setAsyncAttributes();
         return this;
     }
 }

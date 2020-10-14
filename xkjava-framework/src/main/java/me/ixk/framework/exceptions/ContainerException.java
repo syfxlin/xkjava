@@ -4,7 +4,14 @@
 
 package me.ixk.framework.exceptions;
 
+/**
+ * 容器异常
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:02
+ */
 public class ContainerException extends Exception {
+
     public ContainerException() {
         super();
     }
@@ -21,7 +28,12 @@ public class ContainerException extends Exception {
         super(cause);
     }
 
-    protected ContainerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected ContainerException(
+        String message,
+        Throwable cause,
+        boolean enableSuppression,
+        boolean writableStackTrace
+    ) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

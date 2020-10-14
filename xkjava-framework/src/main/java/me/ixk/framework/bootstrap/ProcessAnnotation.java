@@ -13,6 +13,12 @@ import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.processor.AnnotationProcessor;
 import me.ixk.framework.utils.AnnotationUtils;
 
+/**
+ * 处理注解
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 8:54
+ */
 @Bootstrap
 @Order(Order.HIGHEST_PRECEDENCE + 4)
 public class ProcessAnnotation extends AbstractBootstrap {
@@ -23,6 +29,7 @@ public class ProcessAnnotation extends AbstractBootstrap {
 
     @Override
     public void boot() {
+        // 扫描注解处理器
         Set<Class<?>> processors = AnnotationUtils.getTypesAnnotated(
             me.ixk.framework.annotations.AnnotationProcessor.class
         );
@@ -35,7 +42,9 @@ public class ProcessAnnotation extends AbstractBootstrap {
         }
         AnnotationProcessorManager manager =
             this.app.annotationProcessorManager();
+        // 注册
         manager.registers(processors);
+        // 处理
         manager.process();
     }
 }

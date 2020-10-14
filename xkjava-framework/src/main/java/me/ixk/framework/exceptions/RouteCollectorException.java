@@ -4,7 +4,14 @@
 
 package me.ixk.framework.exceptions;
 
+/**
+ * 路由收集异常
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:06
+ */
 public class RouteCollectorException extends Exception {
+
     public RouteCollectorException() {
         super();
     }
@@ -21,7 +28,12 @@ public class RouteCollectorException extends Exception {
         super(cause);
     }
 
-    protected RouteCollectorException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected RouteCollectorException(
+        String message,
+        Throwable cause,
+        boolean enableSuppression,
+        boolean writableStackTrace
+    ) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

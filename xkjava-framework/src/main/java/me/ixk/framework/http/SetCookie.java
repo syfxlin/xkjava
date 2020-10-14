@@ -7,6 +7,12 @@ package me.ixk.framework.http;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.Cookie;
 
+/**
+ * Cookie 单对象
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 10:28
+ */
 public class SetCookie extends Cookie {
     private long expiration;
 

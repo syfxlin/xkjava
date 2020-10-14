@@ -12,6 +12,12 @@ import me.ixk.framework.view.TemplateProcessor;
 import me.ixk.framework.web.WebContext;
 import org.eclipse.jetty.http.MimeTypes;
 
+/**
+ * 视图响应
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:12
+ */
 public class ViewResult extends HttpResult {
     protected String view;
 

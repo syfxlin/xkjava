@@ -6,31 +6,61 @@ package me.ixk.framework.aop;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import net.sf.cglib.proxy.MethodProxy;
 
+/**
+ * 切面处理器
+ * <p>
+ * 采用责任链模式处理多个切面
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 8:15
+ */
 public class AspectHandler {
+    /**
+     * 切面代理类的原始对象
+     */
     protected final Object target;
 
+    /**
+     * 原始方法
+     */
     protected final Method method;
 
+    /**
+     * 代理方法
+     */
     protected final MethodProxy methodProxy;
 
+    /**
+     * 参数
+     */
     protected final Object[] args;
-
-    protected int currAspectIndex;
-
+    /**
+     * 与当前方法匹配的所有切面
+     */
     protected final List<Advice> aspects;
+    /**
+     * 当前执行到的切面索引
+     */
+    protected volatile AtomicInteger currAspectIndex;
+    /**
+     * 用于临时存储当前切面
+     */
+    protected volatile Advice aspect = null;
 
-    protected Advice aspect = null;
-
-    protected Throwable error = null;
+    /**
+     * 切面中抛出的异常
+     */
+    protected volatile Throwable error = null;
 
     public AspectHandler(
         Object target,
         Method method,
         MethodProxy methodProxy,
         Object[] args,
-        int currAspectIndex,
+        AtomicInteger currAspectIndex,
         List<Advice> aspects
     ) {
         this.target = target;
@@ -45,15 +75,16 @@ public class AspectHandler {
     }
 
     protected boolean hasNextAspect() {
-        return this.aspects.size() > currAspectIndex;
+        return this.aspects.size() > currAspectIndex.get();
     }
 
     protected Advice getNextAspect() {
-        return this.aspects.get(currAspectIndex++);
+        return this.aspects.get(currAspectIndex.getAndIncrement());
     }
 
     public Object invokeAspect() throws Throwable {
         if (aspect == null) {
+            // 当切面不存在的时候说明执行完毕或没有切面，则执行原始方法
             return this.methodProxy.invoke(this.target, this.args);
         }
         Object result = null;
@@ -61,6 +92,7 @@ public class AspectHandler {
             // Around
             result = this.aspect.around(this.makeProceedingJoinPoint());
         } catch (Throwable e) {
+            // 抛出异常的时候保存异常
             this.error = e;
         }
         // After
@@ -116,7 +148,7 @@ public class AspectHandler {
         return this.makeJoinPoint(null);
     }
 
-    public JoinPoint makeJoinPoint(Object _return) {
+    public JoinPoint makeJoinPoint(Object returnValue) {
         JoinPoint point = new JoinPoint(
             this,
             this.target,
@@ -127,8 +159,8 @@ public class AspectHandler {
         if (this.error != null) {
             point.setError(this.error);
         }
-        if (_return != null) {
-            point.setReturn(_return);
+        if (returnValue != null) {
+            point.setReturn(returnValue);
         }
         return point;
     }

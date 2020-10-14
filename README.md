@@ -12,9 +12,9 @@
 
 接口设计大部分是参考自 XK-PHP，不过也参考了 Spring 的部分设计，比如注解，切面，DispatchServlet 等等。
 
-集成了一个 IoC 容器和添加了 Aop 的支持，最新的版本重构了这两部分，IoC 容器中并不实际存储实例，实例通过 Context 的实现类进行管理，类似于 Spring 的 BeanFactory，如 ApplicationContext 和 RequestContext，这样就可以动态的添加拥有不同特性的 Context，比如 RequestContext 是线程安全的，而且可以动态的删除和创建，而 ApplicationContext 则没有这些功能，只是一个简单的存储容器。
+集成了一个 IoC 容器和添加了 Aop 的支持，IoC 容器中并不实际存储实例，实例通过 Context 的实现类进行管理，类似于 Spring 的 BeanFactory，如 ApplicationContext 和 RequestContext，这样就可以动态的添加拥有不同特性的 Context，比如 RequestContext 是线程安全的，而且可以动态的删除和创建，而 ApplicationContext 则没有这些功能，只是一个简单的存储容器。
 
-Context 中一般只存储 Binding 和 Alias，其中 Binding 中存储了有关实例的元数据，类似于 Spring 的 BeanDefinition，但也同时存储实例。其中一些非 Bean 的对象，如注解扫描后的元数据，配置信息等，则视为是 Attribute，Attribute 也是一种 Binding，不过与之不同的是 Attribute 设置的时候会添加 "\$" 前缀，防止与普通的 Binding 的别名冲突。
+Context 中一般只存储 Binding 和 Alias，其中 Binding 中存储了有关实例的元数据，类似于 Spring 的 BeanDefinition，但也同时存储实例。其中一些非 Bean 的对象，如注解扫描后的元数据，配置信息等，则视为是 Attribute。目前 Attribute 已和 Binding 分离，并将 RequestContext 的内容实际存储到 Request 中。
 
 由于 Java 是常驻内存的，不同于 PHP 每次请求都重新加载容器，所以 Java 需要考虑到不同客户端请求间的线程安全，不同线程间独立的实例存储于 RequestContext，如 Request，Response 等，然后通过 ObjectFactory 动态代理的方式通过 getObject 从 RequestContext 动态获取该线程下的实例。RequestContext 使用 ThreadLocal 保证线程安全。
 
@@ -35,6 +35,10 @@ IoC 容器可以自定义注入器，默认的注入器可以支持大部分场�
 添加了很多同 Spring 的注解，不过有一些小改动，注解大部分都支持通过 @Order 进行排序，同时注解也可以使用 @AliasFor 使用别名，同时提供一个通用的注解处理抽象类，如果需要处理自定义注解可以通过继承该类快速实现。
 
 支持组合注解（注解继承），子注解设置的值如果设置了 @AliasFor 到父注解，则在获取的时候会进行一次扫描，扫描时会将子注解的值同步到父注解上。
+
+由于支持了组合注解和注解继承，所以已具备一定程度上的自动配置功能。
+
+目前框架已经将大部分组件使用注解进行加载和配置，替换和修改组件变得更加容易了，不用再为各种依赖头疼。
 
 支持 AspectJ 切面，需要经过 IoC 容器处理后才能生效，同时需要实现 Advice 接口，可以直接继承自 AbstractAdvice，从容器中 Make 或者 Call，以及绑定到容器的 Bean 都可以注入切面。切面实现使用的是 Cglib。
 

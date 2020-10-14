@@ -29,18 +29,25 @@ import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.URIUtil;
 
+/**
+ * 响应对象
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 10:05
+ */
 public class Response implements HttpServletResponse {
-    protected org.eclipse.jetty.server.Response _base;
-
-    protected final List<SetCookie> _cookies = new ArrayList<>();
+    protected static final String URL_SPLIT = "/";
+    protected final List<SetCookie> cookies = new ArrayList<>();
+    protected volatile org.eclipse.jetty.server.Response base;
 
     @Deprecated
     public Response() {
         // only used cglib
+        this.base = null;
     }
 
     public Response(org.eclipse.jetty.server.Response response) {
-        this._base = response;
+        this.base = response;
     }
 
     /* =============== Quick method =============== */
@@ -54,15 +61,15 @@ public class Response implements HttpServletResponse {
     }
 
     public Response text(String text) {
-        return this.text(text, HttpStatus.OK, new ConcurrentHashMap<>());
+        return this.text(text, HttpStatus.OK, new ConcurrentHashMap<>(0));
     }
 
     public Response text(String text, HttpStatus status) {
-        return this.text(text, status, new ConcurrentHashMap<>());
+        return this.text(text, status, new ConcurrentHashMap<>(0));
     }
 
     public Response text(String text, int status) {
-        return this.text(text, status, new ConcurrentHashMap<>());
+        return this.text(text, status, new ConcurrentHashMap<>(0));
     }
 
     public Response text(
@@ -83,15 +90,15 @@ public class Response implements HttpServletResponse {
     }
 
     public Response html(String html) {
-        return this.html(html, HttpStatus.OK, new ConcurrentHashMap<>());
+        return this.html(html, HttpStatus.OK, new ConcurrentHashMap<>(0));
     }
 
     public Response html(String html, HttpStatus status) {
-        return this.html(html, status, new ConcurrentHashMap<>());
+        return this.html(html, status, new ConcurrentHashMap<>(0));
     }
 
     public Response html(String html, int status) {
-        return this.html(html, status, new ConcurrentHashMap<>());
+        return this.html(html, status, new ConcurrentHashMap<>(0));
     }
 
     public Response html(
@@ -213,7 +220,7 @@ public class Response implements HttpServletResponse {
     }
 
     public Response status(int sc) {
-        _base.setStatus(sc);
+        base.setStatus(sc);
         return this;
     }
 
@@ -229,12 +236,12 @@ public class Response implements HttpServletResponse {
     }
 
     public Response header(String name, String value) {
-        _base.setHeader(name, value);
+        base.setHeader(name, value);
         return this;
     }
 
     public Response header(HttpHeader name, String value) {
-        _base.setHeader(name, value);
+        base.setHeader(name, value);
         return this;
     }
 
@@ -318,14 +325,14 @@ public class Response implements HttpServletResponse {
     }
 
     public List<SetCookie> getCookies() {
-        return _cookies;
+        return cookies;
     }
 
     public Response pushCookieToHeader() {
-        for (SetCookie cookie : this._cookies) {
-            _base.addCookie(cookie);
+        for (SetCookie cookie : this.cookies) {
+            base.addCookie(cookie);
         }
-        this._cookies.clear();
+        this.cookies.clear();
         return this;
     }
 
@@ -333,9 +340,9 @@ public class Response implements HttpServletResponse {
         for (Map.Entry<Object, String> header : headers.entrySet()) {
             Object key = header.getKey();
             if (key.getClass().isAssignableFrom(String.class)) {
-                _base.setHeader((String) key, header.getValue());
+                base.setHeader((String) key, header.getValue());
             } else if (key.getClass().isAssignableFrom(HttpHeader.class)) {
-                _base.setHeader((HttpHeader) key, header.getValue());
+                base.setHeader((HttpHeader) key, header.getValue());
             }
         }
         return this;
@@ -344,7 +351,7 @@ public class Response implements HttpServletResponse {
     public Response setHeaders(HttpHeaders headers) {
         for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
             for (String value : entry.getValue()) {
-                _base.setHeader(entry.getKey(), value);
+                base.setHeader(entry.getKey(), value);
             }
         }
         return this;
@@ -375,20 +382,20 @@ public class Response implements HttpServletResponse {
 
         if (!URIUtil.hasScheme(location)) {
             StringBuilder buf = channel.getRequest().getRootURL();
-            if (location.startsWith("/")) {
+            if (location.startsWith(URL_SPLIT)) {
                 // absolute in context
                 location = URIUtil.canonicalEncodedPath(location);
             } else {
                 // relative to request
                 String path = channel.getRequest().getRequestURI();
-                String parent = (path.endsWith("/"))
+                String parent = (path.endsWith(URL_SPLIT))
                     ? path
                     : URIUtil.parentPath(path);
                 location =
                     URIUtil.canonicalEncodedPath(
                         URIUtil.addEncodedPaths(parent, location)
                     );
-                if (location != null && !location.startsWith("/")) {
+                if (location != null && !location.startsWith(URL_SPLIT)) {
                     buf.append('/');
                 }
             }
@@ -411,25 +418,25 @@ public class Response implements HttpServletResponse {
     /* ============================== */
 
     public HttpOutput getHttpOutput() {
-        return _base.getHttpOutput();
+        return base.getHttpOutput();
     }
 
     public boolean isIncluding() {
-        return _base.isIncluding();
+        return base.isIncluding();
     }
 
     public Response include() {
-        _base.include();
+        base.include();
         return this;
     }
 
     public Response included() {
-        _base.included();
+        base.included();
         return this;
     }
 
     public Response addCookie(SetCookie cookie) {
-        this._cookies.add(cookie);
+        this.cookies.add(cookie);
         return this;
     }
 
@@ -462,69 +469,53 @@ public class Response implements HttpServletResponse {
 
     @Override
     public boolean containsHeader(String name) {
-        return _base.containsHeader(name);
+        return base.containsHeader(name);
     }
 
     @Override
     public String encodeURL(String url) {
-        return _base.encodeURL(url);
+        return base.encodeURL(url);
     }
 
     @Override
     public String encodeRedirectURL(String url) {
-        return _base.encodeRedirectURL(url);
+        return base.encodeRedirectURL(url);
     }
 
     @SuppressWarnings("deprecation")
     @Override
     public String encodeUrl(String url) {
-        return _base.encodeUrl(url);
+        return base.encodeUrl(url);
     }
 
     @SuppressWarnings("deprecation")
     @Override
     public String encodeRedirectUrl(String url) {
-        return _base.encodeRedirectUrl(url);
-    }
-
-    @Override
-    public void sendError(int sc) {
-        try {
-            _base.sendError(sc);
-        } catch (IOException e) {
-            throw new ResponseException("Send error is error", e);
-        }
+        return base.encodeRedirectUrl(url);
     }
 
     @Override
     public void sendError(int code, String message) {
         try {
-            _base.sendError(code, message);
+            base.sendError(code, message);
         } catch (IOException e) {
             throw new ResponseException("Send error is error", e);
         }
     }
 
-    public void sendProcessing() {
+    @Override
+    public void sendError(int sc) {
         try {
-            _base.sendProcessing();
+            base.sendError(sc);
         } catch (IOException e) {
-            throw new ResponseException("Send processing error", e);
-        }
-    }
-
-    public void sendRedirect(int code, String location) {
-        try {
-            _base.sendRedirect(code, location);
-        } catch (IOException e) {
-            throw new ResponseException("Send redirect error", e);
+            throw new ResponseException("Send error is error", e);
         }
     }
 
     @Override
     public void sendRedirect(String location) {
         try {
-            _base.sendRedirect(location);
+            base.sendRedirect(location);
         } catch (IOException e) {
             throw new ResponseException("Send redirect error", e);
         }
@@ -532,270 +523,352 @@ public class Response implements HttpServletResponse {
 
     @Override
     public void setDateHeader(String name, long date) {
-        _base.setDateHeader(name, date);
-    }
-
-    public Response dateHeader(String name, long date) {
-        _base.setDateHeader(name, date);
-        return this;
+        base.setDateHeader(name, date);
     }
 
     @Override
     public void addDateHeader(String name, long date) {
-        _base.addDateHeader(name, date);
-    }
-
-    public Response aDateHeader(String name, long date) {
-        _base.addDateHeader(name, date);
-        return this;
-    }
-
-    public Response setHeader(HttpHeader name, String value) {
-        _base.setHeader(name, value);
-        return this;
+        base.addDateHeader(name, date);
     }
 
     @Override
     public void setHeader(String name, String value) {
-        _base.setHeader(name, value);
-    }
-
-    @Override
-    public Collection<String> getHeaderNames() {
-        return _base.getHeaderNames();
-    }
-
-    @Override
-    public String getHeader(String name) {
-        return _base.getHeader(name);
-    }
-
-    @Override
-    public Collection<String> getHeaders(String name) {
-        return _base.getHeaders(name);
+        base.setHeader(name, value);
     }
 
     @Override
     public void addHeader(String name, String value) {
-        _base.addHeader(name, value);
-    }
-
-    public Response aHeader(String name, String value) {
-        _base.addHeader(name, value);
-        return this;
+        base.addHeader(name, value);
     }
 
     @Override
     public void setIntHeader(String name, int value) {
-        _base.setIntHeader(name, value);
-    }
-
-    public Response intHeader(String name, int value) {
-        _base.setIntHeader(name, value);
-        return this;
+        base.setIntHeader(name, value);
     }
 
     @Override
     public void addIntHeader(String name, int value) {
-        _base.addIntHeader(name, value);
+        base.addIntHeader(name, value);
     }
 
-    public Response aIntHeader(String name, int value) {
-        _base.addIntHeader(name, value);
+    public void sendProcessing() {
+        try {
+            base.sendProcessing();
+        } catch (IOException e) {
+            throw new ResponseException("Send processing error", e);
+        }
+    }
+
+    public void sendRedirect(int code, String location) {
+        try {
+            base.sendRedirect(code, location);
+        } catch (IOException e) {
+            throw new ResponseException("Send redirect error", e);
+        }
+    }
+
+    public Response dateHeader(String name, long date) {
+        base.setDateHeader(name, date);
         return this;
     }
 
     @Override
-    public void setStatus(int sc) {
-        _base.setStatus(sc);
+    public Collection<String> getHeaderNames() {
+        return base.getHeaderNames();
     }
 
-    @SuppressWarnings("deprecation")
+    public Response aDateHeader(String name, long date) {
+        base.addDateHeader(name, date);
+        return this;
+    }
+
     @Override
-    public void setStatus(int sc, String sm) {
-        _base.setStatus(sc, sm);
+    public String getHeader(String name) {
+        return base.getHeader(name);
+    }
+
+    public Response setHeader(HttpHeader name, String value) {
+        base.setHeader(name, value);
+        return this;
+    }
+
+    @Override
+    public Collection<String> getHeaders(String name) {
+        return base.getHeaders(name);
+    }
+
+    public Response aHeader(String name, String value) {
+        base.addHeader(name, value);
+        return this;
+    }
+
+    public Response intHeader(String name, int value) {
+        base.setIntHeader(name, value);
+        return this;
+    }
+
+    public Response aIntHeader(String name, int value) {
+        base.addIntHeader(name, value);
+        return this;
     }
 
     public Response setStatusWithReason(int sc, String sm) {
-        _base.setStatusWithReason(sc, sm);
+        base.setStatusWithReason(sc, sm);
         return this;
     }
 
     @Override
     public String getCharacterEncoding() {
-        return _base.getCharacterEncoding();
+        return base.getCharacterEncoding();
     }
 
     @Override
     public String getContentType() {
-        return _base.getContentType();
+        return base.getContentType();
     }
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
-        return _base.getOutputStream();
+        return base.getOutputStream();
     }
 
-    public boolean isWriting() {
-        return _base.isWriting();
+    @Override
+    public void setStatus(int sc) {
+        base.setStatus(sc);
     }
 
     @Override
     public PrintWriter getWriter() {
         try {
-            return _base.getWriter();
+            return base.getWriter();
         } catch (IOException e) {
             throw new ResponseException("Get writer error", e);
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public void setContentLength(int len) {
-        _base.setContentLength(len);
-    }
-
-    public Response contentLength(int len) {
-        _base.setContentLength(len);
-        return this;
-    }
-
-    public long getContentLength() {
-        return _base.getContentLength();
-    }
-
-    public boolean isAllContentWritten(long written) {
-        return _base.isAllContentWritten(written);
-    }
-
-    public Response closeOutput() throws IOException {
-        _base.closeOutput();
-        return this;
-    }
-
-    public long getLongContentLength() {
-        return _base.getLongContentLength();
-    }
-
-    public Response setLongContentLength(long len) {
-        _base.setLongContentLength(len);
-        return this;
-    }
-
-    @Override
-    public void setContentLengthLong(long length) {
-        _base.setContentLengthLong(length);
-    }
-
-    public Response contentLengthLong(long length) {
-        _base.setContentLengthLong(length);
-        return this;
-    }
-
-    @Override
-    public void setCharacterEncoding(String encoding) {
-        _base.setCharacterEncoding(encoding);
-    }
-
-    public Response characterEncoding(String encoding) {
-        _base.setCharacterEncoding(encoding);
-        return this;
+    public void setStatus(int sc, String sm) {
+        base.setStatus(sc, sm);
     }
 
     @Override
     public void setContentType(String contentType) {
-        _base.setContentType(contentType);
+        base.setContentType(contentType);
+    }
+
+    @Override
+    public void setCharacterEncoding(String encoding) {
+        base.setCharacterEncoding(encoding);
+    }
+
+    public boolean isWriting() {
+        return base.isWriting();
+    }
+
+    public Response contentLength(int len) {
+        base.setContentLength(len);
+        return this;
+    }
+
+    public long getContentLength() {
+        return base.getContentLength();
+    }
+
+    @Override
+    public void setContentLength(int len) {
+        base.setContentLength(len);
+    }
+
+    @Override
+    public void setContentLengthLong(long length) {
+        base.setContentLengthLong(length);
+    }
+
+    public boolean isAllContentWritten(long written) {
+        return base.isAllContentWritten(written);
+    }
+
+    public Response closeOutput() throws IOException {
+        base.closeOutput();
+        return this;
+    }
+
+    public long getLongContentLength() {
+        return base.getLongContentLength();
+    }
+
+    public Response setLongContentLength(long len) {
+        base.setLongContentLength(len);
+        return this;
+    }
+
+    public Response contentLengthLong(long length) {
+        base.setContentLengthLong(length);
+        return this;
+    }
+
+    public Response characterEncoding(String encoding) {
+        base.setCharacterEncoding(encoding);
+        return this;
     }
 
     public Response contentType(String contentType) {
-        _base.setContentType(contentType);
+        base.setContentType(contentType);
         return this;
+    }
+
+    public Response bufferSize(int size) {
+        base.setBufferSize(size);
+        return this;
+    }
+
+    public Response resetForForward() {
+        base.resetForForward();
+        return this;
+    }
+
+    public Response locale(Locale locale) {
+        base.setLocale(locale);
+        return this;
+    }
+
+    public String getReason() {
+        return base.getReason();
+    }
+
+    public HttpFields getHttpFields() {
+        return base.getHttpFields();
+    }
+
+    public long getContentCount() {
+        return base.getContentCount();
     }
 
     @Override
     public void setBufferSize(int size) {
-        _base.setBufferSize(size);
-    }
-
-    public Response bufferSize(int size) {
-        _base.setBufferSize(size);
-        return this;
-    }
-
-    @Override
-    public int getBufferSize() {
-        return _base.getBufferSize();
-    }
-
-    @Override
-    public void flushBuffer() throws IOException {
-        _base.flushBuffer();
-    }
-
-    @Override
-    public void reset() {
-        _base.reset();
-    }
-
-    public Response resetForForward() {
-        _base.resetForForward();
-        return this;
-    }
-
-    @Override
-    public void resetBuffer() {
-        _base.resetBuffer();
-    }
-
-    @Override
-    public boolean isCommitted() {
-        return _base.isCommitted();
-    }
-
-    @Override
-    public void setLocale(Locale locale) {
-        _base.setLocale(locale);
-    }
-
-    public Response locale(Locale locale) {
-        _base.setLocale(locale);
-        return this;
-    }
-
-    @Override
-    public Locale getLocale() {
-        return _base.getLocale();
-    }
-
-    @Override
-    public int getStatus() {
-        return _base.getStatus();
-    }
-
-    public String getReason() {
-        return _base.getReason();
-    }
-
-    public HttpFields getHttpFields() {
-        return _base.getHttpFields();
-    }
-
-    public long getContentCount() {
-        return _base.getContentCount();
+        base.setBufferSize(size);
     }
 
     @Override
     public String toString() {
-        return _base.toString();
+        return base.toString();
     }
 
     public org.eclipse.jetty.server.Response getOriginResponse() {
-        return this._base;
+        return this.base;
+    }
+
+    @Override
+    public int getBufferSize() {
+        return base.getBufferSize();
     }
 
     public Response setOriginResponse(
         org.eclipse.jetty.server.Response response
     ) {
-        this._base = response;
+        this.base = response;
+        return this;
+    }
+
+    @Override
+    public void flushBuffer() throws IOException {
+        base.flushBuffer();
+    }
+
+    public HttpChannel getHttpChannel() {
+        return base.getHttpChannel();
+    }
+
+    @Override
+    public void reset() {
+        base.reset();
+    }
+
+    public void addCookie(HttpCookie cookie) {
+        base.addCookie(cookie);
+    }
+
+    public void replaceCookie(HttpCookie cookie) {
+        base.replaceCookie(cookie);
+    }
+
+    @Override
+    public void resetBuffer() {
+        base.resetBuffer();
+    }
+
+    public boolean isContentComplete(long written) {
+        return base.isContentComplete(written);
+    }
+
+    @Override
+    public boolean isCommitted() {
+        return base.isCommitted();
+    }
+
+    public Supplier<HttpFields> getTrailers() {
+        return base.getTrailers();
+    }
+
+    @Override
+    public void setLocale(Locale locale) {
+        base.setLocale(locale);
+    }
+
+    public Response setTrailers(Supplier<HttpFields> trailers) {
+        base.setTrailers(trailers);
+        return this;
+    }
+
+    public MetaData.Response getCommittedMetaData() {
+        return base.getCommittedMetaData();
+    }
+
+    @Override
+    public Locale getLocale() {
+        return base.getLocale();
+    }
+
+    public Response putHeaders(
+        HttpContent content,
+        long contentLength,
+        boolean etag
+    ) {
+        base.putHeaders(content, contentLength, etag);
+        return this;
+    }
+
+    @Override
+    public int getStatus() {
+        return base.getStatus();
+    }
+
+    public Response reopen() {
+        base.reopen();
+        return this;
+    }
+
+    public Response errorClose() {
+        base.errorClose();
+        return this;
+    }
+
+    public boolean isStreaming() {
+        return base.isStreaming();
+    }
+
+    public boolean isWritingOrStreaming() {
+        return base.isWritingOrStreaming();
+    }
+
+    public Response completeOutput(Callback callback) {
+        base.completeOutput(callback);
+        return this;
+    }
+
+    public Response resetContent() {
+        base.resetContent();
         return this;
     }
 
@@ -812,71 +885,5 @@ public class Response implements HttpServletResponse {
                 cookie.isHttpOnly(),
                 cookie.getVersion()
             );
-    }
-
-    public HttpChannel getHttpChannel() {
-        return _base.getHttpChannel();
-    }
-
-    public void addCookie(HttpCookie cookie) {
-        _base.addCookie(cookie);
-    }
-
-    public void replaceCookie(HttpCookie cookie) {
-        _base.replaceCookie(cookie);
-    }
-
-    public boolean isContentComplete(long written) {
-        return _base.isContentComplete(written);
-    }
-
-    public Response setTrailers(Supplier<HttpFields> trailers) {
-        _base.setTrailers(trailers);
-        return this;
-    }
-
-    public Supplier<HttpFields> getTrailers() {
-        return _base.getTrailers();
-    }
-
-    public MetaData.Response getCommittedMetaData() {
-        return _base.getCommittedMetaData();
-    }
-
-    public Response putHeaders(
-        HttpContent content,
-        long contentLength,
-        boolean etag
-    ) {
-        _base.putHeaders(content, contentLength, etag);
-        return this;
-    }
-
-    public Response reopen() {
-        _base.reopen();
-        return this;
-    }
-
-    public Response errorClose() {
-        _base.errorClose();
-        return this;
-    }
-
-    public boolean isStreaming() {
-        return _base.isStreaming();
-    }
-
-    public boolean isWritingOrStreaming() {
-        return _base.isWritingOrStreaming();
-    }
-
-    public Response completeOutput(Callback callback) {
-        _base.completeOutput(callback);
-        return this;
-    }
-
-    public Response resetContent() {
-        _base.resetContent();
-        return this;
     }
 }

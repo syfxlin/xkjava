@@ -4,7 +4,14 @@
 
 package me.ixk.framework.exceptions;
 
+/**
+ * 切面处理异常
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:02
+ */
 public class AspectProcessException extends Exception {
+
     public AspectProcessException() {
         super();
     }
@@ -21,7 +28,12 @@ public class AspectProcessException extends Exception {
         super(cause);
     }
 
-    protected AspectProcessException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected AspectProcessException(
+        String message,
+        Throwable cause,
+        boolean enableSuppression,
+        boolean writableStackTrace
+    ) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

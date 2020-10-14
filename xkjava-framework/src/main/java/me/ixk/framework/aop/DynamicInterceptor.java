@@ -6,9 +6,18 @@ package me.ixk.framework.aop;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
+/**
+ * 切面拦截器
+ * <p>
+ * 用于 Cglib 拦截对象
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 8:31
+ */
 public class DynamicInterceptor implements MethodInterceptor, CanGetTarget {
     protected final TargetSource targetSource;
 
@@ -24,6 +33,7 @@ public class DynamicInterceptor implements MethodInterceptor, CanGetTarget {
         MethodProxy methodProxy
     )
         throws Throwable {
+        // 匹配切面
         List<Advice> advices = this.targetSource.getAdvices(method);
         Object target = this.targetSource.getTarget();
         if (advices != null && !advices.isEmpty()) {
@@ -32,7 +42,7 @@ public class DynamicInterceptor implements MethodInterceptor, CanGetTarget {
                 method,
                 methodProxy,
                 args,
-                0,
+                new AtomicInteger(0),
                 advices
             );
             return handler.invokeAspect();

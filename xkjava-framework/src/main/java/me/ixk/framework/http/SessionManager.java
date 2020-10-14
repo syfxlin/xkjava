@@ -10,139 +10,150 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import me.ixk.framework.helpers.Util;
 import me.ixk.framework.utils.Convert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * Session 管理器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 10:18
+ */
 public class SessionManager {
-  HttpSession _session;
+    private static final Logger log = LoggerFactory.getLogger(
+        SessionManager.class
+    );
 
-  @Deprecated
-  public SessionManager() {
-    // only used cglib
-  }
+    private HttpSession session;
 
-  public SessionManager(HttpSession session) {
-    this._session = session;
-  }
-
-  public HttpSession getSession() {
-    return _session;
-  }
-
-  public SessionManager setSession(HttpSession _session) {
-    this._session = _session;
-    return this;
-  }
-
-  public boolean has(String name) {
-    return this._session.getAttribute(name) != null;
-  }
-
-  public <T> T get(String name, Class<T> returnType) {
-    return this.get(name, returnType, null);
-  }
-
-  public <T> T get(String name, Class<T> returnType, T _default) {
-    Object result = this._session.getAttribute(name);
-    if (result == null) {
-      return _default;
+    @Deprecated
+    public SessionManager() {
+        // only used cglib
     }
-    return Convert.convert(returnType, result);
-  }
 
-  public SessionManager put(String name, Object value) {
-    this._session.setAttribute(name, value);
-    return this;
-  }
-
-  public SessionManager forget(String name) {
-    this._session.removeAttribute(name);
-    return this;
-  }
-
-  public SessionManager forget(List<String> names) {
-    for (String name : names) {
-      this._session.removeAttribute(name);
-      return this;
+    public SessionManager(HttpSession session) {
+        this.session = session;
     }
-    return this;
-  }
 
-  public SessionManager flush() {
-    while (this._session.getAttributeNames().hasMoreElements()) {
-      String s = this._session.getAttributeNames().nextElement();
-      this._session.removeAttribute(s);
+    public HttpSession getSession() {
+        return session;
     }
-    return this;
-  }
 
-  public <T> T pull(String name, Class<T> returnType, T _default) {
-    T result = this.get(name, returnType, _default);
-    this.forget(name);
-    return result;
-  }
-
-  public String token() {
-    String token = this.get("_token", String.class);
-    if (token == null) {
-      token = this.regenerateToken();
+    public boolean has(String name) {
+        return this.session.getAttribute(name) != null;
     }
-    return token;
-  }
 
-  public String regenerateToken() {
-    String token = Util.strRandom(40);
-    this.put("_token", token);
-    return token;
-  }
+    public <T> T get(String name, Class<T> returnType) {
+        return this.get(name, returnType, null);
+    }
 
-  public long getCreationTime() {
-    return this._session.getCreationTime();
-  }
+    public <T> T get(String name, Class<T> returnType, T defaultValue) {
+        Object result = this.session.getAttribute(name);
+        if (result == null) {
+            return defaultValue;
+        }
+        return Convert.convert(returnType, result);
+    }
 
-  public String getId() {
-    return this._session.getId();
-  }
+    public SessionManager put(String name, Object value) {
+        log.debug("Add session: {} {}", name, value);
+        this.session.setAttribute(name, value);
+        return this;
+    }
 
-  public long getLastAccessedTime() {
-    return this._session.getLastAccessedTime();
-  }
+    public SessionManager forget(String name) {
+        log.debug("Remove session: {}", name);
+        this.session.removeAttribute(name);
+        return this;
+    }
 
-  public ServletContext getServletContext() {
-    return this._session.getServletContext();
-  }
+    public SessionManager forget(List<String> names) {
+        log.debug("Remove sessions: {}", String.join(",", names));
+        for (String name : names) {
+            this.session.removeAttribute(name);
+            return this;
+        }
+        return this;
+    }
 
-  public SessionManager setMaxInactiveInterval(int interval) {
-    this._session.setMaxInactiveInterval(interval);
-    return this;
-  }
+    public SessionManager flush() {
+        log.debug("Flush session");
+        while (this.session.getAttributeNames().hasMoreElements()) {
+            String s = this.session.getAttributeNames().nextElement();
+            this.session.removeAttribute(s);
+        }
+        return this;
+    }
 
-  public int getMaxInactiveInterval() {
-    return this._session.getMaxInactiveInterval();
-  }
+    public <T> T pull(String name, Class<T> returnType, T defaultValue) {
+        T result = this.get(name, returnType, defaultValue);
+        this.forget(name);
+        return result;
+    }
 
-  public Object getAttribute(String name) {
-    return this._session.getAttribute(name);
-  }
+    public String token() {
+        String token = this.get("_token", String.class);
+        if (token == null) {
+            token = this.regenerateToken();
+        }
+        return token;
+    }
 
-  public Enumeration<String> getAttributeNames() {
-    return this._session.getAttributeNames();
-  }
+    public String regenerateToken() {
+        String token = Util.strRandom(40);
+        this.put("_token", token);
+        return token;
+    }
 
-  public SessionManager setAttribute(String name, Object value) {
-    this._session.setAttribute(name, value);
-    return this;
-  }
+    public long getCreationTime() {
+        return this.session.getCreationTime();
+    }
 
-  public SessionManager removeAttribute(String name) {
-    this._session.removeAttribute(name);
-    return this;
-  }
+    public String getId() {
+        return this.session.getId();
+    }
 
-  public SessionManager invalidate() {
-    this._session.invalidate();
-    return this;
-  }
+    public long getLastAccessedTime() {
+        return this.session.getLastAccessedTime();
+    }
 
-  public boolean isNew() {
-    return this._session.isNew();
-  }
+    public ServletContext getServletContext() {
+        return this.session.getServletContext();
+    }
+
+    public int getMaxInactiveInterval() {
+        return this.session.getMaxInactiveInterval();
+    }
+
+    public SessionManager setMaxInactiveInterval(int interval) {
+        this.session.setMaxInactiveInterval(interval);
+        return this;
+    }
+
+    public Object getAttribute(String name) {
+        return this.session.getAttribute(name);
+    }
+
+    public Enumeration<String> getAttributeNames() {
+        return this.session.getAttributeNames();
+    }
+
+    public SessionManager setAttribute(String name, Object value) {
+        this.session.setAttribute(name, value);
+        return this;
+    }
+
+    public SessionManager removeAttribute(String name) {
+        this.session.removeAttribute(name);
+        return this;
+    }
+
+    public SessionManager invalidate() {
+        this.session.invalidate();
+        return this;
+    }
+
+    public boolean isNew() {
+        return this.session.isNew();
+    }
 }

@@ -7,22 +7,36 @@ package me.ixk.framework.aop;
 import java.lang.reflect.Method;
 import net.sf.cglib.proxy.MethodProxy;
 
+/**
+ * 连接点
+ * <p>
+ * 存储一些切面的信息
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 8:32
+ */
 public class JoinPoint {
     protected final AspectHandler handler;
 
-    protected Object[] args;
+    protected final Object[] args;
 
-    protected Object object;
+    protected final Object object;
 
-    protected Class<?> clazz;
+    protected final Class<?> clazz;
 
-    protected Method method;
+    protected final Method method;
 
-    protected MethodProxy methodProxy;
+    protected final MethodProxy methodProxy;
 
-    protected Object _return;
+    /**
+     * 返回值
+     */
+    protected volatile Object returnValue;
 
-    protected Throwable error;
+    /**
+     * 抛出的异常
+     */
+    protected volatile Throwable error;
 
     public JoinPoint(
         AspectHandler handler,
@@ -43,40 +57,20 @@ public class JoinPoint {
         return args;
     }
 
-    public void setArgs(Object[] args) {
-        this.args = args;
-    }
-
     public Object getObject() {
         return object;
-    }
-
-    public void setObject(Object object) {
-        this.object = object;
     }
 
     public Class<?> getTargetClass() {
         return clazz;
     }
 
-    public void setTargetClass(Class<?> clazz) {
-        this.clazz = clazz;
-    }
-
-    public MethodProxy getMethodProxy() {
-        return methodProxy;
-    }
-
-    public void setMethodProxy(MethodProxy methodProxy) {
-        this.methodProxy = methodProxy;
-    }
-
     public Object getReturn() {
-        return _return;
+        return returnValue;
     }
 
-    public void setReturn(Object _return) {
-        this._return = _return;
+    public void setReturn(Object returnValue) {
+        this.returnValue = returnValue;
     }
 
     public Throwable getError() {
@@ -89,9 +83,5 @@ public class JoinPoint {
 
     public Method getMethod() {
         return method;
-    }
-
-    public void setMethod(Method method) {
-        this.method = method;
     }
 }

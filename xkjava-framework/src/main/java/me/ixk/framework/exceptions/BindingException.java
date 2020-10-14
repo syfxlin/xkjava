@@ -4,7 +4,14 @@
 
 package me.ixk.framework.exceptions;
 
+/**
+ * 绑定异常
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:02
+ */
 public class BindingException extends RuntimeException {
+
     public BindingException() {
         super();
     }
@@ -21,7 +28,12 @@ public class BindingException extends RuntimeException {
         super(cause);
     }
 
-    protected BindingException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected BindingException(
+        String message,
+        Throwable cause,
+        boolean enableSuppression,
+        boolean writableStackTrace
+    ) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

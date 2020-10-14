@@ -12,7 +12,18 @@ import java.util.Objects;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.utils.AnnotationUtils;
 
+/**
+ * 切面管理器
+ * <p>
+ * 管理切面的匹配和获取
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 8:25
+ */
 public class AspectManager {
+    /**
+     * 所有的切面列表
+     */
     protected final List<AdviceEntry> adviceList = new ArrayList<>();
 
     protected final SimpleCache<Method, List<Advice>> METHOD_CACHE = new SimpleCache<>();
@@ -21,7 +32,7 @@ public class AspectManager {
         adviceList.add(new AdviceEntry(pointcut, advice));
     }
 
-    protected class AdviceEntry {
+    protected static class AdviceEntry {
         private final AspectPointcut pointcut;
 
         private final Advice advice;

@@ -44,7 +44,7 @@ public class RouteManager {
     ) {
         final RouteResult routeResult = dispatcher.dispatch(
             request.getMethod(),
-            request.getHttpURI().getPath()
+            request.getHttpUri().getPath()
         );
 
         // 将 Route 信息设置到 Request
@@ -54,7 +54,7 @@ public class RouteManager {
             case NOT_FOUND:
                 throw new HttpException(
                     HttpStatus.NOT_FOUND,
-                    "The URI \"" + request.getHttpURI() + "\" was not found."
+                    "The URI \"" + request.getHttpUri() + "\" was not found."
                 );
             case METHOD_NOT_ALLOWED:
                 throw new HttpException(

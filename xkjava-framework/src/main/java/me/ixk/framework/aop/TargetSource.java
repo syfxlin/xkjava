@@ -8,6 +8,14 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 代理源
+ * <p>
+ * 存储源对象的一些信息
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 8:39
+ */
 public class TargetSource {
     private final Class<?> targetType;
     private final Class<?>[] interfaces;

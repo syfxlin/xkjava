@@ -4,7 +4,14 @@
 
 package me.ixk.framework.exceptions;
 
+/**
+ * 注解处理异常
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:01
+ */
 public class AnnotationProcessorException extends Exception {
+
     public AnnotationProcessorException() {
         super();
     }
@@ -21,7 +28,12 @@ public class AnnotationProcessorException extends Exception {
         super(cause);
     }
 
-    protected AnnotationProcessorException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected AnnotationProcessorException(
+        String message,
+        Throwable cause,
+        boolean enableSuppression,
+        boolean writableStackTrace
+    ) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

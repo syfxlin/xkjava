@@ -6,6 +6,12 @@ package me.ixk.framework.http.result;
 
 import org.eclipse.jetty.http.MimeTypes;
 
+/**
+ * HTML 响应
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:10
+ */
 public class HtmlResult extends HttpResult {
     protected String html;
 

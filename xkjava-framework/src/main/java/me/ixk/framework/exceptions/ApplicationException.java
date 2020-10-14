@@ -4,7 +4,14 @@
 
 package me.ixk.framework.exceptions;
 
+/**
+ * 应用处理异常（容器）
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:02
+ */
 public class ApplicationException extends Exception {
+
     public ApplicationException() {
         super();
     }
@@ -21,7 +28,12 @@ public class ApplicationException extends Exception {
         super(cause);
     }
 
-    protected ApplicationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected ApplicationException(
+        String message,
+        Throwable cause,
+        boolean enableSuppression,
+        boolean writableStackTrace
+    ) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

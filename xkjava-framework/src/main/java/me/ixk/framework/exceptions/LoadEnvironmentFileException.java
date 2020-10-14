@@ -4,7 +4,14 @@
 
 package me.ixk.framework.exceptions;
 
+/**
+ * 读取配置异常
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:06
+ */
 public class LoadEnvironmentFileException extends Exception {
+
     public LoadEnvironmentFileException() {
         super();
     }
@@ -21,7 +28,12 @@ public class LoadEnvironmentFileException extends Exception {
         super(cause);
     }
 
-    protected LoadEnvironmentFileException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected LoadEnvironmentFileException(
+        String message,
+        Throwable cause,
+        boolean enableSuppression,
+        boolean writableStackTrace
+    ) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

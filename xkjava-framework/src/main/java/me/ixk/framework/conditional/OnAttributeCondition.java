@@ -13,6 +13,12 @@ import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 条件（OnAttribute）
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 8:55
+ */
 public class OnAttributeCondition implements Condition {
     private static final Logger log = LoggerFactory.getLogger(
         OnAttributeCondition.class

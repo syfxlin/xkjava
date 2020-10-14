@@ -12,6 +12,12 @@ import me.ixk.framework.exceptions.LoadEnvironmentFileException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.Environment;
 
+/**
+ * 读取配置文件
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 8:53
+ */
 @Bootstrap
 @Order(Order.HIGHEST_PRECEDENCE + 1)
 public class LoadEnvironmentVariables extends AbstractBootstrap {

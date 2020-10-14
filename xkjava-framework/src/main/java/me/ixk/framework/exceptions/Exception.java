@@ -4,6 +4,14 @@
 
 package me.ixk.framework.exceptions;
 
+/**
+ * 框架核心异常类
+ * <p>
+ * 简单继承自 RuntimeException 作为框架的基础异常
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 9:03
+ */
 public class Exception extends RuntimeException {
 
     public Exception() {

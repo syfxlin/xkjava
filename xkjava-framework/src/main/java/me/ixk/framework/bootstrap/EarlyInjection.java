@@ -9,6 +9,14 @@ import me.ixk.framework.annotations.Order;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.ioc.XkJava;
 
+/**
+ * 早期注入启动类
+ * <p>
+ * 由于一些对象需要被早期使用，所以需要在 Bean 绑定之前注入到容器中
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 上午 8:50
+ */
 @Bootstrap
 @Order(Order.HIGHEST_PRECEDENCE + 2)
 public class EarlyInjection extends AbstractBootstrap {
@@ -19,6 +27,7 @@ public class EarlyInjection extends AbstractBootstrap {
 
     @Override
     public void boot() {
+        // 切面管理器
         this.app.singleton(
                 AspectManager.class,
                 AspectManager.class,
