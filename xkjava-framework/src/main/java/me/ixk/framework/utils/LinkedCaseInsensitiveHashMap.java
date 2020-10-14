@@ -10,6 +10,12 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+/**
+ * LinkedCaseInsensitiveHashMap
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:04
+ */
 public class LinkedCaseInsensitiveHashMap<V> extends LinkedHashMap<String, V> {
     private final HashMap<String, String> caseInsensitiveKeys = new HashMap<>();
 
@@ -25,7 +31,11 @@ public class LinkedCaseInsensitiveHashMap<V> extends LinkedHashMap<String, V> {
         super();
     }
 
-    public LinkedCaseInsensitiveHashMap(int initialCapacity, float loadFactor, boolean accessOrder) {
+    public LinkedCaseInsensitiveHashMap(
+        int initialCapacity,
+        float loadFactor,
+        boolean accessOrder
+    ) {
         super(initialCapacity, loadFactor, accessOrder);
     }
 

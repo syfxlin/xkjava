@@ -13,6 +13,12 @@ import java.util.Map;
 import me.ixk.framework.exceptions.TemplateException;
 import me.ixk.framework.utils.ByteArrayUtf8Writer;
 
+/**
+ * FreeMarker
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:15
+ */
 public class FreeMarker implements TemplateProcessor {
     protected final Configuration configuration;
 

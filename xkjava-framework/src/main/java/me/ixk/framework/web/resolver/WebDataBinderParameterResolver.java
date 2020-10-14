@@ -18,17 +18,25 @@ import me.ixk.framework.web.RequestParameterResolver;
 import me.ixk.framework.web.WebContext;
 import me.ixk.framework.web.WebDataBinder;
 
+/**
+ * 数据绑定器解析器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:17
+ */
 @WebResolver
 @Order(Order.LOWEST_PRECEDENCE)
-public class WebDataBinderParameterResolver implements
-    RequestParameterResolver {
-
+public class WebDataBinderParameterResolver
+    implements RequestParameterResolver {
     private static final Set<Class<?>> SKIP_TYPES = new HashSet<>(
-        Arrays.asList(ValidResult.class, ValidGroup.class));
+        Arrays.asList(ValidResult.class, ValidGroup.class)
+    );
 
     @Override
-    public boolean supportsParameter(final Object value,
-        final MethodParameter parameter) {
+    public boolean supportsParameter(
+        final Object value,
+        final MethodParameter parameter
+    ) {
         if (SKIP_TYPES.contains(parameter.getParameterType())) {
             return false;
         }
@@ -36,20 +44,30 @@ public class WebDataBinderParameterResolver implements
     }
 
     @Override
-    public Object resolveParameter(final Object value,
-        final MethodParameter parameter, final WebContext context,
-        final WebDataBinder binder) {
+    public Object resolveParameter(
+        final Object value,
+        final MethodParameter parameter,
+        final WebContext context,
+        final WebDataBinder binder
+    ) {
         final DataBind dataBind = AnnotationUtils
             .getAnnotation(parameter.getParameter())
             .getAnnotation(DataBind.class);
-        final Object dependency = binder.getObject(parameter.getParameterName(),
-            parameter.getParameterType(), dataBind);
+        final Object dependency = binder.getObject(
+            parameter.getParameterName(),
+            parameter.getParameterType(),
+            dataBind
+        );
         if (dependency == null && dataBind != null && dataBind.required()) {
             throw new NullPointerException(
-                "Target [" + parameter.getControllerClass().getName() + "@"
-                    + parameter.getMethod().getName() + "(" + parameter
-                    .getParameterName()
-                    + ")] is required, but inject value is null");
+                "Target [" +
+                parameter.getControllerClass().getName() +
+                "@" +
+                parameter.getMethod().getName() +
+                "(" +
+                parameter.getParameterName() +
+                ")] is required, but inject value is null"
+            );
         }
         return dependency;
     }

@@ -10,6 +10,12 @@ import java.util.Arrays;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 
+/**
+ * 方法参数
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:17
+ */
 public class MethodParameter {
     private final Object controller;
     private final Class<?> controllerClass;

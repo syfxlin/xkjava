@@ -6,6 +6,12 @@ package me.ixk.framework.route;
 
 import java.util.Map;
 
+/**
+ * 合并后的路由数据
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 4:49
+ */
 public class MergeRouteData {
     protected String regex;
 

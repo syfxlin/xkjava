@@ -4,8 +4,18 @@
 
 package me.ixk.framework.route;
 
-@SuppressWarnings("EmptyMethod")
+/**
+ * 路由定义
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 4:50
+ */
 @FunctionalInterface
 public interface RouteDefinition {
+    /**
+     * 路由
+     *
+     * @param routeCollector 路由收集
+     */
     void routes(RouteCollector routeCollector);
 }

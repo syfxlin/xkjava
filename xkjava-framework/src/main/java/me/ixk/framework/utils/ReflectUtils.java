@@ -6,7 +6,14 @@ package me.ixk.framework.utils;
 
 import cn.hutool.core.util.ReflectUtil;
 import java.io.Serializable;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.aop.CanGetTarget;
@@ -16,7 +23,13 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
-public abstract class ReflectUtils {
+/**
+ * 反射工具类
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:14
+ */
+public class ReflectUtils {
 
     public static Constructor<?>[] sortConstructors(
         Constructor<?>[] constructors

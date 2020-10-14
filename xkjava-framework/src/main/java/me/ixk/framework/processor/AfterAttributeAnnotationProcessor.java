@@ -11,6 +11,12 @@ import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.MergedAnnotation;
 
+/**
+ * 后置属性注解处理器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:49
+ */
 @AnnotationProcessor
 @Order(Order.MEDIUM_PRECEDENCE + 1)
 public class AfterAttributeAnnotationProcessor

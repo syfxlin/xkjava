@@ -13,6 +13,12 @@ import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.middleware.Middleware;
 import me.ixk.framework.middleware.Runner;
 
+/**
+ * 路由处理器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 4:51
+ */
 public class RouteHandler {
     private final Method method;
     private final Handler handler;

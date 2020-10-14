@@ -16,6 +16,12 @@ import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.processor.AnnotationProcessor;
 
+/**
+ * 注解处理管理器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:11
+ */
 public class AnnotationProcessorManager {
     protected final XkJava app;
 

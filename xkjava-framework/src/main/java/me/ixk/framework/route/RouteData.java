@@ -6,6 +6,12 @@ package me.ixk.framework.route;
 
 import java.util.List;
 
+/**
+ * 路由数据
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 4:50
+ */
 public class RouteData {
     protected String regex;
 

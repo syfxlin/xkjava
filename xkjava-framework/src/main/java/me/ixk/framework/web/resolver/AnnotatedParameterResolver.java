@@ -26,6 +26,12 @@ import me.ixk.framework.web.RequestParameterResolver;
 import me.ixk.framework.web.WebContext;
 import me.ixk.framework.web.WebDataBinder;
 
+/**
+ * 注解参数解析器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:17
+ */
 @WebResolver
 @Order(Order.LOWEST_PRECEDENCE - 1)
 public class AnnotatedParameterResolver implements RequestParameterResolver {

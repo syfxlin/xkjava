@@ -10,6 +10,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.validation.ConstraintViolation;
 
+/**
+ * 验证结果（单个）
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:15
+ */
 public class ValidResult<T> {
     private final T target;
     private final Map<String, ConstraintViolation<T>> errors = new ConcurrentHashMap<>();

@@ -9,6 +9,12 @@ import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 
+/**
+ * 响应码
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:44
+ */
 @Order(Order.HIGHEST_PRECEDENCE + 1)
 public class ResponseStatus implements Middleware {
 

@@ -15,6 +15,12 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
 
+/**
+ * 验证 CSRF Token
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:45
+ */
 @Order(Order.HIGHEST_PRECEDENCE + 4)
 public class VerifyCsrfToken implements Middleware {
     /**

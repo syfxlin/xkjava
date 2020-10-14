@@ -19,7 +19,13 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
-public abstract class ReflectionsUtils {
+/**
+ * 注解扫描工具类
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:14
+ */
+public class ReflectionsUtils {
     private static final Reflections GLOBAL_APP_REFLECTIONS = make(
         XkJava.of().scanPackage().toArray(new String[0])
     );

@@ -11,6 +11,12 @@ import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.RequestAttribute;
 import me.ixk.framework.utils.MergedAnnotation;
 
+/**
+ * RequestAttributeRegistry
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:18
+ */
 @Component(name = "requestAttributeRegistry")
 public class RequestAttributeRegistry {
     private final Map<Method, Map<String, RequestAttributeDefinition>> registries = new ConcurrentHashMap<>();

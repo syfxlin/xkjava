@@ -9,6 +9,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.Component;
 
+/**
+ * 路由生成器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 4:51
+ */
 @Component(name = "routeGenerator")
 public class RouteGenerator {
 

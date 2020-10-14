@@ -7,6 +7,12 @@ package me.ixk.framework.route;
 import java.lang.reflect.Method;
 import me.ixk.framework.middleware.Middleware;
 
+/**
+ * 中间件注解描述
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 4:48
+ */
 public class AnnotationMiddlewareDefinition {
     protected final String[] value;
 

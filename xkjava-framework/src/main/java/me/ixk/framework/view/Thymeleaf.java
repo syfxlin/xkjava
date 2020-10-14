@@ -14,6 +14,12 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
+/**
+ * Thymeleaf
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:16
+ */
 public class Thymeleaf implements TemplateProcessor {
     protected final TemplateEngine templateEngine;
 

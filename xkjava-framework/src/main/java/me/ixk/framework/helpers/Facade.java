@@ -16,7 +16,7 @@ import me.ixk.framework.route.RouteManager;
 import me.ixk.framework.servlet.DispatcherServlet;
 import me.ixk.framework.utils.Crypt;
 import me.ixk.framework.utils.Hash;
-import me.ixk.framework.utils.JWT;
+import me.ixk.framework.utils.Jwt;
 import me.ixk.framework.web.WebContext;
 
 /**
@@ -51,8 +51,8 @@ public abstract class Facade {
         return make(Hash.class);
     }
 
-    public static JWT jwt() {
-        return make(JWT.class);
+    public static Jwt jwt() {
+        return make(Jwt.class);
     }
 
     public static Request request() {

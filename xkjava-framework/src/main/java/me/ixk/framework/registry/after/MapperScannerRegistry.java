@@ -14,26 +14,41 @@ import me.ixk.framework.annotations.MapperScan;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.MergedAnnotation;
 
+/**
+ * MapperScannerRegistry
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:54
+ */
 @Component(name = "mapperScannerRegistry")
 public class MapperScannerRegistry implements AfterImportBeanRegistry {
-
     private final List<String> scanPackages = new ArrayList<>();
 
     @Override
-    public void after(final XkJava app, final AnnotatedElement element,
-        final MergedAnnotation annotation) {
+    public void register(
+        final XkJava app,
+        final AnnotatedElement element,
+        final MergedAnnotation annotation
+    ) {
         if (annotation.hasAnnotation(MapperScan.class)) {
             this.processMapper(scanPackages, annotation);
         }
     }
 
-    private void processMapper(final List<String> scanPackages,
-        final MergedAnnotation annotation) {
-        for (final MapperScan scan : annotation.getAnnotations(MapperScan.class)) {
+    private void processMapper(
+        final List<String> scanPackages,
+        final MergedAnnotation annotation
+    ) {
+        for (final MapperScan scan : annotation.getAnnotations(
+            MapperScan.class
+        )) {
             scanPackages.addAll(Arrays.asList(scan.basePackages()));
-            scanPackages.addAll(Arrays.stream(scan.basePackageClasses())
-                                      .map(Class::getPackageName)
-                                      .collect(Collectors.toList()));
+            scanPackages.addAll(
+                Arrays
+                    .stream(scan.basePackageClasses())
+                    .map(Class::getPackageName)
+                    .collect(Collectors.toList())
+            );
         }
     }
 

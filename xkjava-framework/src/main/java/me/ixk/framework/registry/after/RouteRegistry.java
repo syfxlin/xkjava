@@ -18,15 +18,27 @@ import me.ixk.framework.route.AnnotationRouteDefinition;
 import me.ixk.framework.route.RouteDefinition;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * RouteRegistry
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:54
+ */
 @Component(name = "routeRegistry")
 public class RouteRegistry implements AfterImportBeanRegistry {
+    private static final Logger log = LoggerFactory.getLogger(
+        RouteRegistry.class
+    );
+
     private final List<Class<? extends RouteDefinition>> routeDefinition = new ArrayList<>();
     private final List<AnnotationRouteDefinition> annotationRouteDefinitions = new ArrayList<>();
 
     @Override
     @SuppressWarnings("unchecked")
-    public void after(
+    public void register(
         XkJava app,
         AnnotatedElement element,
         MergedAnnotation annotation
@@ -68,6 +80,7 @@ public class RouteRegistry implements AfterImportBeanRegistry {
                             );
                     }
                 } catch (final Exception e) {
+                    log.error("Route annotation process error", e);
                     throw new AnnotationProcessorException(
                         "Route annotation process error",
                         e

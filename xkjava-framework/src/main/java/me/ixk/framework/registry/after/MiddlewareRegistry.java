@@ -18,16 +18,28 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Middleware;
 import me.ixk.framework.route.AnnotationMiddlewareDefinition;
 import me.ixk.framework.utils.MergedAnnotation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * MiddlewareRegistry
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:54
+ */
 @Component(name = "middlewareRegistry")
 public class MiddlewareRegistry implements AfterImportBeanRegistry {
+    private static final Logger log = LoggerFactory.getLogger(
+        MiddlewareRegistry.class
+    );
+
     private final List<Class<? extends Middleware>> globalMiddleware = new ArrayList<>();
     private final Map<String, Class<? extends Middleware>> routeMiddleware = new ConcurrentHashMap<>();
     private final Map<Method, AnnotationMiddlewareDefinition> annotationMiddlewareDefinitions = new ConcurrentHashMap<>();
 
     @Override
     @SuppressWarnings("unchecked")
-    public void after(
+    public void register(
         final XkJava app,
         final AnnotatedElement element,
         final MergedAnnotation annotation
@@ -68,6 +80,7 @@ public class MiddlewareRegistry implements AfterImportBeanRegistry {
                             )
                         );
                 } catch (final Exception e) {
+                    log.error("Middleware annotation process error", e);
                     throw new AnnotationProcessorException(
                         "Middleware annotation process error",
                         e

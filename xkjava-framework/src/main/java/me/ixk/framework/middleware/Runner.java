@@ -11,38 +11,42 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.ResponseProcessor;
 
+/**
+ * 中间件执行链
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:44
+ */
 public class Runner {
-  protected final Handler handler;
+    protected final Handler handler;
+    protected final Queue<Middleware> middleware;
+    protected Response response;
 
-  protected Response response;
-
-  protected final Queue<Middleware> middleware;
-
-  public Runner(Handler handler, List<Middleware> middleware) {
-    this(handler, (Queue<Middleware>) new LinkedList<>(middleware));
-  }
-
-  public Runner(Handler handler, Queue<Middleware> middleware) {
-    this.handler = handler;
-    this.middleware = middleware;
-  }
-
-  public Response handle(Request request) {
-    Middleware middleware = this.middleware.poll();
-    if (middleware == null) {
-      // 请求处理器
-      return ResponseProcessor.toResponse(
-        request,
-        this.response,
-        handler.handle(request)
-      );
+    public Runner(Handler handler, List<Middleware> middleware) {
+        this(handler, (Queue<Middleware>) new LinkedList<>(middleware));
     }
-    // 中间件
-    return middleware.handle(request, this);
-  }
 
-  public Response then(Request request, Response response) {
-    this.response = response;
-    return this.handle(request);
-  }
+    public Runner(Handler handler, Queue<Middleware> middleware) {
+        this.handler = handler;
+        this.middleware = middleware;
+    }
+
+    public Response handle(Request request) {
+        Middleware middleware = this.middleware.poll();
+        if (middleware == null) {
+            // 请求处理器
+            return ResponseProcessor.toResponse(
+                request,
+                this.response,
+                handler.handle(request)
+            );
+        }
+        // 中间件
+        return middleware.handle(request, this);
+    }
+
+    public Response then(Request request, Response response) {
+        this.response = response;
+        return this.handle(request);
+    }
 }

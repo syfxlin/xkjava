@@ -12,6 +12,12 @@ import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
 import me.ixk.framework.ioc.XkJava;
 
+/**
+ * 添加队列 Cookie 到 Response
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:41
+ */
 @GlobalMiddleware
 @Order(Order.HIGHEST_PRECEDENCE + 3)
 public class AddQueuedCookies implements Middleware {

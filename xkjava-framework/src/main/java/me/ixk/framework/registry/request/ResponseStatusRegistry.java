@@ -9,6 +9,12 @@ import me.ixk.framework.annotations.ResponseStatus;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.MergedAnnotation;
 
+/**
+ * ResponseStatusRegistry
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 2:06
+ */
 public class ResponseStatusRegistry implements RequestAttributeRegistry {
 
     @Override

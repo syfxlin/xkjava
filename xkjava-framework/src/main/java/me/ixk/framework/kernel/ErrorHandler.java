@@ -22,9 +22,15 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 
+/**
+ * 错误处理器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:27
+ */
 public class ErrorHandler
     extends org.eclipse.jetty.server.handler.ErrorHandler {
-    private static final Logger LOG = Log.getLogger(ErrorHandler.class);
+    private static final Logger log = Log.getLogger(ErrorHandler.class);
 
     @Override
     public void handle(
@@ -84,9 +90,9 @@ public class ErrorHandler
                             dispatcher.error(request, response);
                             return;
                         }
-                        LOG.warn("No error page " + errorPage);
+                        log.warn("No error page " + errorPage);
                     } catch (ServletException e) {
-                        LOG.warn(Log.EXCEPTION, e);
+                        log.warn(Log.EXCEPTION, e);
                         return;
                     }
                 }

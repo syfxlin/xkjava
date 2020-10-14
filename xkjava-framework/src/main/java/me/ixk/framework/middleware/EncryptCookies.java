@@ -14,6 +14,12 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
 
+/**
+ * 加密 Cookie
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:42
+ */
 @GlobalMiddleware
 @Order(Order.HIGHEST_PRECEDENCE + 2)
 public class EncryptCookies implements Middleware {

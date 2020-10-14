@@ -7,6 +7,12 @@ package me.ixk.framework.web;
 import java.lang.reflect.Method;
 import me.ixk.framework.utils.MergedAnnotation;
 
+/**
+ * 方法返回值
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:17
+ */
 public class MethodReturnValue {
     private final Object controller;
     private final Class<?> controllerClass;

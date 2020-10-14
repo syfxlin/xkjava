@@ -15,6 +15,12 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 
+/**
+ * 注解处理器（抽象类）
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:46
+ */
 public abstract class AbstractAnnotationProcessor
     implements AnnotationProcessor {
     protected final XkJava app;

@@ -35,7 +35,13 @@ import me.ixk.framework.annotations.RepeatItem;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
 
-public abstract class AnnotationUtils {
+/**
+ * 注解工具类
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 4:56
+ */
+public class AnnotationUtils {
     private static final SimpleCache<Class<? extends Annotation>, Set<Class<?>>> CLASS_ANNOTATION_CACHE = new SimpleCache<>();
     private static final SimpleCache<Class<? extends Annotation>, Set<Method>> METHOD_ANNOTATION_CACHE = new SimpleCache<>();
 

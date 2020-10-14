@@ -10,6 +10,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+/**
+ * JSON 工具类
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:03
+ */
 public class JSON extends ObjectMapper {
 
     private JSON() {

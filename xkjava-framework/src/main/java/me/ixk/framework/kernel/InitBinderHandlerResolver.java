@@ -10,6 +10,12 @@ import java.util.List;
 import me.ixk.framework.annotations.InitBinder;
 import me.ixk.framework.utils.AnnotationUtils;
 
+/**
+ * 初始化绑定处理程序解析器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:33
+ */
 public class InitBinderHandlerResolver {
     private final List<Method> methodList = new ArrayList<>();
 

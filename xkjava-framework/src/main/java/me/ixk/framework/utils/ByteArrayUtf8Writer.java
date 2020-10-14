@@ -12,24 +12,30 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.eclipse.jetty.util.ByteArrayOutputStream2;
 
+/**
+ * ByteArrayUtf8Writer
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:01
+ */
 public class ByteArrayUtf8Writer extends Writer {
-    private byte[] _buf;
-    private int _size;
-    private ByteArrayOutputStream2 _bout = null;
-    private OutputStreamWriter _writer = null;
-    private boolean _fixed = false;
+    private byte[] buf;
+    private int size;
+    private ByteArrayOutputStream2 bout = null;
+    private OutputStreamWriter writer = null;
+    private boolean fixed = false;
 
     public ByteArrayUtf8Writer() {
-        _buf = new byte[2048];
+        buf = new byte[2048];
     }
 
     public ByteArrayUtf8Writer(int capacity) {
-        _buf = new byte[capacity];
+        buf = new byte[capacity];
     }
 
     public ByteArrayUtf8Writer(byte[] buf) {
-        _buf = buf;
-        _fixed = true;
+        this.buf = buf;
+        fixed = true;
     }
 
     public Object getLock() {
@@ -37,33 +43,33 @@ public class ByteArrayUtf8Writer extends Writer {
     }
 
     public int size() {
-        return _size;
+        return size;
     }
 
     public int capacity() {
-        return _buf.length;
+        return buf.length;
     }
 
     public int spareCapacity() {
-        return _buf.length - _size;
+        return buf.length - size;
     }
 
     public void setLength(int l) {
-        _size = l;
+        size = l;
     }
 
     public byte[] getBuf() {
-        return _buf;
+        return buf;
     }
 
     public void writeTo(OutputStream out) throws IOException {
-        out.write(_buf, 0, _size);
+        out.write(buf, 0, size);
     }
 
     public void write(char c) throws IOException {
         ensureSpareCapacity(1);
         if (c <= 0x7f) {
-            _buf[_size++] = (byte) c;
+            buf[size++] = (byte) c;
         } else {
             char[] ca = { c };
             writeEncoded(ca, 0, 1);
@@ -76,7 +82,7 @@ public class ByteArrayUtf8Writer extends Writer {
         for (int i = 0; i < ca.length; i++) {
             char c = ca[i];
             if (c <= 0x7f) {
-                _buf[_size++] = (byte) c;
+                buf[size++] = (byte) c;
             } else {
                 writeEncoded(ca, i, ca.length - i);
                 break;
@@ -90,7 +96,7 @@ public class ByteArrayUtf8Writer extends Writer {
         for (int i = 0; i < length; i++) {
             char c = ca[offset + i];
             if (c <= 0x7f) {
-                _buf[_size++] = (byte) c;
+                buf[size++] = (byte) c;
             } else {
                 writeEncoded(ca, offset + i, length - i);
                 break;
@@ -110,7 +116,7 @@ public class ByteArrayUtf8Writer extends Writer {
         for (int i = 0; i < length; i++) {
             char c = s.charAt(i);
             if (c <= 0x7f) {
-                _buf[_size++] = (byte) c;
+                buf[size++] = (byte) c;
             } else {
                 writeEncoded(s.toCharArray(), i, length - i);
                 break;
@@ -124,7 +130,7 @@ public class ByteArrayUtf8Writer extends Writer {
         for (int i = 0; i < length; i++) {
             char c = s.charAt(offset + i);
             if (c <= 0x7f) {
-                _buf[_size++] = (byte) c;
+                buf[size++] = (byte) c;
             } else {
                 writeEncoded(s.toCharArray(), offset + i, length - i);
                 break;
@@ -134,48 +140,48 @@ public class ByteArrayUtf8Writer extends Writer {
 
     private void writeEncoded(char[] ca, int offset, int length)
         throws IOException {
-        if (_bout == null) {
-            _bout = new ByteArrayOutputStream2(2 * length);
-            _writer = new OutputStreamWriter(_bout, StandardCharsets.UTF_8);
+        if (bout == null) {
+            bout = new ByteArrayOutputStream2(2 * length);
+            writer = new OutputStreamWriter(bout, StandardCharsets.UTF_8);
         } else {
-            _bout.reset();
+            bout.reset();
         }
-        _writer.write(ca, offset, length);
-        _writer.flush();
-        ensureSpareCapacity(_bout.getCount());
-        System.arraycopy(_bout.getBuf(), 0, _buf, _size, _bout.getCount());
-        _size += _bout.getCount();
+        writer.write(ca, offset, length);
+        writer.flush();
+        ensureSpareCapacity(bout.getCount());
+        System.arraycopy(bout.getBuf(), 0, buf, size, bout.getCount());
+        size += bout.getCount();
     }
 
     @Override
     public void flush() {}
 
     public void resetWriter() {
-        _size = 0;
+        size = 0;
     }
 
     @Override
     public void close() {}
 
     public void destroy() {
-        _buf = null;
+        buf = null;
     }
 
     public void ensureSpareCapacity(int n) throws IOException {
-        if (_size + n > _buf.length) {
-            if (_fixed) {
-                throw new IOException("Buffer overflow: " + _buf.length);
+        if (size + n > buf.length) {
+            if (fixed) {
+                throw new IOException("Buffer overflow: " + buf.length);
             }
-            _buf = Arrays.copyOf(_buf, (_buf.length + n) * 4 / 3);
+            buf = Arrays.copyOf(buf, (buf.length + n) * 4 / 3);
         }
     }
 
     public byte[] getByteArray() {
-        return Arrays.copyOf(_buf, _size);
+        return Arrays.copyOf(buf, size);
     }
 
     @Override
     public String toString() {
-        return new String(_buf, 0, _size);
+        return new String(buf, 0, size);
     }
 }

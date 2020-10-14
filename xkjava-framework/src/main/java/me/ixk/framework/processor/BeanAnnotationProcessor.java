@@ -27,6 +27,12 @@ import me.ixk.framework.registry.before.BeforeImportBeanRegistry;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 
+/**
+ * Bean 注解处理器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:49
+ */
 @AnnotationProcessor
 public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     private final List<String> makeList = new ArrayList<>();
@@ -197,7 +203,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
             )) {
                 for (Class<? extends AfterImportBeanRegistry> registry : afterImport.value()) {
                     this.app.make(registry)
-                        .after(this.app, element, annotation);
+                        .register(this.app, element, annotation);
                 }
             }
         }

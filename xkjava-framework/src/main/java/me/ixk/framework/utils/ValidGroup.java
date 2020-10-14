@@ -8,6 +8,12 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 验证结果（组）
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:14
+ */
 public class ValidGroup {
     private final Map<String, ValidResult<Object>> validResultMap = new ConcurrentHashMap<>();
 

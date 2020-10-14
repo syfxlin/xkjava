@@ -8,6 +8,12 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import me.ixk.framework.annotations.RequestMethod;
 
+/**
+ * 路由注解描述
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 4:49
+ */
 public class AnnotationRouteDefinition {
     protected final String[] method;
 

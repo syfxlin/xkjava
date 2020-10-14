@@ -7,7 +7,13 @@ package me.ixk.framework.utils;
 import java.nio.charset.StandardCharsets;
 import javax.crypto.spec.SecretKeySpec;
 
-public abstract class Mac {
+/**
+ * Mac 工具类
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:04
+ */
+public class Mac {
 
     protected static String byteArrayToHexString(final byte[] b) {
         final StringBuilder hs = new StringBuilder();

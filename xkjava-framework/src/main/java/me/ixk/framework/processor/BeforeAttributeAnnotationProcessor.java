@@ -11,6 +11,12 @@ import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.MergedAnnotation;
 
+/**
+ * 前置注解处理器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:50
+ */
 @AnnotationProcessor
 @Order(Order.MEDIUM_PRECEDENCE - 1)
 public class BeforeAttributeAnnotationProcessor
@@ -20,6 +26,7 @@ public class BeforeAttributeAnnotationProcessor
         super(app);
     }
 
+    @Override
     protected void processAttributeItem(
         AnnotatedElement element,
         MergedAnnotation attributeAnnotation

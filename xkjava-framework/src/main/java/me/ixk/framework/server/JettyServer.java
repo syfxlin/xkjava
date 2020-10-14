@@ -23,6 +23,12 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
 
+/**
+ * Jetty 服务器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 4:53
+ */
 @Component(name = { " jetty ", "server" })
 public class JettyServer {
     private final XkJava application;

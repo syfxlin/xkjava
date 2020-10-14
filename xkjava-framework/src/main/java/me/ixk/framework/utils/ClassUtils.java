@@ -17,7 +17,13 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class ClassUtils extends ClassUtil {
+/**
+ * 类工具类
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:02
+ */
+public class ClassUtils extends ClassUtil {
     private static final Map<Class<?>, Class<?>> primitiveWrapperTypeMap = new IdentityHashMap<>(
         8
     );

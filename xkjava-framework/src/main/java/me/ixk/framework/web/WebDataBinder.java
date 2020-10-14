@@ -13,6 +13,12 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.ObjectWrapperDataBinder;
 
+/**
+ * Web 数据绑定器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:23
+ */
 public class WebDataBinder extends ObjectWrapperDataBinder {
     public static final String DEFAULT_VALUE_PREFIX = "&";
 

@@ -22,9 +22,15 @@ import me.ixk.framework.ioc.context.RequestContext;
 import me.ixk.framework.route.RouteManager;
 import me.ixk.framework.web.WebContext;
 
+/**
+ * Servlet 调度器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 4:54
+ */
 @WebServlet(urlPatterns = "/*")
 @MultipartConfig
-public class DispatcherServlet extends FrameworkServlet {
+public class DispatcherServlet extends AbstractFrameworkServlet {
     protected final XkJava app;
     protected final RequestContext requestContext;
 

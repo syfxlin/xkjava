@@ -10,6 +10,12 @@ import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.view.FreeMarker;
 import me.ixk.framework.view.TemplateProcessor;
 
+/**
+ * 视图提供者
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:52
+ */
 @Provider
 public class ViewProvider {
 

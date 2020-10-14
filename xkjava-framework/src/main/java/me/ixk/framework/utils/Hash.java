@@ -6,6 +6,12 @@ package me.ixk.framework.utils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 
+/**
+ * Hash 工具类
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:03
+ */
 public class Hash {
 
     public String make(String value) {

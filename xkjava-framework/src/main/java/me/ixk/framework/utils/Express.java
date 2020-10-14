@@ -13,7 +13,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.Environment;
 
-public abstract class Express {
+/**
+ * 表达式解析工具类
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:02
+ */
+public class Express {
     protected static final ExpressionParser PARSER = new SpelExpressionParser();
 
     public static <T> T evaluateApp(

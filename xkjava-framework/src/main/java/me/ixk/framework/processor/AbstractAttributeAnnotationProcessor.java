@@ -8,13 +8,25 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import me.ixk.framework.annotations.Attribute;
 import me.ixk.framework.annotations.ScopeType;
+import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.registry.attribute.AttributeRegistry;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * 属性注解处理器（抽象类）
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:46
+ */
 public abstract class AbstractAttributeAnnotationProcessor
     extends AbstractAnnotationProcessor {
+    private static final Logger log = LoggerFactory.getLogger(
+        AbstractAttributeAnnotationProcessor.class
+    );
 
     public AbstractAttributeAnnotationProcessor(XkJava app) {
         super(app);
@@ -29,6 +41,12 @@ public abstract class AbstractAttributeAnnotationProcessor
             );
     }
 
+    /**
+     * 处理单个属性
+     *
+     * @param element             注解元素
+     * @param attributeAnnotation 组合注解
+     */
     protected abstract void processAttributeItem(
         final AnnotatedElement element,
         final MergedAnnotation attributeAnnotation
@@ -52,8 +70,10 @@ public abstract class AbstractAttributeAnnotationProcessor
             Class<? extends AttributeRegistry> registry = attribute.registry();
             String name = attribute.name();
             if ("".equals(name)) {
-                // TODO: custom exception
-                throw new RuntimeException("Attribute not set name");
+                log.error("Attribute note set name: {}", element);
+                throw new AnnotationProcessorException(
+                    "Attribute not set name"
+                );
             }
             if (registry != AttributeRegistry.class) {
                 Object value =

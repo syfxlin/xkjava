@@ -14,7 +14,13 @@ import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 
-public abstract class FrameworkServlet extends HttpServlet {
+/**
+ * AbstractFrameworkServlet
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 4:54
+ */
+public abstract class AbstractFrameworkServlet extends HttpServlet {
 
     protected abstract void dispatch(Request request, Response response);
 

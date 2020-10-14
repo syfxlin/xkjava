@@ -12,18 +12,31 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.servlet.DispatcherServlet;
 
+/**
+ * Web 上下文
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:22
+ */
 public class WebContext {
-    private XkJava application;
-    private Environment environment;
-    private DispatcherServlet servlet;
-    private Request request;
-    private Response response;
-    private CookieManager cookieManager;
-    private SessionManager sessionManager;
+    private final XkJava application;
+    private final Environment environment;
+    private final DispatcherServlet servlet;
+    private final Request request;
+    private final Response response;
+    private final CookieManager cookieManager;
+    private final SessionManager sessionManager;
 
     @Deprecated
     public WebContext() {
         // only cglib
+        this.application = null;
+        this.environment = null;
+        this.servlet = null;
+        this.request = null;
+        this.response = null;
+        this.cookieManager = null;
+        this.sessionManager = null;
     }
 
     public WebContext(XkJava application) {

@@ -12,8 +12,20 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.ExceptionHandler;
 import me.ixk.framework.utils.AnnotationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * 异常处理程序解析器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:28
+ */
 public class ExceptionHandlerResolver {
+    private static final Logger log = LoggerFactory.getLogger(
+        ExceptionHandlerResolver.class
+    );
+
     private final Map<Class<? extends Throwable>, Method> methodMap = new ConcurrentHashMap<>();
 
     public ExceptionHandlerResolver(Class<?> clazz) {
@@ -35,14 +47,20 @@ public class ExceptionHandlerResolver {
     ) {
         Method oldMethod = this.methodMap.put(exceptionType, method);
         if (oldMethod != null && !oldMethod.equals(method)) {
+            log.error(
+                "Ambiguous @ExceptionHandler method mapped for [{}]: ({},{})",
+                exceptionType,
+                oldMethod,
+                method
+            );
             throw new IllegalStateException(
                 "Ambiguous @ExceptionHandler method mapped for [" +
                 exceptionType +
-                "]: {" +
+                "]: (" +
                 oldMethod +
                 ", " +
                 method +
-                "}"
+                ")"
             );
         }
     }

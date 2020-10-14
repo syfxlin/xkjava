@@ -11,8 +11,8 @@ import me.ixk.framework.ioc.XkJava;
  * 启动流程：XkJava.create().boot() -> load() -> booting() -> Bootstrap -> Provider
  * -> booted() -> Start Jetty
  * <p>
- * 请求流程：HttpServlet.service()[Jetty] -> FrameworkServlet.do* ->
- * FrameworkServlet.processRequest() -> DispatcherServlet.dispatch() ->
+ * 请求流程：HttpServlet.service()[Jetty] -> AbstractFrameworkServlet.do* ->
+ * AbstractFrameworkServlet.processRequest() -> DispatcherServlet.dispatch() ->
  * RouteManager.dispatch() -> RouteHandler.handle() -> Runner.handle() -> Before
  * Middleware -> Handler.handle() -> ResponseProcessor.toResponse()[View Render,
  * Object wrap] -> After Middleware -> ResponseProcessor.dispatchResponse() ->

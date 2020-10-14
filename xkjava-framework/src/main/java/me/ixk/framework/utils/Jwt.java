@@ -12,7 +12,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class JWT {
+/**
+ * Jwt 工具类
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:03
+ */
+public class Jwt {
     protected String key;
 
     protected String algo;
@@ -28,11 +34,11 @@ public class JWT {
         supported.put("HS512", "SHA512");
     }
 
-    public JWT(String key, String algo) {
+    public Jwt(String key, String algo) {
         this(key, algo, null);
     }
 
-    public JWT(String key, String algo, Map<String, String> defaultPayload) {
+    public Jwt(String key, String algo, Map<String, String> defaultPayload) {
         this.key = key;
         this.algo = algo;
         this.defaultPayload = defaultPayload;
@@ -79,11 +85,11 @@ public class JWT {
     }
 
     public String encode(Map<String, String> payload) {
-        return this.encode(payload, 86400, "JWT", this.key, this.algo);
+        return this.encode(payload, 86400, "Jwt", this.key, this.algo);
     }
 
     public String encode(Map<String, String> payload, int exp) {
-        return this.encode(payload, exp, "JWT", this.key, this.algo);
+        return this.encode(payload, exp, "Jwt", this.key, this.algo);
     }
 
     public String encode(Map<String, String> payload, int exp, String type) {

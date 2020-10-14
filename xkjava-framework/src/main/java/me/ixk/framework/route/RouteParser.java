@@ -10,6 +10,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import me.ixk.framework.annotations.Component;
 
+/**
+ * 路由解析器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 4:51
+ */
 @Component(name = "routeParser")
 public class RouteParser {
     protected static final Pattern PATH_VARIABLE_PATTERN = Pattern.compile(

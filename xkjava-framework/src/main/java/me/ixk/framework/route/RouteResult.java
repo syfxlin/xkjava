@@ -7,6 +7,12 @@ package me.ixk.framework.route;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 路由结果
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 4:52
+ */
 public class RouteResult {
     protected RouteStatus status = RouteStatus.NOT_FOUND;
 

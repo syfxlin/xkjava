@@ -16,6 +16,12 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.web.RequestAttributeRegistry;
 import me.ixk.framework.web.RequestAttributeRegistry.RequestAttributeDefinition;
 
+/**
+ * 路由管理器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 4:51
+ */
 @Component(name = "routeManager")
 public class RouteManager {
     protected final XkJava app;

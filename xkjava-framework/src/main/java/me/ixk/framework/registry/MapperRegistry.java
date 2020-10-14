@@ -10,6 +10,12 @@ import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.MergedAnnotation;
 
+/**
+ * MapperRegistry
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 2:07
+ */
 public class MapperRegistry implements ImportBeanRegistry {
 
     @Override

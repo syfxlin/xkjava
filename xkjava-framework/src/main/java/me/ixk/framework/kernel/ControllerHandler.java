@@ -34,17 +34,23 @@ import me.ixk.framework.web.WebDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 控制器执行器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:12
+ */
 public class ControllerHandler implements Handler {
     private static final Logger log = LoggerFactory.getLogger(
         ControllerHandler.class
     );
-
-    private final Class<?> controllerClass;
-    private final Method method;
+    private static final String NO_RESOLVER = "NO_RESOLVER";
 
     private final XkJava app;
 
-    private static final String NO_RESOLVER = "NO_RESOLVER";
+    private final Class<?> controllerClass;
+
+    private final Method method;
 
     public ControllerHandler(final Method handler) {
         this.controllerClass = handler.getDeclaringClass();
@@ -66,13 +72,17 @@ public class ControllerHandler implements Handler {
                 ScopeType.REQUEST
             );
         try {
+            // 创建 WebDataBinder
             final WebDataBinder webDataBinder = new WebDataBinder(
                 this.app,
                 request
             );
+            // 创建/获取 控制器
             final Object controller =
                 this.app.make(this.controllerClass, webDataBinder);
+            // 执行 @InitBinder 标记的方法
             this.processInitBinder(webDataBinder);
+            // 实际调用路由方法
             return this.callMethodHandler(
                     controller,
                     this.method,
@@ -93,7 +103,7 @@ public class ControllerHandler implements Handler {
     }
 
     protected void processInitBinder(final WebDataBinder binder) {
-        final Map<String, Object> args = new ConcurrentHashMap<>();
+        final Map<String, Object> args = new ConcurrentHashMap<>(10);
         args.put("binder", binder);
         args.put("webDataBinder", binder);
         args.put("dataBinder", binder);
@@ -160,7 +170,7 @@ public class ControllerHandler implements Handler {
             final Method method = resolver.resolveMethod(exception);
             if (method != null) {
                 // 绑定可能注入的异常
-                final Map<String, Object> args = new ConcurrentHashMap<>();
+                final Map<String, Object> args = new ConcurrentHashMap<>(10);
                 args.put("exception", exception);
                 args.put(exception.getClass().getName(), exception);
                 args.put(Throwable.class.getName(), exception);
@@ -195,6 +205,57 @@ public class ControllerHandler implements Handler {
         final MergedAnnotation methodAnnotation = AnnotationUtils.getAnnotation(
             method
         );
+        dependencies =
+            this.processParameterResolver(
+                    dependencies,
+                    controller,
+                    parameters,
+                    parameterNames,
+                    methodAnnotation,
+                    registry,
+                    context,
+                    binder
+                );
+        // call
+        ReflectUtil.setAccessible(method);
+        for (int i = 0; i < parameters.length; i++) {
+            if (null == dependencies[i]) {
+                dependencies[i] = ClassUtil.getDefaultValue(parameterTypes[i]);
+            } else if (
+                !parameterTypes[i].isAssignableFrom(dependencies[i].getClass())
+            ) {
+                final Object targetValue = Convert.convert(
+                    parameterTypes[i],
+                    dependencies[i]
+                );
+                if (null != targetValue) {
+                    dependencies[i] = targetValue;
+                }
+            }
+        }
+        final Object returnValue = method.invoke(
+            ClassUtil.isStatic(method) ? null : controller,
+            dependencies
+        );
+        return this.processReturnValueResolver(
+                returnValue,
+                controller,
+                methodAnnotation,
+                registry,
+                context
+            );
+    }
+
+    private Object[] processParameterResolver(
+        Object[] dependencies,
+        Object controller,
+        Parameter[] parameters,
+        String[] parameterNames,
+        MergedAnnotation methodAnnotation,
+        WebResolverRegistry registry,
+        WebContext context,
+        WebDataBinder binder
+    ) {
         final MethodParameter methodParameter = new MethodParameter(
             controller,
             this.controllerClass,
@@ -231,27 +292,16 @@ public class ControllerHandler implements Handler {
                     );
             }
         }
-        // call
-        ReflectUtil.setAccessible(method);
-        for (int i = 0; i < parameters.length; i++) {
-            if (null == dependencies[i]) {
-                dependencies[i] = ClassUtil.getDefaultValue(parameterTypes[i]);
-            } else if (
-                !parameterTypes[i].isAssignableFrom(dependencies[i].getClass())
-            ) {
-                final Object targetValue = Convert.convert(
-                    parameterTypes[i],
-                    dependencies[i]
-                );
-                if (null != targetValue) {
-                    dependencies[i] = targetValue;
-                }
-            }
-        }
-        Object returnValue = method.invoke(
-            ClassUtil.isStatic(method) ? null : controller,
-            dependencies
-        );
+        return dependencies;
+    }
+
+    private Object processReturnValueResolver(
+        Object returnValue,
+        final Object controller,
+        final MergedAnnotation methodAnnotation,
+        final WebResolverRegistry registry,
+        final WebContext context
+    ) {
         final MethodReturnValue methodReturnValue = new MethodReturnValue(
             controller,
             this.controllerClass,

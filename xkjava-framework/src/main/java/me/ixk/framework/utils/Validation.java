@@ -9,7 +9,13 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import org.hibernate.validator.HibernateValidator;
 
-public abstract class Validation {
+/**
+ * 验证工具类
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:14
+ */
+public class Validation {
     protected static final Validator validator = javax
         .validation.Validation.byProvider(HibernateValidator.class)
         .configure()

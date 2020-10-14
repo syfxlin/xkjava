@@ -20,6 +20,12 @@ import me.ixk.framework.registry.after.RouteRegistry;
 import me.ixk.framework.utils.AnnotationUtils;
 import org.eclipse.jetty.http.HttpMethod;
 
+/**
+ * 路由收集器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 4:49
+ */
 @Component(name = "routeCollector")
 public class RouteCollector {
     protected final XkJava app;

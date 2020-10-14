@@ -6,7 +6,13 @@ package me.ixk.framework.utils;
 
 import java.nio.charset.StandardCharsets;
 
-public abstract class Base64 extends cn.hutool.core.codec.Base64 {
+/**
+ * Base64 工具类
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:00
+ */
+public class Base64 extends cn.hutool.core.codec.Base64 {
 
     public static String encode(String data) {
         return encode(data.getBytes(StandardCharsets.ISO_8859_1));

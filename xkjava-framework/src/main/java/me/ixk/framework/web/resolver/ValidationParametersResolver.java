@@ -19,16 +19,23 @@ import me.ixk.framework.web.RequestParametersPostResolver;
 import me.ixk.framework.web.WebContext;
 import me.ixk.framework.web.WebDataBinder;
 
+/**
+ * 验证参数解析器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:17
+ */
 @WebResolver
 @Order(Order.LOWEST_PRECEDENCE)
-public class ValidationParametersResolver implements
-    RequestParametersPostResolver {
+public class ValidationParametersResolver
+    implements RequestParametersPostResolver {
 
     @Override
-    public boolean supportsParameters(final Object[] parameters,
-        final MethodParameter parameter) {
-        for (final MergedAnnotation annotation : parameter
-            .getParameterAnnotations()) {
+    public boolean supportsParameters(
+        final Object[] parameters,
+        final MethodParameter parameter
+    ) {
+        for (final MergedAnnotation annotation : parameter.getParameterAnnotations()) {
             if (annotation.hasAnnotation(Valid.class)) {
                 return true;
             }
@@ -37,9 +44,12 @@ public class ValidationParametersResolver implements
     }
 
     @Override
-    public Object[] resolveParameters(final Object[] values,
-        final MethodParameter methodParameter, final WebContext context,
-        final WebDataBinder binder) {
+    public Object[] resolveParameters(
+        final Object[] values,
+        final MethodParameter methodParameter,
+        final WebContext context,
+        final WebDataBinder binder
+    ) {
         int validResultIndex = -1;
         int validGroupIndex = -1;
         ValidResult<Object> validResult = null;
@@ -54,8 +64,10 @@ public class ValidationParametersResolver implements
             } else if (parameter.getType() == ValidGroup.class) {
                 validGroupIndex = i;
             } else {
-                final boolean valid = AnnotationUtils
-                    .hasAnnotation(parameter, Valid.class);
+                final boolean valid = AnnotationUtils.hasAnnotation(
+                    parameter,
+                    Valid.class
+                );
                 if (valid) {
                     validResult = Validation.validate(values[i]);
                     if (validGroup == null) {

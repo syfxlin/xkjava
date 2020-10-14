@@ -10,6 +10,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import me.ixk.framework.annotations.Component;
 
+/**
+ * 路由调度器
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 4:51
+ */
 @Component(name = "routeDispatcher")
 public class RouteDispatcher {
     protected final RouteCollector collector;

@@ -7,11 +7,20 @@ package me.ixk.framework.utils;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * LinkedCaseInsensitiveMultiValueMap
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 5:04
+ */
 public class LinkedCaseInsensitiveMultiValueMap<V>
     extends LinkedCaseInsensitiveHashMap<List<V>>
     implements MultiValueMap<String, V> {
 
-    public LinkedCaseInsensitiveMultiValueMap(int initialCapacity, float loadFactor) {
+    public LinkedCaseInsensitiveMultiValueMap(
+        int initialCapacity,
+        float loadFactor
+    ) {
         super(initialCapacity, loadFactor);
     }
 
@@ -23,7 +32,11 @@ public class LinkedCaseInsensitiveMultiValueMap<V>
         super();
     }
 
-    public LinkedCaseInsensitiveMultiValueMap(int initialCapacity, float loadFactor, boolean accessOrder) {
+    public LinkedCaseInsensitiveMultiValueMap(
+        int initialCapacity,
+        float loadFactor,
+        boolean accessOrder
+    ) {
         super(initialCapacity, loadFactor, accessOrder);
     }
 

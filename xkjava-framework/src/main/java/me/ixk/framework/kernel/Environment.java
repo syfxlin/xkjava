@@ -12,9 +12,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.Convert;
 
+/**
+ * 环境（配置）
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:23
+ */
 public class Environment {
+    protected static final String PROPERTIES_SPLIT = ".";
+
     protected final XkJava app;
-    protected Properties properties;
+    protected volatile Properties properties;
 
     public Environment(XkJava app, Properties properties) {
         this.app = app;
@@ -38,8 +46,8 @@ public class Environment {
         return this.get(key, (String) null);
     }
 
-    public String get(String key, String _default) {
-        return this.properties.getProperty(key, _default);
+    public String get(String key, String defaultValue) {
+        return this.properties.getProperty(key, defaultValue);
     }
 
     public <T> T get(String key, Class<T> returnType) {
@@ -47,12 +55,12 @@ public class Environment {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T get(String key, T _default) {
+    public <T> T get(String key, T defaultValue) {
         String value = get(key);
         if (value == null) {
-            return _default;
+            return defaultValue;
         }
-        return (T) Convert.convert(_default.getClass(), value);
+        return (T) Convert.convert(defaultValue.getClass(), value);
     }
 
     public Environment set(Map<String, String> values) {
@@ -88,48 +96,48 @@ public class Environment {
         return this.getInt(key, null);
     }
 
-    public Integer getInt(String key, Integer _default) {
+    public Integer getInt(String key, Integer defaultValue) {
         String value = this.get(key);
         if (value != null) {
             return Convert.toInt(value);
         }
-        return _default;
+        return defaultValue;
     }
 
     public Long getLong(String key) {
         return this.getLong(key, null);
     }
 
-    public Long getLong(String key, Long _default) {
+    public Long getLong(String key, Long defaultValue) {
         String value = this.get(key);
         if (value != null) {
             return Convert.toLong(value);
         }
-        return _default;
+        return defaultValue;
     }
 
     public Boolean getBoolean(String key) {
         return this.getBoolean(key, null);
     }
 
-    public Boolean getBoolean(String key, Boolean _default) {
+    public Boolean getBoolean(String key, Boolean defaultValue) {
         String value = this.get(key);
         if (value != null) {
             return Convert.toBool(value);
         }
-        return _default;
+        return defaultValue;
     }
 
     public Double getDouble(String key) {
         return this.getDouble(key, null);
     }
 
-    public Double getDouble(String key, Double _default) {
+    public Double getDouble(String key, Double defaultValue) {
         String value = this.get(key);
         if (value != null) {
             return Convert.toDouble(value);
         }
-        return _default;
+        return defaultValue;
     }
 
     public String[] getArray(String key, String split) {
@@ -157,10 +165,10 @@ public class Environment {
     }
 
     public Map<String, Object> getPrefix(String prefix) {
-        if (!prefix.endsWith(".")) {
-            prefix += ".";
+        if (!prefix.endsWith(PROPERTIES_SPLIT)) {
+            prefix += PROPERTIES_SPLIT;
         }
-        Map<String, Object> map = new ConcurrentHashMap<>();
+        Map<String, Object> map = new ConcurrentHashMap<>(256);
         for (Map.Entry<Object, Object> entry : this.properties.entrySet()) {
             String key = entry.getKey().toString();
             if (key.startsWith(prefix)) {
@@ -171,7 +179,7 @@ public class Environment {
     }
 
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new ConcurrentHashMap<>();
+        Map<String, Object> map = new ConcurrentHashMap<>(256);
         for (Map.Entry<Object, Object> entry : this.properties.entrySet()) {
             map.put(entry.getKey().toString(), entry.getValue());
         }

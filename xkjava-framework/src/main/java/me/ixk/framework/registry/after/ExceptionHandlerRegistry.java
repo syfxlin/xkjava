@@ -14,13 +14,19 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.ExceptionHandlerResolver;
 import me.ixk.framework.utils.MergedAnnotation;
 
+/**
+ * ExceptionHandlerRegistry
+ *
+ * @author Otstar Lin
+ * @date 2020/10/14 下午 1:54
+ */
 @Component(name = "exceptionHandlerRegistry")
 public class ExceptionHandlerRegistry implements AfterImportBeanRegistry {
     private final Map<Class<?>, ExceptionHandlerResolver> adviceResolvers = new LinkedHashMap<>();
     private final Map<Class<?>, ExceptionHandlerResolver> controllerResolvers = new LinkedHashMap<>();
 
     @Override
-    public void after(
+    public void register(
         XkJava app,
         AnnotatedElement element,
         MergedAnnotation annotation
