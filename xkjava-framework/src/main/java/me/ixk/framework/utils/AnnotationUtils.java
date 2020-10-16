@@ -23,11 +23,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import me.ixk.framework.annotations.AliasFor;
@@ -44,6 +44,7 @@ import me.ixk.framework.ioc.XkJava;
  * @date 2020/10/14 下午 4:56
  */
 public class AnnotationUtils {
+    private static final SimpleCache<AnnotatedElement, Map<Class<? extends Annotation>, List<Annotation>>> MERGED_ANNOTATION_CACHE = new SimpleCache<>();
     private static final SimpleCache<Class<? extends Annotation>, Set<Class<?>>> CLASS_ANNOTATION_CACHE = new SimpleCache<>();
     private static final SimpleCache<Class<? extends Annotation>, Set<Method>> METHOD_ANNOTATION_CACHE = new SimpleCache<>();
 
@@ -269,108 +270,6 @@ public class AnnotationUtils {
         return repeatable.value();
     }
 
-    public static Map<Class<? extends Annotation>, List<Annotation>> mergeAnnotation(
-        final AnnotatedElement element
-    ) {
-        final Map<Class<? extends Annotation>, List<Annotation>> map = new LinkedHashMap<>();
-        mergeAnnotation(element, map);
-        return map;
-    }
-
-    private static void mergeAnnotation(
-        final AnnotatedElement element,
-        final Map<Class<? extends Annotation>, List<Annotation>> map
-    ) {
-        for (final Annotation annotation : element.getAnnotations()) {
-            final Class<? extends Annotation> annotationType = annotation.annotationType();
-            // Add current to map
-            final List<Annotation> annotationList = map.getOrDefault(
-                annotationType,
-                new ArrayList<>()
-            );
-            for (final Annotation item : element.getAnnotationsByType(
-                annotationType
-            )) {
-                annotationList.add(mergeAnnotationValue(item));
-            }
-            map.put(annotationType, annotationList);
-            final Class<? extends Annotation> repeatItem = getRepeatItem(
-                annotationType
-            );
-            if (repeatItem != null) {
-                final List<Annotation> itemList = map.getOrDefault(
-                    repeatItem,
-                    new ArrayList<>()
-                );
-                for (final Annotation item : (Annotation[]) ReflectUtil.invoke(
-                    annotation,
-                    "value"
-                )) {
-                    itemList.add(mergeAnnotationValue(item));
-                }
-                map.put(repeatItem, itemList);
-            }
-            if (isJdkAnnotation(annotationType)) {
-                continue;
-            }
-            mergeAnnotation(annotationType, map);
-        }
-    }
-
-    public static <T extends Annotation> T mergeAnnotationValue(
-        final T annotation
-    ) {
-        if (annotation == null) {
-            return null;
-        }
-        final Class<? extends Annotation> annotationClass = annotation.annotationType();
-        final Map<String, Object> memberValues = getMemberValues(annotation);
-        final Method[] methodValues = annotationClass.getDeclaredMethods();
-        // Set current annotation alias
-        for (final Method method : methodValues) {
-            if (method.getAnnotation(AliasFor.class) == null) {
-                continue;
-            }
-            final String name = method.getName();
-            final AliasFor aliasFor = method.getAnnotation(AliasFor.class);
-            if (isDefaultValue(method, memberValues)) {
-                final String alias = aliasFor.value();
-                if (!aliasFor.value().isEmpty()) {
-                    memberValues.put(name, memberValues.get(alias));
-                }
-            }
-        }
-        // Set to parent annotation alias
-        final Set<Annotation> parentSet = new HashSet<>();
-        for (final Method method : methodValues) {
-            if (method.getAnnotation(AliasFor.class) == null) {
-                continue;
-            }
-            final String name = method.getName();
-            final AliasFor aliasFor = method.getAnnotation(AliasFor.class);
-            if (aliasFor.annotation() != Annotation.class) {
-                final Annotation parent = annotationClass.getAnnotation(
-                    aliasFor.annotation()
-                );
-                final Map<String, Object> parentMemberValues = getMemberValues(
-                    parent
-                );
-                parentMemberValues.put(
-                    aliasFor.attribute().isEmpty()
-                        ? name
-                        : aliasFor.attribute(),
-                    memberValues.get(name)
-                );
-                parentSet.add(parent);
-            }
-        }
-        // Set parent annotation alias
-        for (final Annotation parent : parentSet) {
-            mergeAnnotationValue(parent);
-        }
-        return cloneAnnotation(annotation);
-    }
-
     public static boolean hasAnnotation(
         final AnnotatedElement element,
         final Class<? extends Annotation> annotationType
@@ -390,11 +289,140 @@ public class AnnotationUtils {
         );
     }
 
-    @SuppressWarnings("unchecked")
-    public static <A extends Annotation> A cloneAnnotation(final A annotation) {
-        return annotationForMap(
-            (Class<A>) annotation.annotationType(),
-            getAndCloneMemberValues(annotation)
+    private static void walkAnnotation(
+        final AnnotatedElement element,
+        Map<Class<? extends Annotation>, List<Map<String, Object>>> map
+    ) {
+        for (Annotation annotation : element.getAnnotations()) {
+            final Class<? extends Annotation> annotationType = annotation.annotationType();
+            if (isJdkAnnotation(annotationType)) {
+                continue;
+            }
+            final List<Map<String, Object>> annotationList = map.getOrDefault(
+                annotationType,
+                new ArrayList<>()
+            );
+            for (final Annotation item : element.getAnnotationsByType(
+                annotationType
+            )) {
+                annotationList.add(getAndCloneMemberValues(item));
+            }
+            map.put(annotationType, annotationList);
+            final Class<? extends Annotation> repeatItem = getRepeatItem(
+                annotationType
+            );
+            if (repeatItem != null) {
+                final List<Map<String, Object>> itemList = map.getOrDefault(
+                    repeatItem,
+                    new ArrayList<>()
+                );
+                for (final Annotation item : (Annotation[]) ReflectUtil.invoke(
+                    annotation,
+                    "value"
+                )) {
+                    itemList.add(getAndCloneMemberValues(item));
+                }
+                map.put(repeatItem, itemList);
+            }
+            walkAnnotation(annotationType, map);
+        }
+    }
+
+    private static void mergeAnnotation(
+        final AnnotatedElement element,
+        final Map<Class<? extends Annotation>, List<Map<String, Object>>> map
+    ) {
+        for (Annotation annotation : element.getAnnotations()) {
+            final Class<? extends Annotation> annotationType = annotation.annotationType();
+            if (isJdkAnnotation(annotationType)) {
+                continue;
+            }
+            mergeAnnotationValue(annotationType, map);
+        }
+    }
+
+    public static Map<Class<? extends Annotation>, List<Annotation>> mergeAnnotation(
+        final AnnotatedElement element
+    ) {
+        final Map<Class<? extends Annotation>, List<Annotation>> cache = MERGED_ANNOTATION_CACHE.get(
+            element
         );
+        if (cache != null) {
+            return cache;
+        }
+        final Map<Class<? extends Annotation>, List<Map<String, Object>>> map = new LinkedHashMap<>();
+        walkAnnotation(element, map);
+        mergeAnnotation(element, map);
+        final LinkedHashMap<Class<? extends Annotation>, List<Annotation>> result = map
+            .entrySet()
+            .stream()
+            .collect(
+                Collectors.toMap(
+                    Entry::getKey,
+                    e ->
+                        e
+                            .getValue()
+                            .stream()
+                            .map(i -> annotationForMap(e.getKey(), i))
+                            .collect(Collectors.toList()),
+                    (u, v) -> {
+                        throw new IllegalStateException(
+                            String.format("Duplicate key %s", u)
+                        );
+                    },
+                    LinkedHashMap::new
+                )
+            );
+        MERGED_ANNOTATION_CACHE.put(element, result);
+        return result;
+    }
+
+    private static void mergeAnnotationValue(
+        final Class<? extends Annotation> annotationType,
+        final Map<Class<? extends Annotation>, List<Map<String, Object>>> map
+    ) {
+        for (final Map<String, Object> memberValues : map.get(annotationType)) {
+            final Method[] methods = annotationType.getDeclaredMethods();
+            final Set<Class<? extends Annotation>> set = new LinkedHashSet<>();
+            for (final Method method : methods) {
+                final AliasFor aliasFor = method.getAnnotation(AliasFor.class);
+                if (aliasFor == null) {
+                    continue;
+                }
+                final String name = method.getName();
+                if (isDefaultValue(method, memberValues)) {
+                    final String alias = aliasFor.value();
+                    if (!aliasFor.value().isEmpty()) {
+                        memberValues.put(name, memberValues.get(alias));
+                    }
+                }
+            }
+            for (final Method method : methods) {
+                final AliasFor aliasFor = method.getAnnotation(AliasFor.class);
+                if (aliasFor == null) {
+                    continue;
+                }
+                final String name = method.getName();
+                if (aliasFor.annotation() != Annotation.class) {
+                    final List<Map<String, Object>> parentList = map.get(
+                        aliasFor.annotation()
+                    );
+                    if (parentList != null) {
+                        for (Map<String, Object> parentMemberValues : parentList) {
+                            parentMemberValues.put(
+                                aliasFor.attribute().isEmpty()
+                                    ? name
+                                    : aliasFor.attribute(),
+                                memberValues.get(name)
+                            );
+                        }
+                        set.add(aliasFor.annotation());
+                    }
+                }
+            }
+            for (Class<? extends Annotation> parentType : set) {
+                mergeAnnotationValue(parentType, map);
+            }
+        }
     }
 }

@@ -17,7 +17,7 @@
 </head>
 <body>
 <section>
-  <h1>图书列表 <a href="/books/index">首页</a></h1>
+  <h1>图书列表 <a href="/books">首页</a></h1>
   <table>
     <tbody>
     <tr>

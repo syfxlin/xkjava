@@ -17,6 +17,7 @@ import me.ixk.framework.test.XkJavaRunner;
 import me.ixk.framework.utils.annotation.Parent;
 import me.ixk.framework.utils.entity.FalseConditional;
 import me.ixk.framework.utils.entity.Test2;
+import me.ixk.framework.utils.entity.Test3;
 import me.ixk.framework.utils.entity.TrueConditional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +28,7 @@ class AnnotationUtilsTest {
     @Test
     void getTypesAnnotated() {
         Set<Class<?>> list = AnnotationUtils.getTypesAnnotated(Parent.class);
-        assertEquals(list.size(), 3);
+        assertEquals(list.size(), 4);
     }
 
     @Test
@@ -47,9 +48,12 @@ class AnnotationUtilsTest {
     }
 
     @Test
-    void mergeAnnotation() {
-        Map<Class<? extends Annotation>, List<Annotation>> map = AnnotationUtils.mergeAnnotation(
+    void mergeAnnotationNew() {
+        Map<Class<? extends Annotation>, List<Annotation>> map1 = AnnotationUtils.mergeAnnotation(
             Test2.class
+        );
+        Map<Class<? extends Annotation>, List<Annotation>> map2 = AnnotationUtils.mergeAnnotation(
+            Test3.class
         );
     }
 }

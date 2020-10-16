@@ -57,7 +57,7 @@
     </div>
   </form>
     <#if $request.has("success")>
-      <h2>修改成功，<a href="/books/index">首页</a></h2>
+      <h2>修改成功，<a href="/books">首页</a></h2>
     </#if>
 </section>
 </body>
