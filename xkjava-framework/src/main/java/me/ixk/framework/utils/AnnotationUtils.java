@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -77,6 +79,12 @@ public class AnnotationUtils {
         } catch (final Exception e) {
             throw new RuntimeException("Get annotation member values failed");
         }
+    }
+
+    private static Map<String, Object> getAndCloneMemberValues(
+        final Annotation annotation
+    ) {
+        return new HashMap<>(getMemberValues(annotation));
     }
 
     public static boolean isDefaultValue(
@@ -172,7 +180,9 @@ public class AnnotationUtils {
                 set.add(item);
             }
         }
-        Class<? extends Annotation> repeatable = getRepeatable(annotation);
+        final Class<? extends Annotation> repeatable = getRepeatable(
+            annotation
+        );
         if (repeatable != null) {
             set.addAll(getTypesAnnotatedWith(repeatable));
         }
@@ -236,9 +246,11 @@ public class AnnotationUtils {
     }
 
     public static Class<? extends Annotation> getRepeatItem(
-        Class<? extends Annotation> annotationType
+        final Class<? extends Annotation> annotationType
     ) {
-        RepeatItem repeatItem = annotationType.getAnnotation(RepeatItem.class);
+        final RepeatItem repeatItem = annotationType.getAnnotation(
+            RepeatItem.class
+        );
         if (repeatItem == null) {
             return null;
         }
@@ -246,9 +258,11 @@ public class AnnotationUtils {
     }
 
     public static Class<? extends Annotation> getRepeatable(
-        Class<? extends Annotation> annotationType
+        final Class<? extends Annotation> annotationType
     ) {
-        Repeatable repeatable = annotationType.getAnnotation(Repeatable.class);
+        final Repeatable repeatable = annotationType.getAnnotation(
+            Repeatable.class
+        );
         if (repeatable == null) {
             return null;
         }
@@ -256,39 +270,39 @@ public class AnnotationUtils {
     }
 
     public static Map<Class<? extends Annotation>, List<Annotation>> mergeAnnotation(
-        AnnotatedElement element
+        final AnnotatedElement element
     ) {
-        Map<Class<? extends Annotation>, List<Annotation>> map = new LinkedHashMap<>();
+        final Map<Class<? extends Annotation>, List<Annotation>> map = new LinkedHashMap<>();
         mergeAnnotation(element, map);
         return map;
     }
 
     private static void mergeAnnotation(
-        AnnotatedElement element,
-        Map<Class<? extends Annotation>, List<Annotation>> map
+        final AnnotatedElement element,
+        final Map<Class<? extends Annotation>, List<Annotation>> map
     ) {
-        for (Annotation annotation : element.getAnnotations()) {
-            Class<? extends Annotation> annotationType = annotation.annotationType();
+        for (final Annotation annotation : element.getAnnotations()) {
+            final Class<? extends Annotation> annotationType = annotation.annotationType();
             // Add current to map
-            List<Annotation> annotationList = map.getOrDefault(
+            final List<Annotation> annotationList = map.getOrDefault(
                 annotationType,
                 new ArrayList<>()
             );
-            for (Annotation item : element.getAnnotationsByType(
+            for (final Annotation item : element.getAnnotationsByType(
                 annotationType
             )) {
                 annotationList.add(mergeAnnotationValue(item));
             }
             map.put(annotationType, annotationList);
-            Class<? extends Annotation> repeatItem = getRepeatItem(
+            final Class<? extends Annotation> repeatItem = getRepeatItem(
                 annotationType
             );
             if (repeatItem != null) {
-                List<Annotation> itemList = map.getOrDefault(
+                final List<Annotation> itemList = map.getOrDefault(
                     repeatItem,
                     new ArrayList<>()
                 );
-                for (Annotation item : (Annotation[]) ReflectUtil.invoke(
+                for (final Annotation item : (Annotation[]) ReflectUtil.invoke(
                     annotation,
                     "value"
                 )) {
@@ -327,6 +341,7 @@ public class AnnotationUtils {
             }
         }
         // Set to parent annotation alias
+        final Set<Annotation> parentSet = new HashSet<>();
         for (final Method method : methodValues) {
             if (method.getAnnotation(AliasFor.class) == null) {
                 continue;
@@ -334,10 +349,10 @@ public class AnnotationUtils {
             final String name = method.getName();
             final AliasFor aliasFor = method.getAnnotation(AliasFor.class);
             if (aliasFor.annotation() != Annotation.class) {
-                Annotation parent = annotationClass.getAnnotation(
+                final Annotation parent = annotationClass.getAnnotation(
                     aliasFor.annotation()
                 );
-                Map<String, Object> parentMemberValues = getMemberValues(
+                final Map<String, Object> parentMemberValues = getMemberValues(
                     parent
                 );
                 parentMemberValues.put(
@@ -346,17 +361,40 @@ public class AnnotationUtils {
                         : aliasFor.attribute(),
                     memberValues.get(name)
                 );
-                // Set parent annotation alias
-                mergeAnnotationValue(parent);
+                parentSet.add(parent);
             }
         }
-        return annotation;
+        // Set parent annotation alias
+        for (final Annotation parent : parentSet) {
+            mergeAnnotationValue(parent);
+        }
+        return cloneAnnotation(annotation);
     }
 
     public static boolean hasAnnotation(
-        AnnotatedElement element,
-        Class<? extends Annotation> annotationType
+        final AnnotatedElement element,
+        final Class<? extends Annotation> annotationType
     ) {
         return getAnnotation(element).hasAnnotation(annotationType);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <A extends Annotation> A annotationForMap(
+        final Class<A> annotationType,
+        final Map<String, Object> memberValues
+    ) {
+        return (A) Proxy.newProxyInstance(
+            annotationType.getClassLoader(),
+            new Class[] { annotationType },
+            new AnnotationInvocationHandler(annotationType, memberValues)
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <A extends Annotation> A cloneAnnotation(final A annotation) {
+        return annotationForMap(
+            (Class<A>) annotation.annotationType(),
+            getAndCloneMemberValues(annotation)
+        );
     }
 }
