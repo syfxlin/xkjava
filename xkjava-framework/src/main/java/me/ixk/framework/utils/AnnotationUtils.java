@@ -338,6 +338,7 @@ public class AnnotationUtils {
                 continue;
             }
             mergeAnnotationValue(annotationType, map);
+            mergeAnnotation(annotationType, map);
         }
     }
 
@@ -383,7 +384,6 @@ public class AnnotationUtils {
     ) {
         for (final Map<String, Object> memberValues : map.get(annotationType)) {
             final Method[] methods = annotationType.getDeclaredMethods();
-            final Set<Class<? extends Annotation>> set = new LinkedHashSet<>();
             for (final Method method : methods) {
                 final AliasFor aliasFor = method.getAnnotation(AliasFor.class);
                 if (aliasFor == null) {
@@ -416,12 +416,8 @@ public class AnnotationUtils {
                                 memberValues.get(name)
                             );
                         }
-                        set.add(aliasFor.annotation());
                     }
                 }
-            }
-            for (Class<? extends Annotation> parentType : set) {
-                mergeAnnotationValue(parentType, map);
             }
         }
     }

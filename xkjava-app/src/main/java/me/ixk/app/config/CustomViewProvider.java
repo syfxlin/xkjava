@@ -4,10 +4,11 @@
 
 package me.ixk.app.config;
 
+import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.view.TemplateProcessor;
 import me.ixk.framework.view.Thymeleaf;
 
-// @Configuration
+@Provider
 public class CustomViewProvider {
 
     // @Bean(name = "templateProcessor")
