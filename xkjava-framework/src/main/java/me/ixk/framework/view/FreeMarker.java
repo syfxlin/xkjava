@@ -5,9 +5,7 @@
 package me.ixk.framework.view;
 
 import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
-import freemarker.template.TemplateExceptionHandler;
 import java.io.IOException;
 import java.util.Map;
 import me.ixk.framework.exceptions.TemplateException;
@@ -22,21 +20,7 @@ import me.ixk.framework.utils.ByteArrayUtf8Writer;
 public class FreeMarker implements TemplateProcessor {
     protected final Configuration configuration;
 
-    public FreeMarker() {
-        Configuration configuration = new Configuration(
-            Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS
-        );
-        configuration.setClassForTemplateLoading(
-            FreeMarker.class,
-            "/templates/"
-        );
-        configuration.setDefaultEncoding("UTF-8");
-        configuration.setTemplateExceptionHandler(
-            TemplateExceptionHandler.DEBUG_HANDLER
-        );
-        configuration.setAPIBuiltinEnabled(true);
-        DefaultObjectWrapper defaultObjectWrapper = (DefaultObjectWrapper) configuration.getObjectWrapper();
-        defaultObjectWrapper.setUseAdaptersForContainers(true);
+    public FreeMarker(Configuration configuration) {
         this.configuration = configuration;
     }
 

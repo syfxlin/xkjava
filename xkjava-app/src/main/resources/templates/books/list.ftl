@@ -1,4 +1,4 @@
-<#-- @ftlvariable name="books" type="java.util.List<me.ixk.app.entity.Books>" -->
+<#-- @ftlvariable name="books" type="com.baomidou.mybatisplus.core.metadata.IPage<me.ixk.app.entity.Books>" -->
 <!doctype html>
 <html lang="zh">
 <head>
@@ -21,14 +21,16 @@
   <table>
     <tbody>
     <tr>
+      <th>ID</th>
       <th>图书编号</th>
       <th>图书名称</th>
       <th>作者</th>
       <th>出版社</th>
       <th>操作</th>
     </tr>
-    <#list books as book>
+    <#list books.records as book>
       <tr>
+        <td>${book.id}</td>
         <td>${book.isbn}</td>
         <td><a href="/books/view/${book.id}">${book.name}</a></td>
         <td>${book.author}</td>
@@ -39,6 +41,11 @@
     </#list>
     </tbody>
   </table>
+  <ul>
+      <#list 1..(books.total / 5) as i>
+        <li><a href="/books/list?page=${i}">${i} <#if books.current == i><</#if></a></li>
+      </#list>
+  </ul>
 </section>
 </body>
 </html>

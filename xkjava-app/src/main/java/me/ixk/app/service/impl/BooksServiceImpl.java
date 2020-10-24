@@ -4,6 +4,8 @@
 
 package me.ixk.app.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import me.ixk.app.entity.Books;
 import me.ixk.app.mapper.BooksMapper;
 import me.ixk.app.service.IBooksService;
@@ -17,4 +19,9 @@ import me.ixk.framework.service.ServiceImpl;
 @Service
 public class BooksServiceImpl
     extends ServiceImpl<BooksMapper, Books>
-    implements IBooksService {}
+    implements IBooksService {
+
+    public IPage<Books> page(final Page<Books> page) {
+        return this.getBaseMapper().getByPage(page);
+    }
+}

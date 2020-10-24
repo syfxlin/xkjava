@@ -5,18 +5,11 @@
 package me.ixk.framework.database;
 
 import cn.hutool.core.util.ReflectUtil;
-import com.baomidou.mybatisplus.core.MybatisConfiguration;
-import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;
 import java.sql.Connection;
-import java.util.List;
-import javax.sql.DataSource;
-import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.session.TransactionIsolationLevel;
-import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,25 +29,9 @@ public class MybatisPlus
     // 当全局 SqlSession 被设置的时候就认为是开启了事务
 
     public MybatisPlus(
-        final DataSource dataSource,
-        final List<String> mapperPackages
+        org.apache.ibatis.session.SqlSessionManager sqlSessionManager
     ) {
-        final SqlSessionFactoryBuilder builder = new MybatisSqlSessionFactoryBuilder();
-        final Environment environment = new Environment(
-            "database",
-            new JdbcTransactionFactory(),
-            dataSource
-        );
-        Configuration configuration = new MybatisConfiguration(environment);
-        if (mapperPackages != null) {
-            for (final String mapperPackage : mapperPackages) {
-                configuration.addMappers(mapperPackage);
-            }
-        }
-        this.sqlSessionManager =
-            org.apache.ibatis.session.SqlSessionManager.newInstance(
-                builder.build(configuration)
-            );
+        this.sqlSessionManager = sqlSessionManager;
     }
 
     @Override

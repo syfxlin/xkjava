@@ -4,6 +4,9 @@
 
 package me.ixk.framework.providers;
 
+import freemarker.template.Configuration;
+import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.TemplateExceptionHandler;
 import me.ixk.framework.annotations.Bean;
 import me.ixk.framework.annotations.ConditionalOnMissingBean;
 import me.ixk.framework.annotations.Provider;
@@ -24,7 +27,30 @@ public class ViewProvider {
         name = "templateProcessor",
         value = TemplateProcessor.class
     )
-    public TemplateProcessor templateProcessor() {
-        return new FreeMarker();
+    public TemplateProcessor templateProcessor(Configuration configuration) {
+        return new FreeMarker(configuration);
+    }
+
+    @Bean(name = "freemarkerConfiguration")
+    @ConditionalOnMissingBean(
+        name = "freemarkerConfiguration",
+        value = Configuration.class
+    )
+    public Configuration freemarkerConfiguration() {
+        Configuration configuration = new Configuration(
+            Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS
+        );
+        configuration.setClassForTemplateLoading(
+            FreeMarker.class,
+            "/templates/"
+        );
+        configuration.setDefaultEncoding("UTF-8");
+        configuration.setTemplateExceptionHandler(
+            TemplateExceptionHandler.DEBUG_HANDLER
+        );
+        configuration.setAPIBuiltinEnabled(true);
+        DefaultObjectWrapper defaultObjectWrapper = (DefaultObjectWrapper) configuration.getObjectWrapper();
+        defaultObjectWrapper.setUseAdaptersForContainers(true);
+        return configuration;
     }
 }

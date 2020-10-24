@@ -5,12 +5,18 @@
 package me.ixk.app.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import me.ixk.app.entity.Books;
 import me.ixk.framework.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * @author Otstar Lin
  * @date 2020/10/16 上午 10:17
  */
 @Mapper
-public interface BooksMapper extends BaseMapper<Books> {}
+public interface BooksMapper extends BaseMapper<Books> {
+    @Select("SELECT * FROM books")
+    IPage<Books> getByPage(Page<Books> page);
+}

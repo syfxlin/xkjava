@@ -4,6 +4,8 @@
 
 package me.ixk.app.controllers;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -66,8 +68,10 @@ public class HomeworkBooksController {
     }
 
     @GetMapping("/list")
-    public ViewResult list() {
-        final List<Books> books = booksService.list();
+    public ViewResult list(Integer page) {
+        final IPage<Books> books = booksService.page(
+            new Page<>(page == null ? 1 : page, 5)
+        );
         return Result.view("books/list", Map.of("books", books));
     }
 

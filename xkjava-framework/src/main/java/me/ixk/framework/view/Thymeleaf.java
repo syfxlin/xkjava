@@ -11,8 +11,6 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.servlet.DispatcherServlet;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 /**
  * Thymeleaf
@@ -23,14 +21,8 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 public class Thymeleaf implements TemplateProcessor {
     protected final TemplateEngine templateEngine;
 
-    public Thymeleaf() {
-        ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
-        resolver.setTemplateMode(TemplateMode.HTML);
-        resolver.setPrefix("/templates/");
-        resolver.setSuffix(".html");
-        resolver.setCacheTTLMs(3600000L);
-        this.templateEngine = new TemplateEngine();
-        this.templateEngine.setTemplateResolver(resolver);
+    public Thymeleaf(TemplateEngine templateEngine) {
+        this.templateEngine = templateEngine;
     }
 
     public TemplateEngine getTemplateEngine() {
