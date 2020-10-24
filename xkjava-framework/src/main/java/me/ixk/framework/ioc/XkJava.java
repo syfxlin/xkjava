@@ -16,6 +16,7 @@ import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.processor.AnnotationProcessor;
 import me.ixk.framework.processor.BootstrapAnnotationProcessor;
 import me.ixk.framework.server.JettyServer;
+import me.ixk.framework.server.Server;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Ansi;
 import me.ixk.framework.utils.Ansi.Color;
@@ -190,8 +191,8 @@ public class XkJava extends Container {
         }
 
         this.booted = true;
-        // 启动 Jetty 服务
-        this.call(JettyServer.class, "start", Void.class);
+        // 启动 Server 服务
+        this.call(Server.class, "start", Void.class);
 
         log.info("Application booted");
     }

@@ -30,17 +30,18 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
  * @date 2020/10/14 下午 4:53
  */
 @Component(name = { " jetty ", "server" })
-public class JettyServer {
-    private final XkJava application;
+public class JettyServer implements me.ixk.framework.server.Server {
+    private final XkJava app;
     private Server server;
 
-    public JettyServer(XkJava application) {
-        this.application = application;
+    public JettyServer(XkJava app) {
+        this.app = app;
     }
 
+    @Override
     public void start() {
         Resource resource = Resource.newClassPathResource("/public");
-        int port = this.application.env().get("app.port", 8080);
+        int port = this.app.env().get("app.port", 8080);
         this.server = this.buildServer(port, resource);
         this.startServer();
     }
