@@ -26,10 +26,11 @@ public class SessionManager {
 
     private HttpSession session;
 
+    /**
+     * Only used cglib
+     */
     @Deprecated
-    public SessionManager() {
-        // only used cglib
-    }
+    public SessionManager() {}
 
     public SessionManager(HttpSession session) {
         this.session = session;

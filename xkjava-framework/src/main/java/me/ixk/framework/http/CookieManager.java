@@ -28,10 +28,11 @@ public class CookieManager {
 
     protected Map<String, SetCookie> cookies;
 
+    /**
+     * Only used cglib
+     */
     @Deprecated
-    public CookieManager() {
-        // only used cglib
-    }
+    public CookieManager() {}
 
     public CookieManager(Cookie[] cookies) {
         this.requestCookies = new ConcurrentHashMap<>();
