@@ -29,7 +29,7 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
  * @author Otstar Lin
  * @date 2020/10/14 下午 4:53
  */
-@Component(name = { " jetty ", "server" })
+@Component(name = { " jetty ", "server", "me.ixk.framework.server.Server" })
 public class JettyServer implements me.ixk.framework.server.Server {
     private final XkJava app;
     private Server server;
