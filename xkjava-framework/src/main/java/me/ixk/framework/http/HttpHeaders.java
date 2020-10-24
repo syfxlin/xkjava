@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import me.ixk.framework.utils.LinkedCaseInsensitiveMultiValueMap;
 import me.ixk.framework.utils.MultiValueMap;
-import org.eclipse.jetty.http.HttpHeader;
 
 /**
  * HTTP 头字段（多）

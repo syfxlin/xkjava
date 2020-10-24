@@ -31,6 +31,6 @@ public class AddQueuedCookies implements Middleware {
             .getQueues()
             .values()
             .toArray(SetCookie[]::new);
-        return response.addCookies(cookies);
+        return response.cookies(cookies);
     }
 }

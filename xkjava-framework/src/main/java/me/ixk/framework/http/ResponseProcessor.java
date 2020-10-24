@@ -6,7 +6,6 @@ package me.ixk.framework.http;
 
 import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.utils.JSON;
-import org.eclipse.jetty.http.MimeTypes;
 
 /**
  * 响应处理器
@@ -38,9 +37,8 @@ public class ResponseProcessor {
             return response;
         } else if (result instanceof HttpServletResponse) {
             // 如果是 HttpServletResponse 则包装一下
-            return response.setOriginResponse(
-                (org.eclipse.jetty.server.Response) result
-            );
+            response.setResponse((HttpServletResponse) result);
+            return response;
         } else if (result instanceof Responsable) {
             // 可响应则执行转换响应方法
             return ((Responsable) result).toResponse(request, response, result);
@@ -50,7 +48,7 @@ public class ResponseProcessor {
         } else {
             // 其他对象则序列号成 JSON
             return response
-                .contentType(MimeTypes.Type.APPLICATION_JSON.asString())
+                .contentType(MimeType.APPLICATION_JSON.asString())
                 .content(JSON.stringify(result));
         }
     }

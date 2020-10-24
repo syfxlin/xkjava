@@ -6,14 +6,13 @@ package me.ixk.framework.http.result;
 
 import java.util.Map;
 import javax.servlet.http.Cookie;
+import me.ixk.framework.http.HttpHeader;
 import me.ixk.framework.http.HttpHeaders;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Renderable;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
 import me.ixk.framework.ioc.XkJava;
-import org.eclipse.jetty.http.HttpCookie;
-import org.eclipse.jetty.http.HttpHeader;
 
 /**
  * HTTP 响应
@@ -55,11 +54,6 @@ public abstract class AbstractHttpResult implements Renderable {
 
     public final AbstractHttpResult headers(HttpHeaders headers) {
         response.headers(headers);
-        return this;
-    }
-
-    public final AbstractHttpResult cookie(HttpCookie cookie) {
-        response.cookie(cookie);
         return this;
     }
 

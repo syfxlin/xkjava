@@ -13,12 +13,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.exceptions.RouteCollectorException;
+import me.ixk.framework.http.HttpMethod;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Middleware;
 import me.ixk.framework.registry.after.MiddlewareRegistry;
 import me.ixk.framework.registry.after.RouteRegistry;
 import me.ixk.framework.utils.AnnotationUtils;
-import org.eclipse.jetty.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

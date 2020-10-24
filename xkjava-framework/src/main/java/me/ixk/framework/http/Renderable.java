@@ -4,8 +4,6 @@
 
 package me.ixk.framework.http;
 
-import org.eclipse.jetty.http.MimeTypes;
-
 /**
  * 可渲染
  *
@@ -26,7 +24,7 @@ public interface Renderable extends Responsable {
      * @return 类型
      */
     default String contentType() {
-        return MimeTypes.Type.TEXT_PLAIN.asString();
+        return MimeType.TEXT_PLAIN.asString();
     }
 
     /**

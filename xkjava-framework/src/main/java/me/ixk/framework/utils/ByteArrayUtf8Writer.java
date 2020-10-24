@@ -10,7 +10,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import org.eclipse.jetty.util.ByteArrayOutputStream2;
 
 /**
  * ByteArrayUtf8Writer

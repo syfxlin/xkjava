@@ -5,8 +5,8 @@
 package me.ixk.framework.http.result;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import me.ixk.framework.http.MimeType;
 import me.ixk.framework.utils.JSON;
-import org.eclipse.jetty.http.MimeTypes;
 
 /**
  * JSON 响应
@@ -45,6 +45,6 @@ public class JsonResult extends AbstractHttpResult {
 
     @Override
     public String contentType() {
-        return MimeTypes.Type.APPLICATION_JSON.asString();
+        return MimeType.APPLICATION_JSON.asString();
     }
 }

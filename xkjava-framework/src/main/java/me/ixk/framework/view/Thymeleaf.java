@@ -33,8 +33,8 @@ public class Thymeleaf implements TemplateProcessor {
     public String process(String templateName, Map<String, Object> values) {
         XkJava app = XkJava.of();
         WebContext webContext = new WebContext(
-            app.make(Request.class).getOriginRequest(),
-            app.make(Response.class).getOriginResponse(),
+            app.make(Request.class),
+            app.make(Response.class),
             app.make(DispatcherServlet.class).getServletContext()
         );
         webContext.setVariables(values);

@@ -4,7 +4,7 @@
 
 package me.ixk.framework.http.result;
 
-import org.eclipse.jetty.http.MimeTypes;
+import me.ixk.framework.http.MimeType;
 
 /**
  * 文本工具类
@@ -34,6 +34,6 @@ public class TextResult extends AbstractHttpResult {
 
     @Override
     public String contentType() {
-        return MimeTypes.Type.TEXT_PLAIN.asString();
+        return MimeType.TEXT_PLAIN.asString();
     }
 }

@@ -35,10 +35,8 @@ public abstract class AbstractFrameworkServlet extends HttpServlet {
             // TODO: unset
         }
         resp.setCharacterEncoding("UTF-8");
-        Request request = new Request((org.eclipse.jetty.server.Request) req);
-        Response response = new Response(
-            (org.eclipse.jetty.server.Response) resp
-        );
+        Request request = new Request(req);
+        Response response = new Response(resp);
         this.dispatch(request, response);
     }
 

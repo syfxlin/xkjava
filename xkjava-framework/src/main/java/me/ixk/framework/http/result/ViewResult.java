@@ -6,11 +6,11 @@ package me.ixk.framework.http.result;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.http.MimeType;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.view.FilterCallback;
 import me.ixk.framework.view.TemplateProcessor;
 import me.ixk.framework.web.WebContext;
-import org.eclipse.jetty.http.MimeTypes;
 
 /**
  * 视图响应
@@ -107,6 +107,6 @@ public class ViewResult extends AbstractHttpResult {
 
     @Override
     public String contentType() {
-        return MimeTypes.Type.TEXT_HTML.asString();
+        return MimeType.TEXT_HTML.asString();
     }
 }
