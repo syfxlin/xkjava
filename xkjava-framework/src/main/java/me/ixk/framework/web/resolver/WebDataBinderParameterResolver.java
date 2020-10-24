@@ -11,6 +11,7 @@ import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ValidGroup;
 import me.ixk.framework.utils.ValidResult;
 import me.ixk.framework.web.MethodParameter;
@@ -50,13 +51,14 @@ public class WebDataBinderParameterResolver
         final WebContext context,
         final WebDataBinder binder
     ) {
-        final DataBind dataBind = AnnotationUtils
-            .getAnnotation(parameter.getParameter())
-            .getAnnotation(DataBind.class);
+        final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
+            parameter.getParameter()
+        );
+        final DataBind dataBind = annotation.getAnnotation(DataBind.class);
         final Object dependency = binder.getObject(
             parameter.getParameterName(),
             parameter.getParameterType(),
-            dataBind
+            annotation
         );
         if (dependency == null && dataBind != null && dataBind.required()) {
             throw new NullPointerException(

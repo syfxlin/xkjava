@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -204,7 +205,21 @@ public class Request extends HttpServletRequestWrapper {
     public JsonNode json() {
         final JsonNode node;
         if (this.parseBody == null) {
-            node = JSON.convertToNode(this.getParameterMap());
+            node =
+                JSON.convertToNode(
+                    this.getParameterMap()
+                        .entrySet()
+                        .stream()
+                        .collect(
+                            Collectors.toMap(
+                                Entry::getKey,
+                                e ->
+                                    e.getValue().length == 1
+                                        ? e.getValue()[0]
+                                        : e.getValue()
+                            )
+                        )
+                );
         } else {
             node = this.parseBody;
         }
@@ -275,9 +290,9 @@ public class Request extends HttpServletRequestWrapper {
         return this.getOrDefault(session.getAttribute(name), defaultValue);
     }
 
-    /* ================ file ============== */
+    /* ================ part ============== */
 
-    public Part file(final String name) {
+    public Part part(final String name) {
         try {
             return this.getPart(name);
         } catch (final IOException | ServletException e) {
@@ -285,12 +300,12 @@ public class Request extends HttpServletRequestWrapper {
         }
     }
 
-    public String fileToString(final String name) {
-        return this.fileToString(name, StandardCharsets.UTF_8);
+    public String partToString(final String name) {
+        return this.partToString(name, StandardCharsets.UTF_8);
     }
 
-    public String fileToString(final String name, final Charset charset) {
-        final Part file = this.file(name);
+    public String partToString(final String name, final Charset charset) {
+        final Part file = this.part(name);
         if (file == null) {
             return null;
         }
@@ -304,14 +319,14 @@ public class Request extends HttpServletRequestWrapper {
         }
     }
 
-    public boolean hasFile(final String name) {
-        final Part file = this.file(name);
+    public boolean hasPart(final String name) {
+        final Part file = this.part(name);
         return file != null && file.getSubmittedFileName() != null;
     }
 
-    public boolean moveFileTo(final String name, final String path) {
+    public boolean movePartTo(final String name, final String path) {
         try {
-            final Part part = this.file(name);
+            final Part part = this.part(name);
             if (part == null) {
                 return false;
             }
@@ -372,7 +387,7 @@ public class Request extends HttpServletRequestWrapper {
             result = this.session(name);
         }
         if (result == null) {
-            result = this.file(name);
+            result = this.part(name);
         }
         if (result == null) {
             result = this.attribute(name);

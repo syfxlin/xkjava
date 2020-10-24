@@ -12,6 +12,7 @@ import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.ParameterInjector;
 import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,14 +40,15 @@ public class DefaultParameterInjector implements ParameterInjector {
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
             String parameterName = parameterNames[i];
-            DataBind dataBind = AnnotationUtils
-                .getAnnotation(parameter)
-                .getAnnotation(DataBind.class);
+            MergedAnnotation annotation = AnnotationUtils.getAnnotation(
+                parameter
+            );
+            DataBind dataBind = annotation.getAnnotation(DataBind.class);
             dependencies[i] =
                 dataBinder.getObject(
                     parameterName,
                     parameter.getType(),
-                    dataBind
+                    annotation
                 );
             if (
                 dependencies[i] == null &&

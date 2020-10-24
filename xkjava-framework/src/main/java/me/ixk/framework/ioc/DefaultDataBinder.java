@@ -7,6 +7,7 @@ package me.ixk.framework.ioc;
 import java.util.Map;
 import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.utils.Convert;
+import me.ixk.framework.utils.MergedAnnotation;
 
 /**
  * 默认数据绑定器
@@ -25,7 +26,17 @@ public class DefaultDataBinder implements DataBinder {
     }
 
     @Override
-    public <T> T getObject(String name, Class<T> type) {
+    public <T> T getObject(
+        String name,
+        Class<T> type,
+        MergedAnnotation annotation
+    ) {
+        DataBind dataBind = annotation == null
+            ? null
+            : annotation.getAnnotation(DataBind.class);
+        if (dataBind != null && dataBind.name().length() != 0) {
+            name = dataBind.name();
+        }
         Object object = this.data.get(name);
         if (object == null) {
             object = this.data.get(type.getName());
@@ -37,14 +48,6 @@ public class DefaultDataBinder implements DataBinder {
             object = container.make(type, this);
         }
         return Convert.convert(type, object);
-    }
-
-    @Override
-    public <T> T getObject(String name, Class<T> type, DataBind dataBind) {
-        if (dataBind != null && dataBind.name().length() != 0) {
-            name = dataBind.name();
-        }
-        return this.getObject(name, type);
     }
 
     public Map<String, Object> getData() {

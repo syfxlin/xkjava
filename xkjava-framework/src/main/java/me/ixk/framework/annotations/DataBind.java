@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * @author Otstar Lin
  * @date 2020/10/13 下午 4:49
  */
-@Target(ElementType.PARAMETER)
+@Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DataBind {
     @AliasFor("name")

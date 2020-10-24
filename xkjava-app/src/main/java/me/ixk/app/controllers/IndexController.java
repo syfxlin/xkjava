@@ -93,7 +93,7 @@ public class IndexController {
 
     @PostMapping("/upload")
     public TextResult uploadPost(Request request) {
-        return Result.text(request.fileToString("file"));
+        return Result.text(request.partToString("file"));
     }
 
     @GetMapping("/exce")

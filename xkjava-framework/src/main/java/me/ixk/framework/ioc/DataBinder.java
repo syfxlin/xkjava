@@ -4,7 +4,7 @@
 
 package me.ixk.framework.ioc;
 
-import me.ixk.framework.annotations.DataBind;
+import me.ixk.framework.utils.MergedAnnotation;
 
 /**
  * 数据绑定器
@@ -18,23 +18,52 @@ public interface DataBinder {
     /**
      * 获取实例
      *
-     * @param name 实例名
-     * @param type 实例类型
-     * @param <T>  实例类型
+     * @param name       实例名
+     * @param type       实例类型
+     * @param annotation 注解
+     * @param <T>        实例类型
      *
      * @return 实例
      */
-    <T> T getObject(String name, Class<T> type);
+    <T> T getObject(String name, Class<T> type, MergedAnnotation annotation);
 
-    /**
-     * 获取实例
-     *
-     * @param name     实例名
-     * @param type     实例类型
-     * @param dataBind 数据绑定器
-     * @param <T>      实例类型
-     *
-     * @return 实例
-     */
-    <T> T getObject(String name, Class<T> type, DataBind dataBind);
+    interface Converter {
+        /**
+         * 前置转换器
+         *
+         * @param object     实例
+         * @param name       名称
+         * @param type       类型
+         * @param annotation 注解
+         *
+         * @return 实例
+         */
+        default Object before(
+            Object object,
+            String name,
+            Class<?> type,
+            MergedAnnotation annotation
+        ) {
+            return object;
+        }
+
+        /**
+         * 后置转换器
+         *
+         * @param object     实例
+         * @param name       名称
+         * @param type       类型
+         * @param annotation 注解
+         *
+         * @return 实例
+         */
+        default <T> T after(
+            T object,
+            String name,
+            Class<T> type,
+            MergedAnnotation annotation
+        ) {
+            return object;
+        }
+    }
 }

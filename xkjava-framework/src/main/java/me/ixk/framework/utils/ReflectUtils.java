@@ -102,6 +102,9 @@ public class ReflectUtils {
     }
 
     public static Object getProxyTarget(Object proxy) {
+        if (proxy == null) {
+            return null;
+        }
         if (ClassUtils.isJdkProxy(proxy)) {
             return getJdkProxyTarget(proxy);
         } else if (ClassUtils.isCglibProxy(proxy)) {

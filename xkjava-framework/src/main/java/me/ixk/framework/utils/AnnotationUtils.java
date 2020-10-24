@@ -21,6 +21,7 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -62,6 +63,17 @@ public class AnnotationUtils {
         final AnnotatedElement element
     ) {
         return new MergedAnnotationImpl(element);
+    }
+
+    public static MergedAnnotation wrapAnnotation(final Annotation annotation) {
+        final MergedAnnotationImpl mergedAnnotation = new MergedAnnotationImpl();
+        mergedAnnotation
+            .annotations()
+            .put(
+                annotation.annotationType(),
+                Collections.singletonList(annotation)
+            );
+        return mergedAnnotation;
     }
 
     @SuppressWarnings("unchecked")

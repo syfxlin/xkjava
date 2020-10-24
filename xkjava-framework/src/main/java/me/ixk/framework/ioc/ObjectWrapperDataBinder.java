@@ -6,11 +6,12 @@ package me.ixk.framework.ioc;
 
 import static me.ixk.framework.helpers.Util.caseGet;
 
-import cn.hutool.core.util.ReflectUtil;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.utils.Convert;
+import me.ixk.framework.utils.MergedAnnotation;
 
 /**
  * 对象包装数据绑定器
@@ -20,20 +21,18 @@ import me.ixk.framework.utils.Convert;
  */
 public class ObjectWrapperDataBinder implements DataBinder {
     public static final String DEFAULT_VALUE_PREFIX = "&";
-    public static final String DEFAULT_DATABIND_NAME = "default";
 
     protected final Container container;
-
     protected final List<Function<String, Object>> getters;
+    protected final List<Converter> converters;
 
-    protected volatile String prefix = null;
+    protected volatile String prefix;
 
     public ObjectWrapperDataBinder(
-        Container container,
-        List<Function<String, Object>> getters
+        final Container container,
+        final List<Function<String, Object>> getters
     ) {
-        this.container = container;
-        this.getters = getters;
+        this(container, null, getters, new ArrayList<>());
     }
 
     public ObjectWrapperDataBinder(
@@ -41,33 +40,44 @@ public class ObjectWrapperDataBinder implements DataBinder {
         final String prefix,
         final List<Function<String, Object>> getters
     ) {
+        this(container, prefix, getters, new ArrayList<>());
+    }
+
+    public ObjectWrapperDataBinder(
+        final Container container,
+        final List<Function<String, Object>> getters,
+        final List<Converter> converters
+    ) {
+        this(container, null, getters, converters);
+    }
+
+    public ObjectWrapperDataBinder(
+        final Container container,
+        final String prefix,
+        final List<Function<String, Object>> getters,
+        final List<Converter> converters
+    ) {
         this.container = container;
         this.prefix = prefix;
         this.getters = getters;
-    }
-
-    @Override
-    public <T> T getObject(final String name, final Class<T> type) {
-        return this.getObject(name, type, null);
+        this.converters = converters;
     }
 
     @Override
     public <T> T getObject(
         String name,
         final Class<T> type,
-        final DataBind dataBind
+        final MergedAnnotation annotation
     ) {
-        if (dataBind != null) {
-            name =
-                dataBind.name().length() == 0
-                    ? this.getDefaultDataBindName()
-                    : dataBind.name();
+        DataBind dataBind = annotation.getAnnotation(DataBind.class);
+        if (dataBind != null && dataBind.name().length() != 0) {
+            name = dataBind.name();
             this.prefix = "";
         }
-        String currentName = this.currentName(name);
-        String typeName = type.getName();
+        final String currentName = this.currentName(name);
+        final String typeName = type.getName();
         Object object = null;
-        for (Function<String, Object> getter : this.getters) {
+        for (final Function<String, Object> getter : this.getters) {
             object =
                 caseGet(
                     currentName,
@@ -92,19 +102,21 @@ public class ObjectWrapperDataBinder implements DataBinder {
             }
         }
         if (object == null) {
-            String concatName = this.concatName(name);
-            DataBinder binder = ReflectUtil.newInstance(
-                this.getClass(),
-                this.container,
-                concatName,
-                this.getters
-            );
+            final String concatName = this.concatName(name);
+            final DataBinder binder = this.copy(concatName);
             object = this.container.make(concatName, type, binder);
             if (object == null) {
                 object = this.container.make(typeName, type, binder);
             }
         }
-        return Convert.convert(type, object);
+        for (Converter converter : this.converters) {
+            object = converter.before(object, currentName, type, annotation);
+        }
+        T result = Convert.convert(type, object);
+        for (Converter converter : converters) {
+            result = converter.after(result, currentName, type, annotation);
+        }
+        return result;
     }
 
     private String currentName(final String name) {
@@ -124,8 +136,12 @@ public class ObjectWrapperDataBinder implements DataBinder {
         return this.prefix + "." + name;
     }
 
-    protected String getDefaultDataBindName() {
-        return DEFAULT_DATABIND_NAME;
+    protected DataBinder copy(String prefix) {
+        return new ObjectWrapperDataBinder(
+            this.container,
+            prefix,
+            this.getters
+        );
     }
 
     public Container getContainer() {
@@ -134,5 +150,33 @@ public class ObjectWrapperDataBinder implements DataBinder {
 
     public List<Function<String, Object>> getGetters() {
         return getters;
+    }
+
+    public void addGetter(Function<String, Object> getter) {
+        this.getters.add(getter);
+    }
+
+    public void removeGetter(Function<String, Object> getter) {
+        this.getters.remove(getter);
+    }
+
+    public void removeGetter(int index) {
+        this.getters.remove(index);
+    }
+
+    public List<Converter> getConverters() {
+        return converters;
+    }
+
+    public void addConverter(Converter converter) {
+        this.converters.add(converter);
+    }
+
+    public void removeConverter(Converter converter) {
+        this.converters.remove(converter);
+    }
+
+    public void removeConverter(int index) {
+        this.converters.remove(index);
     }
 }

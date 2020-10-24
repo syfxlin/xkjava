@@ -8,6 +8,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import me.ixk.framework.annotations.WebBind.Type;
+import me.ixk.framework.ioc.DataBinder.Converter;
 
 /**
  * 请求属性值
@@ -19,12 +21,16 @@ import java.lang.annotation.Target;
  */
 @Target({ ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
+@WebBind(type = Type.ATTRIBUTE)
 public @interface RequestValue {
-    @AliasFor("name")
+    @AliasFor(value = "name", annotation = WebBind.class, attribute = "value")
     String value() default "";
 
-    @AliasFor("value")
+    @AliasFor(value = "value", annotation = WebBind.class, attribute = "name")
     String name() default "";
 
+    @AliasFor(annotation = WebBind.class, attribute = "required")
     boolean required() default true;
+
+    Class<? extends Converter>[] converter() default {  };
 }

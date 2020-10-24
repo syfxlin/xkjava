@@ -16,6 +16,7 @@ import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,9 +47,10 @@ public class DefaultPropertyInjector implements InstanceInjector {
             if (field.getAnnotation(SkipPropertyAutowired.class) != null) {
                 continue;
             }
-            Autowired autowired = AnnotationUtils
-                .getAnnotation(field)
-                .getAnnotation(Autowired.class);
+            final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
+                field
+            );
+            Autowired autowired = annotation.getAnnotation(Autowired.class);
             if (autowired == null) {
                 PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
                     instanceClass,
@@ -63,7 +65,8 @@ public class DefaultPropertyInjector implements InstanceInjector {
                 }
                 Object dependency = dataBinder.getObject(
                     field.getName(),
-                    field.getType()
+                    field.getType(),
+                    annotation
                 );
                 if (dependency == null) {
                     dependency = ReflectUtil.getFieldValue(instance, field);
@@ -83,7 +86,11 @@ public class DefaultPropertyInjector implements InstanceInjector {
                         autowiredClass = type;
                     }
                     dependency =
-                        dataBinder.getObject(field.getName(), autowiredClass);
+                        dataBinder.getObject(
+                            field.getName(),
+                            autowiredClass,
+                            annotation
+                        );
                 }
                 if (dependency == null) {
                     dependency = ReflectUtil.getFieldValue(instance, field);
