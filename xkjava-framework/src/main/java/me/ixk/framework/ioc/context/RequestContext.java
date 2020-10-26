@@ -20,15 +20,10 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 上午 10:40
  */
 public class RequestContext implements RequestAttributeContext {
-    private static final Logger log = LoggerFactory.getLogger(
-        RequestContext.class
-    );
-    private final ThreadLocal<HttpServletRequest> request = new InheritableThreadLocal<>();
 
-    @Override
-    public String getName() {
-        return ContextName.REQUEST.getName();
-    }
+    private static final Logger log = LoggerFactory
+        .getLogger(RequestContext.class);
+    private final ThreadLocal<HttpServletRequest> request = new InheritableThreadLocal<>();
 
     @Override
     public void removeContext() {

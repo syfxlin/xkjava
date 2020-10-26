@@ -13,8 +13,8 @@ import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.ioc.context.ContextName;
 import me.ixk.framework.ioc.context.RequestContext;
+import me.ixk.framework.ioc.context.SessionContext;
 import me.ixk.framework.route.RouteManager;
 
 /**
@@ -28,21 +28,24 @@ import me.ixk.framework.route.RouteManager;
 @Component(name = { "dispatcherServlet", "javax.servlet.http.HttpServlet" })
 @Scope(type = ScopeType.REQUEST)
 public class DispatcherServlet extends AbstractFrameworkServlet {
+
+    private static final long serialVersionUID = -5890247928905581053L;
     protected final XkJava app;
     protected final RequestContext requestContext;
+    protected final SessionContext sessionContext;
 
     @Deprecated
     public DispatcherServlet() {
         super();
         this.app = XkJava.of();
-        this.requestContext =
-            (RequestContext) this.app.getContextByName(
-                    ContextName.REQUEST.getName()
-                );
+        this.requestContext = (RequestContext) this.app
+            .getContextByScope(ScopeType.REQUEST);
+        this.sessionContext = (SessionContext) this.app
+            .getContextByScope(ScopeType.SESSION);
     }
 
     @Override
-    protected void dispatch(Request request, Response response) {
+    protected void dispatch(final Request request, final Response response) {
         try {
             this.beforeDispatch(request, response);
             this.doDispatch(request, response);
@@ -61,18 +64,22 @@ public class DispatcherServlet extends AbstractFrameworkServlet {
         super.init();
     }
 
-    protected void beforeDispatch(Request request, Response response) {
+    protected void beforeDispatch(final Request request,
+        final Response response) {
         this.requestContext.setContext(request);
+        this.sessionContext.setContext(request.getSession());
         this.app.setInstanceValue(DispatcherServlet.class, this);
         this.app.setInstanceValue(Request.class, request);
         this.app.setInstanceValue(Response.class, response);
     }
 
-    protected void doDispatch(Request request, Response response) {
+    protected void doDispatch(final Request request, final Response response) {
         this.app.make(RouteManager.class).dispatch(request, response);
     }
 
-    protected void afterDispatch(Request request, Response response) {
+    protected void afterDispatch(final Request request,
+        final Response response) {
         this.requestContext.removeContext();
+        this.sessionContext.removeContext();
     }
 }

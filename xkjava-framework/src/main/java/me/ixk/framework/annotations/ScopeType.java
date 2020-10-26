@@ -22,11 +22,15 @@ public enum ScopeType {
     /**
      * 请求
      */
-    REQUEST("request"),;
+    REQUEST("request"),
+    /**
+     * 会话
+     */
+    SESSION("session");
 
     private final String name;
 
-    ScopeType(String name) {
+    ScopeType(final String name) {
         this.name = name;
     }
 
@@ -41,6 +45,10 @@ public enum ScopeType {
 
     public boolean isRequest() {
         return this == REQUEST;
+    }
+
+    public boolean isSession() {
+        return this == SESSION;
     }
 
     public boolean isSingleton() {

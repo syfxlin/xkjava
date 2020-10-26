@@ -7,6 +7,7 @@ package me.ixk.app.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import me.ixk.app.beans.SessionTest;
 import me.ixk.app.beans.User;
 import me.ixk.app.beans.User2;
 import me.ixk.framework.annotations.Autowired;
@@ -33,6 +34,7 @@ import me.ixk.framework.web.WebDataBinder;
 @Controller
 @RequestMapping("/test")
 public class TestController {
+
     @Autowired(value = "name", required = false)
     private String name;
 
@@ -60,35 +62,36 @@ public class TestController {
     @PostMapping("/post")
     @ResponseStatus
     // @VerifyCsrf
-    public String post(
-        @BodyValue final User user,
+    public String post(@BodyValue final User user,
         @DataBind(name = "user") final User user2,
-        @WebBind(
-            name = "name",
-            type = Type.PATH,
-            converter = TestConverter.class
-        ) final String name,
+        @WebBind(name = "name", type = Type.PATH, converter = TestConverter.class) final String name,
         @WebBind(name = "user3") final User2 user3,
         @Valid @DataBind(name = "user4") final User2 user4,
         // 如果不传入这两个其中一个参数，则会抛出异常
-        final ValidGroup validGroup,
-        final ValidResult<User2> validResult
-    ) {
+        final ValidGroup validGroup, final ValidResult<User2> validResult) {
         return "post";
     }
 
     @PostMapping("/body")
-    public String body(
-        @DataBind(name = "&body") final JsonNode body,
+    public String body(@DataBind(name = "&body") final JsonNode body,
         @DataBind final User2 user2,
-        @DataBind(name = "request") final HttpServletRequest request
-    ) {
+        @DataBind(name = "request") final HttpServletRequest request) {
         return "body";
     }
 
     @GetMapping("/case")
     public String getCase(final String userName) {
         return userName;
+    }
+
+    @GetMapping("/session-context")
+    public String sessionContext(final SessionTest sessionTest) {
+        if (sessionTest.getName() == null) {
+            sessionTest.setName("Otstar Lin");
+            return sessionTest.getName();
+        } else {
+            return sessionTest.getName() + "-Copy";
+        }
     }
 
     @InitBinder
@@ -108,12 +111,8 @@ public class TestController {
     public static class TestConverter implements Converter {
 
         @Override
-        public Object before(
-            final Object object,
-            final String name,
-            final Class<?> type,
-            final MergedAnnotation annotation
-        ) {
+        public Object before(final Object object, final String name,
+            final Class<?> type, final MergedAnnotation annotation) {
             return "test-converter";
         }
     }

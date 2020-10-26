@@ -14,12 +14,6 @@ import me.ixk.framework.annotations.ScopeType;
  * @date 2020/10/25 下午 9:27
  */
 public interface Context {
-    /**
-     * 获取 Context 名称
-     *
-     * @return Context 名称
-     */
-    String getName();
 
     /**
      * 是否匹配作用域类型
@@ -53,7 +47,7 @@ public interface Context {
      *
      * @return 实例
      */
-    default Object get(String name) {
+    default Object get(final String name) {
         return this.getInstances().get(name);
     }
 
@@ -62,7 +56,7 @@ public interface Context {
      *
      * @param name 实例名称
      */
-    default void remove(String name) {
+    default void remove(final String name) {
         this.getInstances().remove(name);
     }
 
@@ -72,7 +66,7 @@ public interface Context {
      * @param name     名称
      * @param instance 实例
      */
-    default void set(String name, Object instance) {
+    default void set(final String name, final Object instance) {
         this.getInstances().put(name, instance);
     }
 
@@ -83,7 +77,7 @@ public interface Context {
      *
      * @return 是否存在
      */
-    default boolean has(String name) {
+    default boolean has(final String name) {
         return this.getInstances().containsKey(name);
     }
 }

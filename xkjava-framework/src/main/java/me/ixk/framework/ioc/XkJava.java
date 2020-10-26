@@ -11,6 +11,7 @@ import java.util.Set;
 import me.ixk.framework.annotations.ComponentScan;
 import me.ixk.framework.ioc.context.ApplicationContext;
 import me.ixk.framework.ioc.context.RequestContext;
+import me.ixk.framework.ioc.context.SessionContext;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.processor.AnnotationProcessor;
@@ -32,24 +33,23 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 下午 12:45
  */
 public class XkJava extends Container {
+
     private static final Logger log = LoggerFactory.getLogger(XkJava.class);
 
     protected static final String VERSION = "v1.0-SNAPSHOT";
     protected static final String OTHER =
-        Ansi.make(Color.BLUE).format("Author: Otstar Lin <syfxlin@gmail.com>") +
-        Ansi.split() +
-        Ansi
-            .make(Color.CYAN)
-            .format("Github: https://github.com/syfxlin/xkjava");
+        Ansi.make(Color.BLUE).format("Author: Otstar Lin <syfxlin@gmail.com>")
+            + Ansi.split() + Ansi.make(Color.CYAN).format(
+            "Github: https://github.com/syfxlin/xkjava");
 
     protected String bannerText =
-        " __   __      __  __               _____                                 \n" +
-        "/\\ \\ /\\ \\    /\\ \\/\\ \\             /\\___ \\                                \n" +
-        "\\ `\\`\\/'/'   \\ \\ \\/'/'            \\/__/\\ \\     __      __  __     __     \n" +
-        " `\\/ > <      \\ \\ , <     _______    _\\ \\ \\  /'__`\\   /\\ \\/\\ \\  /'__`\\   \n" +
-        "    \\/'/\\`\\    \\ \\ \\\\`\\  /\\______\\  /\\ \\_\\ \\/\\ \\L\\.\\_ \\ \\ \\_/ |/\\ \\L\\.\\_ \n" +
-        "    /\\_\\\\ \\_\\   \\ \\_\\ \\_\\\\/______/  \\ \\____/\\ \\__/.\\_\\ \\ \\___/ \\ \\__/.\\_\\\n" +
-        "    \\/_/ \\/_/    \\/_/\\/_/            \\/___/  \\/__/\\/_/  \\/__/   \\/__/\\/_/";
+        " __   __      __  __               _____                                 \n"
+            + "/\\ \\ /\\ \\    /\\ \\/\\ \\             /\\___ \\                                \n"
+            + "\\ `\\`\\/'/'   \\ \\ \\/'/'            \\/__/\\ \\     __      __  __     __     \n"
+            + " `\\/ > <      \\ \\ , <     _______    _\\ \\ \\  /'__`\\   /\\ \\/\\ \\  /'__`\\   \n"
+            + "    \\/'/\\`\\    \\ \\ \\\\`\\  /\\______\\  /\\ \\_\\ \\/\\ \\L\\.\\_ \\ \\ \\_/ |/\\ \\L\\.\\_ \n"
+            + "    /\\_\\\\ \\_\\   \\ \\_\\ \\_\\\\/______/  \\ \\____/\\ \\__/.\\_\\ \\ \\___/ \\ \\__/.\\_\\\n"
+            + "    \\/_/ \\/_/    \\/_/\\/_/            \\/___/  \\/__/\\/_/  \\/__/   \\/__/\\/_/";
     /**
      * 存储 boot 方法传入的类
      */
@@ -74,15 +74,13 @@ public class XkJava extends Container {
      * 启动处理器
      */
     protected BootstrapAnnotationProcessor bootstrapAnnotationProcessor = new BootstrapAnnotationProcessor(
-        this
-    );
+        this);
 
     /**
      * 注解处理器
      */
     protected AnnotationProcessorManager annotationProcessorManager = new AnnotationProcessorManager(
-        this
-    );
+        this);
 
     /**
      * 启动前回调
@@ -118,10 +116,13 @@ public class XkJava extends Container {
     }
 
     /**
-     * 静态内部类创建实例
+     * 启动 XkJava 实例
+     *
+     * @param primarySource 传入类
+     * @param args          传入参数
      */
-    private static class Inner {
-        private static final XkJava INSTANCE = new XkJava();
+    public void boot(final Class<?> primarySource, final String... args) {
+        this.boot(new Class[]{ primarySource }, args);
     }
 
     /**
@@ -152,13 +153,21 @@ public class XkJava extends Container {
     }
 
     /**
-     * 启动 XkJava 实例
-     *
-     * @param primarySource 传入类
-     * @param args          传入参数
+     * 配置要扫描的包
      */
-    public void boot(final Class<?> primarySource, final String... args) {
-        this.boot(new Class[] { primarySource }, args);
+    protected void loadPackageScanAnnotation() {
+        final Set<String> scanPackage = this.scanPackage();
+        scanPackage.add("me.ixk.framework");
+        for (final Class<?> source : this.primarySource) {
+            scanPackage.add(source.getPackageName());
+            final List<ComponentScan> componentScan = AnnotationUtils
+                .getAnnotation(source).getAnnotations(ComponentScan.class);
+            if (componentScan != null) {
+                for (final ComponentScan scan : componentScan) {
+                    this.loadPackageScanAnnotationItem(scanPackage, scan);
+                }
+            }
+        }
     }
 
     /**
@@ -197,34 +206,11 @@ public class XkJava extends Container {
         log.info("Application booted");
     }
 
-    /**
-     * 配置要扫描的包
-     */
-    protected void loadPackageScanAnnotation() {
-        final Set<String> scanPackage = this.scanPackage();
-        scanPackage.add("me.ixk.framework");
-        for (final Class<?> source : this.primarySource) {
-            scanPackage.add(source.getPackageName());
-            final List<ComponentScan> componentScan = AnnotationUtils
-                .getAnnotation(source)
-                .getAnnotations(ComponentScan.class);
-            if (componentScan != null) {
-                for (ComponentScan scan : componentScan) {
-                    this.loadPackageScanAnnotationItem(scanPackage, scan);
-                }
-            }
-        }
-    }
-
-    protected void loadPackageScanAnnotationItem(
-        Set<String> scanPackage,
-        ComponentScan componentScan
-    ) {
+    protected void loadPackageScanAnnotationItem(final Set<String> scanPackage,
+        final ComponentScan componentScan) {
         scanPackage.addAll(Arrays.asList(componentScan.basePackages()));
-        log.debug(
-            "Application add base packages: {}",
-            Arrays.toString(componentScan.basePackages())
-        );
+        log.debug("Application add base packages: {}",
+            Arrays.toString(componentScan.basePackages()));
     }
 
     /**
@@ -235,37 +221,29 @@ public class XkJava extends Container {
         this.registerContext(applicationContext);
         final RequestContext requestContext = new RequestContext();
         this.registerContext(requestContext);
+        final SessionContext sessionContext = new SessionContext();
+        this.registerContext(sessionContext);
 
         this.instance(XkJava.class, this, "app");
 
-        this.instance(
-                AnnotationProcessor.class,
-                annotationProcessorManager,
-                "annotationProcessorManager"
-            );
+        this.instance(AnnotationProcessor.class, annotationProcessorManager,
+            "annotationProcessorManager");
     }
 
     /**
      * 注册销毁钩子
      */
     protected void registerShutdownHook() {
-        Runtime
-            .getRuntime()
-            .addShutdownHook(
-                new Thread(
-                    () -> {
-                        log.info("Run shutdown hook");
-                        if (this.destroyingCallback != null) {
-                            this.destroyingCallback.invoke(this);
-                        }
-                        this.destroy();
-                        if (this.destroyedCallback != null) {
-                            this.destroyedCallback.invoke(this);
-                        }
-                    },
-                    "shutdown-hook"
-                )
-            );
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log.info("Run shutdown hook");
+            if (this.destroyingCallback != null) {
+                this.destroyingCallback.invoke(this);
+            }
+            this.destroy();
+            if (this.destroyedCallback != null) {
+                this.destroyedCallback.invoke(this);
+            }
+        }, "shutdown-hook"));
     }
 
     protected void printBanner() {
@@ -273,13 +251,16 @@ public class XkJava extends Container {
             System.out.println(this.bannerText + "\n");
         }
         final String text =
-            Ansi.make(Color.CYAN).format(" :: XK-Java :: ") +
-            Ansi.split() +
-            Ansi.make(Color.MAGENTA).format("(" + VERSION + ")") +
-            Ansi.split() +
-            OTHER +
-            "\n";
+            Ansi.make(Color.CYAN).format(" :: XK-Java :: ") + Ansi.split()
+                + Ansi.make(Color.MAGENTA).format("(" + VERSION + ")") + Ansi
+                .split() + OTHER + "\n";
         System.out.println(text);
+    }
+
+    public XkJava annotationProcessorManager(
+        final AnnotationProcessorManager annotationProcessorManager) {
+        this.annotationProcessorManager = annotationProcessorManager;
+        return this;
     }
 
     /* Quick get set context attribute */
@@ -301,11 +282,12 @@ public class XkJava extends Container {
         return annotationProcessorManager;
     }
 
-    public XkJava annotationProcessorManager(
-        final AnnotationProcessorManager annotationProcessorManager
-    ) {
-        this.annotationProcessorManager = annotationProcessorManager;
-        return this;
+    /**
+     * 静态内部类创建实例
+     */
+    private static class Inner {
+
+        private static final XkJava INSTANCE = new XkJava();
     }
 
     public JettyServer server() {

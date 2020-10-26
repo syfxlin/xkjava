@@ -18,15 +18,11 @@ import me.ixk.framework.ioc.Context;
  * @date 2020/10/14 上午 10:39
  */
 public class ApplicationContext implements Context {
+
     private final Map<String, Object> instances = new ConcurrentHashMap<>();
 
     @Override
-    public String getName() {
-        return ContextName.APPLICATION.getName();
-    }
-
-    @Override
-    public boolean matchesScope(ScopeType scopeType) {
+    public boolean matchesScope(final ScopeType scopeType) {
         switch (scopeType) {
             case SINGLETON:
             case PROTOTYPE:
