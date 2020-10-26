@@ -14,7 +14,7 @@
 
 集成了一个 IoC 容器和添加了 Aop 的支持，IoC 容器中并不实际存储实例，实例通过 Context 的实现类进行管理，类似于 Spring 的 BeanFactory，如 ApplicationContext 和 RequestContext，这样就可以动态的添加拥有不同特性的 Context，比如 RequestContext 是线程安全的，而且可以动态的删除和创建，而 ApplicationContext 则没有这些功能，只是一个简单的存储容器。
 
-Context 中一般只存储 Binding 和 Alias，其中 Binding 中存储了有关实例的元数据，类似于 Spring 的 BeanDefinition，但也同时存储实例。其中一些非 Bean 的对象，如注解扫描后的元数据，配置信息等，则视为是 Attribute。目前 Attribute 已和 Binding 分离，并将 RequestContext 的内容实际存储到 Request 中。
+Binding 和 Alias 直接存储于 IoC 容器中，为了保证 Request 作用域实例的线程安全，实例化后的对象并未存储于 IoC 容器（Binding）中而是存储于不同的 Context 中，当通过 `Binding.getInstance()` 的时候，实际上是到对应的 Context 中 `getInstance()`。拿 Request 作用域的实例举例吧，在 IoC 启动的时候会将 Request 作用域的实例绑定到 IoC 容器中，但是并不进行实例化，当首次使用的时候才会实例化。在请求结束的时候会清空 RequestContext，当下次请求到来的时候，由于 RequestContext 被清空了，相当于 Request 作用域的实例被重置为非实例化的状态，此时会再次实例化。这样就保证了在每次请求的时候都能保证 Request 作用域的线程安全。
 
 由于 Java 是常驻内存的，不同于 PHP 每次请求都重新加载容器，所以 Java 需要考虑到不同客户端请求间的线程安全，不同线程间独立的实例存储于 RequestContext，如 Request，Response 等，然后通过 ObjectFactory 动态代理的方式通过 getObject 从 RequestContext 动态获取该线程下的实例。RequestContext 使用 ThreadLocal 保证线程安全。
 
