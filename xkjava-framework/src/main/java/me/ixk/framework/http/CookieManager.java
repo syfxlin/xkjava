@@ -7,6 +7,9 @@ package me.ixk.framework.http;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.Cookie;
+import me.ixk.framework.annotations.Component;
+import me.ixk.framework.annotations.Scope;
+import me.ixk.framework.annotations.ScopeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +22,8 @@ import org.slf4j.LoggerFactory;
  * @author Otstar Lin
  * @date 2020/10/14 上午 9:12
  */
+@Component(name = "cookieManager")
+@Scope(type = ScopeType.REQUEST)
 public class CookieManager {
     private static final Logger log = LoggerFactory.getLogger(
         CookieManager.class
@@ -34,9 +39,9 @@ public class CookieManager {
     @Deprecated
     public CookieManager() {}
 
-    public CookieManager(Cookie[] cookies) {
+    public CookieManager(Request request) {
         this.requestCookies = new ConcurrentHashMap<>();
-        for (Cookie cookie : cookies) {
+        for (Cookie cookie : request.getCookies()) {
             this.requestCookies.put(cookie.getName(), cookie);
         }
         this.cookies = new ConcurrentHashMap<>();

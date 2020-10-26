@@ -16,9 +16,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.aop.Advice;
@@ -26,7 +25,6 @@ import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.ProxyCreator;
 import me.ixk.framework.bootstrap.LoadEnvironmentVariables;
 import me.ixk.framework.exceptions.ContainerException;
-import me.ixk.framework.ioc.context.ContextName;
 import me.ixk.framework.ioc.injector.DefaultMethodInjector;
 import me.ixk.framework.ioc.injector.DefaultParameterInjector;
 import me.ixk.framework.ioc.injector.DefaultPropertyInjector;
@@ -46,10 +44,11 @@ import org.slf4j.LoggerFactory;
  * @author Otstar Lin
  * @date 2020/10/14 上午 11:17
  */
-public class Container implements Context {
+public class Container {
     private static final Logger log = LoggerFactory.getLogger(Container.class);
 
     private static final int ARRAY_METHOD_DEF_LENGTH = 2;
+    private static final String ATTRIBUTE_PREFIX = "$_";
     /**
      * 参数注入器
      */
@@ -70,11 +69,21 @@ public class Container implements Context {
     private final Map<Class<? extends BeanAfterProcessor>, BeanAfterProcessor> beanAfterProcessors = new LinkedHashMap<>();
 
     /**
-     * Contexts，存储实例和别名的空间
+     * Contexts，存储实例的空间
      */
     private final Map<String, Context> contexts = Collections.synchronizedMap(
         new LinkedHashMap<>(5)
     );
+
+    /**
+     * Bindings
+     */
+    private final Map<String, Binding> bindings = new ConcurrentHashMap<>(256);
+
+    /**
+     * 别名
+     */
+    private final Map<String, String> aliases = new ConcurrentHashMap<>(256);
 
     /**
      * 注入的临时变量
@@ -111,15 +120,15 @@ public class Container implements Context {
 
     /* ===================== Base ===================== */
 
-    @Override
-    public String getName() {
-        return ContextName.CONTAINER.getName();
+    public Map<String, String> getAliases() {
+        return aliases;
     }
 
-    @Override
-    public boolean matchesScope(final ScopeType scopeType) {
-        return true;
+    public Map<String, Binding> getBindings() {
+        return bindings;
     }
+
+    /* ===================== Context ===================== */
 
     public void registerContext(final Context context) {
         log.debug("Container registered context: {}", context.getName());
@@ -134,33 +143,13 @@ public class Container implements Context {
     public void removeContext(final Context context) {
         log.debug("Container remove context: {}", context.getName());
         if (context.isCreated()) {
-            for (final String name : context.getBindings().keySet()) {
-                this.doRemove(name);
+            for (final Entry<String, Binding> entry : this.bindings.entrySet()) {
+                if (context.matchesScope(entry.getValue().getScope())) {
+                    this.doRemove(entry.getKey());
+                }
             }
         }
         this.contexts.remove(context.getName());
-    }
-
-    protected void walkContexts(final Consumer<Context> consumer) {
-        for (final Context context : this.contexts.values()) {
-            if (!context.isCreated()) {
-                continue;
-            }
-            consumer.accept(context);
-        }
-    }
-
-    protected <R> R walkContexts(final Function<Context, R> supplier) {
-        for (final Context context : this.contexts.values()) {
-            if (!context.isCreated()) {
-                continue;
-            }
-            final R result = supplier.apply(context);
-            if (result != null) {
-                return result;
-            }
-        }
-        return null;
     }
 
     public void registerContexts(final List<Context> contexts) {
@@ -169,47 +158,42 @@ public class Container implements Context {
         }
     }
 
-    @Override
-    public Map<String, String> getAliases() {
-        final Map<String, String> aliases = new ConcurrentHashMap<>(256);
-        this.walkContexts(
-                (Consumer<Context>) context ->
-                    aliases.putAll(context.getAliases())
-            );
-        return aliases;
+    /* ===================== Binding ===================== */
+
+    private Binding newBinding(
+        final String name,
+        final Wrapper wrapper,
+        final ScopeType scopeType
+    ) {
+        return new Binding(
+            this.getContextByScope(scopeType),
+            name,
+            wrapper,
+            scopeType
+        );
     }
 
-    @Override
-    public Map<String, Binding> getBindings() {
-        final Map<String, Binding> bindings = new ConcurrentHashMap<>(256);
-        this.walkContexts(
-                (Consumer<Context>) context ->
-                    bindings.putAll(context.getBindings())
-            );
-        return bindings;
+    private Binding newBinding(
+        String name,
+        Object instance,
+        ScopeType scopeType
+    ) {
+        return new Binding(
+            this.getContextByScope(scopeType),
+            name,
+            instance,
+            scopeType
+        );
     }
 
-    @Override
-    public Map<String, Object> getAttributes() {
-        final Map<String, Object> attributes = new ConcurrentHashMap<>(256);
-        this.walkContexts(
-                (Consumer<Context>) context ->
-                    attributes.putAll(context.getAttributes())
-            );
-        return attributes;
-    }
-
-    @Override
     public Binding getBinding(final String name) {
-        return this.walkContexts(
-                (Function<Context, Binding>) context -> context.getBinding(name)
-            );
+        return this.bindings.get(this.getCanonicalName(name));
     }
 
     public Binding getOrDefaultBinding(final String name) {
         Binding binding = this.getBinding(name);
         if (binding == null) {
-            binding = new Binding(null, ScopeType.PROTOTYPE, name);
+            binding = this.newBinding(name, null, ScopeType.PROTOTYPE);
             final Binding finalBinding = binding;
             binding.setWrapper((container, with) -> this.doBuild(finalBinding));
         }
@@ -220,77 +204,23 @@ public class Container implements Context {
         return this.getOrDefaultBinding(type.getName());
     }
 
-    @Override
     public Binding setBinding(final String name, final Binding binding) {
         log.debug("Container set binding: {}", name);
-        Context context = this.getContextByScope(binding.getScope());
-        return context == null ? null : context.setBinding(name, binding);
+        this.bindings.put(this.getCanonicalName(name), binding);
+        return binding;
     }
 
-    @Override
     public boolean hasBinding(final String name) {
-        return (
-            this.walkContexts(
-                    context -> {
-                        final boolean has = context.hasBinding(name);
-                        if (has) {
-                            return true;
-                        }
-                        return null;
-                    }
-                ) !=
-            null
-        );
+        return this.bindings.containsKey(this.getCanonicalName(name));
     }
 
-    @Override
+    public boolean hasBinding(final Class<?> type) {
+        return this.hasBinding(type.getName());
+    }
+
     public void removeBinding(final String name) {
         log.debug("Container remove binding: {}", name);
-        this.walkContexts(
-                (Consumer<Context>) context -> context.removeBinding(name)
-            );
-    }
-
-    @Override
-    @Deprecated
-    public void registerAlias(final String alias, final String name) {
-        throw new ContainerException("Do not call unregistered register alias");
-    }
-
-    @Override
-    public void removeAlias(final String alias) {
-        log.debug("Container remove alias: {}", alias);
-        this.walkContexts(
-                (Consumer<Context>) context -> context.removeAlias(alias)
-            );
-    }
-
-    @Override
-    public boolean hasAlias(final String alias) {
-        return this.walkContexts(
-                context -> {
-                    final boolean has = context.hasAlias(alias);
-                    if (has) {
-                        return true;
-                    }
-                    return null;
-                }
-            );
-    }
-
-    @Override
-    public String getAlias(final String alias) {
-        return this.walkContexts(
-                (Function<Context, String>) context -> context.getAlias(alias)
-            );
-    }
-
-    @Override
-    public String getCanonicalName(final String name) {
-        return this.walkContexts(
-                (Function<Context, String>) context ->
-                    context.getCanonicalName(name)
-            );
+        this.bindings.remove(this.getCanonicalName(name));
     }
 
     public Context getContextByName(final String contextName) {
@@ -300,22 +230,7 @@ public class Container implements Context {
         return this.contexts.get(contextName);
     }
 
-    @Override
-    public Object getAttribute(String name) {
-        return this.getAttribute(name, ScopeType.SINGLETON);
-    }
-
-    @Override
-    public void setAttribute(String name, Object attribute) {
-        this.setAttribute(name, attribute, ScopeType.SINGLETON);
-    }
-
-    @Override
-    public void removeAttribute(String name) {
-        this.removeAttribute(name, ScopeType.SINGLETON);
-    }
-
-    public Context getContextByScope(ScopeType scopeType) {
+    public Context getContextByScope(final ScopeType scopeType) {
         for (final Context context : this.contexts.values()) {
             if (context.matchesScope(scopeType)) {
                 return context;
@@ -324,13 +239,90 @@ public class Container implements Context {
         return null;
     }
 
-    public String getContextNameByScope(ScopeType scopeType) {
-        Context context = this.getContextByScope(scopeType);
-        return context == null ? null : context.getName();
+    protected void checkHasBinding(final String name, final boolean overwrite) {
+        if (!overwrite && this.hasBinding(name)) {
+            throw new IllegalStateException(
+                "Target [" + name + "] has been bind"
+            );
+        }
     }
 
-    public Object getAttribute(final String name, final ScopeType scopeType) {
-        return this.getContextByScope(scopeType).getAttribute(name);
+    public void setInstanceValue(final String name, Object instance) {
+        final Binding binding = this.getBinding(name);
+        if (binding == null) {
+            throw new NullPointerException(
+                "Target [" + name + "] not been bind"
+            );
+        }
+        binding.setInstance(instance);
+    }
+
+    public void setInstanceValue(final Class<?> type, Object instance) {
+        this.setInstanceValue(type.getName(), instance);
+    }
+
+    /* ===================== Alias ===================== */
+
+    private String getCanonicalName(final String name) {
+        String canonicalName = name;
+        String resolvedName;
+        do {
+            resolvedName = this.getAlias(canonicalName);
+            if (resolvedName != null) {
+                if (name.equals(resolvedName)) {
+                    break;
+                }
+                canonicalName = resolvedName;
+            }
+        } while (resolvedName != null);
+        return canonicalName;
+    }
+
+    public void setAlias(final String alias, final String name) {
+        log.debug("Container add alias: {} => {}", alias, name);
+        if (this.aliases.containsKey(alias)) {
+            throw new IllegalStateException(
+                "Alias [" + alias + "] has contains"
+            );
+        }
+        this.aliases.put(alias, name);
+    }
+
+    public void removeAlias(final String alias) {
+        log.debug("Container remove alias: {}", alias);
+        this.aliases.remove(alias);
+    }
+
+    public boolean hasAlias(final String alias) {
+        return this.aliases.containsKey(alias);
+    }
+
+    public String getAlias(final String alias) {
+        return this.aliases.get(alias);
+    }
+
+    /*======================  Attribute  ==================*/
+
+    public void removeAttribute(final String name) {
+        for (Context context : this.contexts.values()) {
+            if (context.has(ATTRIBUTE_PREFIX + name)) {
+                context.remove(ATTRIBUTE_PREFIX + name);
+                return;
+            }
+        }
+    }
+
+    public Object getAttribute(final String name) {
+        for (Context context : this.contexts.values()) {
+            if (context.has(ATTRIBUTE_PREFIX + name)) {
+                return context.get(ATTRIBUTE_PREFIX + name);
+            }
+        }
+        return null;
+    }
+
+    public boolean hasAttribute(final String name) {
+        return this.getAttribute(name) != null;
     }
 
     public void setAttribute(
@@ -338,46 +330,23 @@ public class Container implements Context {
         final Object attribute,
         final ScopeType scopeType
     ) {
-        log.debug("Container set attribute: {} - {}", scopeType, name);
-        this.getContextByScope(scopeType).setAttribute(name, attribute);
+        this.getContextByScope(scopeType)
+            .set(ATTRIBUTE_PREFIX + name, attribute);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T getOrDefaultAttribute(
-        final String name,
-        final T defaultValue,
-        final ScopeType scopeType
-    ) {
-        Object attribute = this.getAttribute(name, scopeType);
-        if (attribute == null) {
-            this.setAttribute(name, defaultValue);
-            return defaultValue;
-        }
-        return (T) attribute;
+    public void removeAttribute(final String name, ScopeType scopeType) {
+        this.getContextByScope(scopeType).remove(ATTRIBUTE_PREFIX + name);
+    }
+
+    public Object getAttribute(final String name, ScopeType scopeType) {
+        return this.getContextByScope(scopeType).get(ATTRIBUTE_PREFIX + name);
     }
 
     public boolean hasAttribute(final String name, ScopeType scopeType) {
         return this.getAttribute(name, scopeType) != null;
     }
 
-    public void removeAttribute(String name, ScopeType scopeType) {
-        this.getContextByScope(scopeType).removeAttribute(name);
-    }
-
-    /* ===================== Base ===================== */
-
-    protected void checkHasBinding(
-        final Class<?> bindType,
-        final boolean overwrite
-    ) {
-        this.checkHasBinding(bindType.getName(), overwrite);
-    }
-
-    protected void checkHasBinding(final String name, final boolean overwrite) {
-        if (!overwrite && this.hasBinding(name)) {
-            throw new RuntimeException("Target [" + name + "] has been bind");
-        }
-    }
+    /* ===================== Process ===================== */
 
     protected Object processInstanceInjector(
         final Binding binding,
@@ -457,57 +426,6 @@ public class Container implements Context {
         return aspectManager.matches(type);
     }
 
-    /*======================  Alias  ==================*/
-
-    public void alias(
-        final String alias,
-        final String name,
-        final String contextName
-    ) {
-        log.debug(
-            "Container register alias: {} - ({} -> {})",
-            contextName,
-            alias,
-            name
-        );
-        if (!this.contexts.containsKey(contextName)) {
-            throw new ContainerException(
-                "Target [" + contextName + "] context is not registered"
-            );
-        }
-        this.getContextByName(contextName).registerAlias(alias, name);
-    }
-
-    public void alias(
-        final String alias,
-        final Class<?> type,
-        final String contextName
-    ) {
-        this.alias(alias, type.getName(), contextName);
-    }
-
-    public void alias(
-        final String alias,
-        final String name,
-        final ScopeType scopeType
-    ) {
-        this.walkContexts(
-                context -> {
-                    if (context.matchesScope(scopeType)) {
-                        context.registerAlias(alias, name);
-                    }
-                }
-            );
-    }
-
-    public void alias(
-        final String alias,
-        final Class<?> type,
-        final ScopeType scopeType
-    ) {
-        this.alias(alias, type.getName(), scopeType);
-    }
-
     /* ===================== doBind ===================== */
 
     private synchronized Binding doBind(
@@ -522,11 +440,7 @@ public class Container implements Context {
             alias
         );
         if (alias != null) {
-            this.alias(
-                    alias,
-                    bindName,
-                    this.getContextNameByScope(binding.getScope())
-                );
+            this.alias(alias, bindName);
         }
         return this.setBinding(bindName, binding);
     }
@@ -539,7 +453,7 @@ public class Container implements Context {
         final boolean overwrite
     ) {
         this.checkHasBinding(bindName, overwrite);
-        final Binding binding = new Binding(wrapper, scopeType, bindName);
+        final Binding binding = this.newBinding(bindName, wrapper, scopeType);
         return this.doBind(bindName, binding, alias);
     }
 
@@ -553,12 +467,11 @@ public class Container implements Context {
     ) {
         Binding binding = this.getBinding(instanceName);
         if (binding != null) {
-            throw new RuntimeException(
+            throw new IllegalStateException(
                 "Target [" + instanceName + "] has been bind"
             );
         }
-        binding = new Binding(instance, scopeType, instanceName);
-        binding.setInstance(instance);
+        binding = this.newBinding(instanceName, instance, scopeType);
         this.doBind(instanceName, binding, alias);
         return this;
     }
@@ -626,15 +539,7 @@ public class Container implements Context {
         log.debug("Container make: {} - {}", instanceName, returnType);
         final Binding binding = this.getOrDefaultBinding(instanceName);
         final ScopeType scopeType = binding.getScope();
-        Object instance =
-            this.walkContexts(
-                    context -> {
-                        if (context.matchesScope(scopeType)) {
-                            return context.getInstance(instanceName);
-                        }
-                        return null;
-                    }
-                );
+        Object instance = binding.getInstance();
         if (instance != null) {
             return Convert.convert(
                 returnType,
@@ -650,16 +555,7 @@ public class Container implements Context {
         instance = ReflectUtils.resolveAutowiringValue(instance, returnType);
         final T returnInstance = Convert.convert(returnType, instance);
         if (scopeType.isShared()) {
-            this.walkContexts(
-                    context -> {
-                        if (
-                            context.matchesScope(scopeType) &&
-                            !context.hasInstance(instanceName)
-                        ) {
-                            context.setInstance(instanceName, returnInstance);
-                        }
-                    }
-                );
+            binding.setInstance(returnInstance);
         }
         return returnInstance;
     }
@@ -702,9 +598,11 @@ public class Container implements Context {
             .filter(m -> m.getName().equals(methodName))
             .toArray(Method[]::new);
         if (methods.length == 0) {
-            throw new RuntimeException("The specified method was not found");
+            throw new NullPointerException(
+                "The specified method was not found"
+            );
         } else if (methods.length > 1) {
-            throw new RuntimeException(
+            throw new IllegalCallerException(
                 "The called method cannot be overloaded"
             );
         }
@@ -737,11 +635,17 @@ public class Container implements Context {
         return this.callMethod(instance, methodName, returnType);
     }
 
-    /* ===================== build ==================== */
+    /*======================  alias  ==================*/
 
-    public Object build(final Wrapper wrapper) {
-        return this.doBuild(new Binding(wrapper, ScopeType.PROTOTYPE));
+    public void alias(final String alias, final String name) {
+        this.setAlias(alias, name);
     }
+
+    public void alias(final String alias, final Class<?> type) {
+        this.alias(alias, type.getName());
+    }
+
+    /* ===================== build ==================== */
 
     public Object build(final String instanceName) {
         return this.doBuild(this.getOrDefaultBinding(instanceName));
@@ -1170,7 +1074,7 @@ public class Container implements Context {
 
     public <T> T call(final String[] target, final Class<T> returnType) {
         if (target.length != ARRAY_METHOD_DEF_LENGTH) {
-            throw new ContainerException(
+            throw new IllegalArgumentException(
                 "The length of the target array must be 2"
             );
         }
@@ -1194,7 +1098,7 @@ public class Container implements Context {
         final Class<T> returnType
     ) {
         if (target.length != ARRAY_METHOD_DEF_LENGTH) {
-            throw new ContainerException(
+            throw new IllegalArgumentException(
                 "The length of the target array must be 2"
             );
         }

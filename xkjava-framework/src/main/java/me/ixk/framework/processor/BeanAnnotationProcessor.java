@@ -95,7 +95,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
             if (name.equals(n)) {
                 continue;
             }
-            this.app.alias(n, name, scopeType);
+            this.app.alias(n, name);
         }
         if (scopeType.isSingleton() && annotation.notAnnotation(Lazy.class)) {
             makeList.add(name);
@@ -120,7 +120,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         }
         final Object names = beanAnnotation.name();
         for (final String name : (String[]) names) {
-            this.app.alias(name, clazz, scopeType);
+            this.app.alias(name, clazz);
         }
         // Add singleton to make list
         if (scopeType.isSingleton() && annotation.notAnnotation(Lazy.class)) {

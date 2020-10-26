@@ -8,6 +8,9 @@ import java.util.Enumeration;
 import java.util.List;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
+import me.ixk.framework.annotations.Component;
+import me.ixk.framework.annotations.Scope;
+import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.helpers.Util;
 import me.ixk.framework.utils.Convert;
 import org.slf4j.Logger;
@@ -19,6 +22,8 @@ import org.slf4j.LoggerFactory;
  * @author Otstar Lin
  * @date 2020/10/14 上午 10:18
  */
+@Component(name = "sessionManager")
+@Scope(type = ScopeType.REQUEST)
 public class SessionManager {
     private static final Logger log = LoggerFactory.getLogger(
         SessionManager.class
@@ -32,8 +37,8 @@ public class SessionManager {
     @Deprecated
     public SessionManager() {}
 
-    public SessionManager(HttpSession session) {
-        this.session = session;
+    public SessionManager(Request request) {
+        this.session = request.getSession();
     }
 
     public HttpSession getSession() {

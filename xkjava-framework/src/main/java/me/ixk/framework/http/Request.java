@@ -38,6 +38,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
+import me.ixk.framework.annotations.Component;
+import me.ixk.framework.annotations.Scope;
+import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.helpers.Util;
 import me.ixk.framework.route.RouteResult;
 import me.ixk.framework.utils.JSON;
@@ -48,6 +51,8 @@ import me.ixk.framework.utils.JSON;
  * @author Otstar Lin
  * @date 2020/10/24 下午 2:06
  */
+@Component(name = { "request", "javax.servlet.http.HttpServletRequest" })
+@Scope(type = ScopeType.REQUEST)
 public class Request extends HttpServletRequestWrapper {
     private static final HttpServletRequest EMPTY = new EmptyRequest();
     public static final String REQUEST_BODY = "&body";

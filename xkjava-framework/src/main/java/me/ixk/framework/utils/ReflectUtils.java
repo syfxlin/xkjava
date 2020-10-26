@@ -129,7 +129,6 @@ public class ReflectUtils {
 
     public static Object getCglibProxyTarget(Object proxy) {
         try {
-            Class<?> proxyClass = proxy.getClass();
             for (Callback callback : (Callback[]) ReflectUtil.invoke(
                 proxy,
                 "getCallbacks"
@@ -163,38 +162,43 @@ public class ReflectUtils {
             MethodProxy proxy
         )
             throws Throwable {
+            final Object object = this.objectFactory.getObject();
+            if (object == null) {
+                throw new NullPointerException(
+                    "ObjectFactory get object is null"
+                );
+            }
             switch (method.getName()) {
                 case "equals":
-                    // Only consider equal when proxies are identical.
-                    return (proxy == args[0]);
+                    return (object == args[0]);
                 case "hashCode":
-                    // Use hashCode of proxy.
-                    return System.identityHashCode(proxy);
+                    return System.identityHashCode(object);
                 case "toString":
-                    return this.objectFactory.toString();
+                    return object.toString();
                 default:
-                    return proxy.invoke(this.objectFactory.getObject(), args);
+                    return proxy.invoke(object, args);
             }
         }
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args)
             throws Throwable {
+            final Object object = this.objectFactory.getObject();
+            if (object == null) {
+                throw new NullPointerException(
+                    "ObjectFactory get object is null"
+                );
+            }
             switch (method.getName()) {
                 case "equals":
-                    // Only consider equal when proxies are identical.
-                    return (proxy == args[0]);
+                    return (object == args[0]);
                 case "hashCode":
-                    // Use hashCode of proxy.
-                    return System.identityHashCode(proxy);
+                    return System.identityHashCode(object);
                 case "toString":
-                    return this.objectFactory.toString();
+                    return object.toString();
                 default:
                     try {
-                        return method.invoke(
-                            this.objectFactory.getObject(),
-                            args
-                        );
+                        return method.invoke(object, args);
                     } catch (InvocationTargetException ex) {
                         throw ex.getTargetException();
                     }

@@ -5,10 +5,9 @@
 package me.ixk.framework.ioc.context;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.ScopeType;
-import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Context;
-import me.ixk.framework.ioc.ContextItem;
 
 /**
  * ApplicationContext
@@ -19,26 +18,11 @@ import me.ixk.framework.ioc.ContextItem;
  * @date 2020/10/14 上午 10:39
  */
 public class ApplicationContext implements Context {
-    private final ContextItem contextItem = new ContextItem();
+    private final Map<String, Object> instances = new ConcurrentHashMap<>();
 
     @Override
     public String getName() {
         return ContextName.APPLICATION.getName();
-    }
-
-    @Override
-    public Map<String, String> getAliases() {
-        return this.contextItem.getAliases();
-    }
-
-    @Override
-    public Map<String, Binding> getBindings() {
-        return this.contextItem.getBindings();
-    }
-
-    @Override
-    public Map<String, Object> getAttributes() {
-        return this.contextItem.getAttributes();
     }
 
     @Override
@@ -50,5 +34,10 @@ public class ApplicationContext implements Context {
             default:
                 return false;
         }
+    }
+
+    @Override
+    public Map<String, Object> getInstances() {
+        return this.instances;
     }
 }

@@ -4,6 +4,9 @@
 
 package me.ixk.framework.web;
 
+import me.ixk.framework.annotations.Component;
+import me.ixk.framework.annotations.Scope;
+import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.http.CookieManager;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
@@ -18,6 +21,8 @@ import me.ixk.framework.servlet.DispatcherServlet;
  * @author Otstar Lin
  * @date 2020/10/14 下午 5:22
  */
+@Component(name = "webContext")
+@Scope(type = ScopeType.REQUEST)
 public class WebContext {
     private final XkJava application;
     private final Environment environment;
