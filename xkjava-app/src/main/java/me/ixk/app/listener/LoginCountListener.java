@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpSessionAttributeListener;
 import javax.servlet.http.HttpSessionBindingEvent;
 import me.ixk.app.auth.Auth;
@@ -17,7 +16,7 @@ import me.ixk.app.entity.Visitors;
 import me.ixk.app.service.impl.VisitorsServiceImpl;
 import me.ixk.framework.ioc.XkJava;
 
-@WebListener
+// @WebListener
 public class LoginCountListener implements HttpSessionAttributeListener {
     final VisitorsServiceImpl visitorsService = XkJava
         .of()

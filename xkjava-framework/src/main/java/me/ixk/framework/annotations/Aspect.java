@@ -28,4 +28,7 @@ public @interface Aspect {
 
     @AliasFor("value")
     String pointcut() default "";
+
+    @AliasFor(annotation = Bean.class, attribute = "type")
+    Class<?>[] type() default {  };
 }

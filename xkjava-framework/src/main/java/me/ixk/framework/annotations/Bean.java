@@ -26,6 +26,8 @@ public @interface Bean {
     @AliasFor("value")
     String[] name() default {  };
 
+    Class<?>[] type() default {  };
+
     String initMethod() default "";
 
     String destroyMethod() default "";

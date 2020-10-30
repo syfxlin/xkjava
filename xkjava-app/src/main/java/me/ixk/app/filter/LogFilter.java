@@ -12,14 +12,13 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import me.ixk.app.entity.Logs;
 import me.ixk.app.service.impl.LogsServiceImpl;
 import me.ixk.framework.ioc.XkJava;
 
-@WebFilter("/login")
+// @WebFilter("/login")
 @Slf4j
 public class LogFilter implements Filter {
 

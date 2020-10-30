@@ -56,7 +56,7 @@ public class AnnotationUtils {
             .get(Order.class, "order");
         int i1 = or1 == null ? Order.MEDIUM_PRECEDENCE : or1;
         int i2 = or2 == null ? Order.MEDIUM_PRECEDENCE : or2;
-        return i1 - i2;
+        return Integer.compare(i1, i2);
     };
 
     public static MergedAnnotation getAnnotation(

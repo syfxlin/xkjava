@@ -5,20 +5,30 @@
 package me.ixk.app.filter;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.annotations.Order;
+import me.ixk.framework.ioc.XkJava;
 
-// @WebFilter(urlPatterns = "/*")
-public class EncodingFilter implements Filter {
+/**
+ * @author Otstar Lin
+ * @date 2020/10/30 下午 9:16
+ */
+// @Filter(url = "/*")
+@Order(Order.LOWEST_PRECEDENCE)
+@Slf4j
+public class TestFilter implements javax.servlet.Filter {
+    @Autowired
+    public XkJava xkJava;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        //
+        log.info("TestFilter init");
     }
 
     @Override
@@ -28,17 +38,12 @@ public class EncodingFilter implements Filter {
         FilterChain chain
     )
         throws IOException, ServletException {
-        try {
-            request.setCharacterEncoding("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            //
-        }
-        response.setCharacterEncoding("UTF-8");
+        log.info("TestFilter doFilter");
         chain.doFilter(request, response);
     }
 
     @Override
     public void destroy() {
-        //
+        log.info("TestFilter destroy");
     }
 }

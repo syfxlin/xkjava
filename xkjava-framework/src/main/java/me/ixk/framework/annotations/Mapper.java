@@ -27,4 +27,7 @@ public @interface Mapper {
 
     @AliasFor(value = "value", annotation = Bean.class, attribute = "name")
     String[] name() default {  };
+
+    @AliasFor(annotation = Bean.class, attribute = "type")
+    Class<?>[] type() default {  };
 }

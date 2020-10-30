@@ -4,6 +4,10 @@
 
 package me.ixk.framework.server;
 
+import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.List;
+import javax.servlet.ServletContext;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.ErrorHandler;
@@ -29,21 +33,41 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
  * @author Otstar Lin
  * @date 2020/10/14 下午 4:53
  */
-@Component(name = { " jetty ", "server", "me.ixk.framework.server.Server" })
+@Component(
+    name = { " jetty ", "server" },
+    type = me.ixk.framework.server.Server.class
+)
 public class JettyServer implements me.ixk.framework.server.Server {
     private final XkJava app;
     private Server server;
+    private WebAppContext context;
+    private List<EventListener> listeners = new ArrayList<>();
 
     public JettyServer(XkJava app) {
         this.app = app;
+        Resource resource = Resource.newClassPathResource("/public");
+        int port = this.app.env().get("app.port", 8080);
+        this.buildServer(port, resource);
     }
 
     @Override
     public void start() {
-        Resource resource = Resource.newClassPathResource("/public");
-        int port = this.app.env().get("app.port", 8080);
-        this.server = this.buildServer(port, resource);
         this.startServer();
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+        return this.context.getServletContext();
+    }
+
+    @Override
+    public void addListenerNotStart(EventListener listener) {
+        this.listeners.add(listener);
+    }
+
+    @Override
+    public List<EventListener> getNotStartListenerList() {
+        return this.listeners;
     }
 
     public Server server() {
@@ -69,45 +93,46 @@ public class JettyServer implements me.ixk.framework.server.Server {
         thread.start();
     }
 
-    private Server buildServer(int port, Resource resource) {
-        Server server = new Server();
-        ServerConnector connector = new ServerConnector(server);
+    private void buildServer(int port, Resource resource) {
+        this.server = new Server();
+        ServerConnector connector = new ServerConnector(this.server);
         connector.setPort(port);
-        server.addConnector(connector);
+        this.server.addConnector(connector);
 
-        WebAppContext context = new WebAppContext();
-        context.setContextPath("/");
-        context.setBaseResource(Resource.newClassPathResource(""));
-        context.setParentLoaderPriority(true);
+        this.context = new WebAppContext();
+        this.context.setContextPath("/");
+        this.context.setBaseResource(Resource.newClassPathResource(""));
+        this.context.setParentLoaderPriority(true);
 
-        context.setConfigurations(
-            new Configuration[] {
-                new AnnotationConfiguration(),
-                new WebInfConfiguration(),
-                new WebXmlConfiguration(),
-                new MetaInfConfiguration(),
-                new FragmentConfiguration(),
-                new EnvConfiguration(),
-                new PlusConfiguration(),
-                new JettyWebXmlConfiguration(),
-            }
-        );
+        this.context.setConfigurations(
+                new Configuration[] {
+                    new AnnotationConfiguration(),
+                    new WebInfConfiguration(),
+                    new WebXmlConfiguration(),
+                    new MetaInfConfiguration(),
+                    new FragmentConfiguration(),
+                    new EnvConfiguration(),
+                    new PlusConfiguration(),
+                    new JettyWebXmlConfiguration(),
+                }
+            );
         // 配置 Jetty Embedded 注解扫描包含的路径
-        context.setAttribute(
-            "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
-            ".*/classes/.*"
-        );
+        this.context.setAttribute(
+                "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
+                ".*/classes/.*"
+            );
 
         ErrorHandler errorHandler = new ErrorHandler();
-        context.setErrorHandler(errorHandler);
+        this.context.setErrorHandler(errorHandler);
 
         ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setBaseResource(resource);
 
-        HandlerList handlerList = new HandlerList(resourceHandler, context);
+        HandlerList handlerList = new HandlerList(
+            resourceHandler,
+            this.context
+        );
 
-        server.setHandler(handlerList);
-
-        return server;
+        this.server.setHandler(handlerList);
     }
 }

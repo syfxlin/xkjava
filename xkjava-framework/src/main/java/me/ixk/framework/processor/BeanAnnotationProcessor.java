@@ -90,12 +90,11 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
                     scopeType
                 );
         this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
-        final Object names = beanAnnotation.name();
-        for (final String n : (String[]) names) {
-            if (name.equals(n)) {
-                continue;
-            }
+        for (final String n : beanAnnotation.name()) {
             this.app.alias(n, name);
+        }
+        for (Class<?> type : beanAnnotation.type()) {
+            this.app.alias(type.getName(), name);
         }
         if (scopeType.isSingleton() && annotation.notAnnotation(Lazy.class)) {
             makeList.add(name);
@@ -118,9 +117,11 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         if (bindType == BindType.BIND) {
             this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
         }
-        final Object names = beanAnnotation.name();
-        for (final String name : (String[]) names) {
+        for (final String name : beanAnnotation.name()) {
             this.app.alias(name, clazz);
+        }
+        for (Class<?> type : beanAnnotation.type()) {
+            this.app.alias(type.getName(), clazz);
         }
         // Add singleton to make list
         if (scopeType.isSingleton() && annotation.notAnnotation(Lazy.class)) {

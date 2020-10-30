@@ -5,7 +5,6 @@
 package me.ixk.framework.servlet;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -26,18 +25,10 @@ public abstract class AbstractFrameworkServlet extends HttpServlet {
     protected abstract void dispatch(Request request, Response response);
 
     protected final void processRequest(
-        HttpServletRequest req,
-        HttpServletResponse resp
+        HttpServletRequest request,
+        HttpServletResponse response
     ) {
-        try {
-            req.setCharacterEncoding("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // TODO: unset
-        }
-        resp.setCharacterEncoding("UTF-8");
-        Request request = new Request(req);
-        Response response = new Response(resp);
-        this.dispatch(request, response);
+        this.dispatch((Request) request, (Response) response);
     }
 
     @Override
