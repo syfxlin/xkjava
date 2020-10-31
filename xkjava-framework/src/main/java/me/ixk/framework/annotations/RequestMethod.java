@@ -50,8 +50,12 @@ public enum RequestMethod {
         this.method = method;
     }
 
+    public String asString() {
+        return method;
+    }
+
     @Override
     public String toString() {
-        return method;
+        return this.asString();
     }
 }

@@ -37,7 +37,7 @@ public abstract class AbstractFrameworkServlet extends HttpServlet {
         String httpMethod = req.getMethod();
         if (
             httpMethod == null ||
-            RequestMethod.PATCH.toString().equals(httpMethod)
+            RequestMethod.PATCH.asString().equals(httpMethod)
         ) {
             processRequest(req, resp);
         } else {

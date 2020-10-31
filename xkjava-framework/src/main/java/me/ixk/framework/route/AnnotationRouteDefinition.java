@@ -29,7 +29,7 @@ public class AnnotationRouteDefinition {
         this.method =
             Arrays
                 .stream(methods)
-                .map(RequestMethod::toString)
+                .map(RequestMethod::asString)
                 .toArray(String[]::new);
         this.route = route;
         this.handler = handler;

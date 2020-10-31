@@ -8,6 +8,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import me.ixk.framework.kernel.CorsProcessor;
 import me.ixk.framework.middleware.Cors;
 import me.ixk.framework.registry.request.CrossOriginRegistry;
 
@@ -27,17 +28,15 @@ import me.ixk.framework.registry.request.CrossOriginRegistry;
 )
 @Middleware(middleware = Cors.class)
 public @interface CrossOrigin {
-    String DYNAMIC_ORIGIN = "DYNAMIC";
-
-    @AliasFor("origins")
-    String value() default DYNAMIC_ORIGIN;
+    @AliasFor("origin")
+    String value() default CorsProcessor.DYNAMIC_ORIGIN;
 
     @AliasFor("value")
-    String origins() default DYNAMIC_ORIGIN;
+    String origin() default CorsProcessor.DYNAMIC_ORIGIN;
 
     String[] allowedHeaders() default {  };
 
     RequestMethod[] methods() default {  };
 
-    String allowCredentials() default "";
+    boolean allowCredentials() default false;
 }

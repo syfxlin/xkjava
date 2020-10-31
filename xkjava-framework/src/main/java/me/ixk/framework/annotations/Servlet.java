@@ -31,6 +31,9 @@ public @interface Servlet {
     @AliasFor(annotation = Bean.class, attribute = "name")
     String[] name() default {  };
 
+    @AliasFor(annotation = Bean.class, attribute = "type")
+    Class<?>[] type() default {  };
+
     int loadOnStartup() default -1;
 
     boolean asyncSupported() default false;

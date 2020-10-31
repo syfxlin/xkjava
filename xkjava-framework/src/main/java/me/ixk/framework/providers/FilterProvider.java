@@ -7,7 +7,9 @@ package me.ixk.framework.providers;
 import me.ixk.framework.annotations.Bean;
 import me.ixk.framework.annotations.ConditionalOnMissingBean;
 import me.ixk.framework.annotations.Provider;
+import me.ixk.framework.filter.CorsFilter;
 import me.ixk.framework.filter.EncodingFilter;
+import me.ixk.framework.kernel.CorsProcessor;
 
 /**
  * 过滤器提供器
@@ -25,5 +27,11 @@ public class FilterProvider {
     )
     public EncodingFilter encodingFilter() {
         return new EncodingFilter("UTF-8");
+    }
+
+    @Bean(name = "corsFilter")
+    @ConditionalOnMissingBean(name = "corsFilter", value = CorsFilter.class)
+    public CorsFilter corsFilter(CorsProcessor processor) {
+        return new CorsFilter(processor);
     }
 }

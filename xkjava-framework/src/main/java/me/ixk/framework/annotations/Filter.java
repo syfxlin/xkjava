@@ -32,6 +32,9 @@ public @interface Filter {
     @AliasFor(annotation = Bean.class, attribute = "name")
     String[] name() default {  };
 
+    @AliasFor(annotation = Bean.class, attribute = "type")
+    Class<?>[] type() default {  };
+
     DispatcherType[] dispatcherTypes() default { DispatcherType.REQUEST };
 
     WebInitParam[] initParams() default {  };
