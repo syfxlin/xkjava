@@ -238,12 +238,11 @@ public class Container {
         this.bindings.remove(this.getCanonicalName(name));
     }
 
-    protected void checkHasBinding(final String name, final boolean overwrite) {
-        if (!overwrite && this.hasBinding(name)) {
-            throw new IllegalStateException(
-                "Target [" + name + "] has been bind"
-            );
-        }
+    protected boolean checkHasBinding(
+        final String name,
+        final boolean overwrite
+    ) {
+        return overwrite || !this.hasBinding(name);
     }
 
     public void setInstanceValue(final String name, final Object instance) {
@@ -277,12 +276,16 @@ public class Container {
         return canonicalName;
     }
 
-    public void setAlias(final String alias, final String name) {
+    public void setAlias(
+        final String alias,
+        final String name,
+        final boolean overwrite
+    ) {
         if (alias == null || alias.equals(name)) {
             return;
         }
         log.debug("Container add alias: {} => {}", alias, name);
-        if (this.aliases.containsKey(alias)) {
+        if (!this.checkHasBinding(alias, overwrite)) {
             throw new IllegalStateException(
                 "Alias [" + alias + "] has contains"
             );
@@ -433,7 +436,8 @@ public class Container {
     private synchronized Binding doBind(
         final String bindName,
         final Binding binding,
-        final String alias
+        final String alias,
+        final boolean overwrite
     ) {
         log.debug(
             "Container bind: {} - {}({})",
@@ -442,7 +446,7 @@ public class Container {
             alias
         );
         if (alias != null) {
-            this.alias(alias, bindName);
+            this.alias(alias, bindName, overwrite);
         }
         return this.setBinding(bindName, binding);
     }
@@ -454,9 +458,13 @@ public class Container {
         final ScopeType scopeType,
         final boolean overwrite
     ) {
-        this.checkHasBinding(bindName, overwrite);
+        if (!this.checkHasBinding(bindName, overwrite)) {
+            throw new IllegalStateException(
+                "Target [" + bindName + "] has been bind"
+            );
+        }
         final Binding binding = this.newBinding(bindName, wrapper, scopeType);
-        return this.doBind(bindName, binding, alias);
+        return this.doBind(bindName, binding, alias, overwrite);
     }
 
     /* ===================== doInstance ===================== */
@@ -465,7 +473,8 @@ public class Container {
         final String instanceName,
         final Object instance,
         final String alias,
-        final ScopeType scopeType
+        final ScopeType scopeType,
+        final boolean overwrite
     ) {
         Binding binding = this.getBinding(instanceName);
         if (binding != null) {
@@ -474,7 +483,7 @@ public class Container {
             );
         }
         binding = this.newBinding(instanceName, instance, scopeType);
-        this.doBind(instanceName, binding, alias);
+        this.doBind(instanceName, binding, alias, overwrite);
         return this;
     }
 
@@ -640,11 +649,27 @@ public class Container {
     /*======================  alias  ==================*/
 
     public void alias(final String alias, final String name) {
-        this.setAlias(alias, name);
+        this.alias(alias, name, false);
     }
 
     public void alias(final String alias, final Class<?> type) {
         this.alias(alias, type.getName());
+    }
+
+    public void alias(
+        final String alias,
+        final String name,
+        final boolean overwrite
+    ) {
+        this.setAlias(alias, name, overwrite);
+    }
+
+    public void alias(
+        final String alias,
+        final Class<?> type,
+        final boolean overwrite
+    ) {
+        this.alias(alias, type.getName(), overwrite);
     }
 
     /* ===================== build ==================== */
@@ -966,7 +991,13 @@ public class Container {
         final Object instance,
         final String alias
     ) {
-        return this.doInstance(bindName, instance, alias, ScopeType.SINGLETON);
+        return this.instance(
+                bindName,
+                instance,
+                alias,
+                ScopeType.SINGLETON,
+                false
+            );
     }
 
     public Container instance(
@@ -975,7 +1006,32 @@ public class Container {
         final String alias,
         final ScopeType scopeType
     ) {
-        return this.doInstance(bindName, instance, alias, scopeType);
+        return this.instance(bindName, instance, alias, scopeType, false);
+    }
+
+    public Container instance(
+        final String bindName,
+        final Object instance,
+        final String alias,
+        final boolean overwrite
+    ) {
+        return this.doInstance(
+                bindName,
+                instance,
+                alias,
+                ScopeType.SINGLETON,
+                overwrite
+            );
+    }
+
+    public Container instance(
+        final String bindName,
+        final Object instance,
+        final String alias,
+        final ScopeType scopeType,
+        final boolean overwrite
+    ) {
+        return this.doInstance(bindName, instance, alias, scopeType, overwrite);
     }
 
     public Container instance(final Class<?> bindType, final Object instance) {

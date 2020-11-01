@@ -82,19 +82,21 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         final Method[] initAndDestroyMethod =
             this.getInitAndDestroyMethod(beanAnnotation, clazz);
         final Wrapper wrapper = (container, with) -> container.call(method);
+        final boolean overwrite = beanAnnotation.overwrite();
         final Binding binding =
             this.app.bind(
                     name,
                     wrapper,
                     (bindType == BindType.BIND) ? clazz.getName() : null,
-                    scopeType
+                    scopeType,
+                    overwrite
                 );
         this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
         for (final String n : beanAnnotation.name()) {
-            this.app.alias(n, name);
+            this.app.alias(n, name, overwrite);
         }
         for (Class<?> type : beanAnnotation.type()) {
-            this.app.alias(type.getName(), name);
+            this.app.alias(type.getName(), name, overwrite);
         }
         if (scopeType.isSingleton() && annotation.notAnnotation(Lazy.class)) {
             makeList.add(name);
@@ -113,15 +115,17 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         final BindType bindType = beanAnnotation.bindType();
         final Method[] initAndDestroyMethod =
             this.getInitAndDestroyMethod(beanAnnotation, clazz);
-        final Binding binding = this.invokeImport(annotation, clazz, scopeType);
+        final boolean overwrite = beanAnnotation.overwrite();
+        final Binding binding =
+            this.invokeImport(annotation, clazz, scopeType, overwrite);
         if (bindType == BindType.BIND) {
             this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
         }
         for (final String name : beanAnnotation.name()) {
-            this.app.alias(name, clazz);
+            this.app.alias(name, clazz, overwrite);
         }
         for (Class<?> type : beanAnnotation.type()) {
-            this.app.alias(type.getName(), clazz);
+            this.app.alias(type.getName(), clazz, overwrite);
         }
         // Add singleton to make list
         if (scopeType.isSingleton() && annotation.notAnnotation(Lazy.class)) {
@@ -177,11 +181,12 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     private Binding invokeImport(
         final MergedAnnotation annotation,
         final Class<?> clazz,
-        final ScopeType scopeType
+        final ScopeType scopeType,
+        final boolean overwrite
     ) {
         // @Import
         if (annotation.notAnnotation(Import.class)) {
-            return this.app.bind(clazz, clazz, null, scopeType);
+            return this.app.bind(clazz, clazz, null, scopeType, overwrite);
         } else {
             return this.app.make(
                     (Class<ImportBeanRegistry>) annotation.get(

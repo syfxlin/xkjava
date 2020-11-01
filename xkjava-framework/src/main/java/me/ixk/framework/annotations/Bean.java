@@ -28,6 +28,8 @@ public @interface Bean {
 
     Class<?>[] type() default {  };
 
+    boolean overwrite() default false;
+
     String initMethod() default "";
 
     String destroyMethod() default "";
