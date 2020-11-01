@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/25 下午 9:02
  */
 public class Binding {
+
     private static final Logger log = LoggerFactory.getLogger(Binding.class);
     private static final SimpleCache<Class<?>, BindingMethods> CACHE = new SimpleCache<>();
 
@@ -37,12 +38,8 @@ public class Binding {
     private final Class<?> instanceType;
     private volatile BindingMethods bindingMethods;
 
-    public Binding(
-        final Context context,
-        final String instanceName,
-        final Wrapper wrapper,
-        final ScopeType scopeType
-    ) {
+    public Binding(final Context context, final String instanceName,
+        final Wrapper wrapper, final ScopeType scopeType) {
         this.context = context;
         this.wrapper = wrapper;
         this.scope = scopeType;
@@ -57,12 +54,8 @@ public class Binding {
         this.init();
     }
 
-    public Binding(
-        final Context context,
-        final String instanceName,
-        final Object instance,
-        final ScopeType scopeType
-    ) {
+    public Binding(final Context context, final String instanceName,
+        final Object instance, final ScopeType scopeType) {
         this(context, instanceName, null, scopeType);
         this.setInstance(instance);
         this.setWrapper((container, with) -> this.getInstance());
@@ -79,9 +72,8 @@ public class Binding {
             }
             final List<Method> autowiredMethods = new ArrayList<>();
             for (final Method method : instanceType.getDeclaredMethods()) {
-                final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
-                    method
-                );
+                final MergedAnnotation annotation = AnnotationUtils
+                    .getAnnotation(method);
                 if (annotation.hasAnnotation(PostConstruct.class)) {
                     this.bindingMethods.setInitMethod(method);
                 }
@@ -112,10 +104,11 @@ public class Binding {
     }
 
     public Object getInstance() {
-        return this.isCreated() ? this.context.get(instanceName) : null;
+        return this.isCreated() ? this.context.get(instanceName,
+            instanceType == null ? Object.class : instanceType) : null;
     }
 
-    public void setInstance(Object instance) {
+    public void setInstance(final Object instance) {
         this.context.set(instanceName, instance);
     }
 
@@ -127,7 +120,7 @@ public class Binding {
         return wrapper;
     }
 
-    public void setWrapper(Wrapper wrapper) {
+    public void setWrapper(final Wrapper wrapper) {
         this.wrapper = wrapper;
     }
 
@@ -156,6 +149,7 @@ public class Binding {
     }
 
     private static class BindingMethods {
+
         private volatile Method initMethod;
         private volatile Method destroyMethod;
         private volatile List<Method> autowiredMethods;
@@ -177,8 +171,7 @@ public class Binding {
         }
 
         public List<Method> getAutowiredMethods() {
-            return autowiredMethods == null
-                ? Collections.emptyList()
+            return autowiredMethods == null ? Collections.emptyList()
                 : autowiredMethods;
         }
 

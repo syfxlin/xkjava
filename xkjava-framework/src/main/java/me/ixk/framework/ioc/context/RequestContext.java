@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.factory.ObjectFactory;
 import me.ixk.framework.ioc.RequestAttributeContext;
+import me.ixk.framework.utils.ReflectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,7 @@ public class RequestContext implements RequestAttributeContext {
     }
 
     @Override
-    public void setContext(HttpServletRequest request) {
+    public void setContext(final HttpServletRequest request) {
         log.info("Set request context");
         this.request.set(request);
     }
@@ -51,16 +52,22 @@ public class RequestContext implements RequestAttributeContext {
     }
 
     @Override
-    public boolean matchesScope(ScopeType scopeType) {
+    public boolean matchesScope(final ScopeType scopeType) {
         return scopeType == ScopeType.REQUEST;
     }
 
     @Override
-    public Object get(String name) {
-        return (ObjectFactory<Object>) () -> this.getNotProxy(name);
+    public Object get(final String name) {
+        return this.getNotProxy(name);
     }
 
-    public Object getNotProxy(String name) {
+    @Override
+    public Object get(final String name, final Class<?> returnType) {
+        return ReflectUtils.proxyObjectFactory(
+            (ObjectFactory<Object>) () -> this.getNotProxy(name), returnType);
+    }
+
+    public Object getNotProxy(final String name) {
         return this.getInstances().get(name);
     }
 }

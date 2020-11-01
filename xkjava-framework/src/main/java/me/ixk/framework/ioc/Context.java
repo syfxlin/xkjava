@@ -48,6 +48,18 @@ public interface Context {
      * @return 实例
      */
     default Object get(final String name) {
+        return this.get(name, Object.class);
+    }
+
+    /**
+     * 获取实例
+     *
+     * @param name       实例名称
+     * @param returnType 类型
+     *
+     * @return 实例
+     */
+    default Object get(final String name, final Class<?> returnType) {
         return this.getInstances().get(name);
     }
 

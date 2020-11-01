@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSession;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.factory.ObjectFactory;
 import me.ixk.framework.ioc.SessionAttributeContext;
+import me.ixk.framework.utils.ReflectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +57,13 @@ public class SessionContext implements SessionAttributeContext {
 
     @Override
     public Object get(final String name) {
-        return (ObjectFactory<Object>) () -> this.getNotProxy(name);
+        return this.getNotProxy(name);
+    }
+
+    @Override
+    public Object get(final String name, final Class<?> returnType) {
+        return ReflectUtils.proxyObjectFactory(
+            (ObjectFactory<Object>) () -> this.getNotProxy(name), returnType);
     }
 
     public Object getNotProxy(final String name) {
