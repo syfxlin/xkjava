@@ -1,0 +1,41 @@
+/*
+ * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
+ */
+
+package me.ixk.framework.http.result;
+
+import me.ixk.framework.http.MimeType;
+
+/**
+ * String JSON 响应
+ *
+ * @author Otstar Lin
+ * @date 2020/11/1 下午 10:32
+ */
+public class StringJsonResult extends AbstractHttpResult {
+    private String json;
+
+    public StringJsonResult() {}
+
+    public StringJsonResult(String json) {
+        this.json = json;
+    }
+
+    public String getJson() {
+        return json;
+    }
+
+    public void with(String json) {
+        this.json = json;
+    }
+
+    @Override
+    public String render() {
+        return this.json;
+    }
+
+    @Override
+    public String contentType() {
+        return MimeType.APPLICATION_JSON.asString();
+    }
+}

@@ -5,7 +5,7 @@
 package me.ixk.framework.http;
 
 import javax.servlet.http.HttpServletResponse;
-import me.ixk.framework.utils.JSON;
+import me.ixk.framework.exceptions.ResponseException;
 
 /**
  * 响应处理器
@@ -39,18 +39,12 @@ public class ResponseProcessor {
             // 如果是 HttpServletResponse 则包装一下
             response.setResponse((HttpServletResponse) result);
             return response;
-        } else if (result instanceof Responsable) {
-            // 可响应则执行转换响应方法
-            return ((Responsable) result).toResponse(request, response, result);
-        } else if (result instanceof String) {
-            // 如果是字符串，则直接插入到响应中
-            return response.content(result.toString());
-        } else {
-            // 其他对象则序列号成 JSON
-            return response
-                .contentType(MimeType.APPLICATION_JSON.asString())
-                .content(JSON.stringify(result));
         }
+        throw new ResponseException(
+            "The return value cannot be converted into a response. [" +
+            result.getClass() +
+            "]"
+        );
     }
 
     /**

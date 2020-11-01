@@ -5,6 +5,7 @@
 package me.ixk.framework.middleware;
 
 import me.ixk.framework.http.Request;
+import me.ixk.framework.http.Response;
 
 /**
  * 处理器
@@ -17,9 +18,10 @@ public interface Handler {
     /**
      * 处理
      *
-     * @param request 请求对象
+     * @param request  请求对象
+     * @param response 响应对象
      *
      * @return 返回值
      */
-    Object handle(Request request);
+    Object handle(Request request, Response response);
 }

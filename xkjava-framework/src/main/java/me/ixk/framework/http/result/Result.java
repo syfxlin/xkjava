@@ -19,6 +19,12 @@ import me.ixk.framework.view.FilterCallback;
  * @date 2020/10/14 上午 9:11
  */
 public class Result {
+    public static final String EMPTY_RETURN = "empty:";
+    public static final String HTML_RETURN = "html:";
+    public static final String JSON_RETURN = "json:";
+    public static final String REDIRECT_RETURN = "redirect:";
+    public static final String TEXT_RETURN = "text:";
+    public static final String VIEW_RETURN = "view:";
 
     public static <T extends AbstractHttpResult> T custom(
         Class<T> resultHandler,
@@ -45,6 +51,10 @@ public class Result {
 
     public static JsonResult json(JsonNode jsonNode) {
         return new JsonResult(jsonNode);
+    }
+
+    public static StringJsonResult stringJson(String json) {
+        return new StringJsonResult(json);
     }
 
     public static TextResult text(String text) {

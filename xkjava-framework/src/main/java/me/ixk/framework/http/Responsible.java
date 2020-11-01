@@ -10,7 +10,8 @@ package me.ixk.framework.http;
  * @author Otstar Lin
  * @date 2020/10/14 上午 10:01
  */
-public interface Responsable {
+@FunctionalInterface
+public interface Responsible {
     /**
      * 转换成响应
      *

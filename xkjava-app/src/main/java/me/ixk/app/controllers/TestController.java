@@ -25,6 +25,8 @@ import me.ixk.framework.annotations.RequestMapping;
 import me.ixk.framework.annotations.ResponseStatus;
 import me.ixk.framework.annotations.WebBind;
 import me.ixk.framework.annotations.WebBind.Type;
+import me.ixk.framework.http.HttpStatus;
+import me.ixk.framework.http.Model;
 import me.ixk.framework.ioc.DataBinder.Converter;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ValidGroup;
@@ -34,7 +36,6 @@ import me.ixk.framework.web.WebDataBinder;
 @Controller
 @RequestMapping("/test")
 public class TestController {
-
     @Autowired(value = "name", required = false)
     private String name;
 
@@ -62,20 +63,29 @@ public class TestController {
     @PostMapping("/post")
     @ResponseStatus
     // @VerifyCsrf
-    public String post(@BodyValue final User user,
+    public String post(
+        @BodyValue final User user,
         @DataBind(name = "user") final User user2,
-        @WebBind(name = "name", type = Type.PATH, converter = TestConverter.class) final String name,
+        @WebBind(
+            name = "name",
+            type = Type.PATH,
+            converter = TestConverter.class
+        ) final String name,
         @WebBind(name = "user3") final User2 user3,
         @Valid @DataBind(name = "user4") final User2 user4,
         // 如果不传入这两个其中一个参数，则会抛出异常
-        final ValidGroup validGroup, final ValidResult<User2> validResult) {
+        final ValidGroup validGroup,
+        final ValidResult<User2> validResult
+    ) {
         return "post";
     }
 
     @PostMapping("/body")
-    public String body(@DataBind(name = "&body") final JsonNode body,
+    public String body(
+        @DataBind(name = "&body") final JsonNode body,
         @DataBind final User2 user2,
-        @DataBind(name = "request") final HttpServletRequest request) {
+        @DataBind(name = "request") final HttpServletRequest request
+    ) {
         return "body";
     }
 
@@ -92,6 +102,53 @@ public class TestController {
         } else {
             return sessionTest.getName() + "-Copy";
         }
+    }
+
+    @GetMapping("/result-empty")
+    public String resultEmpty() {
+        return "empty:";
+    }
+
+    @GetMapping("/result-html")
+    public String resultHtml() {
+        return "html:<h1>Html Result</h1>";
+    }
+
+    @GetMapping("/result-json")
+    public String resultJson() {
+        return "json:{\"type\": \"Json Result\"}";
+    }
+
+    @GetMapping("/result-redirect")
+    public String resultRedirect() {
+        return "redirect:/result-json";
+    }
+
+    @GetMapping("/result-text")
+    public String resultText() {
+        return "text:Text Result";
+    }
+
+    @GetMapping("/result-view")
+    public String resultView(Model model) {
+        model.addAttribute("name", "View Result");
+        return "view:index";
+    }
+
+    @GetMapping("/result-no-match")
+    public String resultNoMatch() {
+        return "No Match Result";
+    }
+
+    @GetMapping("/result-ignore")
+    public String resultIgnore() {
+        return ":empty:";
+    }
+
+    @GetMapping("/result-status")
+    public String resultStatus(Model model) {
+        model.setStatus(HttpStatus.BAD_REQUEST);
+        return "text:Status Result";
     }
 
     @InitBinder
@@ -111,8 +168,12 @@ public class TestController {
     public static class TestConverter implements Converter {
 
         @Override
-        public Object before(final Object object, final String name,
-            final Class<?> type, final MergedAnnotation annotation) {
+        public Object before(
+            final Object object,
+            final String name,
+            final Class<?> type,
+            final MergedAnnotation annotation
+        ) {
             return "test-converter";
         }
     }

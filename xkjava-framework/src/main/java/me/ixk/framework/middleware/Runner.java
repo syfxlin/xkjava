@@ -38,7 +38,7 @@ public class Runner {
             return ResponseProcessor.toResponse(
                 request,
                 this.response,
-                handler.handle(request)
+                handler.handle(request, this.response)
             );
         }
         // 中间件

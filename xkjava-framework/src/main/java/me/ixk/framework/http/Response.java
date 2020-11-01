@@ -66,7 +66,7 @@ public class Response extends HttpServletResponseWrapper {
 
     public Response content(String content) {
         try {
-            this.getWriter().write(content);
+            this.getWriter().write(content == null ? "" : content);
         } catch (IOException e) {
             throw new ResponseException("Get writer error", e);
         }

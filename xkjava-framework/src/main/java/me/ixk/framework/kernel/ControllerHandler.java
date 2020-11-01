@@ -14,6 +14,7 @@ import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.exceptions.DispatchServletException;
 import me.ixk.framework.exceptions.Exception;
 import me.ixk.framework.http.Request;
+import me.ixk.framework.http.Response;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Handler;
@@ -59,7 +60,7 @@ public class ControllerHandler implements Handler {
     }
 
     @Override
-    public Object handle(final Request request) {
+    public Object handle(final Request request, final Response response) {
         // 将控制器信息注入 RequestContext
         this.app.setAttribute(
                 "controllerClass",

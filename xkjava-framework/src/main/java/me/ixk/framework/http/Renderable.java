@@ -10,7 +10,8 @@ package me.ixk.framework.http;
  * @author Otstar Lin
  * @date 2020/10/14 上午 9:42
  */
-public interface Renderable extends Responsable {
+@FunctionalInterface
+public interface Renderable extends Responsible {
     /**
      * 渲染
      *
