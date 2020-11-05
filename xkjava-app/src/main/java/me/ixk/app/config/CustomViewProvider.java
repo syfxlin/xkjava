@@ -18,7 +18,7 @@ public class CustomViewProvider {
     public TemplateProcessor templateProcessor() {
         final ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
         resolver.setTemplateMode(TemplateMode.HTML);
-        resolver.setPrefix("/templates/");
+        resolver.setPrefix("/template/");
         resolver.setSuffix(".html");
         resolver.setCacheTTLMs(3600000L);
         final TemplateEngine templateEngine = new TemplateEngine();

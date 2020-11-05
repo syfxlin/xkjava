@@ -46,7 +46,7 @@ public class JettyServer implements me.ixk.framework.server.Server {
     public JettyServer(XkJava app) {
         this.app = app;
         Resource resource = Resource.newClassPathResource("/public");
-        int port = this.app.env().get("app.port", 8080);
+        int port = this.app.env().get("xkjava.app.port", 8080);
         this.buildServer(port, resource);
     }
 

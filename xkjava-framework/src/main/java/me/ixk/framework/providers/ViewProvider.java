@@ -42,7 +42,7 @@ public class ViewProvider {
         );
         configuration.setClassForTemplateLoading(
             FreeMarker.class,
-            "/templates/"
+            "/template/"
         );
         configuration.setDefaultEncoding("UTF-8");
         configuration.setTemplateExceptionHandler(

@@ -29,9 +29,12 @@ public class UtilsProvider {
     @ConditionalOnMissingBean(value = Jwt.class, name = "jwt")
     public Jwt jwt(Environment env) {
         return new Jwt(
-            Base64.decode(env.get("app.key", String.class)),
-            env.get("app.hash.algo", "HS256"),
-            env.get("app.hash.default_payload", new ConcurrentHashMap<>())
+            Base64.decode(env.get("xkjava.app.key", String.class)),
+            env.get("xkjava.app.hash.algo", "HS256"),
+            env.get(
+                "xkjava.app.hash.default_payload",
+                new ConcurrentHashMap<>()
+            )
         );
     }
 
@@ -40,8 +43,8 @@ public class UtilsProvider {
     public Crypt crypt(Environment env)
         throws NoSuchAlgorithmException, NoSuchPaddingException {
         return new Crypt(
-            Base64.decode(env.get("app.key", String.class)),
-            env.get("app.cipher", "AES/CBC/PKCS5PADDING")
+            Base64.decode(env.get("xkjava.app.key", String.class)),
+            env.get("xkjava.app.cipher", "AES/CBC/PKCS5PADDING")
         );
     }
 

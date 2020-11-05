@@ -37,10 +37,10 @@ public class DatabaseProvider {
     @ConditionalOnMissingBean(name = "dataSource", value = DataSource.class)
     public DataSource dataSource(final Environment env) {
         final HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setDriverClassName(env.get("database.driver"));
-        hikariConfig.setJdbcUrl(env.get("database.url"));
-        hikariConfig.setUsername(env.get("database.username"));
-        hikariConfig.setPassword(env.get("database.password"));
+        hikariConfig.setDriverClassName(env.get("xkjava.database.driver"));
+        hikariConfig.setJdbcUrl(env.get("xkjava.database.url"));
+        hikariConfig.setUsername(env.get("xkjava.database.username"));
+        hikariConfig.setPassword(env.get("xkjava.database.password"));
         return new HikariDataSource(hikariConfig);
     }
 
