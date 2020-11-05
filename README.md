@@ -67,6 +67,7 @@ ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf, FreeMarker 渲染，Http
 -   自动配置
 -   注解控制 Injector、Processor
 -   Mybatis 插件
+-   完善 XkJavaTest 注解
 
 ## 文档 Doc
 

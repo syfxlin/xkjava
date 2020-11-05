@@ -13,16 +13,15 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import me.ixk.framework.test.XkJavaRunner;
+import me.ixk.framework.annotations.XkJavaTest;
 import me.ixk.framework.utils.annotation.Parent;
 import me.ixk.framework.utils.entity.FalseConditional;
 import me.ixk.framework.utils.entity.Test2;
 import me.ixk.framework.utils.entity.Test3;
 import me.ixk.framework.utils.entity.TrueConditional;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(XkJavaRunner.class)
+@XkJavaTest
 class AnnotationUtilsTest {
 
     @Test

@@ -51,6 +51,12 @@
       <artifactId>junit-jupiter-api</artifactId>
       <version>5.7.0-M1</version>
     </dependency>
+    <dependency>
+      <artifactId>okhttp</artifactId>
+      <groupId>com.squareup.okhttp3</groupId>
+      <scope>test</scope>
+      <version>4.9.0</version>
+    </dependency>
   </dependencies>
 
   <build>

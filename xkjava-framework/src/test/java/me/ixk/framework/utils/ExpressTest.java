@@ -6,15 +6,14 @@ package me.ixk.framework.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import me.ixk.framework.test.XkJavaRunner;
+import me.ixk.framework.annotations.XkJavaTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Otstar Lin
  * @date 2020/10/13 下午 8:58
  */
-@ExtendWith(XkJavaRunner.class)
+@XkJavaTest
 class ExpressTest {
 
     @Test
