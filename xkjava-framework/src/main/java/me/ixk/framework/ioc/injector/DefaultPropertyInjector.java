@@ -10,7 +10,6 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.annotations.SkipPropertyAutowired;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
@@ -39,12 +38,12 @@ public class DefaultPropertyInjector implements InstanceInjector {
         Class<?> instanceClass,
         DataBinder dataBinder
     ) {
-        if (instanceClass.getAnnotation(SkipPropertyAutowired.class) != null) {
+        if (AnnotationUtils.isSkipped(instanceClass, this.getClass())) {
             return instance;
         }
         Field[] fields = instanceClass.getDeclaredFields();
         for (Field field : fields) {
-            if (field.getAnnotation(SkipPropertyAutowired.class) != null) {
+            if (AnnotationUtils.isSkipped(field, this.getClass())) {
                 continue;
             }
             final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
@@ -96,7 +95,7 @@ public class DefaultPropertyInjector implements InstanceInjector {
                     dependency = ReflectUtil.getFieldValue(instance, field);
                 }
                 // 如果必须注入，但是为 null，则抛出错误
-                if (dependency == null && (boolean) autowired.required()) {
+                if (dependency == null && autowired.required()) {
                     final NullPointerException exception = new NullPointerException(
                         "Target [" +
                         instanceClass.getName() +

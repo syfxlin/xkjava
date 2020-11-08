@@ -15,10 +15,10 @@ import javax.sql.DataSource;
 import me.ixk.framework.annotations.Bean;
 import me.ixk.framework.annotations.ConditionalOnMissingBean;
 import me.ixk.framework.annotations.Provider;
+import me.ixk.framework.config.DatabaseProperties;
 import me.ixk.framework.database.MybatisPlus;
 import me.ixk.framework.database.SqlSessionManager;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.registry.after.MapperScannerRegistry;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
@@ -35,12 +35,12 @@ public class DatabaseProvider {
 
     @Bean(name = "dataSource")
     @ConditionalOnMissingBean(name = "dataSource", value = DataSource.class)
-    public DataSource dataSource(final Environment env) {
+    public DataSource dataSource(final DatabaseProperties properties) {
         final HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setDriverClassName(env.get("xkjava.database.driver"));
-        hikariConfig.setJdbcUrl(env.get("xkjava.database.url"));
-        hikariConfig.setUsername(env.get("xkjava.database.username"));
-        hikariConfig.setPassword(env.get("xkjava.database.password"));
+        hikariConfig.setDriverClassName(properties.getDriver());
+        hikariConfig.setJdbcUrl(properties.getUrl());
+        hikariConfig.setUsername(properties.getUsername());
+        hikariConfig.setPassword(properties.getPassword());
         return new HikariDataSource(hikariConfig);
     }
 

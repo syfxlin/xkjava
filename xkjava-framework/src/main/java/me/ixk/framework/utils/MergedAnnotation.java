@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 下午 5:04
  */
 public interface MergedAnnotation {
+    String VALUE = "value";
     Logger log = LoggerFactory.getLogger(MergedAnnotation.class);
 
     /**
@@ -167,6 +168,18 @@ public interface MergedAnnotation {
         throw new UnsupportedOperationException(
             "Unsupported add annotation to merge annotation"
         );
+    }
+
+    /**
+     * 获取注解值
+     *
+     * @param annotationType 注解类型
+     * @param <T>            注解值类型
+     *
+     * @return 注解值
+     */
+    default <T> T get(Class<? extends Annotation> annotationType) {
+        return this.get(annotationType, VALUE);
     }
 
     /**

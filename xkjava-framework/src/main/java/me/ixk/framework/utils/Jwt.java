@@ -7,9 +7,11 @@ package me.ixk.framework.utils;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -25,13 +27,13 @@ public class Jwt {
 
     protected Map<String, String> defaultPayload;
 
-    protected static final Map<String, String> SUPPORTED;
+    protected static final Set<String> SUPPORTED;
 
     static {
-        SUPPORTED = new ConcurrentHashMap<>();
-        SUPPORTED.put("HS256", "SHA256");
-        SUPPORTED.put("HS384", "SHA384");
-        SUPPORTED.put("HS512", "SHA512");
+        SUPPORTED = new HashSet<>();
+        SUPPORTED.add("SHA256");
+        SUPPORTED.add("SHA384");
+        SUPPORTED.add("SHA512");
     }
 
     public Jwt(String key, String algo) {
@@ -57,7 +59,7 @@ public class Jwt {
     }
 
     public String sign(String token, boolean raw, String key, String algo) {
-        String sign = Mac.make("Hmac" + SUPPORTED.get(algo), token, key, true);
+        String sign = Mac.make("Hmac" + algo, token, key, true);
         return raw ? sign : Base64.encode(sign);
     }
 
@@ -169,8 +171,7 @@ public class Jwt {
         }
         String sign = Base64.decode(deArray[2]);
         if (
-            !header.containsKey("alg") ||
-            SUPPORTED.containsKey(header.get("alg"))
+            !header.containsKey("alg") || SUPPORTED.contains(header.get("alg"))
         ) {
             if (algo == null) {
                 throw new RuntimeException("Algorithm not supported or empty");

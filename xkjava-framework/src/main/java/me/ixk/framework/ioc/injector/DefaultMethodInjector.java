@@ -10,6 +10,7 @@ import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.InstanceInjector;
+import me.ixk.framework.utils.AnnotationUtils;
 
 /**
  * 默认的方法注入器
@@ -23,17 +24,20 @@ public class DefaultMethodInjector implements InstanceInjector {
 
     @Override
     public Object inject(
-        Container container,
-        Binding binding,
-        Object instance,
-        Class<?> instanceClass,
-        DataBinder dataBinder
+        final Container container,
+        final Binding binding,
+        final Object instance,
+        final Class<?> instanceClass,
+        final DataBinder dataBinder
     ) {
-        if (instance == null) {
-            return null;
+        if (AnnotationUtils.isSkipped(instanceClass, this.getClass())) {
+            return instance;
         }
-        List<Method> methods = binding.getAutowiredMethods();
-        for (Method method : methods) {
+        final List<Method> methods = binding.getAutowiredMethods();
+        for (final Method method : methods) {
+            if (AnnotationUtils.isSkipped(method, this.getClass())) {
+                continue;
+            }
             // Set 注入
             container.call(instance, method, Object.class, dataBinder);
         }

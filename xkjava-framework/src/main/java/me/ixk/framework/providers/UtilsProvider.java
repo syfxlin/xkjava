@@ -5,13 +5,11 @@
 package me.ixk.framework.providers;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.crypto.NoSuchPaddingException;
 import me.ixk.framework.annotations.Bean;
 import me.ixk.framework.annotations.ConditionalOnMissingBean;
 import me.ixk.framework.annotations.Provider;
-import me.ixk.framework.kernel.Environment;
-import me.ixk.framework.utils.Base64;
+import me.ixk.framework.config.CryptProperties;
 import me.ixk.framework.utils.Crypt;
 import me.ixk.framework.utils.Hash;
 import me.ixk.framework.utils.Jwt;
@@ -27,25 +25,19 @@ public class UtilsProvider {
 
     @Bean(name = "jwt")
     @ConditionalOnMissingBean(value = Jwt.class, name = "jwt")
-    public Jwt jwt(Environment env) {
+    public Jwt jwt(CryptProperties properties) {
         return new Jwt(
-            Base64.decode(env.get("xkjava.app.key", String.class)),
-            env.get("xkjava.app.hash.algo", "HS256"),
-            env.get(
-                "xkjava.app.hash.default_payload",
-                new ConcurrentHashMap<>()
-            )
+            properties.getDecodeKey(),
+            properties.getHashAlgo(),
+            properties.getHashDefaultPayload()
         );
     }
 
     @Bean(name = "crypt")
     @ConditionalOnMissingBean(value = Crypt.class, name = "crypt")
-    public Crypt crypt(Environment env)
+    public Crypt crypt(CryptProperties properties)
         throws NoSuchAlgorithmException, NoSuchPaddingException {
-        return new Crypt(
-            Base64.decode(env.get("xkjava.app.key", String.class)),
-            env.get("xkjava.app.cipher", "AES/CBC/PKCS5PADDING")
-        );
+        return new Crypt(properties.getDecodeKey(), properties.getCryptAlgo());
     }
 
     @Bean(name = "hash")

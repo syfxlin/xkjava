@@ -14,8 +14,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 import me.ixk.framework.annotations.ConfigurationProperties;
+import me.ixk.framework.annotations.Property;
 import me.ixk.framework.annotations.Value;
 import me.ixk.framework.bootstrap.Bootstrap;
+import me.ixk.framework.config.ClassProperty;
+import me.ixk.framework.config.PropertyResolver;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
@@ -24,6 +27,7 @@ import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.Express;
+import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,48 +44,87 @@ public class PropertiesValueInjector implements InstanceInjector {
 
     @Override
     public Object inject(
-        Container container,
-        Binding binding,
-        Object instance,
-        Class<?> instanceClass,
-        DataBinder dataBinder
+        final Container container,
+        final Binding binding,
+        final Object instance,
+        final Class<?> instanceClass,
+        final DataBinder dataBinder
     ) {
         if (
             instance == null ||
             instance instanceof Bootstrap ||
-            instance instanceof Environment
+            instance instanceof Environment ||
+            AnnotationUtils.isSkipped(instanceClass, this.getClass())
         ) {
             return instance;
         }
-        Field[] fields = instanceClass.getDeclaredFields();
-        ConfigurationProperties config = AnnotationUtils
-            .getAnnotation(instanceClass)
-            .getAnnotation(ConfigurationProperties.class);
-        Environment environment = container.make(Environment.class);
+        final Field[] fields = instanceClass.getDeclaredFields();
+        final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
+            instanceClass
+        );
+        final Environment environment = container.make(Environment.class);
         Map<String, Object> prefixProps = null;
-        if (config != null) {
-            prefixProps = environment.getPrefix(config.prefix());
+        final ConfigurationProperties configAnnotation = annotation.getAnnotation(
+            ConfigurationProperties.class
+        );
+        // 存在 @ConfigurationProperties 注解的时候就获取配置中所有 prefix 的值
+        if (configAnnotation != null) {
+            prefixProps = environment.getPrefix(configAnnotation.prefix());
         }
-        for (Field field : fields) {
-            Value valueAnnotation = field.getAnnotation(Value.class);
-            if (config == null && valueAnnotation == null) {
+        for (final Field field : fields) {
+            // 若使用了 @Skip 注解则跳过
+            if (AnnotationUtils.isSkipped(field, this.getClass())) {
                 continue;
             }
-            PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
+            final MergedAnnotation fieldAnnotation = AnnotationUtils.getAnnotation(
+                field
+            );
+            final Value valueAnnotation = fieldAnnotation.getAnnotation(
+                Value.class
+            );
+            // 不存在 @Value 或者 @Configuration 注解的时候则无需注入
+            if (configAnnotation == null && valueAnnotation == null) {
+                continue;
+            }
+            final PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
                 instanceClass,
                 field.getName()
             );
-            if (propertyDescriptor == null) {
-                continue;
-            }
-            Method writeMethod = propertyDescriptor.getWriteMethod();
-            Object value;
-            if (config != null && valueAnnotation == null) {
+            final Method writeMethod = propertyDescriptor == null
+                ? null
+                : propertyDescriptor.getWriteMethod();
+            final Object value;
+            if (configAnnotation != null && valueAnnotation == null) {
                 // @ConfigurationProperties 没有 @Value 注解
+                final Property propertyAnnotation = fieldAnnotation.getAnnotation(
+                    Property.class
+                );
+                // @Property 配置了 skip 值，则跳过
+                if (propertyAnnotation != null && propertyAnnotation.skip()) {
+                    continue;
+                }
+                String fieldName = propertyAnnotation == null
+                    ? null
+                    : propertyAnnotation.name();
+                if (fieldName == null || fieldName.isEmpty()) {
+                    // 若为配置值则使用属性名
+                    fieldName = field.getName();
+                }
+                ClassProperty property = new ClassProperty(
+                    instance,
+                    instanceClass,
+                    field,
+                    fieldName,
+                    annotation,
+                    fieldAnnotation
+                );
                 value =
                     this.injectConfigurationProperties(
-                            field,
-                            config,
+                            container,
+                            environment,
+                            property,
+                            configAnnotation,
+                            propertyAnnotation,
                             prefixProps
                         );
             } else {
@@ -98,51 +141,82 @@ public class PropertiesValueInjector implements InstanceInjector {
     }
 
     protected Object injectConfigurationProperties(
-        Field field,
-        ConfigurationProperties config,
+        Container container,
+        Environment environment,
+        ClassProperty property,
+        ConfigurationProperties configAnnotation,
+        Property propertyAnnotation,
         Map<String, Object> properties
     ) {
-        Object value = caseGet(field.getName(), properties::get);
-        if (value == null && !((boolean) config.ignoreUnknownFields())) {
+        String fieldName = property.getPropertyName();
+        Object value;
+        if (propertyAnnotation == null) {
+            value = caseGet(fieldName, properties::get);
+        } else {
+            value =
+                caseGet(
+                    fieldName,
+                    propertyAnnotation.full()
+                        ? environment::get
+                        : properties::get
+                );
+            if (value == null) {
+                final String defaultValue = propertyAnnotation.defaultValue();
+                value =
+                    Property.EMPTY.equals(defaultValue) ? null : defaultValue;
+            }
+        }
+        if (value == null && !configAnnotation.ignoreUnknownFields()) {
             final NullPointerException exception = new NullPointerException(
                 "Unknown property [" +
-                config.prefix() +
+                configAnnotation.prefix() +
                 "." +
-                field.getName() +
+                fieldName +
                 "]"
             );
             log.error(
                 "Unknown property [{}.{}]",
-                config.prefix(),
-                field.getName()
+                configAnnotation.prefix(),
+                fieldName
             );
             throw exception;
         }
         try {
-            value = Convert.convert(field.getType(), value);
+            if (
+                propertyAnnotation != null &&
+                propertyAnnotation.resolver() != PropertyResolver.class
+            ) {
+                final PropertyResolver resolver = container.make(
+                    propertyAnnotation.resolver()
+                );
+                if (resolver.supportsProperty((String) value, property)) {
+                    value = resolver.resolveProperty((String) value, property);
+                }
+            }
+            value = Convert.convert(property.getPropertyType(), value);
         } catch (Exception e) {
-            if (!((boolean) config.ignoreInvalidFields())) {
+            if (!configAnnotation.ignoreInvalidFields()) {
                 final RuntimeException exception = new RuntimeException(
                     "Invalid property [" +
-                    config.prefix() +
+                    configAnnotation.prefix() +
                     "." +
-                    field.getName() +
+                    fieldName +
                     "]",
                     e
                 );
                 log.error(
                     "Invalid property [{}.{}]",
-                    config.prefix(),
-                    field.getName()
+                    configAnnotation.prefix(),
+                    fieldName
                 );
                 throw exception;
             }
-            value = ClassUtil.getDefaultValue(field.getType());
+            value = ClassUtil.getDefaultValue(property.getPropertyType());
         }
         return value;
     }
 
-    protected Object injectValue(Value value) {
+    protected Object injectValue(final Value value) {
         return Express.evaluateApp(value.value(), Object.class);
     }
 }

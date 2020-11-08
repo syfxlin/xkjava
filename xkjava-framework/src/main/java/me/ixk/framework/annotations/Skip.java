@@ -10,14 +10,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 跳过注入
+ * 用于跳过某些注入器或处理器
  * <p>
- * 在有 @Autowired 或者 Setter 的时候容器就会注入，使用该注解声明容器不注入
+ * 需要注入器中自行实现跳过逻辑
  *
  * @author Otstar Lin
- * @date 2020/10/13 下午 5:50
+ * @date 2020/11/8 下午 7:57
  */
-@Target({ ElementType.FIELD, ElementType.TYPE })
+@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface SkipPropertyAutowired {
+public @interface Skip {
+    Class<?>[] value();
 }

@@ -9,7 +9,7 @@ import java.util.EventListener;
 import java.util.List;
 import javax.servlet.ServletContext;
 import me.ixk.framework.annotations.Component;
-import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.config.AppProperties;
 import me.ixk.framework.kernel.ErrorHandler;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
@@ -38,16 +38,13 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
     type = me.ixk.framework.server.Server.class
 )
 public class JettyServer implements me.ixk.framework.server.Server {
-    private final XkJava app;
     private Server server;
     private WebAppContext context;
     private List<EventListener> listeners = new ArrayList<>();
 
-    public JettyServer(XkJava app) {
-        this.app = app;
+    public JettyServer(AppProperties properties) {
         Resource resource = Resource.newClassPathResource("/public");
-        int port = this.app.env().get("xkjava.app.port", 8080);
-        this.buildServer(port, resource);
+        this.buildServer(properties.getPort(), resource);
     }
 
     @Override
