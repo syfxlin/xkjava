@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import cn.hutool.http.HttpResponse;
 import me.ixk.framework.http.HttpMethod;
 import me.ixk.framework.test.ClientResponse;
+import me.ixk.framework.test.GetResponse;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 
@@ -49,5 +50,15 @@ class HttpClientTest {
         ) final HttpResponse post
     ) {
         assertEquals("{\"Test\":\"test\"}", post.body());
+    }
+
+    @Test
+    void get(
+        @GetResponse(
+            url = "http://localhost:8080/get",
+            param = "key=value"
+        ) final HttpResponse get
+    ) {
+        assertEquals("value", get.body());
     }
 }

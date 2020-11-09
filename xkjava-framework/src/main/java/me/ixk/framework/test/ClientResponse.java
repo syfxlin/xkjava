@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
 import me.ixk.framework.annotations.AliasFor;
 import me.ixk.framework.http.HttpMethod;
 import me.ixk.framework.http.MimeType;
+import me.ixk.framework.utils.MergedAnnotation;
 
 /**
  * HTTP 响应
@@ -69,8 +70,9 @@ public @interface ClientResponse {
         /**
          * 处理
          *
-         * @param request 请求对象
+         * @param request    请求对象
+         * @param annotation 注解
          */
-        void process(HttpRequest request);
+        void process(HttpRequest request, MergedAnnotation annotation);
     }
 }

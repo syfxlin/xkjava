@@ -22,6 +22,7 @@ import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.ioc.ParameterInjector;
 import me.ixk.framework.test.ClientResponse.RequestProcessor;
 import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergedAnnotation;
 
 /**
  * 请求注入器
@@ -40,11 +41,10 @@ public class HttpClientInjector implements ParameterInjector, InstanceInjector {
         final DataBinder dataBinder
     ) {
         for (Field field : instanceClass.getDeclaredFields()) {
-            final ClientResponse clientResponse = AnnotationUtils.getAnnotation(
-                field,
-                ClientResponse.class
+            final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
+                field
             );
-            if (clientResponse != null) {
+            if (annotation.hasAnnotation(ClientResponse.class)) {
                 final PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
                     instanceClass,
                     field.getName()
@@ -53,7 +53,7 @@ public class HttpClientInjector implements ParameterInjector, InstanceInjector {
                     null
                     ? null
                     : propertyDescriptor.getWriteMethod();
-                Object value = this.executeRequest(container, clientResponse);
+                Object value = this.executeRequest(container, annotation);
                 if (writeMethod != null) {
                     ReflectUtil.invoke(instance, writeMethod, value);
                 } else {
@@ -75,13 +75,11 @@ public class HttpClientInjector implements ParameterInjector, InstanceInjector {
         final DataBinder dataBinder
     ) {
         for (int i = 0; i < parameters.length; i++) {
-            final ClientResponse clientResponse = AnnotationUtils.getAnnotation(
-                parameters[i],
-                ClientResponse.class
+            final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
+                parameters[i]
             );
-            if (clientResponse != null) {
-                dependencies[i] =
-                    this.executeRequest(container, clientResponse);
+            if (annotation.hasAnnotation(ClientResponse.class)) {
+                dependencies[i] = this.executeRequest(container, annotation);
             }
         }
         return dependencies;
@@ -89,8 +87,11 @@ public class HttpClientInjector implements ParameterInjector, InstanceInjector {
 
     private HttpResponse executeRequest(
         Container container,
-        final ClientResponse clientResponse
+        final MergedAnnotation annotation
     ) {
+        final ClientResponse clientResponse = annotation.getAnnotation(
+            ClientResponse.class
+        );
         final HttpRequest request = HttpRequest
             .get(clientResponse.url())
             .method(Method.valueOf(clientResponse.method().asString()))
@@ -117,7 +118,9 @@ public class HttpClientInjector implements ParameterInjector, InstanceInjector {
             request.contentType(clientResponse.contentType().asString());
         }
         if (clientResponse.processor() != RequestProcessor.class) {
-            container.make(clientResponse.processor()).process(request);
+            container
+                .make(clientResponse.processor())
+                .process(request, annotation);
         }
         return request.execute(clientResponse.async());
     }

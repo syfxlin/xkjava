@@ -31,4 +31,9 @@ class TestController {
     public JsonNode post(@BodyValue JsonNode node) {
         return node;
     }
+
+    @GetMapping("/get")
+    public String get(String key) {
+        return key;
+    }
 }
