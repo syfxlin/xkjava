@@ -8,25 +8,23 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.test.XkJavaRunner;
-import org.junit.jupiter.api.extension.ExtendWith;
+import me.ixk.framework.conditional.ProfileCondition;
 
 /**
+ * 环境选择
+ *
  * @author Otstar Lin
- * @date 2020/11/5 下午 4:30
+ * @date 2020/11/9 上午 10:27
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@ExtendWith(XkJavaRunner.class)
-@Component
-public @interface XkJavaTest {
-    @AliasFor("properties")
-    String value() default "";
+@Conditional({ ProfileCondition.class })
+public @interface Profile {
+    String PROD = "prod";
 
-    @AliasFor("value")
-    String properties() default "";
+    String DEV = "dev";
 
-    String[] args() default {  };
+    String TEST = "test";
 
-    Class<?>[] classes() default {  };
+    String[] value();
 }

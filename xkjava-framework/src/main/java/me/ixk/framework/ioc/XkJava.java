@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import me.ixk.framework.annotations.ComponentScan;
+import me.ixk.framework.annotations.Profile;
 import me.ixk.framework.ioc.context.ApplicationContext;
 import me.ixk.framework.ioc.context.RequestContext;
 import me.ixk.framework.ioc.context.SessionContext;
@@ -348,11 +349,15 @@ public class XkJava extends Container {
         return this;
     }
 
-    public Class<?>[] getPrimarySource() {
+    public Class<?>[] primarySource() {
         return primarySource;
     }
 
-    public String[] getArgs() {
+    public String[] args() {
         return args;
+    }
+
+    public String profile() {
+        return this.env().get("xkjava.config.active", Profile.PROD);
     }
 }

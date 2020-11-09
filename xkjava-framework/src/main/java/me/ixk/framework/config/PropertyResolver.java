@@ -38,7 +38,7 @@ public interface PropertyResolver {
 
         @Override
         public boolean supportsProperty(String value, ClassProperty property) {
-            return value != null && value.indexOf(":") > 0;
+            return value != null && value.indexOf(":") != 0;
         }
 
         @Override
@@ -46,6 +46,9 @@ public interface PropertyResolver {
             final String[] split = value.split(",");
             Map<String, String> map = new ConcurrentHashMap<>(split.length);
             for (String item : split) {
+                if (item.isEmpty()) {
+                    continue;
+                }
                 String[] kv = item.trim().split(":");
                 map.put(kv[0], kv[1]);
             }

@@ -27,11 +27,11 @@ public class LoadEnvironmentVariables extends AbstractBootstrap {
     private static final Logger log = LoggerFactory.getLogger(
         LoadEnvironmentVariables.class
     );
-    private static final String CONFIG_NAME = "xkjava.config.name";
+
     private static final String CONFIG_LOCATION_NAME = "xkjava.config.location";
     private static final String CONFIG_ACTIVE_NAME = "xkjava.config.active";
-    private static final String DEFAULT_CONFIG_NAME = "application";
-    private static final String DEFAULT_CONFIG_LOCATION = "classpath:";
+    private static final String DEFAULT_CONFIG_LOCATION =
+        "classpath:/application.properties";
 
     public LoadEnvironmentVariables(final XkJava app) {
         super(app);
@@ -42,11 +42,6 @@ public class LoadEnvironmentVariables extends AbstractBootstrap {
         final Properties properties = new Properties();
         // 先读取传入的参数
         final Properties cliProps = this.parseCliProperties();
-        // 如果配置了名称，则使用新的名称
-        final String configName = (String) cliProps.getOrDefault(
-            CONFIG_NAME,
-            DEFAULT_CONFIG_NAME
-        );
         // 如果配置了路径，则使用新的路径
         final String configLocation = (String) cliProps.getOrDefault(
             CONFIG_LOCATION_NAME,
@@ -54,13 +49,7 @@ public class LoadEnvironmentVariables extends AbstractBootstrap {
         );
         // 使用获得的路径读取主要的配置文件
         final Properties primaryProps =
-            this.parseFileProperties(
-                    String.format(
-                        "%s/%s.properties",
-                        configLocation,
-                        configName
-                    )
-                );
+            this.parseFileProperties(configLocation);
         // 添加进配置中
         properties.putAll(primaryProps);
         // 次要配置文件
@@ -71,11 +60,9 @@ public class LoadEnvironmentVariables extends AbstractBootstrap {
         if (activeName != null) {
             final Properties secondaryProps =
                 this.parseFileProperties(
-                        String.format(
-                            "%s/%s-%s.properties",
-                            configLocation,
-                            configName,
-                            activeName
+                        configLocation.replace(
+                            ".properties",
+                            String.format("-%s.properties", activeName)
                         )
                     );
             properties.putAll(secondaryProps);
@@ -91,7 +78,7 @@ public class LoadEnvironmentVariables extends AbstractBootstrap {
 
     private Properties parseCliProperties() {
         final Properties properties = new Properties();
-        for (final String arg : this.app.getArgs()) {
+        for (final String arg : this.app.args()) {
             if (!arg.startsWith("--") || !arg.contains("=")) {
                 throw new LoadEnvironmentFileException(
                     "Incorrect command parameter format"
