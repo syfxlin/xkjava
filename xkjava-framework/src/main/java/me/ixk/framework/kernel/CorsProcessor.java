@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.CrossOrigin;
-import me.ixk.framework.annotations.RequestMethod;
 import me.ixk.framework.http.HttpHeader;
 import me.ixk.framework.http.HttpMethod;
 import me.ixk.framework.http.Request;
@@ -98,7 +97,7 @@ public class CorsProcessor {
             this.allowedMethods.addAll(
                     Arrays
                         .stream(crossOrigin.methods())
-                        .map(RequestMethod::asString)
+                        .map(HttpMethod::asString)
                         .collect(Collectors.toList())
                 );
             this.allowedHeaders = new ArrayList<>();

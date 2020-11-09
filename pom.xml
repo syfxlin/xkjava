@@ -53,9 +53,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.squareup.okhttp3</groupId>
-      <artifactId>okhttp</artifactId>
-      <version>4.10.0-RC1</version>
+      <artifactId>hutool-http</artifactId>
+      <groupId>cn.hutool</groupId>
+      <version>5.4.7</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

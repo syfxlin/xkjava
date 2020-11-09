@@ -55,7 +55,7 @@ import me.ixk.framework.utils.JSON;
 @Scope(type = ScopeType.REQUEST)
 public class Request extends HttpServletRequestWrapper {
     private static final HttpServletRequest EMPTY = new EmptyRequest();
-    public static final String REQUEST_BODY = "&body";
+    public static final String REQUEST_BODY = "&BODY";
     protected volatile String body;
     protected volatile JsonNode parseBody = null;
     protected Map<String, Cookie> cookies;
@@ -241,6 +241,9 @@ public class Request extends HttpServletRequestWrapper {
 
     public JsonNode input(final String name, final JsonNode defaultValue) {
         JsonNode node = this.json();
+        if (REQUEST_BODY.equals(name)) {
+            return node;
+        }
         node = Util.dataGet(node, name);
         return node == null || node.isNull() ? defaultValue : node;
     }
@@ -396,9 +399,6 @@ public class Request extends HttpServletRequestWrapper {
         }
         if (result == null) {
             result = this.attribute(name);
-        }
-        if (result == null && REQUEST_BODY.equalsIgnoreCase(name)) {
-            result = this.json();
         }
         if (result == null) {
             result = defaultValue;

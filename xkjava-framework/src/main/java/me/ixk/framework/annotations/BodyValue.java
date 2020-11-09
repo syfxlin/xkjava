@@ -9,6 +9,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import me.ixk.framework.annotations.WebBind.Type;
+import me.ixk.framework.http.Request;
 import me.ixk.framework.ioc.DataBinder.Converter;
 
 /**
@@ -24,10 +25,10 @@ import me.ixk.framework.ioc.DataBinder.Converter;
 @WebBind(type = Type.BODY)
 public @interface BodyValue {
     @AliasFor(value = "name", annotation = WebBind.class, attribute = "value")
-    String value() default "";
+    String value() default Request.REQUEST_BODY;
 
     @AliasFor(value = "value", annotation = WebBind.class, attribute = "name")
-    String name() default "";
+    String name() default Request.REQUEST_BODY;
 
     @AliasFor(annotation = WebBind.class, attribute = "required")
     boolean required() default true;

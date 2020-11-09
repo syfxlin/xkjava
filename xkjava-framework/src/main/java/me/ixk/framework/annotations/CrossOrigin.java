@@ -8,6 +8,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import me.ixk.framework.http.HttpMethod;
 import me.ixk.framework.kernel.CorsProcessor;
 import me.ixk.framework.middleware.Cors;
 import me.ixk.framework.registry.request.CrossOriginRegistry;
@@ -36,7 +37,7 @@ public @interface CrossOrigin {
 
     String[] allowedHeaders() default {  };
 
-    RequestMethod[] methods() default {  };
+    HttpMethod[] methods() default {  };
 
     boolean allowCredentials() default false;
 }

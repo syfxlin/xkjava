@@ -8,6 +8,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import me.ixk.framework.http.HttpMethod;
 import me.ixk.framework.registry.after.RouteRegistry;
 
 /**
@@ -26,5 +27,5 @@ public @interface RequestMapping {
     @AliasFor("value")
     String[] path() default {  };
 
-    RequestMethod[] method() default RequestMethod.GET;
+    HttpMethod[] method() default HttpMethod.GET;
 }

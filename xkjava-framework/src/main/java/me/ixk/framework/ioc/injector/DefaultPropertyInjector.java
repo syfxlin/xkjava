@@ -41,8 +41,7 @@ public class DefaultPropertyInjector implements InstanceInjector {
         if (AnnotationUtils.isSkipped(instanceClass, this.getClass())) {
             return instance;
         }
-        Field[] fields = instanceClass.getDeclaredFields();
-        for (Field field : fields) {
+        for (Field field : instanceClass.getDeclaredFields()) {
             if (AnnotationUtils.isSkipped(field, this.getClass())) {
                 continue;
             }

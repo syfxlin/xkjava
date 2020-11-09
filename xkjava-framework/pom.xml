@@ -96,7 +96,7 @@
     <dependency>
       <groupId>cn.hutool</groupId>
       <artifactId>hutool-core</artifactId>
-      <version>5.3.7</version>
+      <version>5.4.7</version>
     </dependency>
     <!-- ASM & Cglib -->
     <dependency>
@@ -114,6 +114,11 @@
       <artifactId>junit-jupiter-api</artifactId>
       <groupId>org.junit.jupiter</groupId>
       <version>5.7.0-M1</version>
+    </dependency>
+    <dependency>
+      <artifactId>hutool-http</artifactId>
+      <groupId>cn.hutool</groupId>
+      <version>5.4.7</version>
     </dependency>
   </dependencies>
 

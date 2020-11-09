@@ -17,6 +17,10 @@ import java.util.Map;
  */
 public enum MimeType {
     /**
+     * 默认类型
+     */
+    NONE("none"),
+    /**
      * application/x-www-form-urlencoded
      */
     FORM_ENCODED("application/x-www-form-urlencoded"),

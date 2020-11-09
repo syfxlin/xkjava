@@ -6,7 +6,7 @@ package me.ixk.framework.route;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import me.ixk.framework.annotations.RequestMethod;
+import me.ixk.framework.http.HttpMethod;
 
 /**
  * 路由注解描述
@@ -22,14 +22,14 @@ public class AnnotationRouteDefinition {
     protected final Method handler;
 
     public AnnotationRouteDefinition(
-        RequestMethod[] methods,
+        HttpMethod[] methods,
         String route,
         Method handler
     ) {
         this.method =
             Arrays
                 .stream(methods)
-                .map(RequestMethod::asString)
+                .map(HttpMethod::asString)
                 .toArray(String[]::new);
         this.route = route;
         this.handler = handler;

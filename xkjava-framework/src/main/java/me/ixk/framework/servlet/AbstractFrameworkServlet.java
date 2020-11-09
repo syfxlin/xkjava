@@ -10,7 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import me.ixk.framework.annotations.RequestMethod;
+import me.ixk.framework.http.HttpMethod;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 
@@ -36,8 +36,7 @@ public abstract class AbstractFrameworkServlet extends HttpServlet {
         throws ServletException, IOException {
         String httpMethod = req.getMethod();
         if (
-            httpMethod == null ||
-            RequestMethod.PATCH.asString().equals(httpMethod)
+            httpMethod == null || HttpMethod.PATCH.asString().equals(httpMethod)
         ) {
             processRequest(req, resp);
         } else {

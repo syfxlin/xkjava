@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.RequestMapping;
-import me.ixk.framework.annotations.RequestMethod;
 import me.ixk.framework.annotations.Route;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
+import me.ixk.framework.http.HttpMethod;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.route.AnnotationRouteDefinition;
 import me.ixk.framework.route.RouteDefinition;
@@ -69,7 +69,7 @@ public class RouteRegistry implements AfterImportBeanRegistry {
                 ? new String[] { "" }
                 : baseMapping.path()) {
                 try {
-                    final RequestMethod[] requestMethods = a.method();
+                    final HttpMethod[] requestMethods = a.method();
                     for (String path : a.path()) {
                         this.annotationRouteDefinitions.add(
                                 new AnnotationRouteDefinition(
