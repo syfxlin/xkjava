@@ -50,11 +50,12 @@
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <version>5.7.0-M1</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
-      <artifactId>okhttp</artifactId>
       <groupId>com.squareup.okhttp3</groupId>
-      <version>4.9.0</version>
+      <artifactId>okhttp</artifactId>
+      <version>4.10.0-RC1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

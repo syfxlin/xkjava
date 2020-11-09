@@ -8,10 +8,10 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 import me.ixk.framework.annotations.DataBind;
-import me.ixk.framework.annotations.XkJavaTest;
 import me.ixk.framework.entity.User;
 import me.ixk.framework.ioc.ObjectWrapperDataBinder;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.test.XkJavaTest;
 import me.ixk.framework.utils.AnnotationUtils;
 import org.junit.jupiter.api.Test;
 

@@ -8,8 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.annotations.XkJavaTest;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 
 /**

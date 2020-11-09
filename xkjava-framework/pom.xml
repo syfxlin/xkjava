@@ -109,6 +109,12 @@
       <artifactId>cglib</artifactId>
       <version>3.3.0</version>
     </dependency>
+    <!-- Test -->
+    <dependency>
+      <artifactId>junit-jupiter-api</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <version>5.7.0-M1</version>
+    </dependency>
   </dependencies>
 
   <build>

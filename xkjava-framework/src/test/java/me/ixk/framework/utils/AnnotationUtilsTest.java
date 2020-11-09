@@ -13,7 +13,7 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import me.ixk.framework.annotations.XkJavaTest;
+import me.ixk.framework.test.XkJavaTest;
 import me.ixk.framework.utils.annotation.Parent;
 import me.ixk.framework.utils.entity.FalseConditional;
 import me.ixk.framework.utils.entity.Test2;

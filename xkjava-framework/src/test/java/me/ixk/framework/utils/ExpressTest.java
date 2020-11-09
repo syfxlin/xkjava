@@ -6,7 +6,7 @@ package me.ixk.framework.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import me.ixk.framework.annotations.XkJavaTest;
+import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 
 /**

@@ -5,7 +5,6 @@
 package me.ixk.framework.test;
 
 import java.util.Arrays;
-import me.ixk.framework.annotations.XkJavaTest;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;

@@ -4,9 +4,9 @@
 
 package me.ixk.app.mapper;
 
-import me.ixk.framework.annotations.XkJavaTest;
 import me.ixk.framework.database.SqlSessionManager;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 
 @XkJavaTest

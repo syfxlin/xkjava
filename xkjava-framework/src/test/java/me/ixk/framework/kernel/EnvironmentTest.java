@@ -4,8 +4,8 @@
 
 package me.ixk.framework.kernel;
 
-import me.ixk.framework.annotations.XkJavaTest;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 
 @XkJavaTest

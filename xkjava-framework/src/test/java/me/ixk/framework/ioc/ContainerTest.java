@@ -7,7 +7,7 @@ package me.ixk.framework.ioc;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.annotations.XkJavaTest;
+import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 
 /**
