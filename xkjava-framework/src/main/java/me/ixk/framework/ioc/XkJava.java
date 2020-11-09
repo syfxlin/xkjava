@@ -16,7 +16,9 @@ import me.ixk.framework.ioc.context.SessionContext;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.processor.AnnotationProcessor;
+import me.ixk.framework.processor.BeanProcessorAnnotationProcessor;
 import me.ixk.framework.processor.BootstrapAnnotationProcessor;
+import me.ixk.framework.processor.InjectorAnnotationProcessor;
 import me.ixk.framework.server.JettyServer;
 import me.ixk.framework.server.Server;
 import me.ixk.framework.utils.AnnotationUtils;
@@ -76,6 +78,20 @@ public class XkJava extends Container {
      * 启动处理器
      */
     protected BootstrapAnnotationProcessor bootstrapAnnotationProcessor = new BootstrapAnnotationProcessor(
+        this
+    );
+
+    /**
+     * 注入器注解处理器
+     */
+    protected InjectorAnnotationProcessor injectorAnnotationProcessor = new InjectorAnnotationProcessor(
+        this
+    );
+
+    /**
+     * Bean 后置注解处理器
+     */
+    protected BeanProcessorAnnotationProcessor beanProcessorAnnotationProcessor = new BeanProcessorAnnotationProcessor(
         this
     );
 
@@ -187,6 +203,10 @@ public class XkJava extends Container {
 
         // 读取需要扫描的包
         this.loadPackageScanAnnotation();
+
+        // 导入 Injector 和 BeanProcessor
+        this.injectorAnnotationProcessor.process();
+        this.beanProcessorAnnotationProcessor.process();
 
         // 启动前回调
         if (this.bootingCallback != null) {

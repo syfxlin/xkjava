@@ -50,13 +50,11 @@
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <version>5.7.0-M1</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <artifactId>hutool-http</artifactId>
       <groupId>cn.hutool</groupId>
       <version>5.4.7</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 

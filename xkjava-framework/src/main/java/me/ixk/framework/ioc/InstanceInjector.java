@@ -10,51 +10,35 @@ package me.ixk.framework.ioc;
  * @author Otstar Lin
  * @date 2020/10/14 上午 11:38
  */
-@FunctionalInterface
 public interface InstanceInjector {
     /**
      * 是否匹配注入器
      *
-     * @param binding       Binding
-     * @param instance      实例
-     * @param instanceClass 实例类型
+     * @param context  实例上下文
+     * @param instance 实例
      *
      * @return 是否匹配
      */
-    default boolean matches(
-        Binding binding,
-        Object instance,
-        Class<?> instanceClass
-    ) {
-        return instance != null;
-    }
+    boolean supportsInstance(final InstanceContext context, Object instance);
 
     /**
      * 处理
      *
-     * @param container     容器
-     * @param binding       Binding
-     * @param instance      实例
-     * @param instanceClass 实例类型
-     * @param dataBinder    数据绑定器
+     * @param container  容器
+     * @param instance   实例
+     * @param context    参数上下文
+     * @param dataBinder 数据绑定器
      *
      * @return 实例
      */
     default Object process(
-        Container container,
-        Binding binding,
-        Object instance,
-        Class<?> instanceClass,
-        DataBinder dataBinder
+        final Container container,
+        final Object instance,
+        final InstanceContext context,
+        final DataBinder dataBinder
     ) {
-        if (this.matches(binding, instance, instanceClass)) {
-            return this.inject(
-                    container,
-                    binding,
-                    instance,
-                    instanceClass,
-                    dataBinder
-                );
+        if (this.supportsInstance(context, instance)) {
+            return this.inject(container, instance, context, dataBinder);
         }
         return instance;
     }
@@ -62,19 +46,17 @@ public interface InstanceInjector {
     /**
      * 注入
      *
-     * @param container     容器
-     * @param binding       Binding
-     * @param instance      实例
-     * @param instanceClass 实例类型
-     * @param dataBinder    数据绑定器
+     * @param container  容器
+     * @param instance   实例
+     * @param context    参数上下文
+     * @param dataBinder 数据绑定器
      *
      * @return 实例
      */
     Object inject(
         Container container,
-        Binding binding,
         Object instance,
-        Class<?> instanceClass,
+        InstanceContext context,
         DataBinder dataBinder
     );
 }

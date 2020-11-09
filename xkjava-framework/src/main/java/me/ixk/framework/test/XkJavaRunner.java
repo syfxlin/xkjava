@@ -72,8 +72,8 @@ public class XkJavaRunner
 
         // HttpClientInjector
         HttpClientInjector injector = new HttpClientInjector();
-        this.app.addParameterInjector(injector);
-        this.app.addInstanceInjector(injector);
+        this.app.addFirstParameterInjector(injector);
+        this.app.addFirstInstanceInjector(injector);
     }
 
     @Override

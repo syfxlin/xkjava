@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 上午 8:54
  */
 @Bootstrap
-@Order(Order.HIGHEST_PRECEDENCE + 4)
+@Order(Order.HIGHEST_PRECEDENCE + 3)
 public class ProcessAnnotation extends AbstractBootstrap {
     private static final Logger log = LoggerFactory.getLogger(
         ProcessAnnotation.class

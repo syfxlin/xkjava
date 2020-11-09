@@ -10,15 +10,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 用于跳过某些注入器或处理器
- * <p>
- * 需要注入器中自行实现跳过逻辑
+ * 注入器
  *
  * @author Otstar Lin
- * @date 2020/11/8 下午 7:57
+ * @date 2020/11/9 下午 8:51
  */
-@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Skip {
-    Class<?>[] value();
+public @interface Injector {
 }

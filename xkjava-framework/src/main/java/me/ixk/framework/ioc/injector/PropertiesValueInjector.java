@@ -14,17 +14,19 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 import me.ixk.framework.annotations.ConfigurationProperties;
+import me.ixk.framework.annotations.Injector;
+import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Property;
 import me.ixk.framework.annotations.Value;
 import me.ixk.framework.bootstrap.Bootstrap;
 import me.ixk.framework.config.ClassProperty;
 import me.ixk.framework.config.PropertyResolver;
-import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
+import me.ixk.framework.ioc.InjectorEntry;
+import me.ixk.framework.ioc.InstanceContext;
 import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.kernel.Environment;
-import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.Express;
 import me.ixk.framework.utils.MergedAnnotation;
@@ -37,108 +39,12 @@ import org.slf4j.LoggerFactory;
  * @author Otstar Lin
  * @date 2020/10/14 上午 11:04
  */
+@Injector
+@Order(Order.HIGHEST_PRECEDENCE)
 public class PropertiesValueInjector implements InstanceInjector {
     private static final Logger log = LoggerFactory.getLogger(
         PropertiesValueInjector.class
     );
-
-    @Override
-    public Object inject(
-        final Container container,
-        final Binding binding,
-        final Object instance,
-        final Class<?> instanceClass,
-        final DataBinder dataBinder
-    ) {
-        if (
-            instance == null ||
-            instance instanceof Bootstrap ||
-            instance instanceof Environment ||
-            AnnotationUtils.isSkipped(instanceClass, this.getClass())
-        ) {
-            return instance;
-        }
-        final Field[] fields = instanceClass.getDeclaredFields();
-        final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
-            instanceClass
-        );
-        final Environment environment = container.make(Environment.class);
-        Map<String, Object> prefixProps = null;
-        final ConfigurationProperties configAnnotation = annotation.getAnnotation(
-            ConfigurationProperties.class
-        );
-        // 存在 @ConfigurationProperties 注解的时候就获取配置中所有 prefix 的值
-        if (configAnnotation != null) {
-            prefixProps = environment.getPrefix(configAnnotation.prefix());
-        }
-        for (final Field field : fields) {
-            // 若使用了 @Skip 注解则跳过
-            if (AnnotationUtils.isSkipped(field, this.getClass())) {
-                continue;
-            }
-            final MergedAnnotation fieldAnnotation = AnnotationUtils.getAnnotation(
-                field
-            );
-            final Value valueAnnotation = fieldAnnotation.getAnnotation(
-                Value.class
-            );
-            // 不存在 @Value 或者 @Configuration 注解的时候则无需注入
-            if (configAnnotation == null && valueAnnotation == null) {
-                continue;
-            }
-            final PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
-                instanceClass,
-                field.getName()
-            );
-            final Method writeMethod = propertyDescriptor == null
-                ? null
-                : propertyDescriptor.getWriteMethod();
-            final Object value;
-            if (configAnnotation != null && valueAnnotation == null) {
-                // @ConfigurationProperties 没有 @Value 注解
-                final Property propertyAnnotation = fieldAnnotation.getAnnotation(
-                    Property.class
-                );
-                // @Property 配置了 skip 值，则跳过
-                if (propertyAnnotation != null && propertyAnnotation.skip()) {
-                    continue;
-                }
-                String fieldName = propertyAnnotation == null
-                    ? null
-                    : propertyAnnotation.name();
-                if (fieldName == null || fieldName.isEmpty()) {
-                    // 若为配置值则使用属性名
-                    fieldName = field.getName();
-                }
-                ClassProperty property = new ClassProperty(
-                    instance,
-                    instanceClass,
-                    field,
-                    fieldName,
-                    annotation,
-                    fieldAnnotation
-                );
-                value =
-                    this.injectConfigurationProperties(
-                            container,
-                            environment,
-                            property,
-                            configAnnotation,
-                            propertyAnnotation,
-                            prefixProps
-                        );
-            } else {
-                // 有 @Value 注解就优先使用
-                value = this.injectValue(valueAnnotation);
-            }
-            if (writeMethod != null) {
-                ReflectUtil.invoke(instance, writeMethod, value);
-            } else {
-                ReflectUtil.setFieldValue(instance, field, value);
-            }
-        }
-        return instance;
-    }
 
     protected Object injectConfigurationProperties(
         Container container,
@@ -218,5 +124,101 @@ public class PropertiesValueInjector implements InstanceInjector {
 
     protected Object injectValue(final Value value) {
         return Express.evaluateApp(value.value(), Object.class);
+    }
+
+    @Override
+    public boolean supportsInstance(InstanceContext context, Object instance) {
+        if (
+            instance == null ||
+            instance instanceof Bootstrap ||
+            instance instanceof Environment
+        ) {
+            return false;
+        }
+        return context.getFieldEntries().length > 0;
+    }
+
+    @Override
+    public Object inject(
+        Container container,
+        Object instance,
+        InstanceContext context,
+        DataBinder dataBinder
+    ) {
+        final Environment environment = container.make(Environment.class);
+        Map<String, Object> prefixProps = null;
+        final ConfigurationProperties configAnnotation = context
+            .getAnnotation()
+            .getAnnotation(ConfigurationProperties.class);
+        // 存在 @ConfigurationProperties 注解的时候就获取配置中所有 prefix 的值
+        if (configAnnotation != null) {
+            prefixProps = environment.getPrefix(configAnnotation.prefix());
+        }
+        for (final InjectorEntry<Field> entry : context.getFieldEntries()) {
+            if (entry.isChanged()) {
+                continue;
+            }
+            final Field field = entry.getElement();
+            final MergedAnnotation fieldAnnotation = entry.getAnnotation();
+            final Value valueAnnotation = fieldAnnotation.getAnnotation(
+                Value.class
+            );
+            // 不存在 @Value 或者 @Configuration 注解的时候则无需注入
+            if (configAnnotation == null && valueAnnotation == null) {
+                continue;
+            }
+            final PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
+                context.getInstanceType(),
+                field.getName()
+            );
+            final Method writeMethod = propertyDescriptor == null
+                ? null
+                : propertyDescriptor.getWriteMethod();
+            final Object value;
+            if (configAnnotation != null && valueAnnotation == null) {
+                // @ConfigurationProperties 没有 @Value 注解
+                final Property propertyAnnotation = fieldAnnotation.getAnnotation(
+                    Property.class
+                );
+                // @Property 配置了 skip 值，则跳过
+                if (propertyAnnotation != null && propertyAnnotation.skip()) {
+                    continue;
+                }
+                String fieldName = propertyAnnotation == null
+                    ? null
+                    : propertyAnnotation.name();
+                if (fieldName == null || fieldName.isEmpty()) {
+                    // 若为配置值则使用属性名
+                    fieldName = field.getName();
+                }
+                ClassProperty property = new ClassProperty(
+                    instance,
+                    context.getInstanceType(),
+                    field,
+                    fieldName,
+                    context.getAnnotation(),
+                    fieldAnnotation
+                );
+                value =
+                    this.injectConfigurationProperties(
+                            container,
+                            environment,
+                            property,
+                            configAnnotation,
+                            propertyAnnotation,
+                            prefixProps
+                        );
+            } else {
+                // 有 @Value 注解就优先使用
+                value = this.injectValue(valueAnnotation);
+            }
+            if (writeMethod != null) {
+                ReflectUtil.invoke(instance, writeMethod, value);
+            } else {
+                ReflectUtil.setFieldValue(instance, field, value);
+            }
+            entry.setChanged(true);
+        }
+        return instance;
     }
 }

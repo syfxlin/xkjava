@@ -6,6 +6,7 @@ package me.ixk.framework.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import me.ixk.framework.http.HttpMethod;
 import me.ixk.framework.test.ClientResponse;
@@ -60,5 +61,12 @@ class HttpClientTest {
         ) final HttpResponse get
     ) {
         assertEquals("value", get.body());
+    }
+
+    @Test
+    void notExecute(
+        @GetResponse(url = "http://localhost:8080/welcome") HttpRequest welcome
+    ) {
+        welcome.execute();
     }
 }

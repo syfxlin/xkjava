@@ -35,7 +35,6 @@ import me.ixk.framework.annotations.AliasFor;
 import me.ixk.framework.annotations.Conditional;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.RepeatItem;
-import me.ixk.framework.annotations.Skip;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
 
@@ -440,25 +439,5 @@ public class AnnotationUtils {
                 }
             }
         }
-    }
-
-    public static boolean isSkipped(AnnotatedElement element, Class<?> type) {
-        return isSkipped(getAnnotation(element), type);
-    }
-
-    public static boolean isSkipped(
-        MergedAnnotation annotation,
-        Class<?> type
-    ) {
-        final Skip skip = annotation.getAnnotation(Skip.class);
-        if (skip == null) {
-            return false;
-        }
-        for (Class<?> item : skip.value()) {
-            if (item == type) {
-                return true;
-            }
-        }
-        return false;
     }
 }

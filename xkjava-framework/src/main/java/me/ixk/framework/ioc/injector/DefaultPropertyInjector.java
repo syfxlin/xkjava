@@ -10,11 +10,13 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.ioc.Binding;
+import me.ixk.framework.annotations.Injector;
+import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
+import me.ixk.framework.ioc.InjectorEntry;
+import me.ixk.framework.ioc.InstanceContext;
 import me.ixk.framework.ioc.InstanceInjector;
-import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,33 +27,35 @@ import org.slf4j.LoggerFactory;
  * @author Otstar Lin
  * @date 2020/10/14 上午 11:01
  */
+@Injector
+@Order(Order.LOWEST_PRECEDENCE)
 public class DefaultPropertyInjector implements InstanceInjector {
     private static final Logger log = LoggerFactory.getLogger(
         DefaultPropertyInjector.class
     );
 
     @Override
+    public boolean supportsInstance(InstanceContext context, Object instance) {
+        return context.getFieldEntries().length > 0;
+    }
+
+    @Override
     public Object inject(
         Container container,
-        Binding binding,
         Object instance,
-        Class<?> instanceClass,
+        InstanceContext context,
         DataBinder dataBinder
     ) {
-        if (AnnotationUtils.isSkipped(instanceClass, this.getClass())) {
-            return instance;
-        }
-        for (Field field : instanceClass.getDeclaredFields()) {
-            if (AnnotationUtils.isSkipped(field, this.getClass())) {
+        for (InjectorEntry<Field> entry : context.getFieldEntries()) {
+            if (entry.isChanged()) {
                 continue;
             }
-            final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
-                field
-            );
+            final Field field = entry.getElement();
+            final MergedAnnotation annotation = entry.getAnnotation();
             Autowired autowired = annotation.getAnnotation(Autowired.class);
             if (autowired == null) {
                 PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
-                    instanceClass,
+                    context.getInstanceType(),
                     field.getName()
                 );
                 if (propertyDescriptor == null) {
@@ -97,20 +101,21 @@ public class DefaultPropertyInjector implements InstanceInjector {
                 if (dependency == null && autowired.required()) {
                     final NullPointerException exception = new NullPointerException(
                         "Target [" +
-                        instanceClass.getName() +
+                        context.getInstanceType().getName() +
                         "::" +
                         field.getName() +
                         "] is required, but inject value is null"
                     );
                     log.error(
                         "Target [{}::{}] is required, but inject value is null",
-                        instanceClass.getName(),
+                        context.getInstanceType().getName(),
                         field.getName()
                     );
                     throw exception;
                 }
                 ReflectUtil.setFieldValue(instance, field, dependency);
             }
+            entry.setChanged(true);
         }
         return instance;
     }
