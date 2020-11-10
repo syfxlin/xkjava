@@ -82,7 +82,7 @@ public class TestController {
 
     @PostMapping("/body")
     public String body(
-        @DataBind(name = "&body") final JsonNode body,
+        @DataBind(name = "&BODY") final JsonNode body,
         @DataBind final User2 user2,
         @DataBind(name = "request") final HttpServletRequest request
     ) {

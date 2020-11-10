@@ -4,7 +4,7 @@
 
 package me.ixk.framework.bootstrap;
 
-import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.io.IoUtil;
 import java.io.IOException;
 import java.util.Properties;
 import me.ixk.framework.annotations.Bootstrap;
@@ -12,6 +12,7 @@ import me.ixk.framework.annotations.Order;
 import me.ixk.framework.exceptions.LoadEnvironmentFileException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.Environment;
+import me.ixk.framework.utils.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +94,7 @@ public class LoadEnvironmentVariables extends AbstractBootstrap {
     private Properties parseFileProperties(final String filePath) {
         final Properties property = new Properties();
         try {
-            property.load(ResourceUtil.getStream(filePath));
+            property.load(IoUtil.toStream(ResourceUtils.getFile(filePath)));
         } catch (final IOException e) {
             log.error("Load environment [application.properties] failed");
             throw new LoadEnvironmentFileException(

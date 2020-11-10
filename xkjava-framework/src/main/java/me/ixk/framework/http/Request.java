@@ -79,7 +79,10 @@ public class Request extends HttpServletRequestWrapper {
         if (this.isJson()) {
             try {
                 this.body =
-                    this.getReader().lines().collect(Collectors.joining());
+                    IoUtil.read(
+                        this.getInputStream(),
+                        this.getCharacterEncoding()
+                    );
             } catch (final IOException e) {
                 this.body = null;
             }
@@ -318,10 +321,7 @@ public class Request extends HttpServletRequestWrapper {
             return null;
         }
         try {
-            return IoUtil
-                .getReader(file.getInputStream(), charset)
-                .lines()
-                .collect(Collectors.joining("\n"));
+            return IoUtil.read(file.getInputStream(), charset);
         } catch (final IOException e) {
             return null;
         }

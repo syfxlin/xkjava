@@ -5,13 +5,14 @@
 package me.ixk.framework.test;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.http.HttpBase;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.Method;
 import java.beans.PropertyDescriptor;
+import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
+import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.http.MimeType;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
@@ -23,6 +24,7 @@ import me.ixk.framework.ioc.ParameterContext.ParameterEntry;
 import me.ixk.framework.ioc.ParameterInjector;
 import me.ixk.framework.test.ClientResponse.RequestProcessor;
 import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.utils.ResourceUtils;
 
 /**
  * 请求注入器
@@ -54,12 +56,16 @@ public class HttpClientInjector implements ParameterInjector, InstanceInjector {
             for (String form : clientResponse.form()) {
                 final String[] kv = form.split("=");
                 final String value = kv[1].trim();
-                request.form(
-                    kv[0].trim(),
-                    value.startsWith(":")
-                        ? ResourceUtil.getResourceObj(value)
-                        : value
-                );
+                try {
+                    request.form(
+                        kv[0].trim(),
+                        value.startsWith(":")
+                            ? ResourceUtils.getFile(value)
+                            : value
+                    );
+                } catch (FileNotFoundException e) {
+                    throw new ContainerException(e);
+                }
             }
         }
         if (clientResponse.contentType() != MimeType.NONE) {
