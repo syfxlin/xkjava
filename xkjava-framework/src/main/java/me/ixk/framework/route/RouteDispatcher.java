@@ -18,7 +18,7 @@ import me.ixk.framework.annotations.Component;
  */
 @Component(name = "routeDispatcher")
 public class RouteDispatcher {
-    protected final RouteCollector collector;
+    private final RouteCollector collector;
 
     public RouteDispatcher(RouteCollector routeCollector) {
         this.collector = routeCollector;
@@ -73,7 +73,7 @@ public class RouteDispatcher {
         return new RouteResult();
     }
 
-    protected RouteResult dispatchVariableRoute(
+    private RouteResult dispatchVariableRoute(
         MergeRouteData mergeRouteData,
         String url
     ) {

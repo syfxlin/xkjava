@@ -24,15 +24,15 @@ public class AspectManager {
     /**
      * 所有的切面列表
      */
-    protected final List<AdviceEntry> adviceList = new ArrayList<>();
+    private final List<AdviceEntry> adviceList = new ArrayList<>();
 
-    protected final SimpleCache<Method, List<Advice>> METHOD_CACHE = new SimpleCache<>();
+    private final SimpleCache<Method, List<Advice>> METHOD_CACHE = new SimpleCache<>();
 
     public void addAdvice(AspectPointcut pointcut, Advice advice) {
         adviceList.add(new AdviceEntry(pointcut, advice));
     }
 
-    protected static class AdviceEntry {
+    private static class AdviceEntry {
         private final AspectPointcut pointcut;
 
         private final Advice advice;

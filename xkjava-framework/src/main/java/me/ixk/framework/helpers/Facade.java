@@ -27,7 +27,7 @@ import me.ixk.framework.web.WebContext;
  */
 public class Facade {
 
-    protected static <T> T make(Class<T> clazz) {
+    private static <T> T make(Class<T> clazz) {
         return XkJava.of().make(clazz);
     }
 

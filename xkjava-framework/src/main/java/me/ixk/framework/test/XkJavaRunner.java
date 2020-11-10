@@ -34,7 +34,7 @@ public class XkJavaRunner
         InvocationInterceptor {
     private static final String CONFIG_LOCATION_NAME =
         "--xkjava.config.location=";
-    private final XkJava app = XkJava.create();
+    private XkJava app;
 
     @Override
     public void beforeAll(final ExtensionContext context) throws Exception {
@@ -68,7 +68,7 @@ public class XkJavaRunner
         );
         classes[xkJavaTest.classes().length] = testClass;
 
-        this.app.boot(classes, args);
+        this.app = XkJava.boot(classes, args);
 
         // HttpClientInjector
         HttpClientInjector injector = new HttpClientInjector();

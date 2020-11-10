@@ -34,23 +34,19 @@ public class RouteCollector {
         RouteCollector.class
     );
 
-    protected final XkJava app;
+    private final XkJava app;
 
-    protected final Map<String, Map<String, RouteHandler>> staticRoutes;
+    private final Map<String, Map<String, RouteHandler>> staticRoutes;
 
-    protected final Map<String, List<RouteData>> variableRoutes;
+    private final Map<String, List<RouteData>> variableRoutes;
 
-    protected final RouteParser routeParser;
+    private final RouteParser routeParser;
 
-    protected final RouteGenerator routeGenerator;
-
-    protected volatile String routeGroupPrefix = "";
-
-    protected List<Class<? extends Middleware>> useGroupMiddleware = null;
-
-    protected List<Class<? extends Middleware>> middleware = new ArrayList<>();
-
-    protected final MiddlewareRegistry middlewareRegistry;
+    private final RouteGenerator routeGenerator;
+    private final MiddlewareRegistry middlewareRegistry;
+    private volatile String routeGroupPrefix = "";
+    private List<Class<? extends Middleware>> useGroupMiddleware = null;
+    private List<Class<? extends Middleware>> middleware = new ArrayList<>();
 
     public RouteCollector(
         XkJava app,
@@ -88,7 +84,7 @@ public class RouteCollector {
         }
     }
 
-    protected RouteHandler getHandler(Method handler) {
+    private RouteHandler getHandler(Method handler) {
         this.registerAnnotationMiddleware(handler);
         List<Class<? extends Middleware>> middleware = this.middleware;
         this.middleware = new ArrayList<>();
@@ -104,7 +100,7 @@ public class RouteCollector {
         );
     }
 
-    protected void registerAnnotationMiddleware(Method handler) {
+    private void registerAnnotationMiddleware(Method handler) {
         AnnotationMiddlewareDefinition definition =
             this.middlewareRegistry.getAnnotationMiddlewareDefinitions()
                 .get(handler);
@@ -270,11 +266,11 @@ public class RouteCollector {
         return this;
     }
 
-    protected boolean isStaticRoute(RouteData routeData) {
+    private boolean isStaticRoute(RouteData routeData) {
         return routeData.getVariableNames().isEmpty();
     }
 
-    protected void addStaticRoute(
+    private void addStaticRoute(
         String httpMethod,
         RouteData routeData,
         RouteHandler handler
@@ -288,7 +284,7 @@ public class RouteCollector {
         this.staticRoutes.put(httpMethod, methodMap);
     }
 
-    protected void addVariableRoute(
+    private void addVariableRoute(
         String httpMethod,
         RouteData routeData,
         RouteHandler handler

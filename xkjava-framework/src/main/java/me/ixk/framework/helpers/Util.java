@@ -33,9 +33,9 @@ import me.ixk.framework.utils.JSON;
  * @date 2020/10/14 上午 9:09
  */
 public class Util {
-    protected static final String BASE_STRING =
+    private static final String BASE_STRING =
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    protected static final SecureRandom RANDOM = new SecureRandom();
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     public static JsonNode dataGet(JsonNode target, String key) {
         return dataGet(target, key, (JsonNode) null);

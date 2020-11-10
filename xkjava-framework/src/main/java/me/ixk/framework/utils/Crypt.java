@@ -22,9 +22,9 @@ import javax.crypto.spec.SecretKeySpec;
  * @date 2020/10/14 下午 5:02
  */
 public class Crypt {
-    protected final byte[] key;
+    private final byte[] key;
 
-    protected Cipher cipher;
+    private final Cipher cipher;
 
     public Crypt(String key)
         throws NoSuchAlgorithmException, NoSuchPaddingException {

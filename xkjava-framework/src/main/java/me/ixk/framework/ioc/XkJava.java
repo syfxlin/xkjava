@@ -38,15 +38,15 @@ import org.slf4j.LoggerFactory;
 public class XkJava extends Container {
     private static final Logger log = LoggerFactory.getLogger(XkJava.class);
 
-    protected static final String VERSION = "v1.0-SNAPSHOT";
-    protected static final String OTHER =
+    private static final String VERSION = "v1.0-SNAPSHOT";
+    private static final String OTHER =
         Ansi.make(Color.BLUE).format("Author: Otstar Lin <syfxlin@gmail.com>") +
         Ansi.split() +
         Ansi
             .make(Color.CYAN)
             .format("Github: https://github.com/syfxlin/xkjava");
 
-    protected String bannerText =
+    private String bannerText =
         " __   __      __  __               _____                                 \n" +
         "/\\ \\ /\\ \\    /\\ \\/\\ \\             /\\___ \\                                \n" +
         "\\ `\\`\\/'/'   \\ \\ \\/'/'            \\/__/\\ \\     __      __  __     __     \n" +
@@ -57,101 +57,83 @@ public class XkJava extends Container {
     /**
      * 存储 boot 方法传入的类
      */
-    protected Class<?>[] primarySource;
+    private Class<?>[] primarySource;
 
     /**
      * 外部传入的参数
      */
-    protected String[] args;
+    private String[] args;
 
     /**
      * 扫描组件的包
      */
-    protected Set<String> scansPackages = new HashSet<>();
+    private Set<String> scansPackages = new HashSet<>();
 
     /**
      * XkJava 是否已经启动
      */
-    protected boolean booted = false;
+    private boolean booted = false;
 
     /**
      * 启动处理器
      */
-    protected BootstrapAnnotationProcessor bootstrapAnnotationProcessor = new BootstrapAnnotationProcessor(
+    private BootstrapAnnotationProcessor bootstrapAnnotationProcessor = new BootstrapAnnotationProcessor(
         this
     );
 
     /**
      * 注入器注解处理器
      */
-    protected InjectorAnnotationProcessor injectorAnnotationProcessor = new InjectorAnnotationProcessor(
+    private InjectorAnnotationProcessor injectorAnnotationProcessor = new InjectorAnnotationProcessor(
         this
     );
 
     /**
      * Bean 后置注解处理器
      */
-    protected BeanProcessorAnnotationProcessor beanProcessorAnnotationProcessor = new BeanProcessorAnnotationProcessor(
+    private BeanProcessorAnnotationProcessor beanProcessorAnnotationProcessor = new BeanProcessorAnnotationProcessor(
         this
     );
 
     /**
      * 注解处理器
      */
-    protected AnnotationProcessorManager annotationProcessorManager = new AnnotationProcessorManager(
+    private AnnotationProcessorManager annotationProcessorManager = new AnnotationProcessorManager(
         this
     );
 
     /**
      * 启动前回调
      */
-    protected Callback bootingCallback = null;
+    private Callback bootingCallback = null;
 
     /**
      * 启动后回调
      */
-    protected Callback bootedCallback = null;
+    private Callback bootedCallback = null;
 
     /**
      * 销毁前回调
      */
-    protected Callback destroyingCallback = null;
+    private Callback destroyingCallback = null;
 
     /**
      * 销毁后回调
      */
-    protected Callback destroyedCallback = null;
+    private Callback destroyedCallback = null;
 
-    private XkJava() {
-        // 打印 Banner
-        this.printBanner();
-
-        // 注册实例
-        this.registerInstance();
-
-        // 注册销毁钩子
-        this.registerShutdownHook();
-
-        log.info("Application created");
+    public static XkJava boot(
+        final Class<?> primarySource,
+        final String... args
+    ) {
+        return of().bootInner(primarySource, args);
     }
 
-    /**
-     * 启动 XkJava 实例
-     *
-     * @param primarySource 传入类
-     * @param args          传入参数
-     */
-    public void boot(final Class<?> primarySource, final String... args) {
-        this.boot(new Class[] { primarySource }, args);
-    }
-
-    /**
-     * 创建或获取 XkJava
-     *
-     * @return XkJava 实例
-     */
-    public static XkJava create() {
-        return Inner.INSTANCE;
+    public static XkJava boot(
+        final Class<?>[] primarySource,
+        final String... args
+    ) {
+        return of().bootInner(primarySource, args);
     }
 
     /**
@@ -175,7 +157,7 @@ public class XkJava extends Container {
     /**
      * 配置要扫描的包
      */
-    protected void loadPackageScanAnnotation() {
+    private void loadPackageScanAnnotation() {
         final Set<String> scanPackage = this.scanPackage();
         scanPackage.add("me.ixk.framework");
         for (final Class<?> source : this.primarySource) {
@@ -197,9 +179,34 @@ public class XkJava extends Container {
      * @param primarySource 传入类
      * @param args          传入参数
      */
-    public void boot(final Class<?>[] primarySource, final String... args) {
+    public XkJava bootInner(
+        final Class<?> primarySource,
+        final String... args
+    ) {
+        return this.bootInner(new Class[] { primarySource }, args);
+    }
+
+    /**
+     * 启动 XkJava 实例
+     *
+     * @param primarySource 传入类
+     * @param args          传入参数
+     */
+    private XkJava bootInner(
+        final Class<?>[] primarySource,
+        final String... args
+    ) {
         this.primarySource = primarySource;
         this.args = args;
+
+        // 打印 Banner
+        this.printBanner();
+
+        // 注册实例
+        this.registerInstance();
+
+        // 注册销毁钩子
+        this.registerShutdownHook();
 
         // 读取需要扫描的包
         this.loadPackageScanAnnotation();
@@ -229,9 +236,10 @@ public class XkJava extends Container {
         this.call(Server.class, "start", Void.class);
 
         log.info("Application booted");
+        return this;
     }
 
-    protected void loadPackageScanAnnotationItem(
+    private void loadPackageScanAnnotationItem(
         final Set<String> scanPackage,
         final ComponentScan componentScan
     ) {
@@ -245,7 +253,7 @@ public class XkJava extends Container {
     /**
      * 注册实例
      */
-    protected void registerInstance() {
+    private void registerInstance() {
         final ApplicationContext applicationContext = new ApplicationContext();
         this.registerContext(applicationContext);
         final RequestContext requestContext = new RequestContext();
@@ -265,7 +273,7 @@ public class XkJava extends Container {
     /**
      * 注册销毁钩子
      */
-    protected void registerShutdownHook() {
+    private void registerShutdownHook() {
         Runtime
             .getRuntime()
             .addShutdownHook(
@@ -285,7 +293,7 @@ public class XkJava extends Container {
             );
     }
 
-    protected void printBanner() {
+    private void printBanner() {
         if (this.bannerText != null) {
             System.out.println(this.bannerText + "\n");
         }

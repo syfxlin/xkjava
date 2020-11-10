@@ -24,6 +24,6 @@ import me.ixk.framework.ioc.XkJava;
 public class App {
 
     public static void main(final String[] args) {
-        XkJava.create().boot(App.class, args);
+        XkJava.boot(App.class, args);
     }
 }

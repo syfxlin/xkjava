@@ -27,39 +27,39 @@ public class AspectHandler {
     /**
      * 切面代理类的原始对象
      */
-    protected final Object target;
+    private final Object target;
 
     /**
      * 原始方法
      */
-    protected final Method method;
+    private final Method method;
 
     /**
      * 代理方法
      */
-    protected final MethodProxy methodProxy;
+    private final MethodProxy methodProxy;
 
     /**
      * 参数
      */
-    protected final Object[] args;
+    private final Object[] args;
     /**
      * 与当前方法匹配的所有切面
      */
-    protected final List<Advice> aspects;
+    private final List<Advice> aspects;
     /**
      * 当前执行到的切面索引
      */
-    protected volatile AtomicInteger currAspectIndex;
+    private volatile AtomicInteger currAspectIndex;
     /**
      * 用于临时存储当前切面
      */
-    protected volatile Advice aspect = null;
+    private volatile Advice aspect = null;
 
     /**
      * 切面中抛出的异常
      */
-    protected volatile Throwable error = null;
+    private volatile Throwable error = null;
 
     public AspectHandler(
         Object target,
@@ -80,11 +80,11 @@ public class AspectHandler {
         }
     }
 
-    protected boolean hasNextAspect() {
+    private boolean hasNextAspect() {
         return this.aspects.size() > currAspectIndex.get();
     }
 
-    protected Advice getNextAspect() {
+    private Advice getNextAspect() {
         return this.aspects.get(currAspectIndex.getAndIncrement());
     }
 

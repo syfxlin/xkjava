@@ -29,9 +29,9 @@ public class CookieManager {
         CookieManager.class
     );
 
-    protected Map<String, Cookie> requestCookies;
+    private Map<String, Cookie> requestCookies;
 
-    protected Map<String, SetCookie> cookies;
+    private Map<String, SetCookie> cookies;
 
     /**
      * Only used cglib

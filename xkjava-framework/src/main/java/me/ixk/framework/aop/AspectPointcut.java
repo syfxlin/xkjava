@@ -36,8 +36,8 @@ public class AspectPointcut {
         POINTCUT_PRIMITIVES.add(PointcutPrimitive.AT_TARGET);
     }
 
-    protected final PointcutParser pointcutParser;
-    protected final PointcutExpression pointcutExpression;
+    private final PointcutParser pointcutParser;
+    private final PointcutExpression pointcutExpression;
 
     public AspectPointcut(String expression) {
         this(expression, POINTCUT_PRIMITIVES);

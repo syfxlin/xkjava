@@ -103,7 +103,7 @@ public class ControllerHandler implements Handler {
         }
     }
 
-    protected void processInitBinder(final WebDataBinder binder) {
+    private void processInitBinder(final WebDataBinder binder) {
         final Map<String, Object> args = new ConcurrentHashMap<>(10);
         args.put("binder", binder);
         args.put("webDataBinder", binder);
@@ -127,7 +127,7 @@ public class ControllerHandler implements Handler {
         }
     }
 
-    protected Object processException(final Throwable exception) {
+    private Object processException(final Throwable exception) {
         Object result = NO_RESOLVER;
         final ExceptionHandlerRegistry registry =
             this.app.make(ExceptionHandlerRegistry.class);
@@ -162,7 +162,7 @@ public class ControllerHandler implements Handler {
         return result;
     }
 
-    protected Object processException(
+    private Object processException(
         final Throwable exception,
         final Class<?> clazz,
         final ExceptionHandlerResolver resolver
@@ -189,7 +189,7 @@ public class ControllerHandler implements Handler {
         return NO_RESOLVER;
     }
 
-    protected Object callMethodHandler(
+    private Object callMethodHandler(
         final Object controller,
         final Method method,
         final WebResolverRegistry registry,
