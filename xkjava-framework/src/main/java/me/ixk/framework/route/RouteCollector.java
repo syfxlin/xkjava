@@ -137,7 +137,7 @@ public class RouteCollector {
         RouteData routeData = this.routeParser.parse(route);
         log.debug("Add Route: {}", routeData);
         for (String method : httpMethods) {
-            if (this.isStaticRoute(routeData)) {
+            if (routeData.isStatic()) {
                 this.addStaticRoute(
                         method,
                         routeData,
@@ -266,10 +266,6 @@ public class RouteCollector {
             this.middleware(m);
         }
         return this;
-    }
-
-    private boolean isStaticRoute(RouteData routeData) {
-        return routeData.getVariableNames().isEmpty();
     }
 
     private void addStaticRoute(

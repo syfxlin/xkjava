@@ -33,6 +33,9 @@ class RouteDispatcherTest {
         collector.get("/user5/{id}/{name}", handler);
         collector.get("/user6/name", handler);
         collector.get("/user7/name/{name}", handler);
+        collector.get("/user8/n{.}me", handler);
+        collector.get("/user9/{*}/name", handler);
+        collector.get("/user10/{**}/name", handler);
 
         final RouteResult r1 = dispatcher.dispatch("GET", "/user1/1");
         assertEquals(RouteStatus.FOUND, r1.getStatus());
@@ -74,6 +77,22 @@ class RouteDispatcherTest {
 
         final RouteResult r12 = dispatcher.dispatch("GET", "/");
         assertEquals(RouteStatus.FOUND, r12.getStatus());
+
+        final RouteResult r13 = dispatcher.dispatch("GET", "/user8/name");
+        assertEquals(RouteStatus.FOUND, r13.getStatus());
+        final RouteResult r14 = dispatcher.dispatch("GET", "/user8/nbme");
+        assertEquals(RouteStatus.FOUND, r14.getStatus());
+
+        final RouteResult r15 = dispatcher.dispatch("GET", "/user9/test/name");
+        assertEquals(RouteStatus.FOUND, r15.getStatus());
+
+        final RouteResult r16 = dispatcher.dispatch("GET", "/user10/test/name");
+        assertEquals(RouteStatus.FOUND, r16.getStatus());
+        final RouteResult r17 = dispatcher.dispatch(
+            "GET",
+            "/user10/test1/test2/name"
+        );
+        assertEquals(RouteStatus.FOUND, r17.getStatus());
     }
 
     public void handler() {}

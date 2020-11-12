@@ -13,18 +13,26 @@ import java.util.List;
  * @date 2020/10/14 下午 4:50
  */
 public class RouteData {
-    protected volatile String regex;
-
-    protected volatile String route;
-
+    protected final boolean isStatic;
+    protected final String regex;
+    protected final String route;
+    protected final List<String> variableNames;
     protected volatile RouteHandler handler;
 
-    protected volatile List<String> variableNames;
-
-    public RouteData(String route, String regex, List<String> variableNames) {
+    public RouteData(
+        String route,
+        String regex,
+        boolean isStatic,
+        List<String> variableNames
+    ) {
         this.route = route;
         this.regex = regex;
         this.variableNames = variableNames;
+        this.isStatic = isStatic;
+    }
+
+    public boolean isStatic() {
+        return isStatic;
     }
 
     public boolean matches(String route) {
@@ -35,16 +43,8 @@ public class RouteData {
         return route;
     }
 
-    public void setRoute(String route) {
-        this.route = route;
-    }
-
     public String getRegex() {
         return regex;
-    }
-
-    public void setRegex(String route) {
-        this.regex = route;
     }
 
     public void setHandler(RouteHandler handler) {
@@ -57,10 +57,6 @@ public class RouteData {
 
     public List<String> getVariableNames() {
         return variableNames;
-    }
-
-    public void setVariableNames(List<String> variableNames) {
-        this.variableNames = variableNames;
     }
 
     public int getVariableSize() {
