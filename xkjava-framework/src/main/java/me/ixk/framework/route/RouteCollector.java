@@ -135,6 +135,7 @@ public class RouteCollector {
     public void addRoute(String[] httpMethods, String route, Method handler) {
         route = this.routeGroupPrefix + route;
         RouteData routeData = this.routeParser.parse(route);
+        log.debug("Add Route: {}", routeData);
         for (String method : httpMethods) {
             if (this.isStaticRoute(routeData)) {
                 this.addStaticRoute(
@@ -235,6 +236,7 @@ public class RouteCollector {
     }
 
     public RouteCollector middleware(Class<? extends Middleware> middleware) {
+        log.debug("Add Middleware: {}", middleware);
         this.middleware.add(middleware);
         return this;
     }
@@ -321,5 +323,9 @@ public class RouteCollector {
 
     public RouteGenerator getRouteGenerator() {
         return routeGenerator;
+    }
+
+    public RouteParser getRouteParser() {
+        return routeParser;
     }
 }

@@ -89,7 +89,8 @@ public class RouteDispatcher {
         Map<String, String> routeParams = new ConcurrentHashMap<>();
         index++;
         for (String paramName : routeData.getVariableNames()) {
-            routeParams.put(paramName, matcher.group(index++));
+            final String value = matcher.group(index++);
+            routeParams.put(paramName, value == null ? "" : value);
         }
         return new RouteResult(
             RouteStatus.FOUND,
@@ -97,5 +98,9 @@ public class RouteDispatcher {
             routeParams,
             routeData.getRoute()
         );
+    }
+
+    public RouteCollector getCollector() {
+        return collector;
     }
 }

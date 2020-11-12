@@ -66,4 +66,22 @@ public class RouteData {
     public int getVariableSize() {
         return variableNames.size();
     }
+
+    @Override
+    public String toString() {
+        return (
+            "RouteData{" +
+            "regex='" +
+            regex +
+            '\'' +
+            ", route='" +
+            route +
+            '\'' +
+            ", handler=" +
+            handler +
+            ", variableNames=" +
+            variableNames +
+            '}'
+        );
+    }
 }

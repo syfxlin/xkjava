@@ -19,26 +19,33 @@ import me.ixk.framework.annotations.Component;
 @Component(name = "routeParser")
 public class RouteParser {
     protected static final Pattern PATH_VARIABLE_PATTERN = Pattern.compile(
-        "\\{([^/]+)}"
+        "\\{([a-zA-Z$_][a-zA-Z0-9$_]*)(\\?)?(:[^/}]+)?}"
     );
 
     protected static final String PATH_VARIABLE_REPLACE = "[^/]+";
 
     public RouteData parse(String route) {
         route = route.trim();
-        Matcher matcher = PATH_VARIABLE_PATTERN.matcher(route);
+        final Matcher matcher = PATH_VARIABLE_PATTERN.matcher(route);
         String routeRegex = route;
-        List<String> variableNames = new ArrayList<>();
+        final List<String> variableNames = new ArrayList<>();
         while (matcher.find()) {
-            String[] ms = matcher.group(1).split(":");
+            final String variableName = matcher.group(1).trim();
+            final boolean isOptional = matcher.group(2) != null;
+            final String customPattern = matcher.group(3);
             routeRegex =
                 routeRegex.replace(
                     matcher.group(0),
-                    "(" +
-                    (ms.length != 1 ? ms[1].trim() : PATH_VARIABLE_REPLACE) +
-                    ")"
+                    String.format(
+                        "%s(%s)%s",
+                        isOptional ? "?" : "",
+                        customPattern == null
+                            ? PATH_VARIABLE_REPLACE
+                            : customPattern.trim().substring(1),
+                        isOptional ? "?" : ""
+                    )
                 );
-            variableNames.add(ms[0].trim());
+            variableNames.add(variableName);
         }
         return new RouteData(route, routeRegex, variableNames);
     }
