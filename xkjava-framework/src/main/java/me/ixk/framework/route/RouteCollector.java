@@ -35,14 +35,12 @@ public class RouteCollector {
     );
 
     private final XkJava app;
-
     private final Map<String, Map<String, RouteHandler>> staticRoutes;
-
     private final Map<String, List<RouteData>> variableRoutes;
 
     private final RouteParser routeParser;
-
     private final RouteGenerator routeGenerator;
+
     private final MiddlewareRegistry middlewareRegistry;
     private volatile String routeGroupPrefix = "";
     private List<Class<? extends Middleware>> useGroupMiddleware = null;
