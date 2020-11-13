@@ -59,6 +59,11 @@ class ObjectWrapperDataBinderTest {
             public boolean required() {
                 return false;
             }
+
+            @Override
+            public String defaultValue() {
+                return EMPTY;
+            }
         };
         final User user = dataBinder.getObject(
             "user",

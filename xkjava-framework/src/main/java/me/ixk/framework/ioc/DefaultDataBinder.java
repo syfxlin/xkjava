@@ -47,6 +47,13 @@ public class DefaultDataBinder implements DataBinder {
         if (object == null) {
             object = container.make(type, this);
         }
+        if (
+            object == null &&
+            dataBind != null &&
+            DataBind.EMPTY.equals(dataBind.defaultValue())
+        ) {
+            object = dataBind.defaultValue();
+        }
         return Convert.convert(type, object);
     }
 

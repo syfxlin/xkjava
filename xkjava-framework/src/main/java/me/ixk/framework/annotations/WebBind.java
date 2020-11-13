@@ -29,6 +29,9 @@ public @interface WebBind {
     @AliasFor(annotation = DataBind.class, attribute = "required")
     boolean required() default false;
 
+    @AliasFor(annotation = DataBind.class, attribute = "defaultValue")
+    String defaultValue() default DataBind.EMPTY;
+
     Class<? extends Converter>[] converter() default {  };
 
     Type type() default Type.ALL;

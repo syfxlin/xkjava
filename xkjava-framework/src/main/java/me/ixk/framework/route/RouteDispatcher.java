@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import me.ixk.framework.annotations.Component;
+import me.ixk.framework.http.HttpMethod;
 
 /**
  * 路由调度器
@@ -49,8 +50,8 @@ public class RouteDispatcher {
             }
         }
 
-        if ("HEAD".equals(httpMethod)) {
-            return this.dispatch("GET", url);
+        if (HttpMethod.PATCH.is(httpMethod)) {
+            return this.dispatch(HttpMethod.GET.asString(), url);
         }
 
         for (Map<String, RouteHandler> routeData : this.collector.getStaticRoutes()

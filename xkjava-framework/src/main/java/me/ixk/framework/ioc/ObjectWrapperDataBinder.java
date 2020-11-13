@@ -109,6 +109,13 @@ public class ObjectWrapperDataBinder implements DataBinder {
                 object = this.container.make(typeName, type, binder);
             }
         }
+        if (
+            object == null &&
+            dataBind != null &&
+            !DataBind.EMPTY.equals(dataBind.defaultValue())
+        ) {
+            object = dataBind.defaultValue();
+        }
         for (Converter converter : this.converters) {
             object = converter.before(object, currentName, type, annotation);
         }

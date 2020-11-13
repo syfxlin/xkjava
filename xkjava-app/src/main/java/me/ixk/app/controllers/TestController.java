@@ -151,6 +151,13 @@ public class TestController {
         return "text:Status Result";
     }
 
+    @GetMapping("/default")
+    public String defaultValue(
+        @QueryValue(name = "name", defaultValue = "default") String name
+    ) {
+        return name;
+    }
+
     @InitBinder
     public void binder(final WebDataBinder binder) {
         final User2 user2 = new User2();

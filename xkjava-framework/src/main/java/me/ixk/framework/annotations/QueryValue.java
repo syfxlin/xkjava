@@ -30,5 +30,8 @@ public @interface QueryValue {
     @AliasFor(annotation = WebBind.class, attribute = "required")
     boolean required() default true;
 
+    @AliasFor(annotation = WebBind.class, attribute = "defaultValue")
+    String defaultValue() default DataBind.EMPTY;
+
     Class<? extends Converter>[] converter() default {  };
 }

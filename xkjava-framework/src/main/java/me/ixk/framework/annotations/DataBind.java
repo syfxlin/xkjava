@@ -20,6 +20,8 @@ import java.lang.annotation.Target;
 @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DataBind {
+    String EMPTY = "EMPTY";
+
     @AliasFor("name")
     String value() default "";
 
@@ -27,4 +29,6 @@ public @interface DataBind {
     String name() default "";
 
     boolean required() default false;
+
+    String defaultValue() default EMPTY;
 }
