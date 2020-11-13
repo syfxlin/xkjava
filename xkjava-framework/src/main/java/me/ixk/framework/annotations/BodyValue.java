@@ -36,5 +36,6 @@ public @interface BodyValue {
     @AliasFor(annotation = WebBind.class, attribute = "defaultValue")
     String defaultValue() default DataBind.EMPTY;
 
+    @AliasFor(annotation = WebBind.class, attribute = "converter")
     Class<? extends Converter>[] converter() default {  };
 }

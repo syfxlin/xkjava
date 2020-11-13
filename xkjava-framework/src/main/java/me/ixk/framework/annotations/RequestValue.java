@@ -32,5 +32,6 @@ public @interface RequestValue {
     @AliasFor(annotation = WebBind.class, attribute = "required")
     boolean required() default true;
 
+    @AliasFor(annotation = WebBind.class, attribute = "converter")
     Class<? extends Converter>[] converter() default {  };
 }
