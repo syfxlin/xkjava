@@ -21,7 +21,7 @@ import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.exceptions.ResponseException;
-import me.ixk.framework.utils.JSON;
+import me.ixk.framework.utils.Json;
 
 /**
  * @author Otstar Lin
@@ -317,7 +317,7 @@ public class Response extends HttpServletResponseWrapper {
         Map<Object, String> headers
     ) {
         this.reset();
-        this.content(JSON.stringify(data));
+        this.content(Json.stringify(data));
         this.status(status);
         this.headers(headers);
         this.contentType(MimeType.APPLICATION_JSON.asString());

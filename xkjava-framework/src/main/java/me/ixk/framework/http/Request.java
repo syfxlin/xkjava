@@ -43,7 +43,7 @@ import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.helpers.Util;
 import me.ixk.framework.route.RouteResult;
-import me.ixk.framework.utils.JSON;
+import me.ixk.framework.utils.Json;
 
 /**
  * 请求对象
@@ -86,7 +86,7 @@ public class Request extends HttpServletRequestWrapper {
             } catch (final IOException e) {
                 this.body = null;
             }
-            this.parseBody = JSON.parse(this.body);
+            this.parseBody = Json.parse(this.body);
         }
         // Cookies
         final Cookie[] cookies = this.getCookies();
@@ -214,7 +214,7 @@ public class Request extends HttpServletRequestWrapper {
         final JsonNode node;
         if (this.parseBody == null) {
             node =
-                JSON.convertToNode(
+                Json.convertToNode(
                     this.getParameterMap()
                         .entrySet()
                         .stream()

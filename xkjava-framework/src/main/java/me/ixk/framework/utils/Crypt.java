@@ -54,7 +54,7 @@ public class Crypt {
                 ivEncoded + encrypted,
                 key
             );
-            ObjectNode json = JSON.createObject();
+            ObjectNode json = Json.createObject();
             json.put("iv", ivEncoded);
             json.put("value", encrypted);
             json.put("mac", macEncoded);
@@ -66,7 +66,7 @@ public class Crypt {
 
     public String decrypt(String encrypted) {
         try {
-            ObjectNode payload = JSON.parseObject(Base64.decode(encrypted));
+            ObjectNode payload = Json.parseObject(Base64.decode(encrypted));
             if (!this.vaild(Objects.requireNonNull(payload))) {
                 return null;
             }

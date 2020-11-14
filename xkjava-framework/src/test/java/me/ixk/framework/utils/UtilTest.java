@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.helpers.Util;
-import me.ixk.framework.utils.JSON;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -18,8 +17,8 @@ class UtilTest {
 
     @Test
     void testJsonNodeDataSet() {
-        ObjectNode objectNode = JSON.createObject();
-        objectNode.set("sub", JSON.createArray());
+        ObjectNode objectNode = Json.createObject();
+        objectNode.set("sub", Json.createArray());
         Util.dataSet(objectNode, "key", TextNode.valueOf("value"));
         Util.dataSet(objectNode, "sub.0", TextNode.valueOf("array0"));
         Util.dataSet(objectNode, "sub.2", TextNode.valueOf("array2"));
@@ -27,13 +26,13 @@ class UtilTest {
         Util.dataSet(objectNode, "sub.3.data", TextNode.valueOf("data"));
         Assertions.assertEquals(
             "{\"sub\":[\"array0\",null,\"array2\",{\"data\":\"data\"}],\"key\":\"value\",\"sub1\":{\"sub2\":\"sub3\"}}",
-            JSON.stringify(objectNode)
+            Json.stringify(objectNode)
         );
     }
 
     @Test
     void testJsonNodeDataGet() {
-        ObjectNode objectNode = JSON.parseObject(
+        ObjectNode objectNode = Json.parseObject(
             "{\"sub\":[\"array0\",null,\"array2\",{\"data\":\"data\"}],\"key\":\"value\",\"sub1\":{\"sub2\":\"sub3\"}}"
         );
         Assertions.assertEquals(
@@ -75,7 +74,7 @@ class UtilTest {
         Util.dataSet(map, "sub.3.data", "data");
         Assertions.assertEquals(
             "{\"sub\":[\"array0\",null,\"array2\",{\"data\":\"data\"}],\"sub1\":{\"sub2\":\"sub3\"},\"key\":\"value\"}",
-            JSON.stringify(map)
+            Json.stringify(map)
         );
     }
 

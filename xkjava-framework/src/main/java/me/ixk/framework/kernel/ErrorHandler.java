@@ -13,7 +13,7 @@ import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.StdErrorJson;
 import me.ixk.framework.utils.ByteArrayUtf8Writer;
-import me.ixk.framework.utils.JSON;
+import me.ixk.framework.utils.Json;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.MimeTypes;
@@ -170,13 +170,13 @@ public class ErrorHandler
         if (this.isShowStacks()) {
             errorJson.setThrowable(th);
         }
-        String json = JSON.stringify(errorJson);
+        String json = Json.stringify(errorJson);
         writer.write(
             json != null
                 ? json
                 : "{\n" +
                 "    \"status\": \"500\",\n" +
-                "    \"message\": \"JSON stringify error\",\n" +
+                "    \"message\": \"Json stringify error\",\n" +
                 "    \"errors\": \"ErrorHandler json stringify failed\"\n" +
                 "}"
         );

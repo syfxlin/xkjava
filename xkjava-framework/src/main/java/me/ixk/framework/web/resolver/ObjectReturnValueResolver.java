@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.http.MimeType;
-import me.ixk.framework.utils.JSON;
+import me.ixk.framework.utils.Json;
 import me.ixk.framework.web.MethodReturnValue;
 import me.ixk.framework.web.ResponseReturnValueResolver;
 import me.ixk.framework.web.WebContext;
@@ -40,6 +40,6 @@ public class ObjectReturnValueResolver implements ResponseReturnValueResolver {
         return context
             .getResponse()
             .contentType(MimeType.APPLICATION_JSON)
-            .content(JSON.stringify(value));
+            .content(Json.stringify(value));
     }
 }

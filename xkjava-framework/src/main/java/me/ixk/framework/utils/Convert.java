@@ -776,7 +776,7 @@ public class Convert {
     ) {
         // JsonNode to Object
         if (value instanceof JsonNode) {
-            T result = JSON.convertToObject((JsonNode) value, (Class<T>) type);
+            T result = Json.convertToObject((JsonNode) value, (Class<T>) type);
             if (result != null) {
                 return result;
             }

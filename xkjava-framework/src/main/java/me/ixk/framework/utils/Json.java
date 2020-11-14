@@ -16,22 +16,22 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author Otstar Lin
  * @date 2020/10/14 下午 5:03
  */
-public class JSON extends ObjectMapper {
+public class Json extends ObjectMapper {
 
-    private JSON() {
+    private Json() {
         super();
     }
 
-    public static JSON make() {
+    public static Json make() {
         return Inner.INSTANCE;
     }
 
-    public static JSON getInstance() {
+    public static Json getInstance() {
         return Inner.INSTANCE;
     }
 
     private static class Inner {
-        private static final JSON INSTANCE = new JSON();
+        private static final Json INSTANCE = new Json();
     }
 
     public static ObjectNode parseObject(String json) {

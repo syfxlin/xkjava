@@ -6,7 +6,7 @@ package me.ixk.framework.http.result;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import me.ixk.framework.http.MimeType;
-import me.ixk.framework.utils.JSON;
+import me.ixk.framework.utils.Json;
 
 /**
  * JSON 响应
@@ -18,11 +18,11 @@ public class JsonResult extends AbstractHttpResult {
     protected JsonNode jsonNode;
 
     public JsonResult() {
-        this.jsonNode = JSON.make().nullNode();
+        this.jsonNode = Json.make().nullNode();
     }
 
     public JsonResult(Object object) {
-        this.jsonNode = JSON.convertToNode(object);
+        this.jsonNode = Json.convertToNode(object);
     }
 
     public JsonResult(JsonNode jsonNode) {

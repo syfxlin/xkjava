@@ -130,10 +130,10 @@ public class Jwt {
 
         List<String> segments = new ArrayList<>();
         segments.add(
-            Base64.encode(Objects.requireNonNull(JSON.stringify(header)))
+            Base64.encode(Objects.requireNonNull(Json.stringify(header)))
         );
         segments.add(
-            Base64.encode(Objects.requireNonNull(JSON.stringify(mergePayload)))
+            Base64.encode(Objects.requireNonNull(Json.stringify(mergePayload)))
         );
         String sign = this.sign(String.join(".", segments), false, key, algo);
         segments.add(sign);
@@ -155,14 +155,14 @@ public class Jwt {
         if (deArray.length < 3) {
             throw new RuntimeException("Error segments count");
         }
-        Map<String, String> header = JSON.parse(
+        Map<String, String> header = Json.parse(
             Base64.decode(deArray[0]),
             Map.class
         );
         if (header == null) {
             throw new RuntimeException("Invalid header encoding");
         }
-        Map<String, String> payload = JSON.parse(
+        Map<String, String> payload = Json.parse(
             Base64.decode(deArray[1]),
             Map.class
         );

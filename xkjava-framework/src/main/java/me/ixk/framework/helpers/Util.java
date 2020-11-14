@@ -24,7 +24,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import me.ixk.framework.utils.ClassUtils;
 import me.ixk.framework.utils.Convert;
-import me.ixk.framework.utils.JSON;
+import me.ixk.framework.utils.Json;
 
 /**
  * 静态 Helper 工具类
@@ -64,7 +64,7 @@ public class Util {
         }
         for (int i = 0; i < keys.length; i++) {
             if ("*".equals(keys[i])) {
-                ArrayNode array = JSON.createArray();
+                ArrayNode array = Json.createArray();
                 String[] subKeys = Arrays.copyOfRange(keys, i + 1, keys.length);
                 if (target.isObject()) {
                     ObjectNode object = (ObjectNode) target;
@@ -250,7 +250,7 @@ public class Util {
                     ObjectNode node = (ObjectNode) target;
                     target = node.get(keys[i]);
                     if (target == null) {
-                        target = JSON.createObject();
+                        target = Json.createObject();
                         node.set(keys[i], target);
                     }
                 } else if (target.isArray()) {
@@ -258,7 +258,7 @@ public class Util {
                     int index = Integer.parseInt(keys[i]);
                     target = node.get(index);
                     if (target == null) {
-                        target = JSON.createObject();
+                        target = Json.createObject();
                         while (node.size() < index) {
                             node.addNull();
                         }
