@@ -13,8 +13,8 @@ import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Controller;
 import me.ixk.framework.annotations.ControllerAdvice;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.kernel.InitBinderHandlerResolver;
 import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.web.InitBinderHandlerResolver;
 
 /**
  * InitBinderRegistry

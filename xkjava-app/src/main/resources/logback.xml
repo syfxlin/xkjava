@@ -6,21 +6,21 @@
 <configuration scan="true" scanPeriod="300 seconds">
   <property
         name="LOG_PATTERN"
-        value="%date %-5level --- [%thread] %class.%method/%line : %msg%n"
+        value="%date [%-5level] - [%-7thread] %class{40}.%method:%line |- %msg%n"
     />
 
   <!-- 彩色日志格式 -->
   <property
         name="LOG_PATTERN_GREEN"
-        value="%date %green(%-5level) --- [%thread] %cyan(%class.%method/%line) : %msg%n"
+        value="%date [%green(%-5level)] - [%-7thread] %cyan(%class{40}.%method:%line) |- %msg%n"
     />
   <property
         name="LOG_PATTERN_YELLOW"
-        value="%date %yellow(%-5level) --- [%thread] %cyan(%class.%method/%line) : %msg%n"
+        value="%date [%yellow(%-5level)] - [%-7thread] %cyan(%class{40}.%method:%line) |- %msg%n"
     />
   <property
         name="LOG_PATTERN_RED"
-        value="%date %red(%-5level) --- [%thread] %cyan(%class.%method/%line) : %msg%n"
+        value="%date [%red(%-5level)] - [%-7thread] %cyan(%class{40}.%method:%line) |- %msg%n"
     />
 
 

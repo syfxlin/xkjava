@@ -2,13 +2,14 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.kernel;
+package me.ixk.framework.web;
 
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.exceptions.DispatchServletException;
@@ -21,17 +22,12 @@ import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.registry.after.ExceptionHandlerRegistry;
 import me.ixk.framework.registry.after.InitBinderRegistry;
 import me.ixk.framework.registry.after.WebResolverRegistry;
+import me.ixk.framework.route.RouteResult;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ParameterNameDiscoverer;
-import me.ixk.framework.web.MethodParameter;
-import me.ixk.framework.web.MethodReturnValue;
-import me.ixk.framework.web.RequestParameterResolver;
-import me.ixk.framework.web.RequestParametersPostResolver;
-import me.ixk.framework.web.ResponseReturnValueResolver;
-import me.ixk.framework.web.WebContext;
-import me.ixk.framework.web.WebDataBinder;
+import me.ixk.framework.web.RequestAttributeRegistry.RequestAttributeDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +56,32 @@ public class ControllerHandler implements Handler {
     }
 
     @Override
+    public void before(RouteResult result, Request request, Response response) {
+        RequestAttributeRegistry registry =
+            this.app.make(RequestAttributeRegistry.class);
+        Map<String, RequestAttributeDefinition> definitionMap = registry.getRegistry(
+            result.getHandler().getMethod()
+        );
+        if (definitionMap != null) {
+            for (Entry<String, RequestAttributeDefinition> entry : definitionMap.entrySet()) {
+                String attributeName = entry.getKey();
+                RequestAttributeDefinition definition = entry.getValue();
+                request.setAttribute(
+                    attributeName,
+                    definition
+                        .getRegistry()
+                        .register(
+                            this.app,
+                            attributeName,
+                            definition.getMethod(),
+                            definition.getAnnotation()
+                        )
+                );
+            }
+        }
+    }
+
+    @Override
     public Object handle(final Request request, final Response response) {
         // 将控制器信息注入 RequestContext
         this.app.setAttribute(
@@ -84,7 +106,7 @@ public class ControllerHandler implements Handler {
             // 执行 @InitBinder 标记的方法
             this.processInitBinder(webDataBinder);
             // 实际调用路由方法
-            return this.callMethodHandler(
+            return this.callHandler(
                     controller,
                     this.method,
                     this.app.make(WebResolverRegistry.class),
@@ -189,7 +211,7 @@ public class ControllerHandler implements Handler {
         return NO_RESOLVER;
     }
 
-    private Object callMethodHandler(
+    private Object callHandler(
         final Object controller,
         final Method method,
         final WebResolverRegistry registry,
@@ -197,21 +219,12 @@ public class ControllerHandler implements Handler {
         final WebDataBinder binder
     )
         throws java.lang.Exception {
-        Object[] dependencies = new Object[method.getParameterCount()];
-        final Parameter[] parameters = method.getParameters();
-        final Class<?>[] parameterTypes = method.getParameterTypes();
-        final String[] parameterNames = ParameterNameDiscoverer.getParameterNames(
-            method
-        );
         final MergedAnnotation methodAnnotation = AnnotationUtils.getAnnotation(
             method
         );
-        dependencies =
+        Object[] dependencies =
             this.processParameterResolver(
-                    dependencies,
                     controller,
-                    parameters,
-                    parameterNames,
                     methodAnnotation,
                     registry,
                     context,
@@ -219,21 +232,6 @@ public class ControllerHandler implements Handler {
                 );
         // call
         ReflectUtil.setAccessible(method);
-        for (int i = 0; i < parameters.length; i++) {
-            if (null == dependencies[i]) {
-                dependencies[i] = ClassUtil.getDefaultValue(parameterTypes[i]);
-            } else if (
-                !parameterTypes[i].isAssignableFrom(dependencies[i].getClass())
-            ) {
-                final Object targetValue = Convert.convert(
-                    parameterTypes[i],
-                    dependencies[i]
-                );
-                if (null != targetValue) {
-                    dependencies[i] = targetValue;
-                }
-            }
-        }
         final Object returnValue = method.invoke(
             ClassUtil.isStatic(method) ? null : controller,
             dependencies
@@ -248,15 +246,18 @@ public class ControllerHandler implements Handler {
     }
 
     private Object[] processParameterResolver(
-        Object[] dependencies,
         Object controller,
-        Parameter[] parameters,
-        String[] parameterNames,
         MergedAnnotation methodAnnotation,
         WebResolverRegistry registry,
         WebContext context,
         WebDataBinder binder
     ) {
+        Object[] dependencies = new Object[method.getParameterCount()];
+        final Parameter[] parameters = method.getParameters();
+        final Class<?>[] parameterTypes = method.getParameterTypes();
+        final String[] parameterNames = ParameterNameDiscoverer.getParameterNames(
+            method
+        );
         final MethodParameter methodParameter = new MethodParameter(
             controller,
             this.controllerClass,
@@ -291,6 +292,21 @@ public class ControllerHandler implements Handler {
                         context,
                         binder
                     );
+            }
+        }
+        for (int i = 0; i < parameters.length; i++) {
+            if (null == dependencies[i]) {
+                dependencies[i] = ClassUtil.getDefaultValue(parameterTypes[i]);
+            } else if (
+                !parameterTypes[i].isAssignableFrom(dependencies[i].getClass())
+            ) {
+                final Object targetValue = Convert.convert(
+                    parameterTypes[i],
+                    dependencies[i]
+                );
+                if (null != targetValue) {
+                    dependencies[i] = targetValue;
+                }
             }
         }
         return dependencies;

@@ -8,10 +8,10 @@ import java.lang.reflect.Method;
 import java.util.List;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
-import me.ixk.framework.kernel.ControllerHandler;
 import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.middleware.Middleware;
 import me.ixk.framework.middleware.Runner;
+import me.ixk.framework.web.ControllerHandler;
 
 /**
  * 路由处理器
@@ -24,15 +24,34 @@ public class RouteHandler {
     private final Handler handler;
     private final List<Middleware> middlewares;
 
-    public RouteHandler(Method handler, List<Middleware> middlewares) {
+    public RouteHandler(
+        final Method handler,
+        final List<Middleware> middlewares
+    ) {
         this.method = handler;
         this.handler = new ControllerHandler(handler);
         this.middlewares = middlewares;
     }
 
-    public Response handle(Request request, Response response) {
-        return new Runner(this.handler, this.middlewares)
-        .then(request, response);
+    public Response handle(
+        final RouteResult result,
+        final Request request,
+        final Response response
+    ) {
+        try {
+            this.handler.before(result, request, response);
+            final Response value = new Runner(this.handler, this.middlewares)
+            .then(request, response);
+            this.handler.after(value, request, response);
+            return this.handler.afterReturning(value, request, response);
+        } catch (final Throwable e) {
+            final Response res =
+                this.handler.afterException(e, request, response);
+            if (res != null) {
+                return res;
+            }
+            throw e;
+        }
     }
 
     public Method getMethod() {
