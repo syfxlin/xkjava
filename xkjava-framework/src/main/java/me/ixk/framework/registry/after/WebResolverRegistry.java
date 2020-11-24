@@ -10,6 +10,7 @@ import java.util.List;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.web.HandlerExceptionResolver;
 import me.ixk.framework.web.RequestParameterResolver;
 import me.ixk.framework.web.RequestParametersPostResolver;
 import me.ixk.framework.web.ResponseReturnValueResolver;
@@ -25,6 +26,7 @@ public class WebResolverRegistry implements AfterImportBeanRegistry {
     private final List<RequestParameterResolver> requestParameterResolvers = new ArrayList<>();
     private final List<ResponseReturnValueResolver> responseReturnValueResolvers = new ArrayList<>();
     private final List<RequestParametersPostResolver> requestParametersPostResolvers = new ArrayList<>();
+    private final List<HandlerExceptionResolver> handlerExceptionResolvers = new ArrayList<>();
 
     @Override
     @SuppressWarnings("unchecked")
@@ -64,6 +66,15 @@ public class WebResolverRegistry implements AfterImportBeanRegistry {
                     )
                 );
         }
+        if (
+            HandlerExceptionResolver.class.isAssignableFrom((Class<?>) element)
+        ) {
+            this.handlerExceptionResolvers.add(
+                    app.make(
+                        (Class<? extends HandlerExceptionResolver>) element
+                    )
+                );
+        }
     }
 
     public List<RequestParameterResolver> getRequestParameterResolvers() {
@@ -76,5 +87,9 @@ public class WebResolverRegistry implements AfterImportBeanRegistry {
 
     public List<RequestParametersPostResolver> getRequestParametersPostResolvers() {
         return requestParametersPostResolvers;
+    }
+
+    public List<HandlerExceptionResolver> getHandlerExceptionResolvers() {
+        return handlerExceptionResolvers;
     }
 }

@@ -6,20 +6,19 @@ package me.ixk.framework.web;
 
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.ScopeType;
-import me.ixk.framework.exceptions.DispatchServletException;
 import me.ixk.framework.exceptions.Exception;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Handler;
-import me.ixk.framework.registry.after.ExceptionHandlerRegistry;
 import me.ixk.framework.registry.after.InitBinderRegistry;
 import me.ixk.framework.registry.after.WebResolverRegistry;
 import me.ixk.framework.route.RouteResult;
@@ -28,6 +27,7 @@ import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ParameterNameDiscoverer;
 import me.ixk.framework.web.RequestAttributeRegistry.RequestAttributeDefinition;
+import me.ixk.framework.web.resolver.InitBinderHandlerResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,28 +44,38 @@ public class ControllerHandler implements Handler {
     private static final String NO_RESOLVER = "NO_RESOLVER";
 
     private final XkJava app;
+    private final WebResolverRegistry registry;
 
     private final Class<?> controllerClass;
-
     private final Method method;
+    private final MergedAnnotation methodAnnotation;
+    private Object controller;
+    private WebDataBinder dataBinder;
+    private WebContext context;
 
     public ControllerHandler(final Method handler) {
         this.controllerClass = handler.getDeclaringClass();
         this.method = handler;
+        this.methodAnnotation = AnnotationUtils.getAnnotation(this.method);
         this.app = XkJava.of();
+        this.registry = this.app.make(WebResolverRegistry.class);
     }
 
     @Override
-    public void before(RouteResult result, Request request, Response response) {
-        RequestAttributeRegistry registry =
+    public void before(
+        final RouteResult result,
+        final Request request,
+        final Response response
+    ) {
+        final RequestAttributeRegistry registry =
             this.app.make(RequestAttributeRegistry.class);
-        Map<String, RequestAttributeDefinition> definitionMap = registry.getRegistry(
+        final Map<String, RequestAttributeDefinition> definitionMap = registry.getRegistry(
             result.getHandler().getMethod()
         );
         if (definitionMap != null) {
-            for (Entry<String, RequestAttributeDefinition> entry : definitionMap.entrySet()) {
-                String attributeName = entry.getKey();
-                RequestAttributeDefinition definition = entry.getValue();
+            for (final Entry<String, RequestAttributeDefinition> entry : definitionMap.entrySet()) {
+                final String attributeName = entry.getKey();
+                final RequestAttributeDefinition definition = entry.getValue();
                 request.setAttribute(
                     attributeName,
                     definition
@@ -79,59 +89,60 @@ public class ControllerHandler implements Handler {
                 );
             }
         }
-    }
-
-    @Override
-    public Object handle(final Request request, final Response response) {
         // 将控制器信息注入 RequestContext
         this.app.setAttribute(
-                "controllerClass",
+                "me.ixk.framework.web.ControllerHandler.controllerClass",
                 this.controllerClass,
                 ScopeType.REQUEST
             );
         this.app.setAttribute(
-                "controllerMethod",
+                "me.ixk.framework.web.ControllerHandler.controllerMethod",
                 this.method,
                 ScopeType.REQUEST
             );
+        // 创建 WebContext
+        this.context = this.app.make(WebContext.class);
+        // 创建 WebDataBinder
+        this.dataBinder = new WebDataBinder(this.app, request);
+        // 创建/获取 控制器
+        this.controller = this.app.make(this.controllerClass, this.dataBinder);
+        // 执行 @InitBinder 标记的方法
+        this.processInitBinder();
+    }
+
+    @Override
+    public Object handle(final Request request, final Response response) {
         try {
-            // 创建 WebDataBinder
-            final WebDataBinder webDataBinder = new WebDataBinder(
-                this.app,
-                request
-            );
-            // 创建/获取 控制器
-            final Object controller =
-                this.app.make(this.controllerClass, webDataBinder);
-            // 执行 @InitBinder 标记的方法
-            this.processInitBinder(webDataBinder);
             // 实际调用路由方法
-            return this.callHandler(
-                    controller,
-                    this.method,
-                    this.app.make(WebResolverRegistry.class),
-                    this.app.make(WebContext.class),
-                    webDataBinder
-                );
-        } catch (final Throwable e) {
+            return this.callHandler();
+        } catch (Throwable e) {
+            if (e instanceof InvocationTargetException) {
+                e = ((InvocationTargetException) e).getTargetException();
+            }
             log.error("ControllerHandler Exception", e);
             // 处理 ExceptionHandler 注解定义的错误处理器
-            final Object result = this.processException(e);
+            final Object result = this.processException(e, request, response);
             if (NO_RESOLVER.equals(result)) {
                 // 若错误未能解决，或者产生了新的错误则向上抛出
                 throw new Exception(e);
             }
-            return result;
+            return this.processReturnValueResolver(
+                    result,
+                    this.controller,
+                    this.methodAnnotation,
+                    this.registry,
+                    this.context
+                );
         }
     }
 
-    private void processInitBinder(final WebDataBinder binder) {
+    private void processInitBinder() {
         final Map<String, Object> args = new ConcurrentHashMap<>(10);
-        args.put("binder", binder);
-        args.put("webDataBinder", binder);
-        args.put("dataBinder", binder);
-        args.put(WebDataBinder.class.getName(), binder);
-        args.put(DataBinder.class.getName(), binder);
+        args.put("binder", this.dataBinder);
+        args.put("webDataBinder", this.dataBinder);
+        args.put("dataBinder", this.dataBinder);
+        args.put(WebDataBinder.class.getName(), this.dataBinder);
+        args.put(DataBinder.class.getName(), this.dataBinder);
         final InitBinderRegistry registry =
             this.app.make(InitBinderRegistry.class);
         final InitBinderHandlerResolver resolver = registry
@@ -149,86 +160,41 @@ public class ControllerHandler implements Handler {
         }
     }
 
-    private Object processException(final Throwable exception) {
-        Object result = NO_RESOLVER;
-        final ExceptionHandlerRegistry registry =
-            this.app.make(ExceptionHandlerRegistry.class);
-        final ExceptionHandlerResolver resolver = registry
-            .getControllerResolvers()
-            .get(this.controllerClass);
-        if (resolver != null) {
-            result =
-                this.processException(
-                        exception,
-                        this.controllerClass,
-                        resolver
-                    );
-            if (!result.equals(NO_RESOLVER)) {
-                return result;
-            }
-        }
-        for (final Map.Entry<Class<?>, ExceptionHandlerResolver> entry : registry
-            .getAdviceResolvers()
-            .entrySet()) {
-            result =
-                this.processException(
-                        exception,
-                        entry.getKey(),
-                        entry.getValue()
-                    );
-            if (!result.equals(NO_RESOLVER)) {
-                return result;
-            }
-        }
-
-        return result;
-    }
-
     private Object processException(
         final Throwable exception,
-        final Class<?> clazz,
-        final ExceptionHandlerResolver resolver
+        final Request request,
+        final Response response
     ) {
-        try {
-            final Method method = resolver.resolveMethod(exception);
-            if (method != null) {
-                // 绑定可能注入的异常
-                final Map<String, Object> args = new ConcurrentHashMap<>(10);
-                args.put("exception", exception);
-                args.put(exception.getClass().getName(), exception);
-                args.put(Throwable.class.getName(), exception);
-                args.put(Exception.class.getName(), exception);
-                args.put(Exception.class.getName(), exception);
-                // 获取返回值
-                return this.app.call(clazz, method, Object.class, args);
-            }
-        } catch (final Throwable e) {
-            throw new DispatchServletException(
-                "Process ExceptionHandlerResolver failed",
-                e
+        final ExceptionInfo info = new ExceptionInfo(
+            this.controller,
+            this.controllerClass,
+            this.method,
+            this.methodAnnotation,
+            request,
+            response
+        );
+        for (final HandlerExceptionResolver resolver : registry.getHandlerExceptionResolvers()) {
+            final Object result = resolver.resolveException(
+                exception,
+                info,
+                context,
+                dataBinder
             );
+            if (!NO_RESOLVER.equals(result)) {
+                return result;
+            }
         }
         return NO_RESOLVER;
     }
 
-    private Object callHandler(
-        final Object controller,
-        final Method method,
-        final WebResolverRegistry registry,
-        final WebContext context,
-        final WebDataBinder binder
-    )
-        throws java.lang.Exception {
-        final MergedAnnotation methodAnnotation = AnnotationUtils.getAnnotation(
-            method
-        );
-        Object[] dependencies =
+    private Object callHandler() throws java.lang.Exception {
+        final Object[] dependencies =
             this.processParameterResolver(
                     controller,
                     methodAnnotation,
                     registry,
                     context,
-                    binder
+                    dataBinder
                 );
         // call
         ReflectUtil.setAccessible(method);
@@ -246,11 +212,11 @@ public class ControllerHandler implements Handler {
     }
 
     private Object[] processParameterResolver(
-        Object controller,
-        MergedAnnotation methodAnnotation,
-        WebResolverRegistry registry,
-        WebContext context,
-        WebDataBinder binder
+        final Object controller,
+        final MergedAnnotation methodAnnotation,
+        final WebResolverRegistry registry,
+        final WebContext context,
+        final WebDataBinder binder
     ) {
         Object[] dependencies = new Object[method.getParameterCount()];
         final Parameter[] parameters = method.getParameters();

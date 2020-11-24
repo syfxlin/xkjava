@@ -2,7 +2,7 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.web;
+package me.ixk.framework.web.resolver;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

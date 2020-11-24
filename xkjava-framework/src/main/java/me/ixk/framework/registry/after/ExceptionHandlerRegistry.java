@@ -5,14 +5,19 @@
 package me.ixk.framework.registry.after;
 
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Controller;
 import me.ixk.framework.annotations.ControllerAdvice;
+import me.ixk.framework.annotations.ExceptionHandler;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
-import me.ixk.framework.web.ExceptionHandlerResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ExceptionHandlerRegistry
@@ -22,8 +27,14 @@ import me.ixk.framework.web.ExceptionHandlerResolver;
  */
 @Component(name = "exceptionHandlerRegistry")
 public class ExceptionHandlerRegistry implements AfterImportBeanRegistry {
-    private final Map<Class<?>, ExceptionHandlerResolver> adviceResolvers = new LinkedHashMap<>();
-    private final Map<Class<?>, ExceptionHandlerResolver> controllerResolvers = new LinkedHashMap<>();
+    private static final Logger log = LoggerFactory.getLogger(
+        ExceptionHandlerRegistry.class
+    );
+    /**
+     * Controller, [Exception, Resolver Method]
+     */
+    private final Map<Class<?>, Map<Class<? extends Throwable>, Method>> adviceResolvers = new LinkedHashMap<>();
+    private final Map<Class<?>, Map<Class<? extends Throwable>, Method>> controllerResolvers = new LinkedHashMap<>();
 
     @Override
     public void register(
@@ -31,7 +42,7 @@ public class ExceptionHandlerRegistry implements AfterImportBeanRegistry {
         AnnotatedElement element,
         MergedAnnotation annotation
     ) {
-        Map<Class<?>, ExceptionHandlerResolver> resolvers = null;
+        Map<Class<?>, Map<Class<? extends Throwable>, Method>> resolvers = null;
         if (annotation.hasAnnotation(ControllerAdvice.class)) {
             resolvers = this.adviceResolvers;
         }
@@ -41,19 +52,56 @@ public class ExceptionHandlerRegistry implements AfterImportBeanRegistry {
         if (resolvers == null) {
             return;
         }
-        ExceptionHandlerResolver resolver = new ExceptionHandlerResolver(
-            (Class<?>) element
-        );
-        if (resolver.hasExceptionMappings()) {
-            resolvers.put((Class<?>) element, resolver);
+        Map<Class<? extends Throwable>, Method> resolverMap =
+            this.resolveResolver((Class<?>) element);
+        if (!resolverMap.isEmpty()) {
+            resolvers.put((Class<?>) element, resolverMap);
         }
     }
 
-    public Map<Class<?>, ExceptionHandlerResolver> getAdviceResolvers() {
+    private Map<Class<? extends Throwable>, Method> resolveResolver(
+        Class<?> clazz
+    ) {
+        Map<Class<? extends Throwable>, Method> map = new ConcurrentHashMap<>(
+            16
+        );
+        for (Method method : clazz.getDeclaredMethods()) {
+            ExceptionHandler exceptionHandler = AnnotationUtils
+                .getAnnotation(method)
+                .getAnnotation(ExceptionHandler.class);
+            if (exceptionHandler != null) {
+                for (Class<? extends Throwable> exceptionType : exceptionHandler.exception()) {
+                    Method oldMethod = map.put(exceptionType, method);
+                    if (oldMethod != null && !oldMethod.equals(method)) {
+                        log.error(
+                            "Ambiguous @ExceptionHandler method mapped for [{}]: ({},{})",
+                            exceptionType,
+                            oldMethod,
+                            method
+                        );
+                        throw new IllegalStateException(
+                            "Ambiguous @ExceptionHandler method mapped for [" +
+                            exceptionType +
+                            "]: (" +
+                            oldMethod +
+                            ", " +
+                            method +
+                            ")"
+                        );
+                    }
+                }
+            }
+        }
+        return map;
+    }
+
+    public Map<Class<?>, Map<Class<? extends Throwable>, Method>> getAdviceResolvers() {
         return adviceResolvers;
     }
 
-    public Map<Class<?>, ExceptionHandlerResolver> getControllerResolvers() {
-        return controllerResolvers;
+    public Map<Class<? extends Throwable>, Method> getControllerResolver(
+        Class<?> clazz
+    ) {
+        return controllerResolvers.get(clazz);
     }
 }
