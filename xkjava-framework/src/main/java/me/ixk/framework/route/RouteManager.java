@@ -11,6 +11,7 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.ResponseProcessor;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.web.BasicErrorHandler;
 
 /**
  * 路由管理器
@@ -54,15 +55,29 @@ public class RouteManager {
 
         switch (routeResult.getStatus()) {
             case NOT_FOUND:
-                throw new HttpException(
-                    HttpStatus.NOT_FOUND,
-                    "The URI \"" + request.url() + "\" was not found."
-                );
+                this.app.make(BasicErrorHandler.class)
+                    .afterException(
+                        new HttpException(
+                            HttpStatus.NOT_FOUND,
+                            "The URI \"" + request.url() + "\" was not found."
+                        ),
+                        request,
+                        response
+                    );
+                break;
             case METHOD_NOT_ALLOWED:
-                throw new HttpException(
-                    HttpStatus.METHOD_NOT_ALLOWED,
-                    "Method \"" + request.method() + "\" is not allowed."
-                );
+                this.app.make(BasicErrorHandler.class)
+                    .afterException(
+                        new HttpException(
+                            HttpStatus.METHOD_NOT_ALLOWED,
+                            "Method \"" +
+                            request.method() +
+                            "\" is not allowed."
+                        ),
+                        request,
+                        response
+                    );
+                break;
             case FOUND:
                 routeResult.getHandler().handle(routeResult, request, response);
                 break;

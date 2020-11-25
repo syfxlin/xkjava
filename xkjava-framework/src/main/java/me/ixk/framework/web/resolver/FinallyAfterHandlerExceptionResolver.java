@@ -71,7 +71,7 @@ public class FinallyAfterHandlerExceptionResolver
                 ((HttpException) e).getReason()
             );
         }
-        return new Status(response.getStatus(), e.getMessage());
+        return new Status(500, e.getMessage());
     }
 
     private void handleHtml(

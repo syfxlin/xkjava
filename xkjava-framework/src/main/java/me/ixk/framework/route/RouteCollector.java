@@ -19,6 +19,7 @@ import me.ixk.framework.middleware.Middleware;
 import me.ixk.framework.registry.after.MiddlewareRegistry;
 import me.ixk.framework.registry.after.RouteRegistry;
 import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.web.ControllerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,6 +95,7 @@ public class RouteCollector {
         AnnotationUtils.sortByOrderAnnotation(middleware);
         return new RouteHandler(
             handler,
+            new ControllerHandler(handler),
             middleware.stream().map(this.app::make).collect(Collectors.toList())
         );
     }

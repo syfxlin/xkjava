@@ -11,7 +11,6 @@ import me.ixk.framework.http.Response;
 import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.middleware.Middleware;
 import me.ixk.framework.middleware.Runner;
-import me.ixk.framework.web.ControllerHandler;
 
 /**
  * 路由处理器
@@ -25,11 +24,12 @@ public class RouteHandler {
     private final List<Middleware> middlewares;
 
     public RouteHandler(
-        final Method handler,
+        final Method method,
+        final Handler handler,
         final List<Middleware> middlewares
     ) {
-        this.method = handler;
-        this.handler = new ControllerHandler(handler);
+        this.method = method;
+        this.handler = handler;
         this.middlewares = middlewares;
     }
 
