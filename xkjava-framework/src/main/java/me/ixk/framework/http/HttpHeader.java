@@ -75,6 +75,7 @@ public enum HttpHeader {
     X_FORWARDED_PROTO("X-Forwarded-Proto"),
     X_FORWARDED_SERVER("X-Forwarded-Server"),
     X_FORWARDED_HOST("X-Forwarded-Host"),
+    X_REQUEST_WITH("X-Requested-With"),
 
     /**
      * Response Fields.

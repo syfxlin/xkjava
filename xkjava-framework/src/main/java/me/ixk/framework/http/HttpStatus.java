@@ -4,8 +4,6 @@
 
 package me.ixk.framework.http;
 
-import cn.hutool.core.util.ReflectUtil;
-
 /**
  * 响应码
  *
@@ -324,17 +322,5 @@ public enum HttpStatus {
             }
         }
         return null;
-    }
-
-    public static HttpStatus valueOf(int statusCode, String reasonPhrase) {
-        HttpStatus status = resolve(statusCode);
-        if (status != null) {
-            return status;
-        }
-        return ReflectUtil.newInstance(
-            HttpStatus.class,
-            statusCode,
-            reasonPhrase
-        );
     }
 }

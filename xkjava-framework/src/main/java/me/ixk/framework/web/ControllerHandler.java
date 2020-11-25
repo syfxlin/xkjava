@@ -136,6 +136,26 @@ public class ControllerHandler implements Handler {
         }
     }
 
+    @Override
+    public Response afterException(
+        Throwable e,
+        Request request,
+        Response response
+    ) {
+        if (e instanceof InvocationTargetException) {
+            e = ((InvocationTargetException) e).getTargetException();
+        }
+        log.error("ControllerHandler Exception [After]", e);
+        // 处理后置异常处理器
+        final Response result =
+            this.processAfterException(e, request, response);
+        if (result == null) {
+            // 若错误未能解决，或者产生了新的错误则向上抛出
+            throw new Exception(e);
+        }
+        return result;
+    }
+
     private void processInitBinder() {
         final Map<String, Object> args = new ConcurrentHashMap<>(10);
         args.put("binder", this.dataBinder);
@@ -185,6 +205,33 @@ public class ControllerHandler implements Handler {
             }
         }
         return NO_RESOLVER;
+    }
+
+    private Response processAfterException(
+        final Throwable exception,
+        final Request request,
+        final Response response
+    ) {
+        final ExceptionInfo info = new ExceptionInfo(
+            this.controller,
+            this.controllerClass,
+            this.method,
+            this.methodAnnotation,
+            request,
+            response
+        );
+        for (final AfterHandlerExceptionResolver resolver : registry.getAfterHandlerExceptionResolvers()) {
+            final Response result = resolver.resolveException(
+                exception,
+                info,
+                context,
+                dataBinder
+            );
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
     }
 
     private Object callHandler() throws java.lang.Exception {

@@ -10,7 +10,6 @@ import java.util.List;
 import javax.servlet.ServletContext;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.config.AppProperties;
-import me.ixk.framework.kernel.ErrorHandler;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
@@ -118,9 +117,6 @@ public class JettyServer implements me.ixk.framework.server.Server {
                 "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
                 ".*/classes/.*"
             );
-
-        ErrorHandler errorHandler = new ErrorHandler();
-        this.context.setErrorHandler(errorHandler);
 
         ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setBaseResource(resource);

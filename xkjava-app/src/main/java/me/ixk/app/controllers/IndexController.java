@@ -101,6 +101,11 @@ public class IndexController {
         throw new HttpException(HttpStatus.BAD_REQUEST);
     }
 
+    @GetMapping("/exce-g")
+    public TextResult exceG() {
+        throw new NullPointerException("message");
+    }
+
     @GetMapping("/encoding")
     public TextResult encoding() {
         return Result.text("中文");

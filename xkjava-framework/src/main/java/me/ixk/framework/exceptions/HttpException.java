@@ -4,8 +4,8 @@
 
 package me.ixk.framework.exceptions;
 
+import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.http.HttpStatus;
 
 /**
@@ -15,8 +15,8 @@ import me.ixk.framework.http.HttpStatus;
  * @date 2020/10/14 上午 9:05
  */
 public class HttpException extends Exception {
-    private HttpStatus status;
-    private Map<String, String> headers;
+    private final int code;
+    private final Map<String, String> headers;
 
     public HttpException() {
         this(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -27,13 +27,13 @@ public class HttpException extends Exception {
     }
 
     public HttpException(HttpStatus status, String message) {
-        this(status, message, new ConcurrentHashMap<>());
+        this(status, message, Collections.emptyMap());
     }
 
     public HttpException(HttpStatus status, String message, Throwable cause) {
-        super(message, cause);
-        this.setStatus(status);
-        this.setHeaders(new ConcurrentHashMap<>());
+        super(message == null ? status.getReasonPhrase() : message, cause);
+        this.code = status.getValue();
+        this.headers = Collections.emptyMap();
     }
 
     public HttpException(
@@ -41,9 +41,9 @@ public class HttpException extends Exception {
         String message,
         Map<String, String> headers
     ) {
-        super(message);
-        this.setStatus(status);
-        this.setHeaders(headers);
+        super(message == null ? status.getReasonPhrase() : message);
+        this.code = status.getValue();
+        this.headers = headers;
     }
 
     public HttpException(
@@ -52,9 +52,9 @@ public class HttpException extends Exception {
         Map<String, String> headers,
         Throwable cause
     ) {
-        super(message, cause);
-        this.setStatus(status);
-        this.setHeaders(headers);
+        super(message == null ? status.getReasonPhrase() : message, cause);
+        this.code = status.getValue();
+        this.headers = headers;
     }
 
     protected HttpException(
@@ -65,28 +65,25 @@ public class HttpException extends Exception {
         boolean enableSuppression,
         boolean writableStackTrace
     ) {
-        super(message, cause, enableSuppression, writableStackTrace);
-        this.setStatus(status);
-        this.setHeaders(headers);
-    }
-
-    public HttpStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(HttpStatus status) {
-        this.status = status;
+        super(
+            message == null ? status.getReasonPhrase() : message,
+            cause,
+            enableSuppression,
+            writableStackTrace
+        );
+        this.code = status.getValue();
+        this.headers = headers;
     }
 
     public Map<String, String> getHeaders() {
         return headers;
     }
 
-    public void setHeaders(Map<String, String> headers) {
-        this.headers = headers;
+    public String getReason() {
+        return this.getMessage();
     }
 
-    public String getReason() {
-        return this.status.getReasonPhrase();
+    public int getCode() {
+        return code;
     }
 }
