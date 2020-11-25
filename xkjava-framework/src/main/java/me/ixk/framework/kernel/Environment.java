@@ -4,6 +4,9 @@
 
 package me.ixk.framework.kernel;
 
+import static me.ixk.framework.helpers.Util.caseGet;
+
+import cn.hutool.core.util.StrUtil;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +50,12 @@ public class Environment {
     }
 
     public String get(String key, String defaultValue) {
-        return this.properties.getProperty(key, defaultValue);
+        key = StrUtil.toCamelCase(key);
+        final String value = caseGet(key, this.properties::getProperty);
+        if (value == null) {
+            return defaultValue;
+        }
+        return value;
     }
 
     public <T> T get(String key, Class<T> returnType) {

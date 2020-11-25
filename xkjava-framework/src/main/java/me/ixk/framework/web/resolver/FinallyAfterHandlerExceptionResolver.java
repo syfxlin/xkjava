@@ -248,6 +248,7 @@ public class FinallyAfterHandlerExceptionResolver
     private void writeErrorPageStacks(ByteArrayUtf8Writer writer, Throwable e)
         throws IOException {
         if (e != null) {
+            writer.write("<div class=\"stack flex-1\">");
             writer.write("<h3>Caused by:</h3><pre>");
             try (
                 StringWriter sw = new StringWriter();
@@ -258,6 +259,7 @@ public class FinallyAfterHandlerExceptionResolver
                 writer.write(HtmlUtil.escape(sw.getBuffer().toString()));
             }
             writer.write("</pre>\n");
+            writer.write("<div>");
         }
     }
 
