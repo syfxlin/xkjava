@@ -8,8 +8,8 @@ import java.lang.reflect.Method;
 import me.ixk.framework.annotations.BeanProcessor;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.BeanBeforeProcessor;
-import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
+import me.ixk.framework.ioc.InstanceContext;
 
 /**
  * 构造器后处理器
@@ -24,10 +24,10 @@ public class PostConstructProcessor implements BeanBeforeProcessor {
     @Override
     public Object process(
         Container container,
-        Binding binding,
-        Object instance
+        Object instance,
+        InstanceContext context
     ) {
-        Method method = binding.getInitMethod();
+        Method method = context.getBinding().getInitMethod();
         if (method != null) {
             container.call(instance, method, Object.class);
         }

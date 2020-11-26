@@ -379,17 +379,26 @@ public class Container {
     }
 
     protected Object processBeanBefore(final Binding binding, Object instance) {
+        final Class<?> instanceClass = ClassUtils.getUserClass(instance);
+        final InstanceContext context = new InstanceContext(
+            binding,
+            instanceClass
+        );
         for (final BeanBeforeProcessor processor : this.beanBeforeProcessors) {
-            instance = processor.process(this, binding, instance);
+            instance = processor.process(this, instance, context);
         }
         return instance;
     }
 
-    protected Object processBeanAfter(final Binding binding, Object instance) {
+    protected void processBeanAfter(final Binding binding, Object instance) {
+        final Class<?> instanceClass = ClassUtils.getUserClass(instance);
+        final InstanceContext context = new InstanceContext(
+            binding,
+            instanceClass
+        );
         for (final BeanAfterProcessor processor : this.beanAfterProcessors) {
-            instance = processor.process(this, binding, instance);
+            processor.process(this, instance, context);
         }
-        return instance;
     }
 
     protected boolean aspectMatches(final Class<?> type) {
@@ -497,6 +506,7 @@ public class Container {
                 continue;
             }
             instance = this.processInstanceInjector(binding, instance);
+            instance = this.processBeanBefore(binding, instance);
             if (this.aspectMatches(instanceType)) {
                 instance =
                     ProxyCreator.createAop(
@@ -508,7 +518,6 @@ public class Container {
                         dependencies
                     );
             }
-            instance = this.processBeanBefore(binding, instance);
             if (instance != null) {
                 return instance;
             }
@@ -726,7 +735,7 @@ public class Container {
         final Wrapper wrapper,
         final String alias
     ) {
-        return this.bind(bingType, wrapper, alias, ScopeType.PROTOTYPE);
+        return this.bind(bingType, wrapper, alias, ScopeType.SINGLETON);
     }
 
     public Binding bind(

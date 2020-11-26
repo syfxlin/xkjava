@@ -4,6 +4,8 @@
 
 package me.ixk.framework.aop;
 
+import me.ixk.framework.exceptions.AspectProcessException;
+
 /**
  * 通知
  * <p>
@@ -18,21 +20,21 @@ public interface Advice {
      *
      * @param joinPoint 连接点
      */
-    void before(JoinPoint joinPoint);
+    default void before(JoinPoint joinPoint) {}
 
     /**
      * 后置通知
      *
      * @param joinPoint 连接点
      */
-    void after(JoinPoint joinPoint);
+    default void after(JoinPoint joinPoint) {}
 
     /**
      * 后置通知（正常返回）
      *
      * @param joinPoint 连接点
      */
-    void afterReturning(JoinPoint joinPoint);
+    default void afterReturning(JoinPoint joinPoint) {}
 
     /**
      * 后置通知（异常返回）
@@ -41,7 +43,9 @@ public interface Advice {
      *
      * @throws Throwable 切面中如果没有处理异常则抛出
      */
-    void afterThrowing(Throwable exception) throws Throwable;
+    default void afterThrowing(Throwable exception) throws Throwable {
+        throw exception;
+    }
 
     /**
      * 环绕通知
@@ -50,5 +54,14 @@ public interface Advice {
      *
      * @return 切面返回值
      */
-    Object around(ProceedingJoinPoint joinPoint);
+    default Object around(ProceedingJoinPoint joinPoint) {
+        try {
+            return joinPoint.proceed();
+        } catch (Throwable e) {
+            throw new AspectProcessException(
+                "Around process has errors not captured",
+                e
+            );
+        }
+    }
 }

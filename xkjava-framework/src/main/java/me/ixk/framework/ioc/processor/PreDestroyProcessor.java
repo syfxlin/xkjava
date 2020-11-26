@@ -8,8 +8,8 @@ import java.lang.reflect.Method;
 import me.ixk.framework.annotations.BeanProcessor;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.BeanAfterProcessor;
-import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Container;
+import me.ixk.framework.ioc.InstanceContext;
 
 /**
  * 销毁前处理器
@@ -22,15 +22,14 @@ import me.ixk.framework.ioc.Container;
 public class PreDestroyProcessor implements BeanAfterProcessor {
 
     @Override
-    public Object process(
+    public void process(
         Container container,
-        Binding binding,
-        Object instance
+        Object instance,
+        InstanceContext context
     ) {
-        Method method = binding.getDestroyMethod();
+        final Method method = context.getBinding().getDestroyMethod();
         if (method != null) {
             container.call(instance, method, Object.class);
         }
-        return instance;
     }
 }

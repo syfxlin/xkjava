@@ -26,12 +26,14 @@ public class BootstrapAnnotationProcessor extends AbstractAnnotationProcessor {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void process() {
         for (Class<?> bootstrapType : this.getTypesAnnotated(
                 me.ixk.framework.annotations.Bootstrap.class
             )) {
             if (Bootstrap.class.isAssignableFrom(bootstrapType)) {
-                this.app.call(bootstrapType, "boot", Void.class);
+                this.app.bind(bootstrapType);
+                this.app.make((Class<Bootstrap>) bootstrapType).boot();
             } else {
                 log.error(
                     "Classes marked by the Bootstrap annotation should implement the Bootstrap interface"

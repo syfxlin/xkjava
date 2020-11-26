@@ -67,7 +67,7 @@ public class XkJava extends Container {
     /**
      * 扫描组件的包
      */
-    private Set<String> scansPackages = new HashSet<>();
+    private final Set<String> scansPackages = new HashSet<>();
 
     /**
      * XkJava 是否已经启动
@@ -77,21 +77,21 @@ public class XkJava extends Container {
     /**
      * 启动处理器
      */
-    private BootstrapAnnotationProcessor bootstrapAnnotationProcessor = new BootstrapAnnotationProcessor(
+    private final BootstrapAnnotationProcessor bootstrapAnnotationProcessor = new BootstrapAnnotationProcessor(
         this
     );
 
     /**
      * 注入器注解处理器
      */
-    private InjectorAnnotationProcessor injectorAnnotationProcessor = new InjectorAnnotationProcessor(
+    private final InjectorAnnotationProcessor injectorAnnotationProcessor = new InjectorAnnotationProcessor(
         this
     );
 
     /**
      * Bean 后置注解处理器
      */
-    private BeanProcessorAnnotationProcessor beanProcessorAnnotationProcessor = new BeanProcessorAnnotationProcessor(
+    private final BeanProcessorAnnotationProcessor beanProcessorAnnotationProcessor = new BeanProcessorAnnotationProcessor(
         this
     );
 

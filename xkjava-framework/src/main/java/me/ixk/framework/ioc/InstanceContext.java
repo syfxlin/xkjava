@@ -5,6 +5,7 @@
 package me.ixk.framework.ioc;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import me.ixk.framework.utils.MergedAnnotation;
 
@@ -17,18 +18,10 @@ import me.ixk.framework.utils.MergedAnnotation;
 public class InstanceContext {
     private final Binding binding;
     private final InjectorEntry<Class<?>> instanceEntry;
-    private final InjectorEntry<Field>[] fieldEntries;
 
-    @SuppressWarnings("unchecked")
     public InstanceContext(Binding binding, Class<?> instanceType) {
         this.binding = binding;
         this.instanceEntry = new InjectorEntry<>(instanceType);
-        final Field[] fields = instanceType.getDeclaredFields();
-        this.fieldEntries =
-            Arrays
-                .stream(fields)
-                .map(InjectorEntry::new)
-                .toArray(InjectorEntry[]::new);
     }
 
     public Binding getBinding() {
@@ -40,7 +33,11 @@ public class InstanceContext {
     }
 
     public InjectorEntry<Field>[] getFieldEntries() {
-        return fieldEntries;
+        return this.binding.getFieldEntries();
+    }
+
+    public InjectorEntry<Method>[] getMethodEntries() {
+        return this.binding.getMethodEntries();
     }
 
     public Class<?> getInstanceType() {
@@ -61,6 +58,20 @@ public class InstanceContext {
     public MergedAnnotation[] getFieldAnnotations() {
         return Arrays
             .stream(this.getFieldEntries())
+            .map(InjectorEntry::getAnnotation)
+            .toArray(MergedAnnotation[]::new);
+    }
+
+    public Method[] getMethods() {
+        return Arrays
+            .stream(this.getMethodEntries())
+            .map(InjectorEntry::getElement)
+            .toArray(Method[]::new);
+    }
+
+    public MergedAnnotation[] getMethodAnnotations() {
+        return Arrays
+            .stream(this.getMethodEntries())
             .map(InjectorEntry::getAnnotation)
             .toArray(MergedAnnotation[]::new);
     }

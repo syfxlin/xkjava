@@ -14,10 +14,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 import me.ixk.framework.annotations.ConfigurationProperties;
+import me.ixk.framework.annotations.EnvValue;
+import me.ixk.framework.annotations.Expression;
 import me.ixk.framework.annotations.Injector;
 import me.ixk.framework.annotations.Order;
-import me.ixk.framework.annotations.Property;
-import me.ixk.framework.annotations.Value;
 import me.ixk.framework.bootstrap.Bootstrap;
 import me.ixk.framework.config.ClassProperty;
 import me.ixk.framework.config.PropertyResolver;
@@ -51,25 +51,25 @@ public class PropertiesValueInjector implements InstanceInjector {
         Environment environment,
         ClassProperty property,
         ConfigurationProperties configAnnotation,
-        Property propertyAnnotation,
+        EnvValue envValueAnnotation,
         Map<String, Object> properties
     ) {
         String fieldName = property.getPropertyName();
         Object value;
-        if (propertyAnnotation == null) {
+        if (envValueAnnotation == null) {
             value = caseGet(fieldName, properties::get);
         } else {
             value =
                 caseGet(
                     fieldName,
-                    propertyAnnotation.full()
+                    envValueAnnotation.full()
                         ? environment::get
                         : properties::get
                 );
             if (value == null) {
-                final String defaultValue = propertyAnnotation.defaultValue();
+                final String defaultValue = envValueAnnotation.defaultValue();
                 value =
-                    Property.EMPTY.equals(defaultValue) ? null : defaultValue;
+                    EnvValue.EMPTY.equals(defaultValue) ? null : defaultValue;
             }
         }
         if (value == null && !configAnnotation.ignoreUnknownFields()) {
@@ -89,11 +89,11 @@ public class PropertiesValueInjector implements InstanceInjector {
         }
         try {
             if (
-                propertyAnnotation != null &&
-                propertyAnnotation.resolver() != PropertyResolver.class
+                envValueAnnotation != null &&
+                envValueAnnotation.resolver() != PropertyResolver.class
             ) {
                 final PropertyResolver resolver = container.make(
-                    propertyAnnotation.resolver()
+                    envValueAnnotation.resolver()
                 );
                 if (resolver.supportsProperty((String) value, property)) {
                     value = resolver.resolveProperty((String) value, property);
@@ -122,8 +122,8 @@ public class PropertiesValueInjector implements InstanceInjector {
         return value;
     }
 
-    protected Object injectValue(final Value value) {
-        return Express.evaluateApp(value.value(), Object.class);
+    protected Object injectExpression(final Expression expression) {
+        return Express.evaluateApp(expression.expression(), Object.class);
     }
 
     @Override
@@ -160,11 +160,11 @@ public class PropertiesValueInjector implements InstanceInjector {
             }
             final Field field = entry.getElement();
             final MergedAnnotation fieldAnnotation = entry.getAnnotation();
-            final Value valueAnnotation = fieldAnnotation.getAnnotation(
-                Value.class
+            final Expression expressionAnnotation = fieldAnnotation.getAnnotation(
+                Expression.class
             );
             // 不存在 @Value 或者 @Configuration 注解的时候则无需注入
-            if (configAnnotation == null && valueAnnotation == null) {
+            if (configAnnotation == null && expressionAnnotation == null) {
                 continue;
             }
             final PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
@@ -175,18 +175,18 @@ public class PropertiesValueInjector implements InstanceInjector {
                 ? null
                 : propertyDescriptor.getWriteMethod();
             final Object value;
-            if (configAnnotation != null && valueAnnotation == null) {
+            if (configAnnotation != null && expressionAnnotation == null) {
                 // @ConfigurationProperties 没有 @Value 注解
-                final Property propertyAnnotation = fieldAnnotation.getAnnotation(
-                    Property.class
+                final EnvValue envValueAnnotation = fieldAnnotation.getAnnotation(
+                    EnvValue.class
                 );
-                // @Property 配置了 skip 值，则跳过
-                if (propertyAnnotation != null && propertyAnnotation.skip()) {
+                // @EnvValue 配置了 skip 值，则跳过
+                if (envValueAnnotation != null && envValueAnnotation.skip()) {
                     continue;
                 }
-                String fieldName = propertyAnnotation == null
+                String fieldName = envValueAnnotation == null
                     ? null
-                    : propertyAnnotation.name();
+                    : envValueAnnotation.name();
                 if (fieldName == null || fieldName.isEmpty()) {
                     // 若为配置值则使用属性名
                     fieldName = field.getName();
@@ -205,12 +205,12 @@ public class PropertiesValueInjector implements InstanceInjector {
                             environment,
                             property,
                             configAnnotation,
-                            propertyAnnotation,
+                            envValueAnnotation,
                             prefixProps
                         );
             } else {
                 // 有 @Value 注解就优先使用
-                value = this.injectValue(valueAnnotation);
+                value = this.injectExpression(expressionAnnotation);
             }
             if (writeMethod != null) {
                 ReflectUtil.invoke(instance, writeMethod, value);

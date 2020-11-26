@@ -7,7 +7,7 @@ package me.ixk.framework.utils;
 import cn.hutool.core.util.ReflectUtil;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -90,7 +90,7 @@ public interface MergedAnnotation {
         Class<A> annotationType
     ) {
         return (List<A>) this.annotations()
-            .getOrDefault(annotationType, new ArrayList<>());
+            .getOrDefault(annotationType, Collections.emptyList());
     }
 
     /**

@@ -6,7 +6,7 @@ package me.ixk.framework.config;
 
 import java.util.Map;
 import me.ixk.framework.annotations.ConfigurationProperties;
-import me.ixk.framework.annotations.Property;
+import me.ixk.framework.annotations.EnvValue;
 import me.ixk.framework.config.PropertyResolver.StringMapResolver;
 import me.ixk.framework.utils.Base64;
 
@@ -20,16 +20,16 @@ import me.ixk.framework.utils.Base64;
 public class CryptProperties {
     private String key;
 
-    @Property(skip = true)
+    @EnvValue(skip = true)
     private String decodeKey;
 
-    @Property(name = "crypt.algo", defaultValue = "AES/CBC/PKCS5PADDING")
+    @EnvValue(name = "crypt.algo", defaultValue = "AES/CBC/PKCS5PADDING")
     private String cryptAlgo;
 
-    @Property(name = "hash.algo", defaultValue = "SHA256")
+    @EnvValue(name = "hash.algo", defaultValue = "SHA256")
     private String hashAlgo;
 
-    @Property(
+    @EnvValue(
         name = "hash.defaultPayload",
         resolver = StringMapResolver.class,
         defaultValue = ""

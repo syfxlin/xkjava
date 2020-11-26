@@ -17,10 +17,8 @@ public interface BeanAfterProcessor {
      * 处理
      *
      * @param container 容器
-     * @param binding   Binding
      * @param instance  Bean 实例
-     *
-     * @return Bean 实例
+     * @param context   实例上下文
      */
-    Object process(Container container, Binding binding, Object instance);
+    void process(Container container, Object instance, InstanceContext context);
 }

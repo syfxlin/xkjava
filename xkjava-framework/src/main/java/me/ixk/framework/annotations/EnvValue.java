@@ -20,7 +20,7 @@ import me.ixk.framework.config.PropertyResolver;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Property {
+public @interface EnvValue {
     String EMPTY = "EMPTY";
 
     @AliasFor("name")

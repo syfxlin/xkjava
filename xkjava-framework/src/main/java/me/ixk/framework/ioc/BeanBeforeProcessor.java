@@ -17,10 +17,14 @@ public interface BeanBeforeProcessor {
      * 处理
      *
      * @param container 容器
-     * @param binding   Binding
      * @param instance  Bean 实例
+     * @param context   实例上下文
      *
      * @return Bean 实例
      */
-    Object process(Container container, Binding binding, Object instance);
+    Object process(
+        Container container,
+        Object instance,
+        InstanceContext context
+    );
 }

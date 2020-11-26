@@ -5,19 +5,19 @@
 package me.ixk.app.beans;
 
 import me.ixk.framework.annotations.Aspect;
-import me.ixk.framework.aop.AbstractAdvice;
+import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 
 @Aspect(pointcut = "@annotation(me.ixk.app.annotations.Log)")
-public class LogAspect extends AbstractAdvice {
+public class LogAspect implements Advice {
 
     @Override
-    public Object around(ProceedingJoinPoint joinPoint) {
+    public Object around(final ProceedingJoinPoint joinPoint) {
         System.out.println("Before-Log");
         Object result = null;
         try {
             result = joinPoint.proceed();
-        } catch (Throwable throwable) {
+        } catch (final Throwable throwable) {
             throwable.printStackTrace();
         }
         System.out.println("After-Log");

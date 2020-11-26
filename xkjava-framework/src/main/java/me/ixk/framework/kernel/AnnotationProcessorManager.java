@@ -6,7 +6,6 @@ package me.ixk.framework.kernel;
 
 import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.util.ClassUtil;
-import cn.hutool.core.util.ReflectUtil;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -56,10 +55,11 @@ public class AnnotationProcessorManager {
 
     protected AnnotationProcessor getProcessorInstance(String name) {
         try {
-            AnnotationProcessor processor = ReflectUtil.newInstance(
-                ClassUtil.loadClass(name),
-                this.app
+            final Class<AnnotationProcessor> processorClass = ClassUtil.loadClass(
+                name
             );
+            this.app.bind(processorClass);
+            AnnotationProcessor processor = this.app.make(processorClass);
             this.setProcessor(name, processor);
             return processor;
         } catch (UtilException e) {

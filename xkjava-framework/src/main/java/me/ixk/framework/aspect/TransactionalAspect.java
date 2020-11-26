@@ -6,7 +6,7 @@ package me.ixk.framework.aspect;
 
 import me.ixk.framework.annotations.Aspect;
 import me.ixk.framework.annotations.Transactional;
-import me.ixk.framework.aop.AbstractAdvice;
+import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 import me.ixk.framework.database.SqlSessionManager;
 import me.ixk.framework.exceptions.TransactionalException;
@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 上午 8:40
  */
 @Aspect("@annotation(me.ixk.framework.annotations.Transactional)")
-public class TransactionalAspect extends AbstractAdvice {
+public class TransactionalAspect implements Advice {
     private static final Logger log = LoggerFactory.getLogger(
         TransactionalAspect.class
     );

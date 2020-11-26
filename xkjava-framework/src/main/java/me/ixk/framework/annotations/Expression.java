@@ -19,6 +19,10 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Value {
-    String value();
+public @interface Expression {
+    @AliasFor("expression")
+    String value() default "";
+
+    @AliasFor("value")
+    String expression() default "";
 }
