@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * 异步调用返回值
@@ -20,25 +19,25 @@ public class AsyncResult<V> implements Future<V> {
     private final V value;
     private final Throwable exception;
 
-    public AsyncResult(V value) {
+    public AsyncResult(final V value) {
         this(value, null);
     }
 
-    public AsyncResult(V value, Throwable exception) {
+    public AsyncResult(final V value, final Throwable exception) {
         this.value = value;
         this.exception = exception;
     }
 
-    public static <V> AsyncResult<V> of(V value) {
+    public static <V> AsyncResult<V> of(final V value) {
         return new AsyncResult<>(value);
     }
 
-    public static <V> AsyncResult<V> of(Throwable exception) {
+    public static <V> AsyncResult<V> of(final Throwable exception) {
         return new AsyncResult<>(null, exception);
     }
 
     @Override
-    public boolean cancel(boolean mayInterruptIfRunning) {
+    public boolean cancel(final boolean mayInterruptIfRunning) {
         return false;
     }
 
@@ -65,7 +64,7 @@ public class AsyncResult<V> implements Future<V> {
     }
 
     @Override
-    public V get(long timeout, @NotNull TimeUnit unit)
+    public V get(final long timeout, TimeUnit unit)
         throws InterruptedException, ExecutionException, TimeoutException {
         return get();
     }
