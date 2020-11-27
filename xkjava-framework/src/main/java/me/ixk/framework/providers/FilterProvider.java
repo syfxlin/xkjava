@@ -9,7 +9,7 @@ import me.ixk.framework.annotations.ConditionalOnMissingBean;
 import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.filter.CorsFilter;
 import me.ixk.framework.filter.EncodingFilter;
-import me.ixk.framework.kernel.CorsProcessor;
+import me.ixk.framework.web.CorsProcessor;
 
 /**
  * 过滤器提供器

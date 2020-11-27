@@ -54,7 +54,7 @@ public interface Advice {
      *
      * @return 切面返回值
      */
-    default Object around(ProceedingJoinPoint joinPoint) {
+    default Object around(ProceedingJoinPoint joinPoint) throws Throwable {
         try {
             return joinPoint.proceed();
         } catch (Throwable e) {

@@ -7,6 +7,8 @@ package me.ixk.framework.aop;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergedAnnotation;
 import net.sf.cglib.proxy.MethodProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,24 +27,9 @@ public class AspectHandler {
     );
 
     /**
-     * 切面代理类的原始对象
+     * 被代理对象的信息
      */
-    private final Object target;
-
-    /**
-     * 原始方法
-     */
-    private final Method method;
-
-    /**
-     * 代理方法
-     */
-    private final MethodProxy methodProxy;
-
-    /**
-     * 参数
-     */
-    private final Object[] args;
+    private final TargetInfo info;
     /**
      * 与当前方法匹配的所有切面
      */
@@ -50,29 +37,22 @@ public class AspectHandler {
     /**
      * 当前执行到的切面索引
      */
-    private volatile AtomicInteger currAspectIndex;
+    private final AtomicInteger currAspectIndex;
     /**
      * 用于临时存储当前切面
      */
     private volatile Advice aspect = null;
-
     /**
      * 切面中抛出的异常
      */
     private volatile Throwable error = null;
 
     public AspectHandler(
-        Object target,
-        Method method,
-        MethodProxy methodProxy,
-        Object[] args,
+        TargetInfo info,
         AtomicInteger currAspectIndex,
         List<Advice> aspects
     ) {
-        this.target = target;
-        this.method = method;
-        this.methodProxy = methodProxy;
-        this.args = args;
+        this.info = info;
         this.currAspectIndex = currAspectIndex;
         this.aspects = aspects;
         if (this.hasNextAspect()) {
@@ -91,7 +71,8 @@ public class AspectHandler {
     public Object invokeAspect() throws Throwable {
         if (aspect == null) {
             // 当切面不存在的时候说明执行完毕或没有切面，则执行原始方法
-            return this.methodProxy.invoke(this.target, this.args);
+            return this.info.getMethodProxy()
+                .invoke(this.info.getTarget(), this.info.getArgs());
         }
         Object result = null;
         try {
@@ -124,18 +105,16 @@ public class AspectHandler {
         if (this.hasNextAspect()) {
             return this.invokeNext();
         }
-        return this.methodProxy.invoke(
-                this.target,
-                args.length == 0 ? this.args : args
+        return this.info.getMethodProxy()
+            .invoke(
+                this.info.getTarget(),
+                args.length == 0 ? this.info.getArgs() : args
             );
     }
 
     public Object invokeNext() throws Throwable {
         AspectHandler handler = new AspectHandler(
-            this.target,
-            this.method,
-            this.methodProxy,
-            this.args,
+            this.info,
             currAspectIndex,
             this.aspects
         );
@@ -143,13 +122,7 @@ public class AspectHandler {
     }
 
     public ProceedingJoinPoint makeProceedingJoinPoint() {
-        ProceedingJoinPoint point = new ProceedingJoinPoint(
-            this,
-            this.target,
-            this.method,
-            this.methodProxy,
-            this.args
-        );
+        ProceedingJoinPoint point = new ProceedingJoinPoint(this, this.info);
         if (this.error != null) {
             point.setError(this.error);
         }
@@ -161,13 +134,7 @@ public class AspectHandler {
     }
 
     public JoinPoint makeJoinPoint(Object returnValue) {
-        JoinPoint point = new JoinPoint(
-            this,
-            this.target,
-            this.method,
-            this.methodProxy,
-            this.args
-        );
+        JoinPoint point = new JoinPoint(this, this.info);
         if (this.error != null) {
             point.setError(this.error);
         }
@@ -175,5 +142,61 @@ public class AspectHandler {
             point.setReturn(returnValue);
         }
         return point;
+    }
+
+    public static class TargetInfo {
+        private final Object target;
+        private final Object[] args;
+        private final MethodProxy methodProxy;
+
+        private final Class<?> clazz;
+        private final MergedAnnotation classAnnotation;
+
+        private final Method method;
+        private final MergedAnnotation methodAnnotation;
+
+        public TargetInfo(
+            Object target,
+            Class<?> clazz,
+            Method method,
+            MethodProxy methodProxy,
+            Object[] args
+        ) {
+            this.target = target;
+            this.clazz = clazz;
+            this.classAnnotation = AnnotationUtils.getAnnotation(clazz);
+            this.method = method;
+            this.methodAnnotation = AnnotationUtils.getAnnotation(method);
+            this.methodProxy = methodProxy;
+            this.args = args;
+        }
+
+        public Object getTarget() {
+            return target;
+        }
+
+        public Object[] getArgs() {
+            return args;
+        }
+
+        public MethodProxy getMethodProxy() {
+            return methodProxy;
+        }
+
+        public Class<?> getClazz() {
+            return clazz;
+        }
+
+        public MergedAnnotation getClassAnnotation() {
+            return classAnnotation;
+        }
+
+        public Method getMethod() {
+            return method;
+        }
+
+        public MergedAnnotation getMethodAnnotation() {
+            return methodAnnotation;
+        }
     }
 }

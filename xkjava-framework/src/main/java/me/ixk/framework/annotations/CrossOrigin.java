@@ -9,9 +9,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import me.ixk.framework.http.HttpMethod;
-import me.ixk.framework.kernel.CorsProcessor;
 import me.ixk.framework.middleware.Cors;
 import me.ixk.framework.registry.request.CrossOriginRegistry;
+import me.ixk.framework.web.CorsProcessor;
 
 /**
  * 跨域资源共享

@@ -8,6 +8,7 @@ import io.github.imsejin.expression.Expression;
 import io.github.imsejin.expression.ExpressionParser;
 import io.github.imsejin.expression.spel.standard.SpelExpressionParser;
 import io.github.imsejin.expression.spel.support.StandardEvaluationContext;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.ioc.XkJava;
@@ -34,13 +35,27 @@ public class Express {
         final Class<T> returnType,
         final Object root
     ) {
-        final Map<String, Object> variables = new ConcurrentHashMap<>(10);
+        return evaluateApp(
+            expression,
+            returnType,
+            root,
+            Collections.emptyMap()
+        );
+    }
+
+    public static <T> T evaluateApp(
+        final String expression,
+        final Class<T> returnType,
+        final Object root,
+        final Map<String, Object> variables
+    ) {
+        final Map<String, Object> vars = new ConcurrentHashMap<>(variables);
         final XkJava app = XkJava.of();
         final Environment env = app.make(Environment.class);
-        variables.put("app", app);
-        variables.put("env", env);
-        variables.put("e", env.getProperties());
-        return evaluate(expression, returnType, root, variables);
+        vars.put("app", app);
+        vars.put("env", env);
+        vars.put("e", env.getProperties());
+        return evaluate(expression, returnType, root, vars);
     }
 
     public static <T> T evaluate(

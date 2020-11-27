@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import me.ixk.framework.annotations.Order;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.AnnotationUtils;
 
 /**
@@ -21,45 +22,37 @@ import me.ixk.framework.utils.AnnotationUtils;
  * @date 2020/10/14 上午 8:25
  */
 public class AspectManager {
+    private static final SimpleCache<Method, List<Advice>> METHOD_CACHE = new SimpleCache<>();
     /**
      * 所有的切面列表
      */
     private final List<AdviceEntry> adviceList = new ArrayList<>();
+    private final XkJava app;
 
-    private final SimpleCache<Method, List<Advice>> METHOD_CACHE = new SimpleCache<>();
+    public AspectManager(XkJava app) {
+        this.app = app;
+    }
 
-    public void addAdvice(AspectPointcut pointcut, Advice advice) {
+    public void addAdvice(
+        AspectPointcut pointcut,
+        Class<? extends Advice> advice
+    ) {
         adviceList.add(new AdviceEntry(pointcut, advice));
     }
 
-    private static class AdviceEntry {
-        private final AspectPointcut pointcut;
-
-        private final Advice advice;
-
-        private final int order;
-
-        public AdviceEntry(AspectPointcut pointcut, Advice advice) {
-            this.pointcut = pointcut;
-            this.advice = advice;
-            Integer order = AnnotationUtils
-                .getAnnotation(advice.getClass())
-                .get(Order.class, "order");
-            this.order =
-                Objects.requireNonNullElse(order, Order.LOWEST_PRECEDENCE);
+    public List<Advice> getAdvices(Method method) {
+        List<Advice> cache = METHOD_CACHE.get(method);
+        if (cache != null) {
+            return cache;
         }
-
-        public AspectPointcut getPointcut() {
-            return pointcut;
+        List<Advice> list = new ArrayList<>();
+        for (AdviceEntry entry : adviceList) {
+            if (entry.getPointcut().matches(method)) {
+                list.add(this.app.make(entry.getAdvice()));
+            }
         }
-
-        public Advice getAdvice() {
-            return advice;
-        }
-
-        public int getOrder() {
-            return order;
-        }
+        METHOD_CACHE.put(method, list);
+        return list;
     }
 
     public boolean matches(Class<?> clazz) {
@@ -80,18 +73,36 @@ public class AspectManager {
         return false;
     }
 
-    public List<Advice> getAdvices(Method method) {
-        List<Advice> cache = METHOD_CACHE.get(method);
-        if (cache != null) {
-            return cache;
+    private static class AdviceEntry {
+        private final AspectPointcut pointcut;
+
+        private final Class<? extends Advice> advice;
+
+        private final int order;
+
+        public AdviceEntry(
+            AspectPointcut pointcut,
+            Class<? extends Advice> advice
+        ) {
+            this.pointcut = pointcut;
+            this.advice = advice;
+            Integer order = AnnotationUtils
+                .getAnnotation(advice)
+                .get(Order.class, "order");
+            this.order =
+                Objects.requireNonNullElse(order, Order.LOWEST_PRECEDENCE);
         }
-        List<Advice> list = new ArrayList<>();
-        for (AdviceEntry entry : adviceList) {
-            if (entry.getPointcut().matches(method)) {
-                list.add(entry.getAdvice());
-            }
+
+        public AspectPointcut getPointcut() {
+            return pointcut;
         }
-        METHOD_CACHE.put(method, list);
-        return list;
+
+        public Class<? extends Advice> getAdvice() {
+            return advice;
+        }
+
+        public int getOrder() {
+            return order;
+        }
     }
 }

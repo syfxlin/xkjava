@@ -31,4 +31,7 @@ public @interface Aspect {
 
     @AliasFor(annotation = Bean.class, attribute = "type")
     Class<?>[] type() default {  };
+
+    @AliasFor(annotation = Bean.class, attribute = "name")
+    String[] name() default {  };
 }

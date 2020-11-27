@@ -4,8 +4,7 @@
 
 package me.ixk.framework.aop;
 
-import java.lang.reflect.Method;
-import net.sf.cglib.proxy.MethodProxy;
+import me.ixk.framework.aop.AspectHandler.TargetInfo;
 
 /**
  * 连接点（可处理）
@@ -18,16 +17,13 @@ import net.sf.cglib.proxy.MethodProxy;
 public class ProceedingJoinPoint extends JoinPoint {
 
     public ProceedingJoinPoint(
-        AspectHandler handler,
-        Object object,
-        Method method,
-        MethodProxy methodProxy,
-        Object[] args
+        final AspectHandler handler,
+        final TargetInfo info
     ) {
-        super(handler, object, method, methodProxy, args);
+        super(handler, info);
     }
 
-    public Object proceed(Object... args) throws Throwable {
+    public Object proceed(final Object... args) throws Throwable {
         return this.handler.invokeProcess(args);
     }
 }

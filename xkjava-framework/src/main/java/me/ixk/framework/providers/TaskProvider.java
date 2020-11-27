@@ -37,7 +37,7 @@ public class TaskProvider {
     )
     public ScheduledExecutor scheduledExecutor() {
         return new ScheduledExecutor(
-            20,
+            8,
             new DaemonThreadFactory(),
             new AbortPolicy()
         );

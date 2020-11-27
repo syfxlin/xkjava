@@ -12,12 +12,9 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import me.ixk.framework.annotations.Aspect;
-import me.ixk.framework.annotations.Async;
-import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.AnnotationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,19 +30,20 @@ public class AsyncAspect implements Advice {
         AsyncAspect.class
     );
 
-    @Autowired
-    public XkJava app;
+    private final AsyncTaskExecutor executor;
 
-    @Override
-    public Object around(final ProceedingJoinPoint joinPoint) {
-        final Method method = joinPoint.getMethod();
-        final Async async = AnnotationUtils.getAnnotation(method, Async.class);
-        AsyncTaskExecutor executor = this.app.make(AsyncTaskExecutor.class);
+    public AsyncAspect(XkJava app, AsyncTaskExecutor executor) {
+        this.executor = executor;
         if (executor == null) {
             throw new NullPointerException(
                 "No executor specified and no default executor set on async task"
             );
         }
+    }
+
+    @Override
+    public Object around(final ProceedingJoinPoint joinPoint) {
+        final Method method = joinPoint.getMethod();
 
         Callable<Object> task = () -> {
             try {
@@ -61,7 +59,7 @@ public class AsyncAspect implements Advice {
             return null;
         };
 
-        return this.submit(task, executor, method.getReturnType());
+        return this.submit(task, this.executor, method.getReturnType());
     }
 
     private Object submit(

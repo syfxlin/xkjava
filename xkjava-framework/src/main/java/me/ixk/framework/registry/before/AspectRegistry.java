@@ -27,6 +27,7 @@ public class AspectRegistry implements BeforeImportBeanRegistry {
     );
 
     @Override
+    @SuppressWarnings("unchecked")
     public void before(
         XkJava app,
         AnnotatedElement element,
@@ -40,7 +41,7 @@ public class AspectRegistry implements BeforeImportBeanRegistry {
             }
             aspectManager.addAdvice(
                 new AspectPointcut(pointcut),
-                app.make(((Class<?>) element).getName(), Advice.class)
+                (Class<? extends Advice>) element
             );
         } else {
             log.error(

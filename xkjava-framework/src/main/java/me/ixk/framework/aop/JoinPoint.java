@@ -5,7 +5,8 @@
 package me.ixk.framework.aop;
 
 import java.lang.reflect.Method;
-import net.sf.cglib.proxy.MethodProxy;
+import me.ixk.framework.aop.AspectHandler.TargetInfo;
+import me.ixk.framework.utils.MergedAnnotation;
 
 /**
  * 连接点
@@ -18,15 +19,7 @@ import net.sf.cglib.proxy.MethodProxy;
 public class JoinPoint {
     protected final AspectHandler handler;
 
-    protected final Object[] args;
-
-    protected final Object object;
-
-    protected final Class<?> clazz;
-
-    protected final Method method;
-
-    protected final MethodProxy methodProxy;
+    protected final TargetInfo info;
 
     /**
      * 返回值
@@ -38,31 +31,21 @@ public class JoinPoint {
      */
     protected volatile Throwable error;
 
-    public JoinPoint(
-        AspectHandler handler,
-        Object object,
-        Method method,
-        MethodProxy methodProxy,
-        Object[] args
-    ) {
+    public JoinPoint(AspectHandler handler, TargetInfo info) {
         this.handler = handler;
-        this.args = args;
-        this.object = object;
-        this.clazz = object.getClass();
-        this.method = method;
-        this.methodProxy = methodProxy;
+        this.info = info;
     }
 
     public Object[] getArgs() {
-        return args;
+        return this.info.getArgs();
     }
 
-    public Object getObject() {
-        return object;
+    public Object getTarget() {
+        return this.info.getTarget();
     }
 
     public Class<?> getTargetClass() {
-        return clazz;
+        return this.info.getClazz();
     }
 
     public Object getReturn() {
@@ -82,6 +65,14 @@ public class JoinPoint {
     }
 
     public Method getMethod() {
-        return method;
+        return this.info.getMethod();
+    }
+
+    public MergedAnnotation getMethodAnnotation() {
+        return this.info.getMethodAnnotation();
+    }
+
+    public MergedAnnotation getClassAnnotation() {
+        return this.info.getClassAnnotation();
     }
 }

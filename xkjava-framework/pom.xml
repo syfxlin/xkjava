@@ -57,6 +57,11 @@
       <artifactId>mysql-connector-java</artifactId>
       <version>8.0.20</version>
     </dependency>
+    <dependency>
+      <artifactId>lettuce-core</artifactId>
+      <groupId>io.lettuce</groupId>
+      <version>6.0.1.RELEASE</version>
+    </dependency>
     <!-- Tools -->
     <dependency>
       <artifactId>spel</artifactId>

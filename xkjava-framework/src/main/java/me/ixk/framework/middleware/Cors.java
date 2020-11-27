@@ -8,7 +8,7 @@ import me.ixk.framework.annotations.CrossOrigin;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
-import me.ixk.framework.kernel.CorsProcessor;
+import me.ixk.framework.web.CorsProcessor;
 
 /**
  * CORS

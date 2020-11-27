@@ -2,11 +2,12 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.processor;
+package me.ixk.framework.kernel;
 
 import me.ixk.framework.bootstrap.Bootstrap;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.processor.AbstractAnnotationProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

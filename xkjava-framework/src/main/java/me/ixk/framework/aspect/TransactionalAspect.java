@@ -10,8 +10,6 @@ import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 import me.ixk.framework.database.SqlSessionManager;
 import me.ixk.framework.exceptions.TransactionalException;
-import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.AnnotationUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,19 +26,22 @@ public class TransactionalAspect implements Advice {
         TransactionalAspect.class
     );
 
+    private final SqlSessionManager sqlSessionManager;
+
+    public TransactionalAspect(SqlSessionManager sqlSessionManager) {
+        this.sqlSessionManager = sqlSessionManager;
+    }
+
     @Override
     public Object around(final ProceedingJoinPoint joinPoint) {
-        // SqlSession 管理器
-        final SqlSessionManager sqlSessionManager = XkJava
-            .of()
-            .make(SqlSessionManager.class);
-        final Transactional transactional = AnnotationUtils
-            .getAnnotation(joinPoint.getMethod())
+        final Transactional transactional = joinPoint
+            .getMethodAnnotation()
             .getAnnotation(Transactional.class);
         // 开启对应事务隔离级别的 SqlSession，并存入到 ThreadLocal，用于下一步操作的时候能使用这个 SqlSession
-        final SqlSession sqlSession = sqlSessionManager.startTransactionSession(
-            transactional.isolation()
-        );
+        final SqlSession sqlSession =
+            this.sqlSessionManager.startTransactionSession(
+                    transactional.isolation()
+                );
         try {
             // 处理代理方法
             final Object result = joinPoint.proceed();
