@@ -29,7 +29,7 @@ import me.ixk.framework.utils.MergedAnnotation;
  * @author Otstar Lin
  * @date 2020/10/30 下午 8:22
  */
-public class ServletComponentRegistry implements AfterImportBeanRegistry {
+public class ServletComponentRegistry implements AfterBeanRegistry {
 
     @Override
     public void register(

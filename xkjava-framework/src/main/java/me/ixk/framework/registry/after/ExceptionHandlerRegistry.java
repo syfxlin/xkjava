@@ -26,7 +26,8 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 下午 1:54
  */
 @Component(name = "exceptionHandlerRegistry")
-public class ExceptionHandlerRegistry implements AfterImportBeanRegistry {
+public class ExceptionHandlerRegistry implements AfterBeanRegistry {
+
     private static final Logger log = LoggerFactory.getLogger(
         ExceptionHandlerRegistry.class
     );

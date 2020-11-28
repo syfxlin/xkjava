@@ -23,7 +23,8 @@ import me.ixk.framework.web.ResponseReturnValueResolver;
  * @date 2020/10/14 下午 1:55
  */
 @Component(name = "webHandlerRegistry")
-public class WebResolverRegistry implements AfterImportBeanRegistry {
+public class WebResolverRegistry implements AfterBeanRegistry {
+
     private final List<RequestParameterResolver> requestParameterResolvers = new ArrayList<>();
     private final List<ResponseReturnValueResolver> responseReturnValueResolvers = new ArrayList<>();
     private final List<RequestParametersPostResolver> requestParametersPostResolvers = new ArrayList<>();

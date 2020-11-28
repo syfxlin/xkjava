@@ -28,7 +28,8 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 下午 1:54
  */
 @Component(name = "middlewareRegistry")
-public class MiddlewareRegistry implements AfterImportBeanRegistry {
+public class MiddlewareRegistry implements AfterBeanRegistry {
+
     private static final Logger log = LoggerFactory.getLogger(
         MiddlewareRegistry.class
     );

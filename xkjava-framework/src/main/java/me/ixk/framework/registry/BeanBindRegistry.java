@@ -10,12 +10,12 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**
- * Import 注册记录
+ * BindRegistry 注册记录
  *
  * @author Otstar Lin
  * @date 2020/10/14 下午 2:06
  */
-public interface ImportBeanRegistry {
+public interface BeanBindRegistry {
     /**
      * 注册
      *

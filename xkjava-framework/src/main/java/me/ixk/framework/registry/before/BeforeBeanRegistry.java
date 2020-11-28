@@ -9,12 +9,12 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**
- * 前置 Import 注册记录
+ * 前置 BindRegistry 注册记录
  *
  * @author Otstar Lin
  * @date 2020/10/14 下午 1:58
  */
-public interface BeforeImportBeanRegistry {
+public interface BeforeBeanRegistry {
     /**
      * 注册
      *
@@ -22,7 +22,7 @@ public interface BeforeImportBeanRegistry {
      * @param element    注解元素
      * @param annotation 组合注解
      */
-    void before(
+    void register(
         XkJava app,
         AnnotatedElement element,
         MergedAnnotation annotation

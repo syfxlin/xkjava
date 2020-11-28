@@ -20,23 +20,23 @@ import me.ixk.framework.registry.after.ServletComponentRegistry;
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Bean
-@AfterImport(ServletComponentRegistry.class)
+@AfterRegistry(ServletComponentRegistry.class)
 public @interface Servlet {
     @AliasFor("url")
     String[] value() default "";
 
     @AliasFor("value")
-    String[] url() default {  };
+    String[] url() default {};
 
     @AliasFor(annotation = Bean.class, attribute = "name")
-    String[] name() default {  };
+    String[] name() default {};
 
     @AliasFor(annotation = Bean.class, attribute = "type")
-    Class<?>[] type() default {  };
+    Class<?>[] type() default {};
 
     int loadOnStartup() default -1;
 
     boolean asyncSupported() default false;
 
-    WebInitParam[] initParams() default {  };
+    WebInitParam[] initParams() default {};
 }

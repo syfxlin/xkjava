@@ -23,14 +23,14 @@ import me.ixk.framework.registry.after.InitBinderRegistry;
 @Retention(RetentionPolicy.RUNTIME)
 @Lazy
 @Bean
-@AfterImport({ ExceptionHandlerRegistry.class, InitBinderRegistry.class })
+@AfterRegistry({ ExceptionHandlerRegistry.class, InitBinderRegistry.class })
 public @interface ControllerAdvice {
     @AliasFor(value = "name", annotation = Bean.class, attribute = "value")
-    String[] value() default {  };
+    String[] value() default {};
 
     @AliasFor(value = "value", annotation = Bean.class, attribute = "name")
-    String[] name() default {  };
+    String[] name() default {};
 
     @AliasFor(annotation = Bean.class, attribute = "type")
-    Class<?>[] type() default {  };
+    Class<?>[] type() default {};
 }

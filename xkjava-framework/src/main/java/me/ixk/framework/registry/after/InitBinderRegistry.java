@@ -23,7 +23,8 @@ import me.ixk.framework.web.resolver.InitBinderHandlerResolver;
  * @date 2020/10/14 下午 1:54
  */
 @Component(name = "initBinderRegistry")
-public class InitBinderRegistry implements AfterImportBeanRegistry {
+public class InitBinderRegistry implements AfterBeanRegistry {
+
     private final List<InitBinderHandlerResolver> adviceResolvers = new ArrayList<>();
     private final Map<Class<?>, InitBinderHandlerResolver> controllerResolvers = new ConcurrentHashMap<>();
 

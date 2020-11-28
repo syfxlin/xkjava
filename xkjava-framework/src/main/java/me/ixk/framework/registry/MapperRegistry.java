@@ -16,7 +16,7 @@ import me.ixk.framework.utils.MergedAnnotation;
  * @author Otstar Lin
  * @date 2020/10/14 下午 2:07
  */
-public class MapperRegistry implements ImportBeanRegistry {
+public class MapperRegistry implements BeanBindRegistry {
 
     @Override
     public Binding register(

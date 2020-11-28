@@ -18,6 +18,6 @@ import me.ixk.framework.registry.after.RouteRegistry;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@AfterImport(RouteRegistry.class)
+@AfterRegistry(RouteRegistry.class)
 public @interface Route {
 }

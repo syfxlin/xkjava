@@ -20,13 +20,13 @@ import me.ixk.framework.registry.after.MiddlewareRegistry;
  */
 @Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@AfterImport(MiddlewareRegistry.class)
+@AfterRegistry(MiddlewareRegistry.class)
 public @interface Middleware {
     @AliasFor("name")
-    String[] value() default {  };
+    String[] value() default {};
 
     @AliasFor("value")
-    String[] name() default {  };
+    String[] name() default {};
 
     Class<? extends me.ixk.framework.middleware.Middleware>[] middleware() default me.ixk.framework.middleware.Middleware.class;
 }

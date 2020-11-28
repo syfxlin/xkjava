@@ -10,20 +10,20 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import me.ixk.framework.annotations.AfterImport;
+import me.ixk.framework.annotations.AfterRegistry;
 import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.Bean;
 import me.ixk.framework.annotations.Bean.BindType;
-import me.ixk.framework.annotations.BeforeImport;
-import me.ixk.framework.annotations.Import;
+import me.ixk.framework.annotations.BeforeRegistry;
+import me.ixk.framework.annotations.BindRegistry;
 import me.ixk.framework.annotations.Lazy;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.Wrapper;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.registry.ImportBeanRegistry;
-import me.ixk.framework.registry.after.AfterImportBeanRegistry;
-import me.ixk.framework.registry.before.BeforeImportBeanRegistry;
+import me.ixk.framework.registry.BeanBindRegistry;
+import me.ixk.framework.registry.after.AfterBeanRegistry;
+import me.ixk.framework.registry.before.BeforeBeanRegistry;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 
@@ -35,6 +35,7 @@ import me.ixk.framework.utils.MergedAnnotation;
  */
 @AnnotationProcessor
 public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
+
     private final List<String> makeList = new ArrayList<>();
 
     public BeanAnnotationProcessor(final XkJava app) {
@@ -45,9 +46,9 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     public void process() {
         // Before
         this.processAnnotation(
-                BeforeImport.class,
-                this::invokeBeforeImport,
-                this::invokeBeforeImport
+                BeforeRegistry.class,
+                this::invokeBeforeRegistry,
+                this::invokeBeforeRegistry
             );
         // Bind bean
         this.processAnnotation(
@@ -57,9 +58,9 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
             );
         // After
         this.processAnnotation(
-                AfterImport.class,
-                this::invokeAfterImport,
-                this::invokeAfterImport
+                AfterRegistry.class,
+                this::invokeAfterRegistry,
+                this::invokeAfterRegistry
             );
         // Make bean
         for (String beanName : this.makeList) {
@@ -117,7 +118,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
             this.getInitAndDestroyMethod(beanAnnotation, clazz);
         final boolean overwrite = beanAnnotation.overwrite();
         final Binding binding =
-            this.invokeImport(annotation, clazz, scopeType, overwrite);
+            this.invokeRegistry(annotation, clazz, scopeType, overwrite);
         if (bindType == BindType.BIND) {
             this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
         }
@@ -160,37 +161,37 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         }
     }
 
-    private void invokeBeforeImport(final AnnotatedElement element) {
+    private void invokeBeforeRegistry(final AnnotatedElement element) {
         final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
             element
         );
-        // @BeforeImport
-        if (annotation.hasAnnotation(BeforeImport.class)) {
-            for (BeforeImport beforeImport : annotation.getAnnotations(
-                BeforeImport.class
+        // @BeforeRegistry
+        if (annotation.hasAnnotation(BeforeRegistry.class)) {
+            for (BeforeRegistry beforeRegistry : annotation.getAnnotations(
+                BeforeRegistry.class
             )) {
-                for (Class<? extends BeforeImportBeanRegistry> registry : beforeImport.value()) {
+                for (Class<? extends BeforeBeanRegistry> registry : beforeRegistry.value()) {
                     this.app.make(registry)
-                        .before(this.app, element, annotation);
+                        .register(this.app, element, annotation);
                 }
             }
         }
     }
 
     @SuppressWarnings("unchecked")
-    private Binding invokeImport(
+    private Binding invokeRegistry(
         final MergedAnnotation annotation,
         final Class<?> clazz,
         final ScopeType scopeType,
         final boolean overwrite
     ) {
-        // @Import
-        if (annotation.notAnnotation(Import.class)) {
+        // @BindRegistry
+        if (annotation.notAnnotation(BindRegistry.class)) {
             return this.app.bind(clazz, clazz, null, scopeType, overwrite);
         } else {
             return this.app.make(
-                    (Class<ImportBeanRegistry>) annotation.get(
-                        Import.class,
+                    (Class<BeanBindRegistry>) annotation.get(
+                        BindRegistry.class,
                         "value"
                     )
                 )
@@ -198,16 +199,16 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         }
     }
 
-    private void invokeAfterImport(final AnnotatedElement element) {
+    private void invokeAfterRegistry(final AnnotatedElement element) {
         final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
             element
         );
-        // @AfterImport
-        if (annotation.hasAnnotation(AfterImport.class)) {
-            for (AfterImport afterImport : annotation.getAnnotations(
-                AfterImport.class
+        // @AfterRegistry
+        if (annotation.hasAnnotation(AfterRegistry.class)) {
+            for (AfterRegistry afterRegistry : annotation.getAnnotations(
+                AfterRegistry.class
             )) {
-                for (Class<? extends AfterImportBeanRegistry> registry : afterImport.value()) {
+                for (Class<? extends AfterBeanRegistry> registry : afterRegistry.value()) {
                     this.app.make(registry)
                         .register(this.app, element, annotation);
                 }

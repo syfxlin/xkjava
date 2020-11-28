@@ -21,14 +21,15 @@ import org.slf4j.LoggerFactory;
  * @author Otstar Lin
  * @date 2020/10/14 下午 1:59
  */
-public class AspectRegistry implements BeforeImportBeanRegistry {
+public class AspectRegistry implements BeforeBeanRegistry {
+
     private static final Logger log = LoggerFactory.getLogger(
         AspectRegistry.class
     );
 
     @Override
     @SuppressWarnings("unchecked")
-    public void before(
+    public void register(
         XkJava app,
         AnnotatedElement element,
         MergedAnnotation annotation

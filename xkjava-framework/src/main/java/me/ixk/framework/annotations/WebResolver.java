@@ -20,6 +20,6 @@ import me.ixk.framework.registry.after.WebResolverRegistry;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@AfterImport(WebResolverRegistry.class)
+@AfterRegistry(WebResolverRegistry.class)
 public @interface WebResolver {
 }

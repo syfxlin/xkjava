@@ -21,7 +21,8 @@ import me.ixk.framework.utils.MergedAnnotation;
  * @date 2020/10/14 下午 1:54
  */
 @Component(name = "mapperScannerRegistry")
-public class MapperScannerRegistry implements AfterImportBeanRegistry {
+public class MapperScannerRegistry implements AfterBeanRegistry {
+
     private final List<String> scanPackages = new ArrayList<>();
 
     @Override

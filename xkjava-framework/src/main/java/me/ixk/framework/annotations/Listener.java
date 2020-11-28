@@ -19,14 +19,14 @@ import me.ixk.framework.registry.after.ServletComponentRegistry;
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Bean
-@AfterImport(ServletComponentRegistry.class)
+@AfterRegistry(ServletComponentRegistry.class)
 public @interface Listener {
     @AliasFor(value = "name", annotation = Bean.class, attribute = "value")
-    String[] value() default {  };
+    String[] value() default {};
 
     @AliasFor(value = "value", annotation = Bean.class, attribute = "name")
-    String[] name() default {  };
+    String[] name() default {};
 
     @AliasFor(annotation = Bean.class, attribute = "type")
-    Class<?>[] type() default {  };
+    Class<?>[] type() default {};
 }

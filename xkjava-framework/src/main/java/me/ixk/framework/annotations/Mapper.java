@@ -20,14 +20,14 @@ import me.ixk.framework.registry.MapperRegistry;
 @Retention(RetentionPolicy.RUNTIME)
 @Scope(type = ScopeType.PROTOTYPE)
 @Bean
-@Import(MapperRegistry.class)
+@BindRegistry(MapperRegistry.class)
 public @interface Mapper {
     @AliasFor(value = "name", annotation = Bean.class, attribute = "value")
-    String[] value() default {  };
+    String[] value() default {};
 
     @AliasFor(value = "value", annotation = Bean.class, attribute = "name")
-    String[] name() default {  };
+    String[] name() default {};
 
     @AliasFor(annotation = Bean.class, attribute = "type")
-    Class<?>[] type() default {  };
+    Class<?>[] type() default {};
 }

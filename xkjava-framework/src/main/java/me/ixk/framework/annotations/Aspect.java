@@ -21,7 +21,7 @@ import me.ixk.framework.registry.before.AspectRegistry;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Bean
-@BeforeImport(AspectRegistry.class)
+@BeforeRegistry(AspectRegistry.class)
 public @interface Aspect {
     @AliasFor("pointcut")
     String value() default "";
@@ -30,8 +30,8 @@ public @interface Aspect {
     String pointcut() default "";
 
     @AliasFor(annotation = Bean.class, attribute = "type")
-    Class<?>[] type() default {  };
+    Class<?>[] type() default {};
 
     @AliasFor(annotation = Bean.class, attribute = "name")
-    String[] name() default {  };
+    String[] name() default {};
 }

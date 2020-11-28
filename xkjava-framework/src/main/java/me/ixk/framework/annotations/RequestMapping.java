@@ -19,13 +19,13 @@ import me.ixk.framework.registry.after.RouteRegistry;
  */
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@AfterImport(RouteRegistry.class)
+@AfterRegistry(RouteRegistry.class)
 public @interface RequestMapping {
     @AliasFor("path")
-    String[] value() default {  };
+    String[] value() default {};
 
     @AliasFor("value")
-    String[] path() default {  };
+    String[] path() default {};
 
     HttpMethod[] method() default HttpMethod.GET;
 }

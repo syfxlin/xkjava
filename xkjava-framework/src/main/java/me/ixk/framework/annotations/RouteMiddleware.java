@@ -18,7 +18,7 @@ import me.ixk.framework.registry.after.MiddlewareRegistry;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@AfterImport(MiddlewareRegistry.class)
+@AfterRegistry(MiddlewareRegistry.class)
 public @interface RouteMiddleware {
     @AliasFor("name")
     String value() default "";

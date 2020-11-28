@@ -18,7 +18,7 @@ import me.ixk.framework.registry.after.MapperScannerRegistry;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@AfterImport(MapperScannerRegistry.class)
+@AfterRegistry(MapperScannerRegistry.class)
 @RepeatItem(MapperScan.class)
 public @interface MapperScans {
     MapperScan[] value();

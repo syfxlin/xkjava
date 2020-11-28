@@ -19,14 +19,14 @@ import me.ixk.framework.registry.after.MapperScannerRegistry;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@AfterImport(MapperScannerRegistry.class)
+@AfterRegistry(MapperScannerRegistry.class)
 @Repeatable(MapperScans.class)
 public @interface MapperScan {
     @AliasFor("basePackages")
-    String[] value() default {  };
+    String[] value() default {};
 
     @AliasFor("value")
-    String[] basePackages() default {  };
+    String[] basePackages() default {};
 
-    Class<?>[] basePackageClasses() default {  };
+    Class<?>[] basePackageClasses() default {};
 }
