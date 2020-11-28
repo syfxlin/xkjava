@@ -10,8 +10,8 @@ import me.ixk.framework.annotations.CacheConfig;
 import me.ixk.framework.annotations.CachePut;
 import me.ixk.framework.annotations.Cacheable;
 import me.ixk.framework.aop.ProceedingJoinPoint;
+import me.ixk.framework.expression.BeanExpressionResolver;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.Express;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**
@@ -25,8 +25,12 @@ import me.ixk.framework.utils.MergedAnnotation;
 )
 public class CacheableAspect extends AbstractCacheAspect {
 
-    public CacheableAspect(final XkJava app, final CacheManager cacheManager) {
-        super(app, cacheManager);
+    public CacheableAspect(
+        XkJava app,
+        CacheManager cacheManager,
+        BeanExpressionResolver resolver
+    ) {
+        super(app, cacheManager, resolver);
     }
 
     @Override
@@ -84,13 +88,30 @@ public class CacheableAspect extends AbstractCacheAspect {
             return true;
         }
         if (condition == null || condition.isEmpty()) {
-            return !Express.evaluateApp(unless, Boolean.class, null, variables);
+            return !this.expressionResolver.evaluate(
+                    unless,
+                    Boolean.class,
+                    null,
+                    variables
+                );
         }
-        if (Express.evaluateApp(condition, Boolean.class, null, variables)) {
+        if (
+            this.expressionResolver.evaluate(
+                    condition,
+                    Boolean.class,
+                    null,
+                    variables
+                )
+        ) {
             if (unless == null || unless.isEmpty()) {
                 return true;
             }
-            return !Express.evaluateApp(unless, Boolean.class, null, variables);
+            return !this.expressionResolver.evaluate(
+                    unless,
+                    Boolean.class,
+                    null,
+                    variables
+                );
         }
         return false;
     }

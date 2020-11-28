@@ -15,12 +15,13 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import me.ixk.framework.annotations.ConfigurationProperties;
 import me.ixk.framework.annotations.EnvValue;
-import me.ixk.framework.annotations.Expression;
 import me.ixk.framework.annotations.Injector;
 import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotations.Value;
 import me.ixk.framework.bootstrap.Bootstrap;
 import me.ixk.framework.config.ClassProperty;
 import me.ixk.framework.config.PropertyResolver;
+import me.ixk.framework.expression.BeanExpressionResolver;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.InjectorEntry;
@@ -28,7 +29,6 @@ import me.ixk.framework.ioc.InstanceContext;
 import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.utils.Convert;
-import me.ixk.framework.utils.Express;
 import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 @Injector
 @Order(Order.HIGHEST_PRECEDENCE)
 public class PropertiesValueInjector implements InstanceInjector {
+
     private static final Logger log = LoggerFactory.getLogger(
         PropertiesValueInjector.class
     );
@@ -122,8 +123,13 @@ public class PropertiesValueInjector implements InstanceInjector {
         return value;
     }
 
-    protected Object injectExpression(final Expression expression) {
-        return Express.evaluateApp(expression.expression(), Object.class);
+    protected Object injectExpression(
+        final Value value,
+        final Container container
+    ) {
+        return container
+            .make(BeanExpressionResolver.class)
+            .evaluate(value.expression(), Object.class);
     }
 
     @Override
@@ -160,11 +166,11 @@ public class PropertiesValueInjector implements InstanceInjector {
             }
             final Field field = entry.getElement();
             final MergedAnnotation fieldAnnotation = entry.getAnnotation();
-            final Expression expressionAnnotation = fieldAnnotation.getAnnotation(
-                Expression.class
+            final Value valueAnnotation = fieldAnnotation.getAnnotation(
+                Value.class
             );
             // 不存在 @Value 或者 @Configuration 注解的时候则无需注入
-            if (configAnnotation == null && expressionAnnotation == null) {
+            if (configAnnotation == null && valueAnnotation == null) {
                 continue;
             }
             final PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
@@ -175,7 +181,7 @@ public class PropertiesValueInjector implements InstanceInjector {
                 ? null
                 : propertyDescriptor.getWriteMethod();
             final Object value;
-            if (configAnnotation != null && expressionAnnotation == null) {
+            if (configAnnotation != null && valueAnnotation == null) {
                 // @ConfigurationProperties 没有 @Value 注解
                 final EnvValue envValueAnnotation = fieldAnnotation.getAnnotation(
                     EnvValue.class
@@ -210,7 +216,7 @@ public class PropertiesValueInjector implements InstanceInjector {
                         );
             } else {
                 // 有 @Value 注解就优先使用
-                value = this.injectExpression(expressionAnnotation);
+                value = this.injectExpression(valueAnnotation, container);
             }
             if (writeMethod != null) {
                 ReflectUtil.invoke(instance, writeMethod, value);

@@ -9,8 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.CacheConfig;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.ProceedingJoinPoint;
+import me.ixk.framework.expression.BeanExpressionResolver;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.Express;
 import me.ixk.framework.utils.ParameterNameDiscoverer;
 
 /**
@@ -18,16 +18,19 @@ import me.ixk.framework.utils.ParameterNameDiscoverer;
  * @date 2020/11/27 下午 4:58
  */
 public abstract class AbstractCacheAspect implements Advice {
-    private static final String EL_START = "#";
-    private final XkJava app;
-    private final CacheManager cacheManager;
+
+    protected final XkJava app;
+    protected final CacheManager cacheManager;
+    protected final BeanExpressionResolver expressionResolver;
 
     public AbstractCacheAspect(
         final XkJava app,
-        final CacheManager cacheManager
+        final CacheManager cacheManager,
+        final BeanExpressionResolver resolver
     ) {
         this.app = app;
         this.cacheManager = cacheManager;
+        this.expressionResolver = resolver;
     }
 
     protected Cache getCache(String cacheName, final CacheConfig cacheConfig) {
@@ -80,11 +83,12 @@ public abstract class AbstractCacheAspect implements Advice {
                 );
         }
         if (!key.isEmpty()) {
-            if (key.startsWith(EL_START)) {
-                return Express.evaluateApp(key, Object.class, null, variables);
-            } else {
-                return key;
-            }
+            return this.expressionResolver.evaluate(
+                    key,
+                    Object.class,
+                    null,
+                    variables
+                );
         }
         return Cache.DEFAULT_KEY;
     }

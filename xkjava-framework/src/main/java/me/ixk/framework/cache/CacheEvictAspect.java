@@ -9,8 +9,8 @@ import me.ixk.framework.annotations.Aspect;
 import me.ixk.framework.annotations.CacheConfig;
 import me.ixk.framework.annotations.CacheEvict;
 import me.ixk.framework.aop.ProceedingJoinPoint;
+import me.ixk.framework.expression.BeanExpressionResolver;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.Express;
 
 /**
  * CacheEvict 切面
@@ -21,8 +21,12 @@ import me.ixk.framework.utils.Express;
 @Aspect("@annotation(me.ixk.framework.annotations.CacheEvict)")
 public class CacheEvictAspect extends AbstractCacheAspect {
 
-    public CacheEvictAspect(XkJava app, CacheManager cacheManager) {
-        super(app, cacheManager);
+    public CacheEvictAspect(
+        XkJava app,
+        CacheManager cacheManager,
+        BeanExpressionResolver resolver
+    ) {
+        super(app, cacheManager, resolver);
     }
 
     @Override
@@ -37,12 +41,12 @@ public class CacheEvictAspect extends AbstractCacheAspect {
         final Map<String, Object> variables = this.getVariables(joinPoint);
         if (
             !cacheEvict.condition().isEmpty() &&
-            !Express.evaluateApp(
-                cacheEvict.condition(),
-                Boolean.class,
-                null,
-                variables
-            )
+            !this.expressionResolver.evaluate(
+                    cacheEvict.condition(),
+                    Boolean.class,
+                    null,
+                    variables
+                )
         ) {
             return joinPoint.proceed(joinPoint.getArgs());
         }

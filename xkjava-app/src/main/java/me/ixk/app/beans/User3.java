@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.ixk.framework.annotations.Bean;
 import me.ixk.framework.annotations.ConfigurationProperties;
-import me.ixk.framework.annotations.Expression;
+import me.ixk.framework.annotations.Value;
 
 @Data
 @NoArgsConstructor
@@ -26,9 +26,10 @@ import me.ixk.framework.annotations.Expression;
 // @ConditionalOnJava(version = JavaVersion.FIFTEEN)
 @ConfigurationProperties
 public class User3 {
-    @Expression("#e['test.name']")
+
+    @Value("#{#e['test.name']}")
     String name;
 
-    @Expression("#e['age'] ?: 21")
+    @Value("#{#e['age'] ?: 21}")
     int age;
 }

@@ -51,7 +51,7 @@ public class CacheTarget {
         return "value";
     }
 
-    @Cacheable(key = "#key")
+    @Cacheable(key = "#{#key}")
     public String elKey(String key) {
         log.info("Invoke elKey");
         return "value";

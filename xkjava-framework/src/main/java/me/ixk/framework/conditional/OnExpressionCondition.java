@@ -6,10 +6,10 @@ package me.ixk.framework.conditional;
 
 import java.lang.reflect.AnnotatedElement;
 import me.ixk.framework.annotations.ConditionalOnExpression;
+import me.ixk.framework.expression.BeanExpressionResolver;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.Convert;
-import me.ixk.framework.utils.Express;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**
@@ -28,10 +28,12 @@ public class OnExpressionCondition implements Condition {
     ) {
         return Convert.convert(
             Boolean.class,
-            Express.evaluateApp(
-                annotation.get(ConditionalOnExpression.class, "value"),
-                Boolean.class
-            )
+            app
+                .make(BeanExpressionResolver.class)
+                .evaluate(
+                    annotation.get(ConditionalOnExpression.class, "value"),
+                    Boolean.class
+                )
         );
     }
 }
