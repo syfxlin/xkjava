@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import me.ixk.framework.ioc.XkJava;
+import java.util.function.Predicate;
 import org.reflections.Reflections;
 import org.reflections.scanners.FieldAnnotationsScanner;
 import org.reflections.scanners.MethodAnnotationsScanner;
@@ -26,13 +26,6 @@ import org.reflections.util.ConfigurationBuilder;
  * @date 2020/10/14 下午 5:14
  */
 public class ReflectionsUtils {
-    private static final Reflections GLOBAL_APP_REFLECTIONS = make(
-        XkJava.of().scanPackage().toArray(new String[0])
-    );
-
-    public static Reflections make() {
-        return GLOBAL_APP_REFLECTIONS;
-    }
 
     public static Reflections make(Class<?> clazz) {
         return make(ClasspathHelper.forClass(clazz));
@@ -44,6 +37,33 @@ public class ReflectionsUtils {
 
     public static Reflections make(String prefix, Scanner... scanners) {
         return new Reflections(prefix, scanners);
+    }
+
+    public static Reflections make(
+        String[] packages,
+        Predicate<String> filter
+    ) {
+        List<URL> urls = new ArrayList<>(packages.length);
+        for (String item : packages) {
+            urls.addAll(ClasspathHelper.forPackage(item));
+        }
+        return make(urls, filter);
+    }
+
+    public static Reflections make(
+        Collection<URL> urls,
+        Predicate<String> filter
+    ) {
+        final ConfigurationBuilder builder = new ConfigurationBuilder();
+        builder.addUrls(urls);
+        builder.addScanners(
+            new TypeAnnotationsScanner(),
+            new MethodAnnotationsScanner(),
+            new FieldAnnotationsScanner(),
+            new SubTypesScanner()
+        );
+        builder.filterInputsBy(filter);
+        return new Reflections(builder);
     }
 
     public static Reflections make(Collection<URL> urls) {

@@ -7,6 +7,7 @@ package me.ixk.framework.ioc;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import me.ixk.framework.ioc.AnnotatedEntry.ChangeableEntry;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ParameterNameDiscoverer;
 
@@ -17,8 +18,9 @@ import me.ixk.framework.utils.ParameterNameDiscoverer;
  * @date 2020/11/9 下午 7:52
  */
 public class ParameterContext {
+
     private final Binding binding;
-    private final InjectorEntry<Executable> executableEntry;
+    private final AnnotatedEntry<Executable> executableEntry;
     private final ParameterEntry[] parameterEntries;
 
     public ParameterContext(
@@ -26,7 +28,7 @@ public class ParameterContext {
         final Executable executable
     ) {
         this.binding = binding;
-        this.executableEntry = new InjectorEntry<>(executable);
+        this.executableEntry = new AnnotatedEntry<>(executable);
         this.parameterEntries =
             new ParameterEntry[executable.getParameterCount()];
         final Parameter[] parameters = executable.getParameters();
@@ -43,7 +45,7 @@ public class ParameterContext {
         return this.getExecutableEntry().getElement();
     }
 
-    public InjectorEntry<Executable> getExecutableEntry() {
+    public AnnotatedEntry<Executable> getExecutableEntry() {
         return executableEntry;
     }
 
@@ -73,7 +75,8 @@ public class ParameterContext {
         return binding;
     }
 
-    public static class ParameterEntry extends InjectorEntry<Parameter> {
+    public static class ParameterEntry extends ChangeableEntry<Parameter> {
+
         private final String name;
 
         public ParameterEntry(final Parameter element, final String name) {

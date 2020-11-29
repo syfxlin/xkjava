@@ -5,9 +5,7 @@
 package me.ixk.framework.ioc;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import me.ixk.framework.annotations.ComponentScan;
 import me.ixk.framework.annotations.Profile;
 import me.ixk.framework.ioc.context.ApplicationContext;
@@ -36,6 +34,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 下午 12:45
  */
 public class XkJava extends Container {
+
     private static final Logger log = LoggerFactory.getLogger(XkJava.class);
 
     private static final String VERSION = "v1.0-SNAPSHOT";
@@ -65,9 +64,9 @@ public class XkJava extends Container {
     private String[] args;
 
     /**
-     * 扫描组件的包
+     * Bean 扫描器
      */
-    private final Set<String> scansPackages = new HashSet<>();
+    private final BeanScanner beanScanner = new BeanScanner(this);
 
     /**
      * XkJava 是否已经启动
@@ -158,16 +157,17 @@ public class XkJava extends Container {
      * 配置要扫描的包
      */
     private void loadPackageScanAnnotation() {
-        final Set<String> scanPackage = this.scanPackage();
-        scanPackage.add("me.ixk.framework");
+        this.beanScanner.addDefinition(new String[] { "me.ixk.framework" });
         for (final Class<?> source : this.primarySource) {
-            scanPackage.add(source.getPackageName());
+            this.beanScanner.addDefinition(
+                    new String[] { source.getPackageName() }
+                );
             final List<ComponentScan> componentScan = AnnotationUtils
                 .getAnnotation(source)
                 .getAnnotations(ComponentScan.class);
             if (componentScan != null) {
                 for (final ComponentScan scan : componentScan) {
-                    this.loadPackageScanAnnotationItem(scanPackage, scan);
+                    this.loadPackageScanAnnotationItem(scan);
                 }
             }
         }
@@ -240,10 +240,9 @@ public class XkJava extends Container {
     }
 
     private void loadPackageScanAnnotationItem(
-        final Set<String> scanPackage,
         final ComponentScan componentScan
     ) {
-        scanPackage.addAll(Arrays.asList(componentScan.basePackages()));
+        this.beanScanner.addDefinition(componentScan);
         log.debug(
             "Application add base packages: {}",
             Arrays.toString(componentScan.basePackages())
@@ -316,13 +315,8 @@ public class XkJava extends Container {
 
     /* Quick get set context attribute */
 
-    public Set<String> scanPackage() {
-        return this.scansPackages;
-    }
-
-    public XkJava scanPackage(final Set<String> scanPackage) {
-        this.scansPackages.addAll(scanPackage);
-        return this;
+    public BeanScanner beanScanner() {
+        return this.beanScanner;
     }
 
     public Environment env() {
@@ -337,6 +331,7 @@ public class XkJava extends Container {
      * 静态内部类创建实例
      */
     private static class Inner {
+
         private static final XkJava INSTANCE = new XkJava();
     }
 

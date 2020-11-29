@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractAttributeAnnotationProcessor
     extends AbstractAnnotationProcessor {
+
     private static final Logger log = LoggerFactory.getLogger(
         AbstractAttributeAnnotationProcessor.class
     );

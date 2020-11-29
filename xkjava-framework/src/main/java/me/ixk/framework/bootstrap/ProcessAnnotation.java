@@ -11,7 +11,6 @@ import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.processor.AnnotationProcessor;
-import me.ixk.framework.utils.AnnotationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +23,7 @@ import org.slf4j.LoggerFactory;
 @Bootstrap
 @Order(Order.HIGHEST_PRECEDENCE + 3)
 public class ProcessAnnotation extends AbstractBootstrap {
+
     private static final Logger log = LoggerFactory.getLogger(
         ProcessAnnotation.class
     );
@@ -35,9 +35,10 @@ public class ProcessAnnotation extends AbstractBootstrap {
     @Override
     public void boot() {
         // 扫描注解处理器
-        Set<Class<?>> processors = AnnotationUtils.getTypesAnnotated(
-            me.ixk.framework.annotations.AnnotationProcessor.class
-        );
+        Set<Class<?>> processors =
+            this.scanner.getTypesAnnotated(
+                    me.ixk.framework.annotations.AnnotationProcessor.class
+                );
         for (Class<?> processorType : processors) {
             if (!AnnotationProcessor.class.isAssignableFrom(processorType)) {
                 log.error(

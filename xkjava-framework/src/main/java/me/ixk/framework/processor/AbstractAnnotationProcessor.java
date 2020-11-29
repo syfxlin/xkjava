@@ -11,8 +11,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.annotations.ScopeType;
+import me.ixk.framework.ioc.BeanScanner;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**
@@ -23,22 +23,25 @@ import me.ixk.framework.utils.MergedAnnotation;
  */
 public abstract class AbstractAnnotationProcessor
     implements AnnotationProcessor {
+
     protected final XkJava app;
+    protected final BeanScanner scanner;
 
     public AbstractAnnotationProcessor(XkJava app) {
         this.app = app;
+        this.scanner = app.beanScanner();
     }
 
     protected Set<Class<?>> getTypesAnnotated(
         Class<? extends Annotation> annotation
     ) {
-        return AnnotationUtils.getTypesAnnotated(annotation);
+        return this.scanner.getTypesAnnotated(annotation);
     }
 
     protected Set<Method> getMethodsAnnotated(
         Class<? extends Annotation> annotation
     ) {
-        return AnnotationUtils.getMethodsAnnotated(annotation);
+        return this.scanner.getMethodsAnnotated(annotation);
     }
 
     protected ScopeType getScoopType(final MergedAnnotation annotation) {
@@ -58,7 +61,7 @@ public abstract class AbstractAnnotationProcessor
             final Class<?> next = classIterator.next();
             if (classes.contains(next)) {
                 classConsumer.accept(next);
-                classes = AnnotationUtils.filterConditionAnnotation(classes);
+                classes = this.scanner.filterConditionAnnotation(classes);
             }
         }
         Set<Method> methods = this.getMethodsAnnotated(annotationType);
@@ -67,7 +70,7 @@ public abstract class AbstractAnnotationProcessor
             final Method next = methodIterator.next();
             if (methods.contains(next)) {
                 methodConsumer.accept(next);
-                methods = AnnotationUtils.filterConditionAnnotation(methods);
+                methods = this.scanner.filterConditionAnnotation(methods);
             }
         }
     }

@@ -4,24 +4,20 @@
 
 package me.ixk.framework.ioc;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Otstar Lin
- * @date 2020/11/5 下午 4:17
+ * @date 2020/11/29 下午 3:40
  */
 @XkJavaTest
-class ContainerTest {
+class BeanScannerTest {
 
     @Autowired
     XkJava app;
 
     @Test
-    void testAutowire() {
-        assertNotNull(this.app);
-    }
+    void test() {}
 }

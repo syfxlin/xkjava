@@ -32,9 +32,9 @@ import me.ixk.framework.config.ClassProperty;
 import me.ixk.framework.config.PropertyResolver;
 import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.expression.BeanExpressionResolver;
+import me.ixk.framework.ioc.AnnotatedEntry.ChangeableEntry;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
-import me.ixk.framework.ioc.InjectorEntry;
 import me.ixk.framework.ioc.InstanceContext;
 import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.kernel.Environment;
@@ -81,7 +81,7 @@ public class PropertiesValueInjector implements InstanceInjector {
         final InstanceContext context,
         final DataBinder dataBinder
     ) {
-        for (final InjectorEntry<Field> entry : context.getFieldEntries()) {
+        for (final ChangeableEntry<Field> entry : context.getFieldEntries()) {
             if (entry.isChanged()) {
                 continue;
             }

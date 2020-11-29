@@ -7,6 +7,7 @@ package me.ixk.framework.ioc;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import me.ixk.framework.ioc.AnnotatedEntry.ChangeableEntry;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**
@@ -16,28 +17,44 @@ import me.ixk.framework.utils.MergedAnnotation;
  * @date 2020/11/9 下午 8:01
  */
 public class InstanceContext {
-    private final Binding binding;
-    private final InjectorEntry<Class<?>> instanceEntry;
 
+    private final Binding binding;
+    private final AnnotatedEntry<Class<?>> instanceEntry;
+    private final ChangeableEntry<Method>[] methodEntries;
+    private final ChangeableEntry<Field>[] fieldEntries;
+
+    @SuppressWarnings("unchecked")
     public InstanceContext(Binding binding, Class<?> instanceType) {
         this.binding = binding;
-        this.instanceEntry = new InjectorEntry<>(instanceType);
+        this.instanceEntry = new AnnotatedEntry<>(instanceType);
+        final AnnotatedEntry<Field>[] fieldEntries =
+            this.binding.getFieldEntries();
+        this.fieldEntries = new ChangeableEntry[fieldEntries.length];
+        for (int i = 0; i < fieldEntries.length; i++) {
+            this.fieldEntries[i] = new ChangeableEntry<>(fieldEntries[i]);
+        }
+        final AnnotatedEntry<Method>[] methodEntries =
+            this.binding.getMethodEntries();
+        this.methodEntries = new ChangeableEntry[methodEntries.length];
+        for (int i = 0; i < methodEntries.length; i++) {
+            this.methodEntries[i] = new ChangeableEntry<>(methodEntries[i]);
+        }
     }
 
     public Binding getBinding() {
         return binding;
     }
 
-    public InjectorEntry<Class<?>> getInstanceEntry() {
+    public AnnotatedEntry<Class<?>> getInstanceEntry() {
         return instanceEntry;
     }
 
-    public InjectorEntry<Field>[] getFieldEntries() {
-        return this.binding.getFieldEntries();
+    public ChangeableEntry<Field>[] getFieldEntries() {
+        return this.fieldEntries;
     }
 
-    public InjectorEntry<Method>[] getMethodEntries() {
-        return this.binding.getMethodEntries();
+    public AnnotatedEntry<Method>[] getMethodEntries() {
+        return this.methodEntries;
     }
 
     public Class<?> getInstanceType() {
@@ -51,28 +68,28 @@ public class InstanceContext {
     public Field[] getFields() {
         return Arrays
             .stream(this.getFieldEntries())
-            .map(InjectorEntry::getElement)
+            .map(AnnotatedEntry::getElement)
             .toArray(Field[]::new);
     }
 
     public MergedAnnotation[] getFieldAnnotations() {
         return Arrays
             .stream(this.getFieldEntries())
-            .map(InjectorEntry::getAnnotation)
+            .map(AnnotatedEntry::getAnnotation)
             .toArray(MergedAnnotation[]::new);
     }
 
     public Method[] getMethods() {
         return Arrays
             .stream(this.getMethodEntries())
-            .map(InjectorEntry::getElement)
+            .map(AnnotatedEntry::getElement)
             .toArray(Method[]::new);
     }
 
     public MergedAnnotation[] getMethodAnnotations() {
         return Arrays
             .stream(this.getMethodEntries())
-            .map(InjectorEntry::getAnnotation)
+            .map(AnnotatedEntry::getAnnotation)
             .toArray(MergedAnnotation[]::new);
     }
 }

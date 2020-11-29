@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/25 下午 9:02
  */
 public class Binding {
+
     private static final Logger log = LoggerFactory.getLogger(Binding.class);
     private static final SimpleCache<Class<?>, BindingInfos> CACHE = new SimpleCache<>();
 
@@ -83,19 +84,19 @@ public class Binding {
             this.bindingInfos.setFieldEntries(
                     Arrays
                         .stream(instanceType.getDeclaredFields())
-                        .map(InjectorEntry::new)
-                        .toArray(InjectorEntry[]::new)
+                        .map(AnnotatedEntry::new)
+                        .toArray(AnnotatedEntry[]::new)
                 );
             // Methods
             this.bindingInfos.setMethodEntries(
                     Arrays
                         .stream(instanceType.getDeclaredMethods())
-                        .map(InjectorEntry::new)
-                        .toArray(InjectorEntry[]::new)
+                        .map(AnnotatedEntry::new)
+                        .toArray(AnnotatedEntry[]::new)
                 );
             // InitMethod, DestroyMethod, AutowiredMethod
             final List<Method> autowiredMethods = new ArrayList<>();
-            for (InjectorEntry<Method> entry : this.bindingInfos.getMethodEntries()) {
+            for (AnnotatedEntry<Method> entry : this.bindingInfos.getMethodEntries()) {
                 final Method method = entry.getElement();
                 final MergedAnnotation annotation = entry.getAnnotation();
                 if (annotation.hasAnnotation(PostConstruct.class)) {
@@ -176,21 +177,22 @@ public class Binding {
         this.bindingInfos.setAutowiredMethods(autowiredMethods);
     }
 
-    public InjectorEntry<Field>[] getFieldEntries() {
+    public AnnotatedEntry<Field>[] getFieldEntries() {
         return this.bindingInfos.getFieldEntries();
     }
 
-    public InjectorEntry<Method>[] getMethodEntries() {
+    public AnnotatedEntry<Method>[] getMethodEntries() {
         return this.bindingInfos.getMethodEntries();
     }
 
     private static class BindingInfos {
+
         private volatile Method initMethod;
         private volatile Method destroyMethod;
         private volatile List<Method> autowiredMethods;
 
-        private volatile InjectorEntry<Field>[] fieldEntries;
-        private volatile InjectorEntry<Method>[] methodEntries;
+        private volatile AnnotatedEntry<Field>[] fieldEntries;
+        private volatile AnnotatedEntry<Method>[] methodEntries;
 
         public Method getInitMethod() {
             return initMethod;
@@ -218,19 +220,23 @@ public class Binding {
             this.autowiredMethods = autowiredMethods;
         }
 
-        public InjectorEntry<Field>[] getFieldEntries() {
-            return fieldEntries;
+        @SuppressWarnings("unchecked")
+        public AnnotatedEntry<Field>[] getFieldEntries() {
+            return fieldEntries == null ? new AnnotatedEntry[0] : fieldEntries;
         }
 
-        public void setFieldEntries(InjectorEntry<Field>[] fieldEntries) {
+        public void setFieldEntries(AnnotatedEntry<Field>[] fieldEntries) {
             this.fieldEntries = fieldEntries;
         }
 
-        public InjectorEntry<Method>[] getMethodEntries() {
-            return methodEntries;
+        @SuppressWarnings("unchecked")
+        public AnnotatedEntry<Method>[] getMethodEntries() {
+            return methodEntries == null
+                ? new AnnotatedEntry[0]
+                : methodEntries;
         }
 
-        public void setMethodEntries(InjectorEntry<Method>[] methodEntries) {
+        public void setMethodEntries(AnnotatedEntry<Method>[] methodEntries) {
             this.methodEntries = methodEntries;
         }
     }

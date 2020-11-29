@@ -4,21 +4,26 @@
 
 package me.ixk.framework.processor;
 
+import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import me.ixk.framework.annotations.AfterRegistry;
 import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.Bean;
 import me.ixk.framework.annotations.Bean.BindType;
 import me.ixk.framework.annotations.BeforeRegistry;
 import me.ixk.framework.annotations.BindRegistry;
+import me.ixk.framework.annotations.Import;
 import me.ixk.framework.annotations.Lazy;
 import me.ixk.framework.annotations.ScopeType;
+import me.ixk.framework.ioc.AnnotatedEntry;
 import me.ixk.framework.ioc.Binding;
+import me.ixk.framework.ioc.ImportSelector;
 import me.ixk.framework.ioc.Wrapper;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.registry.BeanBindRegistry;
@@ -50,11 +55,21 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
                 this::invokeBeforeRegistry,
                 this::invokeBeforeRegistry
             );
+        this.processAnnotation(
+                Import.class,
+                clazz -> this.processImport(clazz, this::invokeBeforeRegistry),
+                method -> {}
+            );
         // Bind bean
         this.processAnnotation(
                 Bean.class,
                 this::processAnnotation,
                 this::processAnnotation
+            );
+        this.processAnnotation(
+                Import.class,
+                clazz -> this.processImport(clazz, this::processAnnotation),
+                method -> {}
             );
         // After
         this.processAnnotation(
@@ -62,8 +77,13 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
                 this::invokeAfterRegistry,
                 this::invokeAfterRegistry
             );
+        this.processAnnotation(
+                Import.class,
+                clazz -> this.processImport(clazz, this::invokeAfterRegistry),
+                method -> {}
+            );
         // Make bean
-        for (String beanName : this.makeList) {
+        for (final String beanName : this.makeList) {
             this.app.make(beanName);
         }
     }
@@ -96,7 +116,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         for (final String n : beanAnnotation.name()) {
             this.app.alias(n, name, overwrite);
         }
-        for (Class<?> type : beanAnnotation.type()) {
+        for (final Class<?> type : beanAnnotation.type()) {
             this.app.alias(type.getName(), name, overwrite);
         }
         if (scopeType.isSingleton() && annotation.notAnnotation(Lazy.class)) {
@@ -125,7 +145,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         for (final String name : beanAnnotation.name()) {
             this.app.alias(name, clazz, overwrite);
         }
-        for (Class<?> type : beanAnnotation.type()) {
+        for (final Class<?> type : beanAnnotation.type()) {
             this.app.alias(type.getName(), clazz, overwrite);
         }
         // Add singleton to make list
@@ -167,10 +187,10 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         );
         // @BeforeRegistry
         if (annotation.hasAnnotation(BeforeRegistry.class)) {
-            for (BeforeRegistry beforeRegistry : annotation.getAnnotations(
+            for (final BeforeRegistry beforeRegistry : annotation.getAnnotations(
                 BeforeRegistry.class
             )) {
-                for (Class<? extends BeforeBeanRegistry> registry : beforeRegistry.value()) {
+                for (final Class<? extends BeforeBeanRegistry> registry : beforeRegistry.value()) {
                     this.app.make(registry)
                         .register(this.app, element, annotation);
                 }
@@ -205,13 +225,40 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         );
         // @AfterRegistry
         if (annotation.hasAnnotation(AfterRegistry.class)) {
-            for (AfterRegistry afterRegistry : annotation.getAnnotations(
+            for (final AfterRegistry afterRegistry : annotation.getAnnotations(
                 AfterRegistry.class
             )) {
-                for (Class<? extends AfterBeanRegistry> registry : afterRegistry.value()) {
+                for (final Class<? extends AfterBeanRegistry> registry : afterRegistry.value()) {
                     this.app.make(registry)
                         .register(this.app, element, annotation);
                 }
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void processImport(
+        final Class<?> clazz,
+        Consumer<Class<?>> consumer
+    ) {
+        final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
+            clazz
+        );
+        final Import importAnnotation = annotation.getAnnotation(Import.class);
+        final AnnotatedEntry<Class<?>> annotatedEntry = new AnnotatedEntry<>(
+            clazz,
+            annotation
+        );
+        for (final Class<?> importClass : importAnnotation.value()) {
+            if (ImportSelector.class.isAssignableFrom(importClass)) {
+                final String[] selectImports =
+                    this.app.make((Class<? extends ImportSelector>) importClass)
+                        .selectImports(annotatedEntry);
+                for (String selectImport : selectImports) {
+                    consumer.accept(ClassUtil.loadClass(selectImport));
+                }
+            } else {
+                consumer.accept(importClass);
             }
         }
     }

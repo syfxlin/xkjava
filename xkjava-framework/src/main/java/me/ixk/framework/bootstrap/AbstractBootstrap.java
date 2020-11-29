@@ -4,6 +4,7 @@
 
 package me.ixk.framework.bootstrap;
 
+import me.ixk.framework.ioc.BeanScanner;
 import me.ixk.framework.ioc.XkJava;
 
 /**
@@ -13,9 +14,12 @@ import me.ixk.framework.ioc.XkJava;
  * @date 2020/10/14 上午 8:46
  */
 public abstract class AbstractBootstrap implements Bootstrap {
-    protected final XkJava app;
 
-    public AbstractBootstrap(XkJava app) {
+    protected final XkJava app;
+    protected final BeanScanner scanner;
+
+    public AbstractBootstrap(final XkJava app) {
         this.app = app;
+        this.scanner = app.beanScanner();
     }
 }

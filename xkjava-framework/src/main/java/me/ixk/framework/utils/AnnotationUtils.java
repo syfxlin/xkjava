@@ -32,11 +32,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import me.ixk.framework.annotations.AliasFor;
-import me.ixk.framework.annotations.Conditional;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.RepeatItem;
-import me.ixk.framework.ioc.Condition;
-import me.ixk.framework.ioc.XkJava;
 
 /**
  * 注解工具类
@@ -45,6 +42,7 @@ import me.ixk.framework.ioc.XkJava;
  * @date 2020/10/14 下午 4:56
  */
 public class AnnotationUtils {
+
     private static final SimpleCache<AnnotatedElement, Map<Class<? extends Annotation>, List<Annotation>>> MERGED_ANNOTATION_CACHE = new SimpleCache<>();
     private static final SimpleCache<Class<? extends Annotation>, Set<Class<?>>> CLASS_ANNOTATION_CACHE = new SimpleCache<>();
     private static final SimpleCache<Class<? extends Annotation>, Set<Method>> METHOD_ANNOTATION_CACHE = new SimpleCache<>();
@@ -144,90 +142,6 @@ public class AnnotationUtils {
         return classes;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Set filterConditionAnnotation(final Collection classes) {
-        return (Set) classes
-            .stream()
-            .filter(clazz -> isCondition((AnnotatedElement) clazz))
-            .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Set<Class<?>> getTypesAnnotated(
-        final Class<? extends Annotation> annotation
-    ) {
-        final Set<Class<?>> cache = CLASS_ANNOTATION_CACHE.get(annotation);
-        if (cache != null) {
-            return cache;
-        }
-        return CLASS_ANNOTATION_CACHE.put(
-            annotation,
-            (Set<Class<?>>) filterConditionAnnotation(
-                sortByOrderAnnotation(getTypesAnnotatedWith(annotation))
-            )
-        );
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Set<Method> getMethodsAnnotated(
-        final Class<? extends Annotation> annotation
-    ) {
-        final Set<Method> cache = METHOD_ANNOTATION_CACHE.get(annotation);
-        if (cache != null) {
-            return cache;
-        }
-        return METHOD_ANNOTATION_CACHE.put(
-            annotation,
-            (Set<Method>) filterConditionAnnotation(
-                sortByOrderAnnotation(getMethodsAnnotatedWith(annotation))
-            )
-        );
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Set<Class<?>> getTypesAnnotatedWith(
-        final Class<? extends Annotation> annotation
-    ) {
-        final Set<Class<?>> set = new LinkedHashSet<>();
-        for (final Class<?> item : ReflectionsUtils
-            .make()
-            .getTypesAnnotatedWith(annotation)) {
-            if (item.isAnnotation()) {
-                set.addAll(
-                    getTypesAnnotatedWith((Class<? extends Annotation>) item)
-                );
-            } else {
-                set.add(item);
-            }
-        }
-        final Class<? extends Annotation> repeatable = getRepeatable(
-            annotation
-        );
-        if (repeatable != null) {
-            set.addAll(getTypesAnnotatedWith(repeatable));
-        }
-        return set;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Set<Method> getMethodsAnnotatedWith(
-        final Class<? extends Annotation> annotation
-    ) {
-        final Set<Method> set = ReflectionsUtils
-            .make()
-            .getMethodsAnnotatedWith(annotation);
-        for (final Class<?> item : ReflectionsUtils
-            .make()
-            .getTypesAnnotatedWith(annotation)) {
-            if (item.isAnnotation()) {
-                set.addAll(
-                    getMethodsAnnotatedWith((Class<? extends Annotation>) item)
-                );
-            }
-        }
-        return set;
-    }
-
     public static boolean isJdkAnnotation(
         final Class<? extends Annotation> type
     ) {
@@ -239,30 +153,6 @@ public class AnnotationUtils {
             type == Repeatable.class ||
             type == Target.class
         );
-    }
-
-    @SuppressWarnings("unchecked")
-    public static boolean isCondition(final AnnotatedElement element) {
-        final MergedAnnotation annotation = getAnnotation(element);
-        if (annotation.notAnnotation(Conditional.class)) {
-            return true;
-        }
-        for (final Class<? extends Condition> condition : (Class<? extends Condition>[]) annotation.get(
-            Conditional.class,
-            "value"
-        )) {
-            final boolean matches = ReflectUtil.invoke(
-                ReflectUtil.newInstance(condition),
-                "matches",
-                XkJava.of(),
-                element,
-                annotation
-            );
-            if (!matches) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public static Class<? extends Annotation> getRepeatItem(

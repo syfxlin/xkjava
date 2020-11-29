@@ -20,15 +20,16 @@ import me.ixk.framework.annotations.ScopeType;
 @Component(name = "responseModel")
 @Scope(type = ScopeType.REQUEST)
 public class Model extends LinkedHashMap<String, Object> {
+
     private static final long serialVersionUID = 9097159139320901236L;
 
-    private HttpStatus status;
+    private HttpStatus status = HttpStatus.OK;
 
     public HttpStatus getStatus() {
         return status;
     }
 
-    public void setStatus(HttpStatus status) {
+    public void setStatus(final HttpStatus status) {
         this.status = status;
     }
 

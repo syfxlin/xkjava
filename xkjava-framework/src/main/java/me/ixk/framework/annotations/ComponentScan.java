@@ -23,8 +23,26 @@ import java.lang.annotation.Target;
 @Repeatable(ComponentScans.class)
 public @interface ComponentScan {
     @AliasFor("basePackages")
-    String[] value() default {  };
+    String[] value() default {};
 
     @AliasFor("value")
-    String[] basePackages() default {  };
+    String[] basePackages() default {};
+
+    Filter[] includeFilters() default {};
+
+    Filter[] excludeFilters() default {};
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({})
+    @interface Filter {
+        FilterType type() default FilterType.ANNOTATION;
+
+        @AliasFor("classes")
+        Class<?>[] value() default {};
+
+        @AliasFor("value")
+        Class<?>[] classes() default {};
+
+        String[] pattern() default {};
+    }
 }

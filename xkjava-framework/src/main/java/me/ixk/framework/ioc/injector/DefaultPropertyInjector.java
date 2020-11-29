@@ -12,9 +12,9 @@ import java.lang.reflect.Method;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.Injector;
 import me.ixk.framework.annotations.Order;
+import me.ixk.framework.ioc.AnnotatedEntry.ChangeableEntry;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
-import me.ixk.framework.ioc.InjectorEntry;
 import me.ixk.framework.ioc.InstanceContext;
 import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.utils.MergedAnnotation;
@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 @Injector
 @Order(Order.LOWEST_PRECEDENCE)
 public class DefaultPropertyInjector implements InstanceInjector {
+
     private static final Logger log = LoggerFactory.getLogger(
         DefaultPropertyInjector.class
     );
@@ -46,7 +47,7 @@ public class DefaultPropertyInjector implements InstanceInjector {
         InstanceContext context,
         DataBinder dataBinder
     ) {
-        for (InjectorEntry<Field> entry : context.getFieldEntries()) {
+        for (ChangeableEntry<Field> entry : context.getFieldEntries()) {
             if (entry.isChanged()) {
                 continue;
             }

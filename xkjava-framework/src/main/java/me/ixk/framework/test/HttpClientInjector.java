@@ -14,9 +14,9 @@ import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
 import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.http.MimeType;
+import me.ixk.framework.ioc.AnnotatedEntry.ChangeableEntry;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
-import me.ixk.framework.ioc.InjectorEntry;
 import me.ixk.framework.ioc.InstanceContext;
 import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.ioc.ParameterContext;
@@ -94,7 +94,7 @@ public class HttpClientInjector implements ParameterInjector, InstanceInjector {
         InstanceContext context,
         DataBinder dataBinder
     ) {
-        for (final InjectorEntry<Field> entry : context.getFieldEntries()) {
+        for (final ChangeableEntry<Field> entry : context.getFieldEntries()) {
             if (entry.isChanged()) {
                 continue;
             }

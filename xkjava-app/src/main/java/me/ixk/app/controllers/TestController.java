@@ -36,6 +36,7 @@ import me.ixk.framework.web.WebDataBinder;
 @Controller
 @RequestMapping("/test")
 public class TestController {
+
     @Autowired(value = "name", required = false)
     private String name;
 
@@ -64,7 +65,7 @@ public class TestController {
     @ResponseStatus
     // @VerifyCsrf
     public String post(
-        @BodyValue final User user,
+        @BodyValue final JsonNode user,
         @DataBind(name = "user") final User user2,
         @WebBind(
             name = "name",

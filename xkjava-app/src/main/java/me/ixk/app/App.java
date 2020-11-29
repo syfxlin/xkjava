@@ -4,6 +4,9 @@
 
 package me.ixk.app;
 
+import me.ixk.framework.annotations.ComponentScan;
+import me.ixk.framework.annotations.ComponentScan.Filter;
+import me.ixk.framework.annotations.FilterType;
 import me.ixk.framework.annotations.MapperScan;
 import me.ixk.framework.ioc.XkJava;
 
@@ -21,6 +24,11 @@ import me.ixk.framework.ioc.XkJava;
  * 错误处理：ErrorHandler.handle() 如果是浏览器请求，则返回 HTML 错误页，否则返回 JSON
  */
 @MapperScan(basePackages = "me.ixk.app.mapper")
+@ComponentScan(
+    excludeFilters = {
+        @Filter(type = FilterType.REGEX, pattern = "me.ixk.app.beans.User"),
+    }
+)
 public class App {
 
     public static void main(final String[] args) {
