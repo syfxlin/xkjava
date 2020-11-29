@@ -4,6 +4,8 @@
 
 package me.ixk.framework.expression;
 
+import static me.ixk.framework.helpers.Util.caseGet;
+
 import io.github.imsejin.expression.Expression;
 import io.github.imsejin.expression.ExpressionParser;
 import io.github.imsejin.expression.ParserContext;
@@ -12,6 +14,7 @@ import io.github.imsejin.expression.spel.standard.SpelExpressionParser;
 import io.github.imsejin.expression.spel.support.StandardEvaluationContext;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.expression.PropertyPlaceholderHelper.PlaceholderResolver;
@@ -36,18 +39,11 @@ public class BeanExpressionResolver {
         "}"
     );
     private XkJava app;
-    private final PlaceholderResolver placeholderResolver = value -> {
+    private final PlaceholderResolver envResolver = value -> {
         if (this.app == null) {
             return null;
         }
-        final int index = value.indexOf(":");
-        String name = value;
-        String defaultValue = null;
-        if (index != -1) {
-            name = value.substring(0, index + 1);
-            defaultValue = value.substring(index + 1);
-        }
-        return this.app.env().get(name, defaultValue);
+        return resolveEmbeddedValue(value, this.app.env().getProperties());
     };
 
     public BeanExpressionResolver(XkJava app) {
@@ -63,29 +59,54 @@ public class BeanExpressionResolver {
             );
     }
 
+    public static String resolveEmbeddedValue(
+        String value,
+        Properties properties
+    ) {
+        final int index = value.indexOf(":");
+        String name = value;
+        String defaultValue = null;
+        if (index != -1) {
+            name = value.substring(0, index + 1);
+            defaultValue = value.substring(index + 1);
+        }
+        final Object result = caseGet(name, properties::get);
+        if (result == null) {
+            return defaultValue;
+        }
+        return (String) result;
+    }
+
     public <T> T evaluate(
         final String expression,
         final Class<T> returnType,
         final Object root,
         final Map<String, Object> variables
     ) {
-        return this.evaluateReal(expression, returnType, root, variables);
-    }
-
-    public String replacePlaceholders(String expression) {
-        return this.placeholderHelper.replacePlaceholders(
+        return this.evaluateResolver(
                 expression,
-                this.placeholderResolver
+                returnType,
+                root,
+                variables,
+                this.envResolver
             );
     }
 
-    public <T> T evaluateReal(
+    protected void customContext(StandardEvaluationContext context) {
+        context.setVariable("app", this.app);
+        context.setVariable("env", this.app.env());
+        context.setVariable("e", this.app.env());
+    }
+
+    public <T> T evaluateResolver(
         String expression,
         final Class<T> returnType,
         final Object root,
-        final Map<String, Object> variables
+        final Map<String, Object> variables,
+        final PlaceholderResolver resolver
     ) {
-        expression = this.replacePlaceholders(expression);
+        expression =
+            placeholderHelper.replacePlaceholders(expression, resolver);
         Expression expr = this.expressionCache.get(expression);
         if (expr == null) {
             expr =
@@ -103,11 +124,5 @@ public class BeanExpressionResolver {
         sec.setVariables(variables);
         this.customContext(sec);
         return expr.getValue(sec, returnType);
-    }
-
-    protected void customContext(StandardEvaluationContext context) {
-        context.setVariable("app", this.app);
-        context.setVariable("env", this.app.env());
-        context.setVariable("e", this.app.env());
     }
 }

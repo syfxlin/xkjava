@@ -7,20 +7,30 @@ package me.ixk.framework.ioc.injector;
 import static me.ixk.framework.helpers.Util.caseGet;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.exceptions.UtilException;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
 import java.beans.PropertyDescriptor;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Map;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 import me.ixk.framework.annotations.ConfigurationProperties;
-import me.ixk.framework.annotations.EnvValue;
 import me.ixk.framework.annotations.Injector;
 import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotations.PropertySource;
+import me.ixk.framework.annotations.PropertyValue;
 import me.ixk.framework.annotations.Value;
 import me.ixk.framework.bootstrap.Bootstrap;
 import me.ixk.framework.config.ClassProperty;
 import me.ixk.framework.config.PropertyResolver;
+import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.expression.BeanExpressionResolver;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
@@ -30,6 +40,7 @@ import me.ixk.framework.ioc.InstanceInjector;
 import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.utils.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,94 +57,13 @@ public class PropertiesValueInjector implements InstanceInjector {
     private static final Logger log = LoggerFactory.getLogger(
         PropertiesValueInjector.class
     );
-
-    protected Object injectConfigurationProperties(
-        Container container,
-        Environment environment,
-        ClassProperty property,
-        ConfigurationProperties configAnnotation,
-        EnvValue envValueAnnotation,
-        Map<String, Object> properties
-    ) {
-        String fieldName = property.getPropertyName();
-        Object value;
-        if (envValueAnnotation == null) {
-            value = caseGet(fieldName, properties::get);
-        } else {
-            value =
-                caseGet(
-                    fieldName,
-                    envValueAnnotation.full()
-                        ? environment::get
-                        : properties::get
-                );
-            if (value == null) {
-                final String defaultValue = envValueAnnotation.defaultValue();
-                value =
-                    EnvValue.EMPTY.equals(defaultValue) ? null : defaultValue;
-            }
-        }
-        if (value == null && !configAnnotation.ignoreUnknownFields()) {
-            final NullPointerException exception = new NullPointerException(
-                "Unknown property [" +
-                configAnnotation.prefix() +
-                "." +
-                fieldName +
-                "]"
-            );
-            log.error(
-                "Unknown property [{}.{}]",
-                configAnnotation.prefix(),
-                fieldName
-            );
-            throw exception;
-        }
-        try {
-            if (
-                envValueAnnotation != null &&
-                envValueAnnotation.resolver() != PropertyResolver.class
-            ) {
-                final PropertyResolver resolver = container.make(
-                    envValueAnnotation.resolver()
-                );
-                if (resolver.supportsProperty((String) value, property)) {
-                    value = resolver.resolveProperty((String) value, property);
-                }
-            }
-            value = Convert.convert(property.getPropertyType(), value);
-        } catch (Exception e) {
-            if (!configAnnotation.ignoreInvalidFields()) {
-                final RuntimeException exception = new RuntimeException(
-                    "Invalid property [" +
-                    configAnnotation.prefix() +
-                    "." +
-                    fieldName +
-                    "]",
-                    e
-                );
-                log.error(
-                    "Invalid property [{}.{}]",
-                    configAnnotation.prefix(),
-                    fieldName
-                );
-                throw exception;
-            }
-            value = ClassUtil.getDefaultValue(property.getPropertyType());
-        }
-        return value;
-    }
-
-    protected Object injectExpression(
-        final Value value,
-        final Container container
-    ) {
-        return container
-            .make(BeanExpressionResolver.class)
-            .evaluate(value.expression(), Object.class);
-    }
+    protected static final String PROPERTIES_SPLIT = ".";
 
     @Override
-    public boolean supportsInstance(InstanceContext context, Object instance) {
+    public boolean supportsInstance(
+        final InstanceContext context,
+        final Object instance
+    ) {
         if (
             instance == null ||
             instance instanceof Bootstrap ||
@@ -146,31 +76,30 @@ public class PropertiesValueInjector implements InstanceInjector {
 
     @Override
     public Object inject(
-        Container container,
-        Object instance,
-        InstanceContext context,
-        DataBinder dataBinder
+        final Container container,
+        final Object instance,
+        final InstanceContext context,
+        final DataBinder dataBinder
     ) {
-        final Environment environment = container.make(Environment.class);
-        Map<String, Object> prefixProps = null;
-        final ConfigurationProperties configAnnotation = context
-            .getAnnotation()
-            .getAnnotation(ConfigurationProperties.class);
-        // 存在 @ConfigurationProperties 注解的时候就获取配置中所有 prefix 的值
-        if (configAnnotation != null) {
-            prefixProps = environment.getPrefix(configAnnotation.prefix());
-        }
         for (final InjectorEntry<Field> entry : context.getFieldEntries()) {
             if (entry.isChanged()) {
                 continue;
             }
             final Field field = entry.getElement();
             final MergedAnnotation fieldAnnotation = entry.getAnnotation();
-            final Value valueAnnotation = fieldAnnotation.getAnnotation(
-                Value.class
-            );
+            final boolean hasConfig = context
+                .getAnnotation()
+                .hasAnnotation(ConfigurationProperties.class);
+            final boolean hasValue = fieldAnnotation.hasAnnotation(Value.class);
             // 不存在 @Value 或者 @Configuration 注解的时候则无需注入
-            if (configAnnotation == null && valueAnnotation == null) {
+            if (!hasConfig && !hasValue) {
+                continue;
+            }
+            final PropertyValue propertyValue = fieldAnnotation.getAnnotation(
+                PropertyValue.class
+            );
+            // 手动配置跳过
+            if (propertyValue != null && propertyValue.skip()) {
                 continue;
             }
             final PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
@@ -180,44 +109,16 @@ public class PropertiesValueInjector implements InstanceInjector {
             final Method writeMethod = propertyDescriptor == null
                 ? null
                 : propertyDescriptor.getWriteMethod();
-            final Object value;
-            if (configAnnotation != null && valueAnnotation == null) {
-                // @ConfigurationProperties 没有 @Value 注解
-                final EnvValue envValueAnnotation = fieldAnnotation.getAnnotation(
-                    EnvValue.class
-                );
-                // @EnvValue 配置了 skip 值，则跳过
-                if (envValueAnnotation != null && envValueAnnotation.skip()) {
-                    continue;
-                }
-                String fieldName = envValueAnnotation == null
-                    ? null
-                    : envValueAnnotation.name();
-                if (fieldName == null || fieldName.isEmpty()) {
-                    // 若为配置值则使用属性名
-                    fieldName = field.getName();
-                }
-                ClassProperty property = new ClassProperty(
-                    instance,
-                    context.getInstanceType(),
-                    field,
-                    fieldName,
-                    context.getAnnotation(),
-                    fieldAnnotation
-                );
-                value =
-                    this.injectConfigurationProperties(
-                            container,
-                            environment,
-                            property,
-                            configAnnotation,
-                            envValueAnnotation,
-                            prefixProps
-                        );
-            } else {
-                // 有 @Value 注解就优先使用
-                value = this.injectExpression(valueAnnotation, container);
-            }
+            final ClassProperty property = new ClassProperty(
+                instance,
+                context.getInstanceType(),
+                field,
+                field.getName(),
+                context.getAnnotation(),
+                fieldAnnotation
+            );
+            Object value = this.resolveValue(property, container);
+            // 有 Write 方法就使用 Write 方法
             if (writeMethod != null) {
                 ReflectUtil.invoke(instance, writeMethod, value);
             } else {
@@ -226,5 +127,185 @@ public class PropertiesValueInjector implements InstanceInjector {
             entry.setChanged(true);
         }
         return instance;
+    }
+
+    private Object resolveValue(
+        final ClassProperty property,
+        final Container container
+    ) {
+        final MergedAnnotation classAnnotation = property.getClassAnnotation();
+        final ConfigurationProperties configurationProperties = classAnnotation.getAnnotation(
+            ConfigurationProperties.class
+        );
+        final List<PropertySource> propertySources = classAnnotation.getAnnotations(
+            PropertySource.class
+        );
+        Properties properties;
+        if (propertySources.isEmpty()) {
+            properties = container.make(Environment.class).getProperties();
+        } else {
+            properties = new Properties();
+            for (final PropertySource propertySource : propertySources) {
+                properties.putAll(this.loadPropertySource(propertySource));
+            }
+        }
+        final String prefix = configurationProperties == null
+            ? ""
+            : configurationProperties.prefix();
+        final String propertyName = property.getPropertyName();
+        this.processPropertiesPrefix(properties, prefix);
+        Object value = this.resolveValue(property, properties, container);
+        if (
+            value == null &&
+            !(
+                configurationProperties == null ||
+                configurationProperties.ignoreUnknownFields()
+            )
+        ) {
+            final NullPointerException exception = new NullPointerException(
+                "Unknown property [" + prefix + "." + propertyName + "]"
+            );
+            log.error("Unknown property [{}.{}]", prefix, propertyName);
+            throw exception;
+        }
+        try {
+            value = Convert.convert(property.getPropertyType(), value);
+        } catch (UtilException e) {
+            if (
+                !(
+                    configurationProperties == null ||
+                    configurationProperties.ignoreInvalidFields()
+                )
+            ) {
+                final RuntimeException exception = new RuntimeException(
+                    "Invalid property [" + prefix + "." + propertyName + "]",
+                    e
+                );
+                log.error("Invalid property [{}.{}]", prefix, propertyName);
+                throw exception;
+            }
+            value = ClassUtil.getDefaultValue(property.getPropertyType());
+        }
+        return value;
+    }
+
+    private Properties loadPropertySource(final PropertySource propertySource) {
+        final Properties properties = new Properties();
+        final String name = propertySource.location();
+        if (!name.isEmpty()) {
+            try {
+                final File file = ResourceUtils.getFile(name);
+                final String encoding = propertySource.encoding();
+                properties.load(
+                    IoUtil.getReader(
+                        IoUtil.toStream(file),
+                        encoding.isEmpty()
+                            ? Charset.defaultCharset()
+                            : Charset.forName(encoding)
+                    )
+                );
+            } catch (final FileNotFoundException e) {
+                if (!propertySource.ignoreResourceNotFound()) {
+                    throw new ContainerException(e);
+                }
+            } catch (final IOException e) {
+                throw new ContainerException(e);
+            }
+        }
+        for (final String value : propertySource.value()) {
+            final String[] kv = value.split("=");
+            properties.put(kv[0], kv.length > 1 ? kv[1] : "");
+        }
+        return properties;
+    }
+
+    private void processPropertiesPrefix(
+        final Properties properties,
+        String prefix
+    ) {
+        if (prefix.isEmpty()) {
+            return;
+        }
+        if (!prefix.endsWith(PROPERTIES_SPLIT)) {
+            prefix += PROPERTIES_SPLIT;
+        }
+        for (final String name : properties.stringPropertyNames()) {
+            // 包含前缀的话则把前缀去除，然后设置会 Properties 中
+            // xkjava.database
+            // [xkjava.database.url, xkjava.app.name] => [xkjava.database.url, url, xkjava.app.name]
+            if (name.startsWith(prefix)) {
+                properties.put(
+                    name.substring(prefix.length()),
+                    properties.get(name)
+                );
+            }
+        }
+    }
+
+    private Object resolveValue(
+        final ClassProperty property,
+        final Properties properties,
+        final Container container
+    ) {
+        final MergedAnnotation propertyAnnotation = property.getPropertyAnnotation();
+        // 有 @Value 就优先使用
+        final Value value = propertyAnnotation.getAnnotation(Value.class);
+        if (value != null) {
+            return this.resolveExpression(value, properties, container);
+        }
+        final PropertyValue propertyValue = propertyAnnotation.getAnnotation(
+            PropertyValue.class
+        );
+        if (propertyValue != null) {
+            return this.resolvePropertyValue(
+                    propertyValue,
+                    properties,
+                    container,
+                    property
+                );
+        }
+        return caseGet(property.getPropertyName(), properties::get);
+    }
+
+    private Object resolveExpression(
+        final Value value,
+        final Properties properties,
+        final Container container
+    ) {
+        final BeanExpressionResolver resolver = container.make(
+            BeanExpressionResolver.class
+        );
+        return resolver.evaluateResolver(
+            value.expression(),
+            Object.class,
+            properties,
+            Collections.emptyMap(),
+            name ->
+                BeanExpressionResolver.resolveEmbeddedValue(name, properties)
+        );
+    }
+
+    private Object resolvePropertyValue(
+        final PropertyValue value,
+        final Properties properties,
+        final Container container,
+        final ClassProperty property
+    ) {
+        if (value.skip()) {
+            return null;
+        }
+        Object result = caseGet(value.name(), properties::get);
+        if (
+            result == null && !PropertyValue.EMPTY.equals(value.defaultValue())
+        ) {
+            result = value.defaultValue();
+        }
+        if (value.resolver() != PropertyResolver.class) {
+            final PropertyResolver resolver = container.make(value.resolver());
+            if (resolver.supportsProperty((String) result, property)) {
+                result = resolver.resolveProperty((String) result, property);
+            }
+        }
+        return result;
     }
 }

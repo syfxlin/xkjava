@@ -5,7 +5,7 @@
 package me.ixk.framework.config;
 
 import me.ixk.framework.annotations.ConfigurationProperties;
-import me.ixk.framework.annotations.EnvValue;
+import me.ixk.framework.annotations.PropertyValue;
 
 /**
  * 框架主要的一些设置
@@ -15,14 +15,15 @@ import me.ixk.framework.annotations.EnvValue;
  */
 @ConfigurationProperties(prefix = "xkjava.app")
 public class AppProperties {
-    @EnvValue(defaultValue = "8080")
+
+    @PropertyValue(defaultValue = "8080")
     private int port;
 
     public int getPort() {
         return port;
     }
 
-    public void setPort(int port) {
+    public void setPort(final int port) {
         this.port = port;
     }
 }

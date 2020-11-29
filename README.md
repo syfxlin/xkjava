@@ -65,7 +65,7 @@ ORM 使用的是 Mybatis Plus，视图采用 Thymeleaf, FreeMarker 渲染，Http
 -   添加完整的 Test Case
 -   多级缓存
 -   自动配置
--   @Import，@PropertySource
+-   @Import
 
 ## 文档 Doc
 

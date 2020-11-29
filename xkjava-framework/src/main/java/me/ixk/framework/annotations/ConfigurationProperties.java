@@ -36,8 +36,8 @@ public @interface ConfigurationProperties {
     boolean ignoreUnknownFields() default true;
 
     @AliasFor(annotation = Bean.class, attribute = "type")
-    Class<?>[] type() default {  };
+    Class<?>[] type() default {};
 
     @AliasFor(annotation = Bean.class, attribute = "name")
-    String[] name() default {  };
+    String[] name() default {};
 }

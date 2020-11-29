@@ -22,12 +22,13 @@ import me.ixk.framework.utils.Convert;
  * @date 2020/10/14 下午 1:23
  */
 public class Environment {
+
     protected static final String PROPERTIES_SPLIT = ".";
 
     protected final XkJava app;
     protected volatile Properties properties;
 
-    public Environment(XkJava app, Properties properties) {
+    public Environment(final XkJava app, final Properties properties) {
         this.app = app;
         this.properties = properties;
     }
@@ -36,7 +37,7 @@ public class Environment {
         return this.properties;
     }
 
-    public Environment setProperties(Properties properties) {
+    public Environment setProperties(final Properties properties) {
         this.properties = properties;
         return this;
     }
@@ -45,119 +46,127 @@ public class Environment {
         return this.properties;
     }
 
-    public String get(String key) {
+    public String get(final String key) {
         return this.get(key, (String) null);
     }
 
-    public String get(String key, String defaultValue) {
+    public String get(String key, final String defaultValue) {
         key = StrUtil.toCamelCase(key);
-        final String value = caseGet(key, this.properties::getProperty);
+        final String value = caseGet(key, this::getProperty);
         if (value == null) {
             return defaultValue;
         }
         return value;
     }
 
-    public <T> T get(String key, Class<T> returnType) {
+    public String getProperty(final String key) {
+        final String value = this.properties.getProperty(key);
+        if (value != null) {
+            return value;
+        }
+        return System.getProperty(key);
+    }
+
+    public <T> T get(final String key, final Class<T> returnType) {
         return Convert.convert(returnType, get(key));
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T get(String key, T defaultValue) {
-        String value = get(key);
+    public <T> T get(final String key, final T defaultValue) {
+        final String value = get(key);
         if (value == null) {
             return defaultValue;
         }
         return (T) Convert.convert(defaultValue.getClass(), value);
     }
 
-    public Environment set(Map<String, String> values) {
+    public Environment set(final Map<String, String> values) {
         this.properties.putAll(values);
         return this;
     }
 
-    public Environment set(String key, String value) {
+    public Environment set(final String key, final String value) {
         this.properties.setProperty(key, value);
         return this;
     }
 
-    public boolean has(String key) {
+    public boolean has(final String key) {
         return this.properties.containsKey(key);
     }
 
-    public Environment put(String key, String value) {
+    public Environment put(final String key, final String value) {
         this.set(key, value);
         return this;
     }
 
-    public Environment putAll(Map<String, String> values) {
+    public Environment putAll(final Map<String, String> values) {
         this.set(values);
         return this;
     }
 
-    public Environment merge(Environment environment) {
+    public Environment merge(final Environment environment) {
         this.properties.putAll(environment.getProperties());
         return this;
     }
 
-    public Integer getInt(String key) {
+    public Integer getInt(final String key) {
         return this.getInt(key, null);
     }
 
-    public Integer getInt(String key, Integer defaultValue) {
-        String value = this.get(key);
+    public Integer getInt(final String key, final Integer defaultValue) {
+        final String value = this.get(key);
         if (value != null) {
             return Convert.toInt(value);
         }
         return defaultValue;
     }
 
-    public Long getLong(String key) {
+    public Long getLong(final String key) {
         return this.getLong(key, null);
     }
 
-    public Long getLong(String key, Long defaultValue) {
-        String value = this.get(key);
+    public Long getLong(final String key, final Long defaultValue) {
+        final String value = this.get(key);
         if (value != null) {
             return Convert.toLong(value);
         }
         return defaultValue;
     }
 
-    public Boolean getBoolean(String key) {
+    public Boolean getBoolean(final String key) {
         return this.getBoolean(key, null);
     }
 
-    public Boolean getBoolean(String key, Boolean defaultValue) {
-        String value = this.get(key);
+    public Boolean getBoolean(final String key, final Boolean defaultValue) {
+        final String value = this.get(key);
         if (value != null) {
             return Convert.toBool(value);
         }
         return defaultValue;
     }
 
-    public Double getDouble(String key) {
+    public Double getDouble(final String key) {
         return this.getDouble(key, null);
     }
 
-    public Double getDouble(String key, Double defaultValue) {
-        String value = this.get(key);
+    public Double getDouble(final String key, final Double defaultValue) {
+        final String value = this.get(key);
         if (value != null) {
             return Convert.toDouble(value);
         }
         return defaultValue;
     }
 
-    public String[] getArray(String key, String split) {
-        String values = this.get(key);
+    public String[] getArray(final String key, final String split) {
+        final String values = this.get(key);
         if (values == null) {
             return null;
         }
         return values.split(split);
     }
 
-    public List<String> getList(String key, String split) {
-        String values = this.get(key);
+    public List<String> getList(final String key, final String split) {
+        final String values = this.get(key);
         if (values == null) {
             return null;
         }
@@ -176,9 +185,9 @@ public class Environment {
         if (!prefix.endsWith(PROPERTIES_SPLIT)) {
             prefix += PROPERTIES_SPLIT;
         }
-        Map<String, Object> map = new ConcurrentHashMap<>(256);
-        for (Map.Entry<Object, Object> entry : this.properties.entrySet()) {
-            String key = entry.getKey().toString();
+        final Map<String, Object> map = new ConcurrentHashMap<>(256);
+        for (final Map.Entry<Object, Object> entry : this.properties.entrySet()) {
+            final String key = entry.getKey().toString();
             if (key.startsWith(prefix)) {
                 map.put(key.substring(prefix.length()), entry.getValue());
             }
@@ -187,8 +196,8 @@ public class Environment {
     }
 
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new ConcurrentHashMap<>(256);
-        for (Map.Entry<Object, Object> entry : this.properties.entrySet()) {
+        final Map<String, Object> map = new ConcurrentHashMap<>(256);
+        for (final Map.Entry<Object, Object> entry : this.properties.entrySet()) {
             map.put(entry.getKey().toString(), entry.getValue());
         }
         return map;

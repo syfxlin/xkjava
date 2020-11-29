@@ -20,7 +20,7 @@ import me.ixk.framework.config.PropertyResolver;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface EnvValue {
+public @interface PropertyValue {
     String EMPTY = "EMPTY";
 
     @AliasFor("name")
@@ -34,11 +34,4 @@ public @interface EnvValue {
     Class<? extends PropertyResolver> resolver() default PropertyResolver.class;
 
     boolean skip() default false;
-
-    /**
-     * 当 full 为 true 的时候，此时注入的值就是不加 @ConfigurationPrefix prefix 的值
-     *
-     * @return 是否为 full 模式
-     */
-    boolean full() default false;
 }
