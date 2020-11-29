@@ -21,29 +21,16 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Bean {
     @AliasFor("name")
-    String[] value() default {  };
+    String[] value() default {};
 
     @AliasFor("value")
-    String[] name() default {  };
+    String[] name() default {};
 
-    Class<?>[] type() default {  };
+    Class<?>[] type() default {};
 
     boolean overwrite() default false;
 
     String initMethod() default "";
 
     String destroyMethod() default "";
-
-    BindType bindType() default BindType.BIND;
-
-    enum BindType {
-        /**
-         * 绑定类型
-         */
-        BIND,
-        /**
-         * 不绑定类型
-         */
-        NO_BIND,
-    }
 }

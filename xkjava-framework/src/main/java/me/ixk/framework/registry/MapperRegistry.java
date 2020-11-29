@@ -4,6 +4,7 @@
 
 package me.ixk.framework.registry;
 
+import java.lang.reflect.AnnotatedElement;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.database.SqlSessionManager;
 import me.ixk.framework.ioc.Binding;
@@ -21,14 +22,16 @@ public class MapperRegistry implements BeanBindRegistry {
     @Override
     public Binding register(
         XkJava app,
-        Class<?> clazz,
+        AnnotatedElement element,
         ScopeType scopeType,
         MergedAnnotation annotation
     ) {
         return app.bind(
-            clazz,
+            (Class<?>) element,
             (container, with) ->
-                container.make(SqlSessionManager.class).getMapper(clazz),
+                container
+                    .make(SqlSessionManager.class)
+                    .getMapper((Class<?>) element),
             null,
             scopeType
         );

@@ -21,11 +21,11 @@ import me.ixk.framework.conditional.OnAttributeCondition;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Conditional({ OnAttributeCondition.class })
-@Order(Order.LOWEST_PRECEDENCE)
+@Order(Order.LOWEST_PRECEDENCE - 1)
 public @interface ConditionalOnMissingAttribute {
     @AliasFor("name")
-    String[] value() default {  };
+    String[] value() default {};
 
     @AliasFor("value")
-    String[] name() default {  };
+    String[] name() default {};
 }

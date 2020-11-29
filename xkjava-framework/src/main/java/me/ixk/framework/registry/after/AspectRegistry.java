@@ -2,7 +2,7 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.registry.before;
+package me.ixk.framework.registry.after;
 
 import java.lang.reflect.AnnotatedElement;
 import me.ixk.framework.annotations.Aspect;
@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * @author Otstar Lin
  * @date 2020/10/14 下午 1:59
  */
-public class AspectRegistry implements BeforeBeanRegistry {
+public class AspectRegistry implements AfterBeanRegistry {
 
     private static final Logger log = LoggerFactory.getLogger(
         AspectRegistry.class

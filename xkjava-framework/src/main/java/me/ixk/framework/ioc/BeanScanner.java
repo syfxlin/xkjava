@@ -58,9 +58,9 @@ public class BeanScanner {
 
     private Reflections getReflections() {
         if (this.reflections == null) {
-            Set<String> packages = new LinkedHashSet<>();
+            final Set<String> packages = new LinkedHashSet<>();
             Predicate<String> predicate = null;
-            for (BeanScannerDefinition definition : this.scannerDefinitions) {
+            for (final BeanScannerDefinition definition : this.scannerDefinitions) {
                 packages.addAll(Arrays.asList(definition.getScanPackages()));
                 predicate =
                     predicate == null
@@ -86,10 +86,8 @@ public class BeanScanner {
         }
         return CLASS_ANNOTATION_CACHE.put(
             annotation,
-            (Set<Class<?>>) filterConditionAnnotation(
-                AnnotationUtils.sortByOrderAnnotation(
-                    getTypesAnnotatedWith(annotation)
-                )
+            AnnotationUtils.sortByOrderAnnotation(
+                getTypesAnnotatedWith(annotation)
             )
         );
     }
@@ -104,10 +102,8 @@ public class BeanScanner {
         }
         return METHOD_ANNOTATION_CACHE.put(
             annotation,
-            (Set<Method>) filterConditionAnnotation(
-                AnnotationUtils.sortByOrderAnnotation(
-                    getMethodsAnnotatedWith(annotation)
-                )
+            AnnotationUtils.sortByOrderAnnotation(
+                getMethodsAnnotatedWith(annotation)
             )
         );
     }
@@ -118,7 +114,9 @@ public class BeanScanner {
     ) {
         final Set<Class<?>> set = new LinkedHashSet<>();
         final Reflections reflection = this.getReflections();
-        for (Class<?> item : reflection.getTypesAnnotatedWith(annotation)) {
+        for (final Class<?> item : reflection.getTypesAnnotatedWith(
+            annotation
+        )) {
             if (item.isAnnotation()) {
                 set.addAll(
                     getTypesAnnotatedWith((Class<? extends Annotation>) item)

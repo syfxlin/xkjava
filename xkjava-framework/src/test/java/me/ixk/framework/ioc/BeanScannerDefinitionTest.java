@@ -31,19 +31,23 @@ class BeanScannerDefinitionTest {
             Exclude.class.getAnnotation(ComponentScan.class)
         );
         assertFalse(
-            definition.getFilter().test("me.ixk.framework.ioc.SkipComponent")
+            definition
+                .getFilter()
+                .test("me/ixk/framework/ioc/SkipComponent.class")
         );
         assertFalse(
             definition
                 .getFilter()
-                .test("me.ixk.framework.ioc.SkipComponentType")
+                .test("me/ixk/framework/ioc/SkipComponentType.class")
         );
         assertFalse(
             definition
                 .getFilter()
-                .test("me.ixk.framework.ioc.SkipComponentRegex")
+                .test("me/ixk/framework/ioc/SkipComponentRegex.class")
         );
-        assertTrue(definition.getFilter().test("me.ixk.framework.ioc.XkJava"));
+        assertTrue(
+            definition.getFilter().test("me/ixk/framework/ioc/XkJava.class")
+        );
     }
 
     @Test
@@ -53,19 +57,23 @@ class BeanScannerDefinitionTest {
             Include.class.getAnnotation(ComponentScan.class)
         );
         assertTrue(
-            definition.getFilter().test("me.ixk.framework.ioc.SkipComponent")
+            definition
+                .getFilter()
+                .test("me/ixk/framework/ioc/SkipComponent.class")
         );
         assertTrue(
             definition
                 .getFilter()
-                .test("me.ixk.framework.ioc.SkipComponentType")
+                .test("me/ixk/framework/ioc/SkipComponentType.class")
         );
         assertTrue(
             definition
                 .getFilter()
-                .test("me.ixk.framework.ioc.SkipComponentRegex")
+                .test("me/ixk/framework/ioc/SkipComponentRegex.class")
         );
-        assertFalse(definition.getFilter().test("me.ixk.framework.ioc.XkJava"));
+        assertFalse(
+            definition.getFilter().test("me/ixk/framework/ioc/XkJava.class")
+        );
     }
 
     @ComponentScan(

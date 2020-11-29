@@ -4,6 +4,7 @@
 
 package me.ixk.framework.registry;
 
+import java.lang.reflect.AnnotatedElement;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.XkJava;
@@ -20,7 +21,7 @@ public interface BeanBindRegistry {
      * 注册
      *
      * @param app        应用
-     * @param clazz      类型
+     * @param element    类型
      * @param scopeType  作用域
      * @param annotation 组合注解
      *
@@ -28,7 +29,7 @@ public interface BeanBindRegistry {
      */
     Binding register(
         XkJava app,
-        Class<?> clazz,
+        AnnotatedElement element,
         ScopeType scopeType,
         MergedAnnotation annotation
     );

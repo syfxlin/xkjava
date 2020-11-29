@@ -12,6 +12,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import me.ixk.framework.annotations.Aspect;
+import me.ixk.framework.annotations.ConditionalOnBean;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 import me.ixk.framework.ioc.XkJava;
@@ -25,7 +26,9 @@ import org.slf4j.LoggerFactory;
  * @date 2020/11/26 上午 10:34
  */
 @Aspect("@annotation(me.ixk.framework.annotations.Async)")
+@ConditionalOnBean(value = AsyncTaskExecutor.class)
 public class AsyncAspect implements Advice {
+
     private static final Logger log = LoggerFactory.getLogger(
         AsyncAspect.class
     );

@@ -21,9 +21,9 @@ import me.ixk.framework.conditional.OnBeanCondition;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Conditional({ OnBeanCondition.class })
-@Order(Order.LOWEST_PRECEDENCE)
+@Order(Order.LOWEST_PRECEDENCE - 1)
 public @interface ConditionalOnMissingBean {
-    Class<?>[] value() default {  };
+    Class<?>[] value() default {};
 
-    String[] name() default {  };
+    String[] name() default {};
 }

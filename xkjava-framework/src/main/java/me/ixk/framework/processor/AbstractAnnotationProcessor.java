@@ -5,14 +5,16 @@
 package me.ixk.framework.processor;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.BeanScanner;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**
@@ -55,22 +57,28 @@ public abstract class AbstractAnnotationProcessor
         Consumer<Class<?>> classConsumer,
         Consumer<Method> methodConsumer
     ) {
-        Set<Class<?>> classes = this.getTypesAnnotated(annotationType);
-        final Iterator<Class<?>> classIterator = classes.iterator();
-        while (classIterator.hasNext()) {
-            final Class<?> next = classIterator.next();
-            if (classes.contains(next)) {
-                classConsumer.accept(next);
-                classes = this.scanner.filterConditionAnnotation(classes);
+        Set<AnnotatedElement> elements = new LinkedHashSet<>();
+        elements.addAll(this.getTypesAnnotated(annotationType));
+        elements.addAll(this.getMethodsAnnotated(annotationType));
+        elements = AnnotationUtils.sortByOrderAnnotation(elements);
+        Set<AnnotatedElement> ineligible = new LinkedHashSet<>();
+        while (true) {
+            boolean hasAccept = false;
+            for (AnnotatedElement element : elements) {
+                if (this.scanner.isCondition(element)) {
+                    hasAccept = true;
+                    if (element instanceof Class) {
+                        classConsumer.accept((Class<?>) element);
+                    } else {
+                        methodConsumer.accept((Method) element);
+                    }
+                } else {
+                    ineligible.add(element);
+                }
             }
-        }
-        Set<Method> methods = this.getMethodsAnnotated(annotationType);
-        final Iterator<Method> methodIterator = methods.iterator();
-        while (methodIterator.hasNext()) {
-            final Method next = methodIterator.next();
-            if (methods.contains(next)) {
-                methodConsumer.accept(next);
-                methods = this.scanner.filterConditionAnnotation(methods);
+            elements = ineligible;
+            if (!hasAccept) {
+                break;
             }
         }
     }

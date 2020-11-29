@@ -15,7 +15,6 @@ import java.util.function.Consumer;
 import me.ixk.framework.annotations.AfterRegistry;
 import me.ixk.framework.annotations.AnnotationProcessor;
 import me.ixk.framework.annotations.Bean;
-import me.ixk.framework.annotations.Bean.BindType;
 import me.ixk.framework.annotations.BeforeRegistry;
 import me.ixk.framework.annotations.BindRegistry;
 import me.ixk.framework.annotations.Import;
@@ -24,7 +23,6 @@ import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.AnnotatedEntry;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.ImportSelector;
-import me.ixk.framework.ioc.Wrapper;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.registry.BeanBindRegistry;
 import me.ixk.framework.registry.after.AfterBeanRegistry;
@@ -99,19 +97,11 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         if (beanAnnotation == null) {
             return;
         }
-        final BindType bindType = beanAnnotation.bindType();
         final Method[] initAndDestroyMethod =
             this.getInitAndDestroyMethod(beanAnnotation, clazz);
-        final Wrapper wrapper = (container, with) -> container.call(method);
         final boolean overwrite = beanAnnotation.overwrite();
         final Binding binding =
-            this.app.bind(
-                    name,
-                    wrapper,
-                    (bindType == BindType.BIND) ? clazz.getName() : null,
-                    scopeType,
-                    overwrite
-                );
+            this.invokeRegistry(annotation, method, scopeType, overwrite);
         this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
         for (final String n : beanAnnotation.name()) {
             this.app.alias(n, name, overwrite);
@@ -133,15 +123,12 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
             return;
         }
         final ScopeType scopeType = this.getScoopType(annotation);
-        final BindType bindType = beanAnnotation.bindType();
         final Method[] initAndDestroyMethod =
             this.getInitAndDestroyMethod(beanAnnotation, clazz);
         final boolean overwrite = beanAnnotation.overwrite();
         final Binding binding =
             this.invokeRegistry(annotation, clazz, scopeType, overwrite);
-        if (bindType == BindType.BIND) {
-            this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
-        }
+        this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
         for (final String name : beanAnnotation.name()) {
             this.app.alias(name, clazz, overwrite);
         }
@@ -201,6 +188,32 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     @SuppressWarnings("unchecked")
     private Binding invokeRegistry(
         final MergedAnnotation annotation,
+        final Method method,
+        final ScopeType scopeType,
+        final boolean overwrite
+    ) {
+        if (annotation.notAnnotation(BindRegistry.class)) {
+            return this.app.bind(
+                    method.getName(),
+                    (container, with) -> container.call(method),
+                    method.getReturnType().getName(),
+                    scopeType,
+                    overwrite
+                );
+        } else {
+            return this.app.make(
+                    (Class<BeanBindRegistry>) annotation.get(
+                        BindRegistry.class,
+                        "value"
+                    )
+                )
+                .register(this.app, method, scopeType, annotation);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Binding invokeRegistry(
+        final MergedAnnotation annotation,
         final Class<?> clazz,
         final ScopeType scopeType,
         final boolean overwrite
@@ -239,7 +252,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     @SuppressWarnings("unchecked")
     private void processImport(
         final Class<?> clazz,
-        Consumer<Class<?>> consumer
+        final Consumer<Class<?>> consumer
     ) {
         final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
             clazz
@@ -254,7 +267,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
                 final String[] selectImports =
                     this.app.make((Class<? extends ImportSelector>) importClass)
                         .selectImports(annotatedEntry);
-                for (String selectImport : selectImports) {
+                for (final String selectImport : selectImports) {
                     consumer.accept(ClassUtil.loadClass(selectImport));
                 }
             } else {

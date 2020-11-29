@@ -4,81 +4,79 @@
 
 package me.ixk.framework.scheduling;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.time.Duration;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
-import me.ixk.framework.annotations.AnnotationProcessor;
-import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.Scheduled;
+import me.ixk.framework.annotations.ScopeType;
+import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.processor.AbstractAnnotationProcessor;
-import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.registry.BeanBindRegistry;
 import me.ixk.framework.utils.MergedAnnotation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Otstar Lin
- * @date 2020/11/26 下午 1:51
+ * @date 2020/11/29 下午 9:59
  */
-@AnnotationProcessor
-@Order(Order.MEDIUM_PRECEDENCE + 3)
-public class ScheduledAnnotationProcessor extends AbstractAnnotationProcessor {
-    private static final Logger log = LoggerFactory.getLogger(
-        ScheduledAnnotationProcessor.class
-    );
+public class ScheduledRegistry implements BeanBindRegistry {
 
-    private ScheduledTaskExecutor executor;
-
-    public ScheduledAnnotationProcessor(XkJava app) {
-        super(app);
-    }
+    private static final String EXECUTED = "executed";
 
     @Override
-    public void process() {
-        this.executor = this.app.make(ScheduledTaskExecutor.class);
-        if (executor == null) {
-            throw new NullPointerException(
-                "No executor specified and no default executor set on scheduled task"
-            );
-        }
-        this.processAnnotation(
-                Scheduled.class,
-                clazz -> {},
-                method -> {
-                    final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
-                        method
+    public Binding register(
+        final XkJava app,
+        final AnnotatedElement element,
+        final ScopeType scopeType,
+        final MergedAnnotation annotation
+    ) {
+        return app.bind(
+            ((Method) element).getName(),
+            (container, dataBinder) -> {
+                final ScheduledTaskExecutor executor = app.make(
+                    ScheduledTaskExecutor.class
+                );
+                if (executor == null) {
+                    throw new NullPointerException(
+                        "No executor specified and no default executor set on scheduled task"
                     );
-                    final List<Scheduled> schedules = annotation.getAnnotations(
-                        Scheduled.class
-                    );
-                    if (!schedules.isEmpty()) {
-                        for (final Scheduled schedule : schedules) {
-                            this.processScheduled(schedule, method);
-                        }
-                    }
                 }
-            );
+                for (final Scheduled scheduled : annotation.getAnnotations(
+                    Scheduled.class
+                )) {
+                    this.processScheduled(
+                            scheduled,
+                            executor,
+                            app,
+                            (Method) element
+                        );
+                }
+                return EXECUTED;
+            },
+            null,
+            scopeType
+        );
     }
 
     private void processScheduled(
         final Scheduled scheduled,
+        final ScheduledTaskExecutor executor,
+        final XkJava app,
         final Method method
     ) {
-        Runnable runnable = () -> this.app.call(method);
+        final Runnable runnable = () -> app.call(method);
 
         // Cron 定时任务
-        String cron = scheduled.cron();
+        final String cron = scheduled.cron();
         if (!cron.isEmpty()) {
             final String zone = scheduled.zone();
-            this.executor.scheduleCron(runnable, cron, zone);
+            executor.scheduleCron(runnable, cron, zone);
             return;
         }
 
         // 初始延迟
         long initialDelay = scheduled.initialDelay();
-        String initialDelayString = scheduled.initialDelayString();
+        final String initialDelayString = scheduled.initialDelayString();
         if (!initialDelayString.isEmpty()) {
             if (initialDelay >= 0) {
                 throw new IllegalArgumentException(
