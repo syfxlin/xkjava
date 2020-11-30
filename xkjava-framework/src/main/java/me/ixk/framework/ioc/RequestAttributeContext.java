@@ -7,7 +7,7 @@ package me.ixk.framework.ioc;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
-import me.ixk.framework.helpers.Util;
+import me.ixk.framework.utils.DataUtils;
 
 /**
  * RequestAttributeContext
@@ -16,7 +16,7 @@ import me.ixk.framework.helpers.Util;
  * @date 2020/10/14 下午 12:39
  */
 public interface RequestAttributeContext extends Context {
-    String INSTANCE_ATTRIBUTE_NAME = Util.attributeName(
+    String INSTANCE_ATTRIBUTE_NAME = DataUtils.attributeName(
         RequestAttributeContext.class,
         "INSTANCE_ATTRIBUTE_NAME"
     );

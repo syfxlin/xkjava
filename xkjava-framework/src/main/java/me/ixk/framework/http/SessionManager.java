@@ -11,8 +11,8 @@ import javax.servlet.http.HttpSession;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.annotations.ScopeType;
-import me.ixk.framework.helpers.Util;
 import me.ixk.framework.utils.Convert;
+import me.ixk.framework.utils.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 @Component(name = "sessionManager")
 @Scope(type = ScopeType.REQUEST)
 public class SessionManager {
+
     private static final Logger log = LoggerFactory.getLogger(
         SessionManager.class
     );
@@ -106,7 +107,7 @@ public class SessionManager {
     }
 
     public String regenerateToken() {
-        String token = Util.strRandom(40);
+        String token = DataUtils.strRandom(40);
         this.put("_token", token);
         return token;
     }

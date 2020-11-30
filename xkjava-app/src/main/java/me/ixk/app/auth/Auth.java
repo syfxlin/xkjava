@@ -18,15 +18,16 @@ import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.annotations.ScopeType;
-import me.ixk.framework.helpers.Util;
 import me.ixk.framework.http.SetCookie;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.utils.DataUtils;
 import me.ixk.framework.utils.ValidResult;
 import me.ixk.framework.utils.Validation;
 
 @Component(name = "auth")
 @Scope(type = ScopeType.REQUEST)
 public class Auth {
+
     protected Users user = null;
 
     protected boolean viaRemember = false;
@@ -136,7 +137,7 @@ public class Auth {
     protected void updateRememberToken(Users user) {
         String token = user.getRememberToken();
         if (token == null || token.length() == 0) {
-            token = Util.strRandom(40);
+            token = DataUtils.strRandom(40);
             user.setRememberToken(token);
             this.usersService.updateById(user);
         }
@@ -183,6 +184,7 @@ public class Auth {
     }
 
     public static class Result {
+
         private Map<String, String> errors;
         private Users user;
 

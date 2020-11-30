@@ -7,7 +7,7 @@ package me.ixk.framework.ioc;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpSession;
-import me.ixk.framework.helpers.Util;
+import me.ixk.framework.utils.DataUtils;
 
 /**
  * SessionAttributeContext
@@ -16,10 +16,10 @@ import me.ixk.framework.helpers.Util;
  * @date 2020/10/26 下午 2:40
  */
 public interface SessionAttributeContext extends Context {
-
-    String INSTANCE_ATTRIBUTE_NAME = Util
-        .attributeName(SessionAttributeContext.class,
-            "INSTANCE_ATTRIBUTE_NAME");
+    String INSTANCE_ATTRIBUTE_NAME = DataUtils.attributeName(
+        SessionAttributeContext.class,
+        "INSTANCE_ATTRIBUTE_NAME"
+    );
 
     /**
      * 删除 Context
@@ -57,8 +57,7 @@ public interface SessionAttributeContext extends Context {
     @SuppressWarnings("unchecked")
     default Map<String, Object> getInstances() {
         Map<String, Object> instances = (Map<String, Object>) this.getContext()
-                                                                  .getAttribute(
-                                                                      INSTANCE_ATTRIBUTE_NAME);
+            .getAttribute(INSTANCE_ATTRIBUTE_NAME);
         if (instances == null) {
             instances = new ConcurrentHashMap<>(50);
             this.getContext().setAttribute(INSTANCE_ATTRIBUTE_NAME, instances);

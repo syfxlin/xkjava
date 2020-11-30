@@ -4,7 +4,7 @@
 
 package me.ixk.framework.ioc;
 
-import static me.ixk.framework.helpers.Util.caseGet;
+import static me.ixk.framework.utils.DataUtils.caseGet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +20,7 @@ import me.ixk.framework.utils.MergedAnnotation;
  * @date 2020/10/14 上午 11:41
  */
 public class ObjectWrapperDataBinder implements DataBinder {
+
     public static final String DEFAULT_VALUE_PREFIX = "&";
 
     protected final Container container;

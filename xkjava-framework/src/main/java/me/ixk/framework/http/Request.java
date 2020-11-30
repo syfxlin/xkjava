@@ -41,8 +41,8 @@ import javax.servlet.http.Part;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.annotations.ScopeType;
-import me.ixk.framework.helpers.Util;
 import me.ixk.framework.route.RouteResult;
+import me.ixk.framework.utils.DataUtils;
 import me.ixk.framework.utils.Json;
 
 /**
@@ -54,6 +54,7 @@ import me.ixk.framework.utils.Json;
 @Component(name = { "request", "javax.servlet.http.HttpServletRequest" })
 @Scope(type = ScopeType.REQUEST)
 public class Request extends HttpServletRequestWrapper {
+
     private static final HttpServletRequest EMPTY = new EmptyRequest();
     public static final String REQUEST_BODY = "&BODY";
     protected volatile String body;
@@ -247,7 +248,7 @@ public class Request extends HttpServletRequestWrapper {
         if (REQUEST_BODY.equals(name)) {
             return node;
         }
-        node = Util.dataGet(node, name);
+        node = DataUtils.dataGet(node, name);
         return node == null || node.isNull() ? defaultValue : node;
     }
 
@@ -785,8 +786,7 @@ public class Request extends HttpServletRequestWrapper {
         public AsyncContext startAsync(
             ServletRequest servletRequest,
             ServletResponse servletResponse
-        )
-            throws IllegalStateException {
+        ) throws IllegalStateException {
             return null;
         }
 

@@ -2,7 +2,7 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.helpers;
+package me.ixk.framework.utils;
 
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
@@ -22,9 +22,6 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import me.ixk.framework.utils.ClassUtils;
-import me.ixk.framework.utils.Convert;
-import me.ixk.framework.utils.Json;
 
 /**
  * 静态 Helper 工具类
@@ -32,10 +29,13 @@ import me.ixk.framework.utils.Json;
  * @author Otstar Lin
  * @date 2020/10/14 上午 9:09
  */
-public class Util {
+public class DataUtils {
+
     private static final String BASE_STRING =
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     private static final SecureRandom RANDOM = new SecureRandom();
+    public static final String UNDERLINE = "_";
+    public static final String DASHED = "-";
 
     public static JsonNode dataGet(JsonNode target, String key) {
         return dataGet(target, key, (JsonNode) null);
@@ -345,6 +345,98 @@ public class Util {
         }
     }
 
+    public static <T> T caseGet(String name, Function<String, T> fun) {
+        return caseGet(
+            name,
+            fun,
+            new char[] { '_', '-', 'c', 'S', 'C' },
+            Objects::nonNull
+        );
+    }
+
+    public static <T> T caseGet(
+        String name,
+        Function<String, T> fun,
+        Predicate<T> predicate
+    ) {
+        return caseGet(
+            name,
+            fun,
+            new char[] { '_', '-', 'c', 'S', 'C' },
+            predicate
+        );
+    }
+
+    public static <T> T caseGet(
+        String name,
+        Function<String, T> fun,
+        char[] splits,
+        Predicate<T> predicate
+    ) {
+        T target = fun.apply(name);
+        if (!predicate.test(target)) {
+            name = toCamelCase(name);
+            for (char split : splits) {
+                String rename;
+                if (split == 'S') {
+                    rename = StrUtil.toSymbolCase(name, '_').toUpperCase();
+                } else if (split == 'c') {
+                    rename = name;
+                } else if (split == 'C') {
+                    final String camelCase = toCamelCase(name);
+                    rename =
+                        (char) (camelCase.charAt(0) - 32) +
+                        camelCase.substring(1);
+                } else {
+                    rename = StrUtil.toSymbolCase(name, split);
+                }
+                target = fun.apply(rename);
+                if (target == NullNode.getInstance()) {
+                    target = null;
+                }
+                if (predicate.test(target)) {
+                    break;
+                }
+            }
+        }
+        return target;
+    }
+
+    public static String toCamelCase(CharSequence name) {
+        if (null == name) {
+            return null;
+        }
+        String name2 = name.toString();
+        if (name2.contains(UNDERLINE) || name2.contains(DASHED)) {
+            // case-case, case_case, CASE_CASE
+            final StringBuilder sb = new StringBuilder(name2.length());
+            boolean upperCase = false;
+            for (int i = 0; i < name2.length(); i++) {
+                char c = name2.charAt(i);
+
+                if (c == '_' || c == '-') {
+                    upperCase = true;
+                } else if (upperCase) {
+                    sb.append(Character.toUpperCase(c));
+                    upperCase = false;
+                } else {
+                    sb.append(Character.toLowerCase(c));
+                }
+            }
+            return sb.toString();
+        }
+        if (!name2.isEmpty() && Character.isUpperCase(name2.charAt(0))) {
+            // CaseCase
+            return Character.toLowerCase(name2.charAt(0)) + name2.substring(1);
+        } else {
+            return name2;
+        }
+    }
+
+    public static String attributeName(Class<?> clazz, String name) {
+        return clazz.getName() + "." + name;
+    }
+
     public static String strRandom() {
         return strRandom(10);
     }
@@ -380,54 +472,8 @@ public class Util {
         return new HandlerDefinition(clazz, method);
     }
 
-    public static <T> T caseGet(String name, Function<String, T> fun) {
-        return caseGet(
-            name,
-            fun,
-            new char[] { '_', '-', 'a' },
-            Objects::nonNull
-        );
-    }
-
-    public static <T> T caseGet(
-        String name,
-        Function<String, T> fun,
-        Predicate<T> predicate
-    ) {
-        return caseGet(name, fun, new char[] { '_', '-', 'a' }, predicate);
-    }
-
-    public static <T> T caseGet(
-        String name,
-        Function<String, T> fun,
-        char[] splits,
-        Predicate<T> predicate
-    ) {
-        T target = fun.apply(name);
-        if (!predicate.test(target)) {
-            for (char split : splits) {
-                target =
-                    fun.apply(
-                        split == 'a'
-                            ? StrUtil.toCamelCase(name)
-                            : StrUtil.toSymbolCase(name, split)
-                    );
-                if (target == NullNode.getInstance()) {
-                    target = null;
-                }
-                if (predicate.test(target)) {
-                    break;
-                }
-            }
-        }
-        return target;
-    }
-
-    public static String attributeName(Class<?> clazz, String name) {
-        return clazz.getName() + "." + name;
-    }
-
     public static class HandlerDefinition {
+
         private final Class<?> controllerClass;
         private final Method method;
 

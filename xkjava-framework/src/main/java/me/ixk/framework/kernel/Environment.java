@@ -4,7 +4,7 @@
 
 package me.ixk.framework.kernel;
 
-import static me.ixk.framework.helpers.Util.caseGet;
+import static me.ixk.framework.utils.DataUtils.caseGet;
 
 import cn.hutool.core.util.StrUtil;
 import java.util.Arrays;

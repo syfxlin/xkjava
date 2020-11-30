@@ -4,7 +4,7 @@
 
 package me.ixk.framework.expression;
 
-import static me.ixk.framework.helpers.Util.caseGet;
+import static me.ixk.framework.utils.DataUtils.caseGet;
 
 import io.github.imsejin.expression.Expression;
 import io.github.imsejin.expression.ExpressionParser;

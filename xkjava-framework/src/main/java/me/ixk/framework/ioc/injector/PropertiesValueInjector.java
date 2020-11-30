@@ -4,7 +4,7 @@
 
 package me.ixk.framework.ioc.injector;
 
-import static me.ixk.framework.helpers.Util.caseGet;
+import static me.ixk.framework.utils.DataUtils.caseGet;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.exceptions.UtilException;
