@@ -6,6 +6,7 @@ package me.ixk.framework.providers;
 
 import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
 import me.ixk.framework.annotations.Bean;
+import me.ixk.framework.annotations.ConditionalOnEnable;
 import me.ixk.framework.annotations.ConditionalOnMissingBean;
 import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.scheduling.AsyncTaskExecutor;
@@ -35,6 +36,7 @@ public class TaskProvider {
         },
         name = "scheduledExecutor"
     )
+    @ConditionalOnEnable(name = "task")
     public ScheduledExecutor scheduledExecutor() {
         return new ScheduledExecutor(
             8,

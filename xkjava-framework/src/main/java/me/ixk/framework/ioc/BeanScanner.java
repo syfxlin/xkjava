@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -162,27 +163,28 @@ public class BeanScanner {
             .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    @SuppressWarnings("unchecked")
     public boolean isCondition(final AnnotatedElement element) {
         final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
             element
         );
-        if (annotation.notAnnotation(Conditional.class)) {
+        final List<Conditional> conditionals = annotation.getAnnotations(
+            Conditional.class
+        );
+        if (conditionals.isEmpty()) {
             return true;
         }
-        for (final Class<? extends Condition> condition : (Class<? extends Condition>[]) annotation.get(
-            Conditional.class,
-            "value"
-        )) {
-            final boolean matches = ReflectUtil.invoke(
-                ReflectUtil.newInstance(condition),
-                "matches",
-                XkJava.of(),
-                element,
-                annotation
-            );
-            if (!matches) {
-                return false;
+        for (Conditional conditional : conditionals) {
+            for (Class<? extends Condition> condition : conditional.value()) {
+                final boolean matches = ReflectUtil.invoke(
+                    ReflectUtil.newInstance(condition),
+                    "matches",
+                    XkJava.of(),
+                    element,
+                    annotation
+                );
+                if (!matches) {
+                    return false;
+                }
             }
         }
         return true;

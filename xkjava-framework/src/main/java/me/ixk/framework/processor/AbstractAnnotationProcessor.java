@@ -57,9 +57,32 @@ public abstract class AbstractAnnotationProcessor
         Consumer<Class<?>> classConsumer,
         Consumer<Method> methodConsumer
     ) {
+        this.processAnnotation(
+                new Class[] { annotationType },
+                classConsumer,
+                methodConsumer
+            );
+    }
+
+    protected void processAnnotation(
+        Class<? extends Annotation>[] annotationTypes,
+        Consumer<Class<?>> classConsumer,
+        Consumer<Method> methodConsumer
+    ) {
         Set<AnnotatedElement> elements = new LinkedHashSet<>();
-        elements.addAll(this.getTypesAnnotated(annotationType));
-        elements.addAll(this.getMethodsAnnotated(annotationType));
+        for (Class<? extends Annotation> annotationType : annotationTypes) {
+            elements.addAll(this.getTypesAnnotated(annotationType));
+            elements.addAll(this.getMethodsAnnotated(annotationType));
+        }
+        this.processAnnotation(elements, classConsumer, methodConsumer);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void processAnnotation(
+        Set<AnnotatedElement> elements,
+        Consumer<Class<?>> classConsumer,
+        Consumer<Method> methodConsumer
+    ) {
         elements = AnnotationUtils.sortByOrderAnnotation(elements);
         Set<AnnotatedElement> ineligible = new LinkedHashSet<>();
         while (true) {

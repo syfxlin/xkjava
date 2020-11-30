@@ -5,7 +5,10 @@
 package me.ixk.framework.ioc;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import me.ixk.framework.annotations.ComponentScan;
 import me.ixk.framework.annotations.Profile;
 import me.ixk.framework.ioc.context.ApplicationContext;
@@ -67,6 +70,13 @@ public class XkJava extends Container {
      * Bean 扫描器
      */
     private final BeanScanner beanScanner = new BeanScanner(this);
+
+    /**
+     * 开启的功能
+     */
+    private final Set<String> enableFunctions = Collections.synchronizedSet(
+        new HashSet<>()
+    );
 
     /**
      * XkJava 是否已经启动
@@ -261,12 +271,12 @@ public class XkJava extends Container {
         this.registerContext(sessionContext);
 
         this.instance(XkJava.class, this, "app");
-
         this.instance(
                 AnnotationProcessor.class,
                 annotationProcessorManager,
                 "annotationProcessorManager"
             );
+        this.instance(BeanScanner.class, this.beanScanner, "beanScanner");
     }
 
     /**
@@ -311,6 +321,10 @@ public class XkJava extends Container {
     ) {
         this.annotationProcessorManager = annotationProcessorManager;
         return this;
+    }
+
+    public Set<String> enableFunctions() {
+        return enableFunctions;
     }
 
     /* Quick get set context attribute */

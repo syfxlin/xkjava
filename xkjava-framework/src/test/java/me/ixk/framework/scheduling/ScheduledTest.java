@@ -7,6 +7,7 @@ package me.ixk.framework.scheduling;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.annotations.Enable;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,9 @@ import org.junit.jupiter.api.Test;
  */
 @XkJavaTest
 @Slf4j
+@Enable(name = "task")
 class ScheduledTest {
+
     @Autowired
     ScheduledTasks scheduledTask;
 

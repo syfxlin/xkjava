@@ -4,6 +4,13 @@
 
 package me.ixk.framework.processor;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.annotations.ComponentScan;
+import me.ixk.framework.annotations.ComponentScan.Filter;
+import me.ixk.framework.annotations.FilterType;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 
@@ -12,8 +19,21 @@ import org.junit.jupiter.api.Test;
  * @date 2020/11/29 下午 2:19
  */
 @XkJavaTest
+@ComponentScan(
+    excludeFilters = {
+        @Filter(
+            type = FilterType.ASSIGNABLE_TYPE,
+            classes = ImportTarget.class
+        ),
+    }
+)
 class BeanAnnotationProcessorTest {
 
+    @Autowired
+    XkJava app;
+
     @Test
-    void processImport() {}
+    void processImport() {
+        assertTrue(app.hasBinding(ImportTarget.class));
+    }
 }

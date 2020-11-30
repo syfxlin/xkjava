@@ -46,39 +46,40 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void process() {
         // Before
         this.processAnnotation(
-                BeforeRegistry.class,
-                this::invokeBeforeRegistry,
+                new Class[] { BeforeRegistry.class, Import.class },
+                clazz -> {
+                    this.invokeBeforeRegistry(clazz);
+                    if (AnnotationUtils.hasAnnotation(clazz, Import.class)) {
+                        this.processImport(clazz, this::invokeBeforeRegistry);
+                    }
+                },
                 this::invokeBeforeRegistry
-            );
-        this.processAnnotation(
-                Import.class,
-                clazz -> this.processImport(clazz, this::invokeBeforeRegistry),
-                method -> {}
             );
         // Bind bean
         this.processAnnotation(
-                Bean.class,
-                this::processAnnotation,
-                this::processAnnotation
-            );
-        this.processAnnotation(
-                Import.class,
-                clazz -> this.processImport(clazz, this::processAnnotation),
-                method -> {}
+                new Class[] { Bean.class, Import.class },
+                clazz -> {
+                    this.invokeBinding(clazz);
+                    if (AnnotationUtils.hasAnnotation(clazz, Import.class)) {
+                        this.processImport(clazz, this::invokeBinding);
+                    }
+                },
+                this::invokeBinding
             );
         // After
         this.processAnnotation(
-                AfterRegistry.class,
-                this::invokeAfterRegistry,
+                new Class[] { AfterRegistry.class, Import.class },
+                clazz -> {
+                    this.invokeAfterRegistry(clazz);
+                    if (AnnotationUtils.hasAnnotation(clazz, Import.class)) {
+                        this.processImport(clazz, this::invokeAfterRegistry);
+                    }
+                },
                 this::invokeAfterRegistry
-            );
-        this.processAnnotation(
-                Import.class,
-                clazz -> this.processImport(clazz, this::invokeAfterRegistry),
-                method -> {}
             );
         // Make bean
         for (final String beanName : this.makeList) {
@@ -86,7 +87,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         }
     }
 
-    private void processAnnotation(final Method method) {
+    private void invokeBinding(final Method method) {
         final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
             method
         );
@@ -114,7 +115,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         }
     }
 
-    private void processAnnotation(final Class<?> clazz) {
+    private void invokeBinding(final Class<?> clazz) {
         final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
             clazz
         );
