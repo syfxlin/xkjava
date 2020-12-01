@@ -373,6 +373,9 @@ public class DataUtils {
         char[] splits,
         Predicate<T> predicate
     ) {
+        if (name == null || name.isEmpty()) {
+            return fun.apply(name);
+        }
         T target = fun.apply(name);
         if (!predicate.test(target)) {
             name = toCamelCase(name);

@@ -4,12 +4,9 @@
 
 package me.ixk.framework.ioc;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import me.ixk.framework.annotations.ComponentScan;
 import me.ixk.framework.annotations.Profile;
 import me.ixk.framework.ioc.context.ApplicationContext;
 import me.ixk.framework.ioc.context.RequestContext;
@@ -17,12 +14,12 @@ import me.ixk.framework.ioc.context.SessionContext;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.kernel.BeanProcessorAnnotationProcessor;
 import me.ixk.framework.kernel.BootstrapAnnotationProcessor;
+import me.ixk.framework.kernel.ComponentScanAnnotationProcessor;
 import me.ixk.framework.kernel.Environment;
 import me.ixk.framework.kernel.InjectorAnnotationProcessor;
 import me.ixk.framework.processor.AnnotationProcessor;
 import me.ixk.framework.server.JettyServer;
 import me.ixk.framework.server.Server;
-import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Ansi;
 import me.ixk.framework.utils.Ansi.Color;
 import org.slf4j.Logger;
@@ -82,6 +79,13 @@ public class XkJava extends Container {
      * XkJava 是否已经启动
      */
     private boolean booted = false;
+
+    /**
+     * 组件注解扫描器
+     */
+    private final ComponentScanAnnotationProcessor componentScanAnnotationProcessor = new ComponentScanAnnotationProcessor(
+        this
+    );
 
     /**
      * 启动处理器
@@ -167,20 +171,7 @@ public class XkJava extends Container {
      * 配置要扫描的包
      */
     private void loadPackageScanAnnotation() {
-        this.beanScanner.addDefinition(new String[] { "me.ixk.framework" });
-        for (final Class<?> source : this.primarySource) {
-            this.beanScanner.addDefinition(
-                    new String[] { source.getPackageName() }
-                );
-            final List<ComponentScan> componentScan = AnnotationUtils
-                .getAnnotation(source)
-                .getAnnotations(ComponentScan.class);
-            if (componentScan != null) {
-                for (final ComponentScan scan : componentScan) {
-                    this.loadPackageScanAnnotationItem(scan);
-                }
-            }
-        }
+        this.componentScanAnnotationProcessor.process();
     }
 
     /**
@@ -247,16 +238,6 @@ public class XkJava extends Container {
 
         log.info("Application booted");
         return this;
-    }
-
-    private void loadPackageScanAnnotationItem(
-        final ComponentScan componentScan
-    ) {
-        this.beanScanner.addDefinition(componentScan);
-        log.debug(
-            "Application add base packages: {}",
-            Arrays.toString(componentScan.basePackages())
-        );
     }
 
     /**

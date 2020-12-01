@@ -8,6 +8,7 @@ import java.util.Map;
 import me.ixk.framework.annotations.Aspect;
 import me.ixk.framework.annotations.CacheConfig;
 import me.ixk.framework.annotations.CacheEvict;
+import me.ixk.framework.annotations.ConditionalOnEnable;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 import me.ixk.framework.expression.BeanExpressionResolver;
 import me.ixk.framework.ioc.XkJava;
@@ -19,6 +20,7 @@ import me.ixk.framework.ioc.XkJava;
  * @date 2020/11/27 下午 4:32
  */
 @Aspect("@annotation(me.ixk.framework.annotations.CacheEvict)")
+@ConditionalOnEnable(name = "cache")
 public class CacheEvictAspect extends AbstractCacheAspect {
 
     public CacheEvictAspect(

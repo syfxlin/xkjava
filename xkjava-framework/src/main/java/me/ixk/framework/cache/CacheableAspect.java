@@ -9,6 +9,7 @@ import me.ixk.framework.annotations.Aspect;
 import me.ixk.framework.annotations.CacheConfig;
 import me.ixk.framework.annotations.CachePut;
 import me.ixk.framework.annotations.Cacheable;
+import me.ixk.framework.annotations.ConditionalOnEnable;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 import me.ixk.framework.expression.BeanExpressionResolver;
 import me.ixk.framework.ioc.XkJava;
@@ -23,6 +24,7 @@ import me.ixk.framework.utils.MergedAnnotation;
 @Aspect(
     "@annotation(me.ixk.framework.annotations.Cacheable) || @annotation(me.ixk.framework.annotations.CachePut)"
 )
+@ConditionalOnEnable(name = "cache")
 public class CacheableAspect extends AbstractCacheAspect {
 
     public CacheableAspect(

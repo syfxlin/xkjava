@@ -5,6 +5,7 @@
 package me.ixk.framework.providers;
 
 import me.ixk.framework.annotations.Bean;
+import me.ixk.framework.annotations.ConditionalOnEnable;
 import me.ixk.framework.annotations.ConditionalOnMissingBean;
 import me.ixk.framework.annotations.Provider;
 import me.ixk.framework.cache.CacheManager;
@@ -31,6 +32,7 @@ public class CacheProvider {
 
     @Bean(name = "cacheManager")
     @ConditionalOnMissingBean(value = CacheManager.class, name = "cacheManager")
+    @ConditionalOnEnable(name = "cache")
     public CacheManager cacheManager() {
         return new MapCacheManager();
     }

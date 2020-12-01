@@ -57,7 +57,7 @@ public class BeanScanner {
             );
     }
 
-    private Reflections getReflections() {
+    public Reflections getReflections() {
         if (this.reflections == null) {
             final Set<String> packages = new LinkedHashSet<>();
             Predicate<String> predicate = null;

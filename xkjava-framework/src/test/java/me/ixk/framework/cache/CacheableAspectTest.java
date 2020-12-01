@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.annotations.Enable;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,9 @@ import org.junit.jupiter.api.Test;
  * @date 2020/11/27 下午 3:56
  */
 @XkJavaTest
+@Enable(name = "cache")
 class CacheableAspectTest {
+
     @Autowired
     CacheTarget cacheTarget;
 
