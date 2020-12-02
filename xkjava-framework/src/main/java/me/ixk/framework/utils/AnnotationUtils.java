@@ -4,7 +4,6 @@
 
 package me.ixk.framework.utils;
 
-import cn.hutool.core.lang.SimpleCache;
 import cn.hutool.core.util.ReflectUtil;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
@@ -43,9 +42,7 @@ import me.ixk.framework.annotations.RepeatItem;
  */
 public class AnnotationUtils {
 
-    private static final SimpleCache<AnnotatedElement, Map<Class<? extends Annotation>, List<Annotation>>> MERGED_ANNOTATION_CACHE = new SimpleCache<>();
-    private static final SimpleCache<Class<? extends Annotation>, Set<Class<?>>> CLASS_ANNOTATION_CACHE = new SimpleCache<>();
-    private static final SimpleCache<Class<? extends Annotation>, Set<Method>> METHOD_ANNOTATION_CACHE = new SimpleCache<>();
+    private static final SoftSimpleCache<AnnotatedElement, Map<Class<? extends Annotation>, List<Annotation>>> MERGED_ANNOTATION_CACHE = new SoftSimpleCache<>();
 
     private static final Comparator<Object> ORDER_ANNOTATION_COMPARATOR = (o1, o2) -> {
         Integer or1 = getAnnotation((AnnotatedElement) o1)

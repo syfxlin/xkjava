@@ -14,7 +14,6 @@ import me.ixk.framework.annotations.ScopeType;
  * @date 2020/10/25 下午 9:27
  */
 public interface Context {
-
     /**
      * 是否匹配作用域类型
      *

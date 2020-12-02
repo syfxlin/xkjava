@@ -4,7 +4,6 @@
 
 package me.ixk.framework.aop;
 
-import cn.hutool.core.lang.SimpleCache;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +11,7 @@ import java.util.Objects;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.SoftSimpleCache;
 
 /**
  * 切面管理器
@@ -22,7 +22,8 @@ import me.ixk.framework.utils.AnnotationUtils;
  * @date 2020/10/14 上午 8:25
  */
 public class AspectManager {
-    private static final SimpleCache<Method, List<Advice>> METHOD_CACHE = new SimpleCache<>();
+
+    private static final SoftSimpleCache<Method, List<Advice>> METHOD_CACHE = new SoftSimpleCache<>();
     /**
      * 所有的切面列表
      */
@@ -33,14 +34,14 @@ public class AspectManager {
         this.app = app;
     }
 
-    public void addAdvice(
+    public synchronized void addAdvice(
         AspectPointcut pointcut,
         Class<? extends Advice> advice
     ) {
         adviceList.add(new AdviceEntry(pointcut, advice));
     }
 
-    public List<Advice> getAdvices(Method method) {
+    public synchronized List<Advice> getAdvices(Method method) {
         List<Advice> cache = METHOD_CACHE.get(method);
         if (cache != null) {
             return cache;
@@ -74,6 +75,7 @@ public class AspectManager {
     }
 
     private static class AdviceEntry {
+
         private final AspectPointcut pointcut;
 
         private final Class<? extends Advice> advice;

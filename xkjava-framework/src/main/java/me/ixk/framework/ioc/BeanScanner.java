@@ -4,7 +4,6 @@
 
 package me.ixk.framework.ioc;
 
-import cn.hutool.core.lang.SimpleCache;
 import cn.hutool.core.util.ReflectUtil;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -21,6 +20,7 @@ import me.ixk.framework.annotations.Conditional;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ReflectionsUtils;
+import me.ixk.framework.utils.SoftSimpleCache;
 import org.reflections.Reflections;
 
 /**
@@ -31,8 +31,8 @@ import org.reflections.Reflections;
  */
 public class BeanScanner {
 
-    private static final SimpleCache<Class<? extends Annotation>, Set<Class<?>>> CLASS_ANNOTATION_CACHE = new SimpleCache<>();
-    private static final SimpleCache<Class<? extends Annotation>, Set<Method>> METHOD_ANNOTATION_CACHE = new SimpleCache<>();
+    private static final SoftSimpleCache<Class<? extends Annotation>, Set<Class<?>>> CLASS_ANNOTATION_CACHE = new SoftSimpleCache<>();
+    private static final SoftSimpleCache<Class<? extends Annotation>, Set<Method>> METHOD_ANNOTATION_CACHE = new SoftSimpleCache<>();
     private final XkJava app;
     private final Set<BeanScannerDefinition> scannerDefinitions = new LinkedHashSet<>();
     private Reflections reflections;
@@ -45,13 +45,13 @@ public class BeanScanner {
         return app;
     }
 
-    public void addDefinition(final ComponentScan componentScan) {
+    public synchronized void addDefinition(final ComponentScan componentScan) {
         this.scannerDefinitions.add(
                 new BeanScannerDefinition(this, componentScan)
             );
     }
 
-    public void addDefinition(final String[] scanPackages) {
+    public synchronized void addDefinition(final String[] scanPackages) {
         this.scannerDefinitions.add(
                 new BeanScannerDefinition(this, scanPackages)
             );

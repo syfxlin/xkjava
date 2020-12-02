@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 上午 11:17
  */
 public class Container {
+
     private static final Logger log = LoggerFactory.getLogger(Container.class);
 
     private static final int ARRAY_METHOD_DEF_LENGTH = 2;
@@ -572,7 +573,7 @@ public class Container {
 
     /* ===================== callMethod =============== */
 
-    protected <T> T callMethod(
+    protected synchronized <T> T callMethod(
         final Object instance,
         final Method method,
         final Class<T> returnType

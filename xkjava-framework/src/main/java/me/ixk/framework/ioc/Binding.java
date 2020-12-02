@@ -5,7 +5,6 @@
 package me.ixk.framework.ioc;
 
 import cn.hutool.core.exceptions.UtilException;
-import cn.hutool.core.lang.SimpleCache;
 import cn.hutool.core.util.ClassUtil;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -18,8 +17,7 @@ import me.ixk.framework.annotations.PostConstruct;
 import me.ixk.framework.annotations.PreDestroy;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.utils.MergedAnnotation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import me.ixk.framework.utils.SoftSimpleCache;
 
 /**
  * Binding
@@ -29,8 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Binding {
 
-    private static final Logger log = LoggerFactory.getLogger(Binding.class);
-    private static final SimpleCache<Class<?>, BindingInfos> CACHE = new SimpleCache<>();
+    private static final SoftSimpleCache<Class<?>, BindingInfos> CACHE = new SoftSimpleCache<>();
 
     private final Context context;
     private volatile Wrapper wrapper;

@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 @Component(name = "routeCollector")
 public class RouteCollector {
+
     private static final Logger log = LoggerFactory.getLogger(
         RouteCollector.class
     );
@@ -132,7 +133,11 @@ public class RouteCollector {
         this.addRoute(new String[] { httpMethod }, route, handler);
     }
 
-    public void addRoute(String[] httpMethods, String route, Method handler) {
+    public synchronized void addRoute(
+        String[] httpMethods,
+        String route,
+        Method handler
+    ) {
         route = this.routeGroupPrefix + route;
         RouteData routeData = this.routeParser.parse(route);
         log.debug("Add Route: {}", routeData);
@@ -235,7 +240,9 @@ public class RouteCollector {
         return this.addGroup(prefix, routeDefinition);
     }
 
-    public RouteCollector middleware(Class<? extends Middleware> middleware) {
+    public synchronized RouteCollector middleware(
+        Class<? extends Middleware> middleware
+    ) {
         log.debug("Add Middleware: {}", middleware);
         this.middleware.add(middleware);
         return this;

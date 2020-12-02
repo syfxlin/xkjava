@@ -4,7 +4,6 @@
 
 package me.ixk.framework.utils;
 
-import cn.hutool.core.lang.SimpleCache;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -26,7 +25,8 @@ import org.objectweb.asm.Type;
  * @date 2020/10/14 下午 5:13
  */
 public class ParameterNameDiscoverer {
-    protected static final SimpleCache<Executable, String[]> PARAMETER_CACHE = new SimpleCache<>();
+
+    protected static final SoftSimpleCache<Executable, String[]> PARAMETER_CACHE = new SoftSimpleCache<>();
 
     public static String[] getMethodParamNames(Method method) {
         return getParameterNames(method);
@@ -86,7 +86,6 @@ public class ParameterNameDiscoverer {
         }
         classReader.accept(
             new ClassVisitor(Opcodes.ASM8, classWriter) {
-
                 @Override
                 public MethodVisitor visitMethod(
                     final int access,
@@ -119,7 +118,6 @@ public class ParameterNameDiscoverer {
                         exceptions
                     );
                     return new MethodVisitor(Opcodes.ASM8, methodVisitor) {
-
                         @Override
                         public void visitLocalVariable(
                             String name,
