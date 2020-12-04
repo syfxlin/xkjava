@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import me.ixk.framework.annotations.Profile;
+import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.ioc.context.ApplicationContext;
 import me.ixk.framework.ioc.context.RequestContext;
 import me.ixk.framework.ioc.context.SessionContext;
@@ -252,6 +253,11 @@ public class XkJava extends Container {
         this.registerContext(sessionContext);
 
         this.instance(XkJava.class, this, "app");
+        this.singleton(
+                AspectManager.class,
+                AspectManager.class,
+                "aspectManager"
+            );
         this.instance(
                 AnnotationProcessor.class,
                 annotationProcessorManager,

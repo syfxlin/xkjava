@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.aop.Advice;
@@ -84,6 +85,11 @@ public class Container {
      * 注入的临时变量
      */
     private final ThreadLocal<DataBinder> dataBinder = new InheritableThreadLocal<>();
+
+    /**
+     * 读写锁
+     */
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public Container() {
         this.dataBinder.set(
@@ -192,13 +198,17 @@ public class Container {
     }
 
     public Binding getOrDefaultBinding(final String name) {
-        Binding binding = this.getBinding(name);
-        if (binding == null) {
-            binding = this.newBinding(name, null, ScopeType.PROTOTYPE);
-            final Binding finalBinding = binding;
-            binding.setWrapper((container, with) -> this.doBuild(finalBinding));
-        }
-        return binding;
+        return this.bindings.computeIfAbsent(
+                this.getCanonicalName(name),
+                n -> {
+                    final Binding binding =
+                        this.newBinding(n, null, ScopeType.PROTOTYPE);
+                    binding.setWrapper(
+                        (container, with) -> this.doBuild(binding)
+                    );
+                    return binding;
+                }
+            );
     }
 
     public Binding getOrDefaultBinding(final Class<?> type) {
@@ -425,7 +435,7 @@ public class Container {
 
     /* ===================== doBind ===================== */
 
-    private synchronized Binding doBind(
+    private Binding doBind(
         final String bindName,
         final Binding binding,
         final String alias,
@@ -437,13 +447,18 @@ public class Container {
             bindName,
             alias
         );
-        if (alias != null) {
-            this.alias(alias, bindName, overwrite);
+        lock.writeLock().lock();
+        try {
+            if (alias != null) {
+                this.alias(alias, bindName, overwrite);
+            }
+            return this.setBinding(bindName, binding);
+        } finally {
+            lock.writeLock().unlock();
         }
-        return this.setBinding(bindName, binding);
     }
 
-    protected synchronized Binding doBind(
+    protected Binding doBind(
         final String bindName,
         final Wrapper wrapper,
         final String alias,
@@ -461,7 +476,7 @@ public class Container {
 
     /* ===================== doInstance ===================== */
 
-    protected synchronized Container doInstance(
+    protected Container doInstance(
         final String instanceName,
         final Object instance,
         final String alias,
@@ -481,7 +496,7 @@ public class Container {
 
     /* ===================== doBuild ===================== */
 
-    protected synchronized Object doBuild(final Binding binding) {
+    protected Object doBuild(final Binding binding) {
         final Class<?> instanceType = binding.getInstanceType();
         if (instanceType == null) {
             return null;
@@ -535,56 +550,81 @@ public class Container {
 
     /* ===================== doMake ===================== */
 
-    protected synchronized <T> T doMake(
+    protected <T> T doMake(
         final String instanceName,
         final Class<T> returnType
     ) {
         log.debug("Container make: {} - {}", instanceName, returnType);
-        final Binding binding = this.getOrDefaultBinding(instanceName);
-        final ScopeType scopeType = binding.getScope();
-        Object instance = binding.getInstance();
-        if (instance != null) {
-            return Convert.convert(returnType, instance);
-        }
+        Object instance;
+        Binding binding;
+        ScopeType scopeType;
+        lock.readLock().lock();
         try {
+            binding = this.getOrDefaultBinding(instanceName);
+            scopeType = binding.getScope();
+            instance = binding.getInstance();
+            if (instance != null) {
+                return Convert.convert(returnType, instance);
+            }
+        } finally {
+            lock.readLock().unlock();
+        }
+        lock.writeLock().lock();
+        try {
+            instance = binding.getInstance();
+            if (instance != null) {
+                return Convert.convert(returnType, instance);
+            }
             instance =
                 binding.getWrapper().getInstance(this, this.dataBinder.get());
+            final T returnInstance = Convert.convert(returnType, instance);
+            if (scopeType.isShared()) {
+                binding.setInstance(returnInstance);
+            }
+            return returnInstance;
         } catch (final Throwable e) {
             throw new ContainerException("Instance make failed", e);
+        } finally {
+            lock.writeLock().unlock();
         }
-        final T returnInstance = Convert.convert(returnType, instance);
-        if (scopeType.isShared()) {
-            binding.setInstance(returnInstance);
-        }
-        return returnInstance;
     }
 
     /* ===================== doRemove ===================== */
 
-    protected synchronized Container doRemove(final String name) {
+    protected Container doRemove(final String name) {
         log.debug("Container remove: {}", name);
-        final Binding binding = this.getBinding(name);
-        if (binding.isCreated()) {
-            this.processBeanAfter(binding, binding.getInstance());
-            this.removeBinding(name);
+        lock.writeLock().lock();
+        try {
+            final Binding binding = this.getBinding(name);
+            if (binding.isCreated()) {
+                this.processBeanAfter(binding, binding.getInstance());
+                this.removeBinding(name);
+            }
+            return this;
+        } finally {
+            lock.writeLock().unlock();
         }
-        return this;
     }
 
     /* ===================== callMethod =============== */
 
-    protected synchronized <T> T callMethod(
+    protected <T> T callMethod(
         final Object instance,
         final Method method,
         final Class<T> returnType
     ) {
         log.debug("Container call method: {} - {}", method, returnType);
-        final Object[] dependencies =
-            this.processParameterInjector(null, method);
-        return Convert.convert(
-            returnType,
-            ReflectUtil.invoke(instance, method, dependencies)
-        );
+        lock.readLock().lock();
+        try {
+            final Object[] dependencies =
+                this.processParameterInjector(null, method);
+            return Convert.convert(
+                returnType,
+                ReflectUtil.invoke(instance, method, dependencies)
+            );
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     protected <T> T callMethod(
@@ -622,16 +662,6 @@ public class Container {
         final Class<T> returnType
     ) {
         return this.callMethod(type.getName(), methodName, returnType);
-    }
-
-    protected <T> T callMethod(
-        final String typeName,
-        final String methodName,
-        final Class<?>[] paramTypes,
-        final Class<T> returnType
-    ) {
-        final Object instance = this.make(typeName);
-        return this.callMethod(instance, methodName, returnType);
     }
 
     /*======================  alias  ==================*/
@@ -1138,31 +1168,6 @@ public class Container {
             );
     }
 
-    public <T> T call(
-        final String[] target,
-        final Class<?>[] paramTypes,
-        final Class<T> returnType
-    ) {
-        if (target.length != ARRAY_METHOD_DEF_LENGTH) {
-            throw new IllegalArgumentException(
-                "The length of the target array must be 2"
-            );
-        }
-        return this.callMethod(target[0], target[1], paramTypes, returnType);
-    }
-
-    public <T> T call(
-        final String[] target,
-        final Class<?>[] paramTypes,
-        final Class<T> returnType,
-        final Map<String, Object> args
-    ) {
-        return this.withAndReset(
-                () -> this.call(target, paramTypes, returnType),
-                new DefaultDataBinder(this, args)
-            );
-    }
-
     public <T> T call(final String target, final Class<T> returnType) {
         return this.call(target.split("@"), returnType);
     }
@@ -1173,23 +1178,6 @@ public class Container {
         final Map<String, Object> args
     ) {
         return this.call(target.split("@"), returnType, args);
-    }
-
-    public <T> T call(
-        final String target,
-        final Class<?>[] paramTypes,
-        final Class<T> returnType
-    ) {
-        return this.call(target.split("@"), paramTypes, returnType);
-    }
-
-    public <T> T call(
-        final String target,
-        final Class<?>[] paramTypes,
-        final Class<T> returnType,
-        final Map<String, Object> args
-    ) {
-        return this.call(target.split("@"), paramTypes, returnType, args);
     }
 
     public <T> T call(

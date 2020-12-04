@@ -42,7 +42,7 @@ import me.ixk.framework.annotations.RepeatItem;
  */
 public class AnnotationUtils {
 
-    private static final SoftSimpleCache<AnnotatedElement, Map<Class<? extends Annotation>, List<Annotation>>> MERGED_ANNOTATION_CACHE = new SoftSimpleCache<>();
+    private static final SoftCache<AnnotatedElement, Map<Class<? extends Annotation>, List<Annotation>>> MERGED_ANNOTATION_CACHE = new SoftCache<>();
 
     private static final Comparator<Object> ORDER_ANNOTATION_COMPARATOR = (o1, o2) -> {
         Integer or1 = getAnnotation((AnnotatedElement) o1)

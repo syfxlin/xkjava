@@ -8,10 +8,11 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.SoftSimpleCache;
+import me.ixk.framework.utils.SoftCache;
 
 /**
  * 切面管理器
@@ -23,37 +24,46 @@ import me.ixk.framework.utils.SoftSimpleCache;
  */
 public class AspectManager {
 
-    private static final SoftSimpleCache<Method, List<Advice>> METHOD_CACHE = new SoftSimpleCache<>();
+    private static final SoftCache<Method, List<Advice>> METHOD_CACHE = new SoftCache<>();
     /**
      * 所有的切面列表
      */
-    private final List<AdviceEntry> adviceList = new ArrayList<>();
+    private final List<AdviceEntry> adviceList = new CopyOnWriteArrayList<>();
     private final XkJava app;
 
     public AspectManager(XkJava app) {
         this.app = app;
     }
 
-    public synchronized void addAdvice(
+    public void addAdvice(
         AspectPointcut pointcut,
         Class<? extends Advice> advice
     ) {
         adviceList.add(new AdviceEntry(pointcut, advice));
     }
 
-    public synchronized List<Advice> getAdvices(Method method) {
+    public List<Advice> getAdvices(Method method) {
         List<Advice> cache = METHOD_CACHE.get(method);
         if (cache != null) {
             return cache;
-        }
-        List<Advice> list = new ArrayList<>();
-        for (AdviceEntry entry : adviceList) {
-            if (entry.getPointcut().matches(method)) {
-                list.add(this.app.make(entry.getAdvice()));
+        } else {
+            synchronized (METHOD_CACHE) {
+                cache = METHOD_CACHE.get(method);
+                if (cache != null) {
+                    return cache;
+                }
             }
         }
-        METHOD_CACHE.put(method, list);
-        return list;
+        synchronized (METHOD_CACHE) {
+            List<Advice> list = new ArrayList<>();
+            for (AdviceEntry entry : adviceList) {
+                if (entry.getPointcut().matches(method)) {
+                    list.add(this.app.make(entry.getAdvice()));
+                }
+            }
+            METHOD_CACHE.put(method, list);
+            return list;
+        }
     }
 
     public boolean matches(Class<?> clazz) {

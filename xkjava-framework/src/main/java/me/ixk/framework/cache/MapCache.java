@@ -4,8 +4,8 @@
 
 package me.ixk.framework.cache;
 
-import cn.hutool.core.lang.SimpleCache;
 import me.ixk.framework.utils.Convert;
+import me.ixk.framework.utils.WeakCache;
 
 /**
  * 弱引用缓存
@@ -13,11 +13,12 @@ import me.ixk.framework.utils.Convert;
  * @author Otstar Lin
  * @date 2020/11/27 下午 1:48
  */
-public class SimpleCacheCache implements Cache {
-    private final SimpleCache<Object, Object> caches = new SimpleCache<>();
+public class MapCache implements Cache {
+
+    private final WeakCache<Object, Object> caches = new WeakCache<>();
     private final String name;
 
-    public SimpleCacheCache(String name) {
+    public MapCache(final String name) {
         this.name = name;
     }
 
@@ -32,17 +33,17 @@ public class SimpleCacheCache implements Cache {
     }
 
     @Override
-    public <T> T get(Object key, Class<T> returnType) {
+    public <T> T get(final Object key, final Class<T> returnType) {
         return Convert.convert(returnType, this.caches.get(key));
     }
 
     @Override
-    public void put(Object key, Object value) {
+    public void put(final Object key, final Object value) {
         this.caches.put(key, value);
     }
 
     @Override
-    public void evict(Object key) {
+    public void evict(final Object key) {
         this.caches.remove(key);
     }
 

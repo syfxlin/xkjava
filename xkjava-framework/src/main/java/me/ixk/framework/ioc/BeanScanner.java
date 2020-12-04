@@ -4,6 +4,7 @@
 
 package me.ixk.framework.ioc;
 
+import cn.hutool.core.collection.ConcurrentHashSet;
 import cn.hutool.core.util.ReflectUtil;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -20,7 +21,7 @@ import me.ixk.framework.annotations.Conditional;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ReflectionsUtils;
-import me.ixk.framework.utils.SoftSimpleCache;
+import me.ixk.framework.utils.SoftCache;
 import org.reflections.Reflections;
 
 /**
@@ -31,10 +32,10 @@ import org.reflections.Reflections;
  */
 public class BeanScanner {
 
-    private static final SoftSimpleCache<Class<? extends Annotation>, Set<Class<?>>> CLASS_ANNOTATION_CACHE = new SoftSimpleCache<>();
-    private static final SoftSimpleCache<Class<? extends Annotation>, Set<Method>> METHOD_ANNOTATION_CACHE = new SoftSimpleCache<>();
+    private static final SoftCache<Class<? extends Annotation>, Set<Class<?>>> CLASS_ANNOTATION_CACHE = new SoftCache<>();
+    private static final SoftCache<Class<? extends Annotation>, Set<Method>> METHOD_ANNOTATION_CACHE = new SoftCache<>();
     private final XkJava app;
-    private final Set<BeanScannerDefinition> scannerDefinitions = new LinkedHashSet<>();
+    private final Set<BeanScannerDefinition> scannerDefinitions = new ConcurrentHashSet<>();
     private Reflections reflections;
 
     public BeanScanner(final XkJava app) {
@@ -45,13 +46,13 @@ public class BeanScanner {
         return app;
     }
 
-    public synchronized void addDefinition(final ComponentScan componentScan) {
+    public void addDefinition(final ComponentScan componentScan) {
         this.scannerDefinitions.add(
                 new BeanScannerDefinition(this, componentScan)
             );
     }
 
-    public synchronized void addDefinition(final String[] scanPackages) {
+    public void addDefinition(final String[] scanPackages) {
         this.scannerDefinitions.add(
                 new BeanScannerDefinition(this, scanPackages)
             );
@@ -59,20 +60,27 @@ public class BeanScanner {
 
     public Reflections getReflections() {
         if (this.reflections == null) {
-            final Set<String> packages = new LinkedHashSet<>();
-            Predicate<String> predicate = null;
-            for (final BeanScannerDefinition definition : this.scannerDefinitions) {
-                packages.addAll(Arrays.asList(definition.getScanPackages()));
-                predicate =
-                    predicate == null
-                        ? definition.getFilter()
-                        : predicate.and(definition.getFilter());
+            synchronized (this) {
+                if (this.reflections != null) {
+                    return this.reflections;
+                }
+                final Set<String> packages = new LinkedHashSet<>();
+                Predicate<String> predicate = null;
+                for (final BeanScannerDefinition definition : this.scannerDefinitions) {
+                    packages.addAll(
+                        Arrays.asList(definition.getScanPackages())
+                    );
+                    predicate =
+                        predicate == null
+                            ? definition.getFilter()
+                            : predicate.and(definition.getFilter());
+                }
+                this.reflections =
+                    ReflectionsUtils.make(
+                        packages.toArray(String[]::new),
+                        predicate
+                    );
             }
-            this.reflections =
-                ReflectionsUtils.make(
-                    packages.toArray(String[]::new),
-                    predicate
-                );
         }
         return this.reflections;
     }

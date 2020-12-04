@@ -5,8 +5,8 @@
 package me.ixk.framework.cache;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Map 缓存管理器
@@ -15,16 +15,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2020/11/27 下午 1:42
  */
 public class MapCacheManager implements CacheManager {
-    private final Map<String, Cache> caches = new ConcurrentHashMap<>(16);
+
+    private final ConcurrentMap<String, Cache> caches = new ConcurrentHashMap<>(
+        16
+    );
 
     @Override
     public Cache getCache(final String name) {
-        Cache cache = this.caches.get(name);
-        if (cache == null) {
-            cache = this.createMapCache(name);
-            this.setCache(cache);
-        }
-        return cache;
+        return this.caches.computeIfAbsent(name, this::createMapCache);
     }
 
     @Override
@@ -43,6 +41,6 @@ public class MapCacheManager implements CacheManager {
     }
 
     protected Cache createMapCache(final String name) {
-        return new SimpleCacheCache(name);
+        return new MapCache(name);
     }
 }

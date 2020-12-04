@@ -26,7 +26,7 @@ import org.objectweb.asm.Type;
  */
 public class ParameterNameDiscoverer {
 
-    protected static final SoftSimpleCache<Executable, String[]> PARAMETER_CACHE = new SoftSimpleCache<>();
+    protected static final SoftCache<Executable, String[]> PARAMETER_CACHE = new SoftCache<>();
 
     public static String[] getMethodParamNames(Method method) {
         return getParameterNames(method);

@@ -12,12 +12,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.PostConstruct;
 import me.ixk.framework.annotations.PreDestroy;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.utils.MergedAnnotation;
-import me.ixk.framework.utils.SoftSimpleCache;
+import me.ixk.framework.utils.SoftCache;
 
 /**
  * Binding
@@ -27,7 +28,7 @@ import me.ixk.framework.utils.SoftSimpleCache;
  */
 public class Binding {
 
-    private static final SoftSimpleCache<Class<?>, BindingInfos> CACHE = new SoftSimpleCache<>();
+    private static final SoftCache<Class<?>, BindingInfos> CACHE = new SoftCache<>();
 
     private final Context context;
     private volatile Wrapper wrapper;
@@ -70,44 +71,44 @@ public class Binding {
     @SuppressWarnings("unchecked")
     private void init() {
         if (instanceType != null) {
-            final BindingInfos cache = CACHE.get(instanceType);
-            if (cache != null) {
-                this.bindingInfos = cache;
-                return;
-            } else {
-                this.bindingInfos = new BindingInfos();
-            }
-            // Fields
-            this.bindingInfos.setFieldEntries(
-                    Arrays
-                        .stream(instanceType.getDeclaredFields())
-                        .map(AnnotatedEntry::new)
-                        .toArray(AnnotatedEntry[]::new)
+            this.bindingInfos =
+                CACHE.computeIfAbsent(
+                    instanceType,
+                    type -> {
+                        BindingInfos infos = new BindingInfos();
+                        // Fields
+                        infos.setFieldEntries(
+                            Arrays
+                                .stream(instanceType.getDeclaredFields())
+                                .map(AnnotatedEntry::new)
+                                .toArray(AnnotatedEntry[]::new)
+                        );
+                        // Methods
+                        infos.setMethodEntries(
+                            Arrays
+                                .stream(instanceType.getDeclaredMethods())
+                                .map(AnnotatedEntry::new)
+                                .toArray(AnnotatedEntry[]::new)
+                        );
+                        // InitMethod, DestroyMethod, AutowiredMethod
+                        final List<Method> autowiredMethods = new ArrayList<>();
+                        for (AnnotatedEntry<Method> entry : infos.getMethodEntries()) {
+                            final Method method = entry.getElement();
+                            final MergedAnnotation annotation = entry.getAnnotation();
+                            if (annotation.hasAnnotation(PostConstruct.class)) {
+                                infos.setInitMethod(method);
+                            }
+                            if (annotation.hasAnnotation(PreDestroy.class)) {
+                                infos.setDestroyMethod(method);
+                            }
+                            if (annotation.hasAnnotation(Autowired.class)) {
+                                autowiredMethods.add(method);
+                            }
+                        }
+                        infos.setAutowiredMethods(autowiredMethods);
+                        return infos;
+                    }
                 );
-            // Methods
-            this.bindingInfos.setMethodEntries(
-                    Arrays
-                        .stream(instanceType.getDeclaredMethods())
-                        .map(AnnotatedEntry::new)
-                        .toArray(AnnotatedEntry[]::new)
-                );
-            // InitMethod, DestroyMethod, AutowiredMethod
-            final List<Method> autowiredMethods = new ArrayList<>();
-            for (AnnotatedEntry<Method> entry : this.bindingInfos.getMethodEntries()) {
-                final Method method = entry.getElement();
-                final MergedAnnotation annotation = entry.getAnnotation();
-                if (annotation.hasAnnotation(PostConstruct.class)) {
-                    this.bindingInfos.setInitMethod(method);
-                }
-                if (annotation.hasAnnotation(PreDestroy.class)) {
-                    this.bindingInfos.setDestroyMethod(method);
-                }
-                if (annotation.hasAnnotation(Autowired.class)) {
-                    autowiredMethods.add(method);
-                }
-            }
-            this.bindingInfos.setAutowiredMethods(autowiredMethods);
-            CACHE.put(instanceType, this.bindingInfos);
         } else {
             this.bindingInfos = new BindingInfos();
         }
@@ -182,6 +183,23 @@ public class Binding {
         return this.bindingInfos.getMethodEntries();
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(instanceName);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Binding binding = (Binding) o;
+        return Objects.equals(instanceName, binding.instanceName);
+    }
+
     private static class BindingInfos {
 
         private volatile Method initMethod;
@@ -237,6 +255,4 @@ public class Binding {
             this.methodEntries = methodEntries;
         }
     }
-
-    private static class NoCreated {}
 }

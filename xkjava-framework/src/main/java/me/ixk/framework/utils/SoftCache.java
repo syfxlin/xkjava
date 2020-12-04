@@ -4,17 +4,17 @@
 
 package me.ixk.framework.utils;
 
-import cn.hutool.core.lang.SimpleCache;
-
 /**
  * 软引用缓存
  *
  * @author Otstar Lin
  * @date 2020/12/2 下午 12:14
  */
-public class SoftSimpleCache<K, V> extends SimpleCache<K, V> {
+public class SoftCache<K, V> extends WeakCache<K, V> {
 
-    public SoftSimpleCache() {
+    private static final long serialVersionUID = 9085585773514267688L;
+
+    public SoftCache() {
         super(new SoftHashMap<>());
     }
 }
