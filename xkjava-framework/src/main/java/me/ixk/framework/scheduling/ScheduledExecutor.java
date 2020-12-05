@@ -14,6 +14,7 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,11 +27,13 @@ import org.slf4j.LoggerFactory;
 public class ScheduledExecutor
     extends ScheduledThreadPoolExecutor
     implements AsyncTaskExecutor, ScheduledTaskExecutor {
+
     private static final Logger log = LoggerFactory.getLogger(
         ScheduledExecutor.class
     );
     private final List<CronTask> cronTasks = new ArrayList<>();
-    private final CronTimer cronTimer = new CronTimer(this, this.cronTasks);
+    private final ReentrantReadWriteLock cronTasksLock = new ReentrantReadWriteLock();
+    private final CronTimer cronTimer = new CronTimer(this);
     private final CronParser cronParser = new CronParser(
         CronDefinitionBuilder.instanceDefinitionFor(CronType.SPRING)
     );
@@ -81,8 +84,11 @@ public class ScheduledExecutor
 
     @Override
     public void scheduleCron(final CronTask cronTask) {
-        synchronized (this.cronTasks) {
+        cronTasksLock.writeLock().lock();
+        try {
             this.cronTasks.add(cronTask);
+        } finally {
+            cronTasksLock.writeLock().unlock();
         }
     }
 
@@ -101,7 +107,17 @@ public class ScheduledExecutor
             );
     }
 
+    public List<CronTask> getCronTasks() {
+        cronTasksLock.readLock().lock();
+        try {
+            return cronTasks;
+        } finally {
+            cronTasksLock.readLock().unlock();
+        }
+    }
+
     public static final class DaemonThreadFactory implements ThreadFactory {
+
         private final AtomicInteger atoInteger = new AtomicInteger(0);
 
         @Override

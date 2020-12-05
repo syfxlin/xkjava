@@ -4,8 +4,7 @@
 
 package me.ixk.framework.ioc;
 
-import java.util.Collections;
-import java.util.HashSet;
+import cn.hutool.core.collection.ConcurrentHashSet;
 import java.util.Set;
 import me.ixk.framework.annotations.Profile;
 import me.ixk.framework.aop.AspectManager;
@@ -72,9 +71,7 @@ public class XkJava extends Container {
     /**
      * 开启的功能
      */
-    private final Set<String> enableFunctions = Collections.synchronizedSet(
-        new HashSet<>()
-    );
+    private final Set<String> enableFunctions = new ConcurrentHashSet<>();
 
     /**
      * XkJava 是否已经启动

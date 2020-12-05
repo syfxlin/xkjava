@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.aop.Advice;
@@ -85,11 +84,6 @@ public class Container {
      * 注入的临时变量
      */
     private final ThreadLocal<DataBinder> dataBinder = new InheritableThreadLocal<>();
-
-    /**
-     * 读写锁
-     */
-    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public Container() {
         this.dataBinder.set(
@@ -167,7 +161,7 @@ public class Container {
 
     /* ===================== Binding ===================== */
 
-    private Binding newBinding(
+    protected Binding newBinding(
         final String name,
         final Wrapper wrapper,
         final ScopeType scopeType
@@ -180,7 +174,7 @@ public class Container {
         );
     }
 
-    private Binding newBinding(
+    protected Binding newBinding(
         final String name,
         final Object instance,
         final ScopeType scopeType
@@ -198,17 +192,13 @@ public class Container {
     }
 
     public Binding getOrDefaultBinding(final String name) {
-        return this.bindings.computeIfAbsent(
-                this.getCanonicalName(name),
-                n -> {
-                    final Binding binding =
-                        this.newBinding(n, null, ScopeType.PROTOTYPE);
-                    binding.setWrapper(
-                        (container, with) -> this.doBuild(binding)
-                    );
-                    return binding;
-                }
-            );
+        Binding binding = this.getBinding(name);
+        if (binding == null) {
+            binding = this.newBinding(name, null, ScopeType.PROTOTYPE);
+            final Binding finalBinding = binding;
+            binding.setWrapper((container, with) -> this.doBuild(finalBinding));
+        }
+        return binding;
     }
 
     public Binding getOrDefaultBinding(final Class<?> type) {
@@ -447,15 +437,10 @@ public class Container {
             bindName,
             alias
         );
-        lock.writeLock().lock();
-        try {
-            if (alias != null) {
-                this.alias(alias, bindName, overwrite);
-            }
-            return this.setBinding(bindName, binding);
-        } finally {
-            lock.writeLock().unlock();
+        if (alias != null) {
+            this.alias(alias, bindName, overwrite);
         }
+        return this.setBinding(bindName, binding);
     }
 
     protected Binding doBind(
@@ -555,55 +540,35 @@ public class Container {
         final Class<T> returnType
     ) {
         log.debug("Container make: {} - {}", instanceName, returnType);
-        Object instance;
-        Binding binding;
-        ScopeType scopeType;
-        lock.readLock().lock();
-        try {
-            binding = this.getOrDefaultBinding(instanceName);
-            scopeType = binding.getScope();
-            instance = binding.getInstance();
-            if (instance != null) {
-                return Convert.convert(returnType, instance);
-            }
-        } finally {
-            lock.readLock().unlock();
+        Binding binding = this.getOrDefaultBinding(instanceName);
+        ScopeType scopeType = binding.getScope();
+        Object instance = binding.getInstance();
+        if (instance != null) {
+            return Convert.convert(returnType, instance);
         }
-        lock.writeLock().lock();
         try {
-            instance = binding.getInstance();
-            if (instance != null) {
-                return Convert.convert(returnType, instance);
-            }
             instance =
                 binding.getWrapper().getInstance(this, this.dataBinder.get());
-            final T returnInstance = Convert.convert(returnType, instance);
-            if (scopeType.isShared()) {
-                binding.setInstance(returnInstance);
-            }
-            return returnInstance;
         } catch (final Throwable e) {
             throw new ContainerException("Instance make failed", e);
-        } finally {
-            lock.writeLock().unlock();
         }
+        final T returnInstance = Convert.convert(returnType, instance);
+        if (scopeType.isShared()) {
+            binding.setInstance(returnInstance);
+        }
+        return returnInstance;
     }
 
     /* ===================== doRemove ===================== */
 
     protected Container doRemove(final String name) {
         log.debug("Container remove: {}", name);
-        lock.writeLock().lock();
-        try {
-            final Binding binding = this.getBinding(name);
-            if (binding.isCreated()) {
-                this.processBeanAfter(binding, binding.getInstance());
-                this.removeBinding(name);
-            }
-            return this;
-        } finally {
-            lock.writeLock().unlock();
+        final Binding binding = this.getBinding(name);
+        if (binding.isCreated()) {
+            this.processBeanAfter(binding, binding.getInstance());
+            this.removeBinding(name);
         }
+        return this;
     }
 
     /* ===================== callMethod =============== */
@@ -614,17 +579,12 @@ public class Container {
         final Class<T> returnType
     ) {
         log.debug("Container call method: {} - {}", method, returnType);
-        lock.readLock().lock();
-        try {
-            final Object[] dependencies =
-                this.processParameterInjector(null, method);
-            return Convert.convert(
-                returnType,
-                ReflectUtil.invoke(instance, method, dependencies)
-            );
-        } finally {
-            lock.readLock().unlock();
-        }
+        final Object[] dependencies =
+            this.processParameterInjector(null, method);
+        return Convert.convert(
+            returnType,
+            ReflectUtil.invoke(instance, method, dependencies)
+        );
     }
 
     protected <T> T callMethod(

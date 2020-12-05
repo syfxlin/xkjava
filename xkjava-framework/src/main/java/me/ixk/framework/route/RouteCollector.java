@@ -133,11 +133,7 @@ public class RouteCollector {
         this.addRoute(new String[] { httpMethod }, route, handler);
     }
 
-    public synchronized void addRoute(
-        String[] httpMethods,
-        String route,
-        Method handler
-    ) {
+    public void addRoute(String[] httpMethods, String route, Method handler) {
         route = this.routeGroupPrefix + route;
         RouteData routeData = this.routeParser.parse(route);
         log.debug("Add Route: {}", routeData);
@@ -240,9 +236,7 @@ public class RouteCollector {
         return this.addGroup(prefix, routeDefinition);
     }
 
-    public synchronized RouteCollector middleware(
-        Class<? extends Middleware> middleware
-    ) {
+    public RouteCollector middleware(Class<? extends Middleware> middleware) {
         log.debug("Add Middleware: {}", middleware);
         this.middleware.add(middleware);
         return this;

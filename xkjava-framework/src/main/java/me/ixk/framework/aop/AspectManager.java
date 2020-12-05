@@ -43,27 +43,18 @@ public class AspectManager {
     }
 
     public List<Advice> getAdvices(Method method) {
-        List<Advice> cache = METHOD_CACHE.get(method);
-        if (cache != null) {
-            return cache;
-        } else {
-            synchronized (METHOD_CACHE) {
-                cache = METHOD_CACHE.get(method);
-                if (cache != null) {
-                    return cache;
+        return METHOD_CACHE.computeIfAbsent(
+            method,
+            m -> {
+                List<Advice> list = new ArrayList<>();
+                for (AdviceEntry entry : adviceList) {
+                    if (entry.getPointcut().matches(m)) {
+                        list.add(this.app.make(entry.getAdvice()));
+                    }
                 }
+                return list;
             }
-        }
-        synchronized (METHOD_CACHE) {
-            List<Advice> list = new ArrayList<>();
-            for (AdviceEntry entry : adviceList) {
-                if (entry.getPointcut().matches(method)) {
-                    list.add(this.app.make(entry.getAdvice()));
-                }
-            }
-            METHOD_CACHE.put(method, list);
-            return list;
-        }
+        );
     }
 
     public boolean matches(Class<?> clazz) {
