@@ -10,7 +10,7 @@ import me.ixk.framework.annotations.PropertySources;
 import me.ixk.framework.annotations.PropertyValue;
 import me.ixk.framework.annotations.Value;
 import me.ixk.framework.config.ClassProperty;
-import me.ixk.framework.config.PropertyResolver;
+import me.ixk.framework.ioc.PropertyResolver;
 
 /**
  * @author Otstar Lin

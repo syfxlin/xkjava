@@ -4,11 +4,11 @@
 
 package me.ixk.framework.config;
 
+import cn.hutool.core.codec.Base64;
 import java.util.Map;
 import me.ixk.framework.annotations.ConfigurationProperties;
 import me.ixk.framework.annotations.PropertyValue;
-import me.ixk.framework.config.PropertyResolver.StringMapResolver;
-import me.ixk.framework.utils.Base64;
+import me.ixk.framework.ioc.PropertyResolver.StringMapResolver;
 
 /**
  * 加密配置文件
@@ -22,7 +22,7 @@ public class CryptProperties {
     private String key;
 
     @PropertyValue(skip = true)
-    private String decodeKey;
+    private byte[] decodeKey;
 
     @PropertyValue(name = "crypt.algo", defaultValue = "AES/CBC/PKCS5PADDING")
     private String cryptAlgo;
@@ -71,7 +71,7 @@ public class CryptProperties {
         this.hashDefaultPayload = hashDefaultPayload;
     }
 
-    public String getDecodeKey() {
+    public byte[] getDecodeKey() {
         if (decodeKey == null) {
             decodeKey = Base64.decode(key);
         }

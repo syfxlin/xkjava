@@ -4,6 +4,9 @@
 
 package me.ixk.framework.utils;
 
+import cn.hutool.core.codec.Base64;
+import cn.hutool.core.util.StrUtil;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,13 +24,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2020/10/14 下午 5:03
  */
 public class Jwt {
-    protected String key;
 
-    protected String algo;
-
-    protected Map<String, String> defaultPayload;
-
-    protected static final Set<String> SUPPORTED;
+    private static final Set<String> SUPPORTED;
+    private final byte[] key;
+    private final String algo;
+    private final Map<String, String> defaultPayload;
 
     static {
         SUPPORTED = new HashSet<>();
@@ -36,11 +37,11 @@ public class Jwt {
         SUPPORTED.add("SHA512");
     }
 
-    public Jwt(String key, String algo) {
+    public Jwt(byte[] key, String algo) {
         this(key, algo, null);
     }
 
-    public Jwt(String key, String algo, Map<String, String> defaultPayload) {
+    public Jwt(byte[] key, String algo, Map<String, String> defaultPayload) {
         this.key = key;
         this.algo = algo;
         this.defaultPayload = defaultPayload;
@@ -54,11 +55,11 @@ public class Jwt {
         return this.sign(token, raw, this.key, this.algo);
     }
 
-    public String sign(String token, boolean raw, String key) {
+    public String sign(String token, boolean raw, byte[] key) {
         return this.sign(token, raw, key, this.algo);
     }
 
-    public String sign(String token, boolean raw, String key, String algo) {
+    public String sign(String token, boolean raw, byte[] key, String algo) {
         String sign = Mac.make("Hmac" + algo, token, key, true);
         return raw ? sign : Base64.encode(sign);
     }
@@ -71,7 +72,7 @@ public class Jwt {
         return this.verify(token, sign, raw, this.key, this.algo);
     }
 
-    public boolean verify(String token, String sign, boolean raw, String key) {
+    public boolean verify(String token, String sign, boolean raw, byte[] key) {
         return this.verify(token, sign, raw, key, this.algo);
     }
 
@@ -79,10 +80,13 @@ public class Jwt {
         String token,
         String sign,
         boolean raw,
-        String key,
+        byte[] key,
         String algo
     ) {
-        token = raw ? token : Base64.decode(token);
+        token =
+            raw
+                ? token
+                : StrUtil.str(Base64.decode(token), StandardCharsets.UTF_8);
         return this.sign(token, raw, key, algo).equals(sign);
     }
 
@@ -90,19 +94,19 @@ public class Jwt {
         return this.encode(payload, 86400, "Jwt", this.key, this.algo);
     }
 
-    public String encode(Map<String, String> payload, int exp) {
+    public String encode(Map<String, String> payload, long exp) {
         return this.encode(payload, exp, "Jwt", this.key, this.algo);
     }
 
-    public String encode(Map<String, String> payload, int exp, String type) {
+    public String encode(Map<String, String> payload, long exp, String type) {
         return this.encode(payload, exp, type, this.key, this.algo);
     }
 
     public String encode(
         Map<String, String> payload,
-        int exp,
+        long exp,
         String type,
-        String key
+        byte[] key
     ) {
         return this.encode(payload, exp, type, key, this.algo);
     }
@@ -111,10 +115,10 @@ public class Jwt {
         Map<String, String> payload,
         long exp,
         String type,
-        String key,
+        byte[] key,
         String algo
     ) {
-        long timestamp = System.currentTimeMillis();
+        long timestamp = System.currentTimeMillis() / 1000L;
         Map<String, String> header = new ConcurrentHashMap<>();
         header.put("alg", algo);
         header.put("typ", type);
@@ -144,32 +148,35 @@ public class Jwt {
         return this.decode(token, this.key, this.algo);
     }
 
-    public Map<String, String> decode(String token, String key) {
+    public Map<String, String> decode(String token, byte[] key) {
         return this.decode(token, key, this.algo);
     }
 
     @SuppressWarnings("unchecked")
-    public Map<String, String> decode(String token, String key, String algo) {
-        long timestamp = System.currentTimeMillis();
+    public Map<String, String> decode(String token, byte[] key, String algo) {
+        long timestamp = System.currentTimeMillis() / 1000L;
         String[] deArray = token.split("\\.");
         if (deArray.length < 3) {
             throw new RuntimeException("Error segments count");
         }
         Map<String, String> header = Json.parse(
-            Base64.decode(deArray[0]),
+            StrUtil.str(Base64.decode(deArray[0]), StandardCharsets.UTF_8),
             Map.class
         );
         if (header == null) {
             throw new RuntimeException("Invalid header encoding");
         }
         Map<String, String> payload = Json.parse(
-            Base64.decode(deArray[1]),
+            StrUtil.str(Base64.decode(deArray[1]), StandardCharsets.UTF_8),
             Map.class
         );
         if (payload == null) {
             throw new RuntimeException("Invalid payload encoding");
         }
-        String sign = Base64.decode(deArray[2]);
+        String sign = StrUtil.str(
+            Base64.decode(deArray[2]),
+            StandardCharsets.UTF_8
+        );
         if (
             !header.containsKey("alg") || SUPPORTED.contains(header.get("alg"))
         ) {

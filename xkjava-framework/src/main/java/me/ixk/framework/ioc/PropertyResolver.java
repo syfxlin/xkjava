@@ -2,10 +2,11 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.config;
+package me.ixk.framework.ioc;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.config.ClassProperty;
 
 /**
  * 属性解析器

@@ -4,6 +4,8 @@
 
 package me.ixk.framework.utils;
 
+import cn.hutool.core.codec.Base64;
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
@@ -22,24 +24,45 @@ import javax.crypto.spec.SecretKeySpec;
  * @date 2020/10/14 下午 5:02
  */
 public class Crypt {
+
     private final byte[] key;
 
     private final Cipher cipher;
 
-    public Crypt(String key)
+    public Crypt(byte[] key)
         throws NoSuchAlgorithmException, NoSuchPaddingException {
         this(key, "AES/CBC/PKCS5PADDING");
     }
 
-    public Crypt(String key, String cipher)
+    public Crypt(byte[] key, String cipher)
         throws NoSuchPaddingException, NoSuchAlgorithmException {
-        this.key = key.getBytes(StandardCharsets.ISO_8859_1);
+        this.key = key;
         this.cipher = Cipher.getInstance(cipher);
+    }
+
+    public static byte[] generateKey() {
+        return generateRandom(256);
+    }
+
+    public static byte[] generateIv() {
+        return generateRandom(128);
+    }
+
+    public static byte[] generateRandom(int length) {
+        KeyGenerator generator;
+        try {
+            generator = KeyGenerator.getInstance("AES");
+            generator.init(length);
+            SecretKey key = generator.generateKey();
+            return key.getEncoded();
+        } catch (NoSuchAlgorithmException e) {
+            return null;
+        }
     }
 
     public String encrypt(String value) {
         try {
-            IvParameterSpec iv = new IvParameterSpec(this.generateIv());
+            IvParameterSpec iv = new IvParameterSpec(generateIv());
             SecretKeySpec aesKeySpec = new SecretKeySpec(key, "AES");
 
             cipher.init(Cipher.ENCRYPT_MODE, aesKeySpec, iv);
@@ -66,14 +89,14 @@ public class Crypt {
 
     public String decrypt(String encrypted) {
         try {
-            ObjectNode payload = Json.parseObject(Base64.decode(encrypted));
+            ObjectNode payload = Json.parseObject(
+                StrUtil.str(Base64.decode(encrypted), StandardCharsets.UTF_8)
+            );
             if (!this.vaild(Objects.requireNonNull(payload))) {
                 return null;
             }
             IvParameterSpec iv = new IvParameterSpec(
-                Base64
-                    .decode(payload.get("iv").asText())
-                    .getBytes(StandardCharsets.ISO_8859_1)
+                Base64.decode(payload.get("iv").asText())
             );
             SecretKeySpec aesKeySpec = new SecretKeySpec(key, "AES");
             cipher.init(Cipher.DECRYPT_MODE, aesKeySpec, iv);
@@ -97,7 +120,7 @@ public class Crypt {
         ) {
             return false;
         }
-        if (Base64.decode(payload.get("iv").asText()).length() != 16) {
+        if (Base64.decode(payload.get("iv").asText()).length != 16) {
             return false;
         }
         return payload
@@ -110,25 +133,5 @@ public class Crypt {
                     key
                 )
             );
-    }
-
-    public byte[] generateKey() {
-        return this.generateRandom(256);
-    }
-
-    public byte[] generateIv() {
-        return this.generateRandom(128);
-    }
-
-    public byte[] generateRandom(int length) {
-        KeyGenerator generator;
-        try {
-            generator = KeyGenerator.getInstance("AES");
-            generator.init(length);
-            SecretKey key = generator.generateKey();
-            return key.getEncoded();
-        } catch (NoSuchAlgorithmException e) {
-            return null;
-        }
     }
 }

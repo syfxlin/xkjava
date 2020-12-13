@@ -8,7 +8,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.config.PropertyResolver;
+import me.ixk.framework.ioc.PropertyResolver;
 
 /**
  * 属性配置
