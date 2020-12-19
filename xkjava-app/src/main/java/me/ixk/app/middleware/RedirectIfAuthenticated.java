@@ -13,17 +13,23 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Middleware;
-import me.ixk.framework.middleware.Runner;
+import me.ixk.framework.middleware.MiddlewareChain;
+import me.ixk.framework.route.RouteInfo;
 
 @RouteMiddleware(name = "guest")
 @Order(Order.MEDIUM_PRECEDENCE)
 public class RedirectIfAuthenticated implements Middleware {
 
     @Override
-    public Response handle(final Request request, final Runner next) {
+    public Object handle(
+        Request request,
+        Response response,
+        MiddlewareChain next,
+        RouteInfo info
+    ) {
         if (XkJava.of().make(Auth.class).check()) {
             return response().redirect("/home");
         }
-        return next.handle(request);
+        return next.handle(request, response);
     }
 }

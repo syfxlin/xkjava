@@ -11,6 +11,7 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.route.RouteInfo;
 
 /**
  * 添加队列 Cookie 到 Response
@@ -23,14 +24,20 @@ import me.ixk.framework.ioc.XkJava;
 public class AddQueuedCookies implements Middleware {
 
     @Override
-    public Response handle(Request request, Runner next) {
-        Response response = next.handle(request);
+    public Object handle(
+        Request request,
+        Response response,
+        MiddlewareChain next,
+        RouteInfo info
+    ) {
+        Object value = next.handle(request, response);
         SetCookie[] cookies = XkJava
             .of()
             .make(CookieManager.class)
             .getQueues()
             .values()
             .toArray(SetCookie[]::new);
-        return response.cookies(cookies);
+        response.cookies(cookies);
+        return value;
     }
 }

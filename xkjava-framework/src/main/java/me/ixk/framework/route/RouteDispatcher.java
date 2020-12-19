@@ -19,13 +19,14 @@ import me.ixk.framework.http.HttpMethod;
  */
 @Component(name = "routeDispatcher")
 public class RouteDispatcher {
+
     private final RouteCollector collector;
 
     public RouteDispatcher(RouteCollector routeCollector) {
         this.collector = routeCollector;
     }
 
-    public RouteResult dispatch(String httpMethod, String url) {
+    public RouteInfo dispatch(String httpMethod, String url) {
         final Map<String, Map<String, RouteHandler>> staticRoutes =
             this.collector.getStaticRoutes();
         final Map<String, MergeRouteData> variableRoutes =
@@ -33,7 +34,7 @@ public class RouteDispatcher {
         boolean methodInStatic = staticRoutes.containsKey(httpMethod);
         boolean methodInVariable = variableRoutes.containsKey(httpMethod);
         if (methodInStatic && staticRoutes.get(httpMethod).containsKey(url)) {
-            return new RouteResult(
+            return new RouteInfo(
                 RouteStatus.FOUND,
                 staticRoutes.get(httpMethod).get(url),
                 url
@@ -41,8 +42,7 @@ public class RouteDispatcher {
         }
         if (methodInVariable) {
             MergeRouteData mergeRouteData = variableRoutes.get(httpMethod);
-            RouteResult result =
-                this.dispatchVariableRoute(mergeRouteData, url);
+            RouteInfo result = this.dispatchVariableRoute(mergeRouteData, url);
             if (result.getStatus() == RouteStatus.FOUND) {
                 return result;
             }
@@ -54,7 +54,7 @@ public class RouteDispatcher {
 
         for (Map<String, RouteHandler> routeData : staticRoutes.values()) {
             if (routeData.containsKey(url)) {
-                return new RouteResult(RouteStatus.METHOD_NOT_ALLOWED);
+                return new RouteInfo(RouteStatus.METHOD_NOT_ALLOWED);
             }
         }
 
@@ -63,21 +63,21 @@ public class RouteDispatcher {
                 this.dispatchVariableRoute(routeData, url).getStatus() ==
                 RouteStatus.FOUND
             ) {
-                return new RouteResult(RouteStatus.METHOD_NOT_ALLOWED);
+                return new RouteInfo(RouteStatus.METHOD_NOT_ALLOWED);
             }
         }
 
-        return new RouteResult();
+        return new RouteInfo();
     }
 
-    private RouteResult dispatchVariableRoute(
+    private RouteInfo dispatchVariableRoute(
         MergeRouteData mergeRouteData,
         String url
     ) {
         Pattern pattern = Pattern.compile(mergeRouteData.getRegex());
         Matcher matcher = pattern.matcher(url);
         if (!matcher.find()) {
-            return new RouteResult();
+            return new RouteInfo();
         }
         int index;
         //noinspection StatementWithEmptyBody
@@ -89,7 +89,7 @@ public class RouteDispatcher {
             final String value = matcher.group(index++);
             routeParams.put(paramName, value == null ? "" : value);
         }
-        return new RouteResult(
+        return new RouteInfo(
             RouteStatus.FOUND,
             routeData.getHandler(),
             routeParams,

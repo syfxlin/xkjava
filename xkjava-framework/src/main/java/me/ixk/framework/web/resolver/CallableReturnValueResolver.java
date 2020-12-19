@@ -25,7 +25,8 @@ public class CallableReturnValueResolver
     @Override
     public boolean supportsReturnType(
         Object value,
-        MethodReturnValue returnValue
+        MethodReturnValue returnValue,
+        WebContext context
     ) {
         return value instanceof Callable;
     }

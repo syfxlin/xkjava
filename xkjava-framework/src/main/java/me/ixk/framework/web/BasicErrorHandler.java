@@ -14,6 +14,7 @@ import me.ixk.framework.http.Response;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.registry.after.WebResolverRegistry;
+import me.ixk.framework.route.RouteInfo;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 @Component(name = "basicErrorHandler")
 public class BasicErrorHandler implements Handler {
+
     private static final Logger log = LoggerFactory.getLogger(
         BasicErrorHandler.class
     );
@@ -39,7 +41,12 @@ public class BasicErrorHandler implements Handler {
     }
 
     @Override
-    public Object handle(Request request, Response response) {
+    public void before(Request request, Response response, RouteInfo result) {
+        throw new RuntimeException("BasicErrorHandler no handler");
+    }
+
+    @Override
+    public Object handle(Request request, Response response, RouteInfo info) {
         throw new RuntimeException("BasicErrorHandler no handler");
     }
 
@@ -47,7 +54,8 @@ public class BasicErrorHandler implements Handler {
     public Response afterException(
         Throwable e,
         Request request,
-        Response response
+        Response response,
+        RouteInfo info
     ) {
         if (e instanceof InvocationTargetException) {
             e = ((InvocationTargetException) e).getTargetException();
@@ -61,6 +69,16 @@ public class BasicErrorHandler implements Handler {
             throw new Exception(e);
         }
         return result;
+    }
+
+    @Override
+    public Response afterReturning(
+        Object returnValue,
+        Request request,
+        Response response,
+        RouteInfo info
+    ) {
+        throw new RuntimeException("BasicErrorHandler no handler");
     }
 
     private Response processAfterException(

@@ -21,6 +21,7 @@ import me.ixk.framework.web.BasicErrorHandler;
  */
 @Component(name = "routeManager")
 public class RouteManager {
+
     protected final XkJava app;
 
     protected final RouteParser parser;
@@ -45,15 +46,15 @@ public class RouteManager {
         final Request request,
         final Response response
     ) {
-        final RouteResult routeResult = dispatcher.dispatch(
+        final RouteInfo routeInfo = dispatcher.dispatch(
             request.method(),
             request.path()
         );
 
         // 将 Route 信息设置到 Request
-        request.setRoute(routeResult);
+        request.setRoute(routeInfo);
 
-        switch (routeResult.getStatus()) {
+        switch (routeInfo.getStatus()) {
             case NOT_FOUND:
                 this.app.make(BasicErrorHandler.class)
                     .afterException(
@@ -62,7 +63,8 @@ public class RouteManager {
                             "The URI \"" + request.url() + "\" was not found."
                         ),
                         request,
-                        response
+                        response,
+                        routeInfo
                     );
                 break;
             case METHOD_NOT_ALLOWED:
@@ -75,11 +77,12 @@ public class RouteManager {
                             "\" is not allowed."
                         ),
                         request,
-                        response
+                        response,
+                        routeInfo
                     );
                 break;
             case FOUND:
-                routeResult.getHandler().handle(routeResult, request, response);
+                routeInfo.getHandler().handle(routeInfo, request, response);
                 break;
             default:
             //

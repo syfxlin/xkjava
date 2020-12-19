@@ -11,10 +11,10 @@ import me.ixk.framework.annotations.Component;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.web.AfterHandlerExceptionResolver;
-import me.ixk.framework.web.AfterHandlerResponseResolver;
 import me.ixk.framework.web.HandlerExceptionResolver;
 import me.ixk.framework.web.RequestParameterResolver;
 import me.ixk.framework.web.RequestParametersPostResolver;
+import me.ixk.framework.web.ResponseConvertResolver;
 import me.ixk.framework.web.ResponseReturnValueResolver;
 
 /**
@@ -31,7 +31,7 @@ public class WebResolverRegistry implements AfterBeanRegistry {
     private final List<RequestParametersPostResolver> requestParametersPostResolvers = new ArrayList<>();
     private final List<HandlerExceptionResolver> handlerExceptionResolvers = new ArrayList<>();
     private final List<AfterHandlerExceptionResolver> afterHandlerExceptionResolvers = new ArrayList<>();
-    private final List<AfterHandlerResponseResolver> afterHandlerResponseResolvers = new ArrayList<>();
+    private final List<ResponseConvertResolver> responseConvertResolvers = new ArrayList<>();
 
     @Override
     @SuppressWarnings("unchecked")
@@ -92,12 +92,10 @@ public class WebResolverRegistry implements AfterBeanRegistry {
                 );
         }
         if (
-            AfterHandlerResponseResolver.class.isAssignableFrom(
-                    (Class<?>) element
-                )
+            ResponseConvertResolver.class.isAssignableFrom((Class<?>) element)
         ) {
-            this.afterHandlerResponseResolvers.add(
-                    app.make((Class<AfterHandlerResponseResolver>) element)
+            this.responseConvertResolvers.add(
+                    app.make((Class<ResponseConvertResolver>) element)
                 );
         }
     }
@@ -122,7 +120,7 @@ public class WebResolverRegistry implements AfterBeanRegistry {
         return afterHandlerExceptionResolvers;
     }
 
-    public List<AfterHandlerResponseResolver> getAfterHandlerResponseResolvers() {
-        return afterHandlerResponseResolvers;
+    public List<ResponseConvertResolver> getResponseConverters() {
+        return responseConvertResolvers;
     }
 }

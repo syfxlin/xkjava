@@ -10,7 +10,7 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.middleware.Middleware;
-import me.ixk.framework.middleware.Runner;
+import me.ixk.framework.middleware.MiddlewareChain;
 
 /**
  * 路由处理器
@@ -35,18 +35,22 @@ public class RouteHandler {
     }
 
     public Response handle(
-        final RouteResult result,
+        final RouteInfo info,
         final Request request,
         final Response response
     ) {
         try {
-            this.handler.before(result, request, response);
-            final Response value = new Runner(this.handler, this.middlewares)
+            this.handler.before(request, response, info);
+            final Object value = new MiddlewareChain(
+                this.handler,
+                this.middlewares,
+                info
+            )
             .then(request, response);
-            return this.handler.afterReturning(value, request, response);
+            return this.handler.afterReturning(value, request, response, info);
         } catch (final Throwable e) {
             final Response res =
-                this.handler.afterException(e, request, response);
+                this.handler.afterException(e, request, response, info);
             if (res != null) {
                 return res;
             }

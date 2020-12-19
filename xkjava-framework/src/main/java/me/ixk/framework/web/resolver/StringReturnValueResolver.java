@@ -41,7 +41,8 @@ public class StringReturnValueResolver implements ResponseReturnValueResolver {
     @Override
     public boolean supportsReturnType(
         final Object value,
-        final MethodReturnValue returnValue
+        final MethodReturnValue returnValue,
+        WebContext context
     ) {
         return value instanceof String;
     }

@@ -4,13 +4,14 @@
 
 package me.ixk.framework.web.resolver;
 
-import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.http.MimeType;
+import me.ixk.framework.http.Response;
+import me.ixk.framework.route.RouteInfo;
 import me.ixk.framework.utils.Json;
 import me.ixk.framework.web.MethodReturnValue;
-import me.ixk.framework.web.ResponseReturnValueResolver;
+import me.ixk.framework.web.ResponseConvertResolver;
 import me.ixk.framework.web.WebContext;
 
 /**
@@ -21,21 +22,24 @@ import me.ixk.framework.web.WebContext;
  */
 @WebResolver
 @Order(Order.LOWEST_PRECEDENCE)
-public class ObjectReturnValueResolver implements ResponseReturnValueResolver {
+public class ObjectResponseConvertResolver implements ResponseConvertResolver {
 
     @Override
-    public boolean supportsReturnType(
+    public boolean supportsConvert(
         Object value,
-        MethodReturnValue returnValue
+        MethodReturnValue returnValue,
+        WebContext context,
+        RouteInfo info
     ) {
-        return !(value instanceof HttpServletResponse);
+        return Json.make().canSerialize(value.getClass());
     }
 
     @Override
-    public Object resolveReturnValue(
+    public Response resolveConvert(
         Object value,
         MethodReturnValue returnValue,
-        WebContext context
+        WebContext context,
+        RouteInfo info
     ) {
         return context
             .getResponse()

@@ -14,6 +14,7 @@ import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
+import me.ixk.framework.route.RouteInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 @Order(Order.HIGHEST_PRECEDENCE + 4)
 public class VerifyCsrfToken implements Middleware {
+
     private static final Logger log = LoggerFactory.getLogger(
         VerifyCsrfToken.class
     );
@@ -32,16 +34,23 @@ public class VerifyCsrfToken implements Middleware {
     /**
      * 排除使用 CSRF 的 URL（正则）
      */
-    protected final String[] except = new String[] {  };
+    protected final String[] except = new String[] {};
 
     @Override
-    public Response handle(Request request, Runner next) {
+    public Object handle(
+        Request request,
+        Response response,
+        MiddlewareChain next,
+        RouteInfo info
+    ) {
         if (
             this.isReading(request) ||
             this.skipVerify(request) ||
             this.verifyToken(request)
         ) {
-            return this.setToken(request, next.handle(request));
+            final Object value = next.handle(request, response);
+            this.setToken(response);
+            return value;
         }
         log.error("CSRF Token needs to be updated");
         throw new HttpException(
@@ -90,12 +99,12 @@ public class VerifyCsrfToken implements Middleware {
         return false;
     }
 
-    protected Response setToken(Request request, Response response) {
+    protected void setToken(Response response) {
         SetCookie cookie = new SetCookie(
             "XSRF-TOKEN",
             session().token(),
             2628000
         );
-        return response.cookie(cookie);
+        response.cookie(cookie);
     }
 }

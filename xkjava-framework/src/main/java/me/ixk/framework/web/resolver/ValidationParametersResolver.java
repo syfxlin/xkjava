@@ -33,7 +33,9 @@ public class ValidationParametersResolver
     @Override
     public boolean supportsParameters(
         final Object[] parameters,
-        final MethodParameter parameter
+        final MethodParameter parameter,
+        final WebContext context,
+        final WebDataBinder binder
     ) {
         for (final MergedAnnotation annotation : parameter.getParameterAnnotations()) {
             if (annotation.hasAnnotation(Valid.class)) {

@@ -4,26 +4,31 @@
 
 package me.ixk.framework.web;
 
+import me.ixk.framework.http.Response;
+import me.ixk.framework.route.RouteInfo;
+
 /**
- * ResponseReturnValueResolver
+ * 响应转换器
  *
  * @author Otstar Lin
- * @date 2020/10/14 下午 5:20
+ * @date 2020/12/19 下午 8:06
  */
-public interface ResponseReturnValueResolver {
+public interface ResponseConvertResolver {
     /**
      * 是否支持
      *
      * @param value       返回值
      * @param returnValue 返回值信息
      * @param context     Web 上下文
+     * @param info        路由信息
      *
      * @return 是否支持
      */
-    boolean supportsReturnType(
+    boolean supportsConvert(
         Object value,
         MethodReturnValue returnValue,
-        WebContext context
+        WebContext context,
+        RouteInfo info
     );
 
     /**
@@ -32,12 +37,14 @@ public interface ResponseReturnValueResolver {
      * @param value       返回值
      * @param returnValue 返回值信息
      * @param context     Web 上下文
+     * @param info        路由信息
      *
      * @return 返回值
      */
-    Object resolveReturnValue(
+    Response resolveConvert(
         Object value,
         MethodReturnValue returnValue,
-        WebContext context
+        WebContext context,
+        RouteInfo info
     );
 }

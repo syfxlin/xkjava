@@ -16,10 +16,17 @@ public interface RequestParameterResolver {
      *
      * @param value     参数值
      * @param parameter 参数信息
+     * @param context   Web 上下文
+     * @param binder    数据绑定器
      *
      * @return 是否支持
      */
-    boolean supportsParameter(Object value, MethodParameter parameter);
+    boolean supportsParameter(
+        Object value,
+        MethodParameter parameter,
+        WebContext context,
+        WebDataBinder binder
+    );
 
     /**
      * 解析参数

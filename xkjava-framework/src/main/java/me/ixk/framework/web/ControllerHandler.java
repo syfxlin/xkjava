@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.exceptions.Exception;
+import me.ixk.framework.exceptions.ResponseException;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.ioc.DataBinder;
@@ -21,7 +22,7 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.registry.after.InitBinderRegistry;
 import me.ixk.framework.registry.after.WebResolverRegistry;
-import me.ixk.framework.route.RouteResult;
+import me.ixk.framework.route.RouteInfo;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.MergedAnnotation;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 下午 1:12
  */
 public class ControllerHandler implements Handler {
+
     private static final Logger log = LoggerFactory.getLogger(
         ControllerHandler.class
     );
@@ -63,9 +65,9 @@ public class ControllerHandler implements Handler {
 
     @Override
     public void before(
-        final RouteResult result,
         final Request request,
-        final Response response
+        final Response response,
+        final RouteInfo result
     ) {
         final RequestAttributeRegistry registry =
             this.app.make(RequestAttributeRegistry.class);
@@ -111,7 +113,11 @@ public class ControllerHandler implements Handler {
     }
 
     @Override
-    public Object handle(final Request request, final Response response) {
+    public Object handle(
+        final Request request,
+        final Response response,
+        final RouteInfo info
+    ) {
         try {
             // 实际调用路由方法
             return this.callHandler();
@@ -139,8 +145,9 @@ public class ControllerHandler implements Handler {
     @Override
     public Response afterException(
         Throwable e,
-        Request request,
-        Response response
+        final Request request,
+        final Response response,
+        final RouteInfo info
     ) {
         if (e instanceof InvocationTargetException) {
             e = ((InvocationTargetException) e).getTargetException();
@@ -154,6 +161,23 @@ public class ControllerHandler implements Handler {
             throw new Exception(e);
         }
         return result;
+    }
+
+    @Override
+    public Response afterReturning(
+        final Object returnValue,
+        final Request request,
+        final Response response,
+        final RouteInfo info
+    ) {
+        return this.processConvertResolver(
+                returnValue,
+                this.controller,
+                this.methodAnnotation,
+                this.registry,
+                this.context,
+                info
+            );
     }
 
     private void processInitBinder() {
@@ -283,7 +307,12 @@ public class ControllerHandler implements Handler {
             for (int i = 0; i < parameters.length; i++) {
                 methodParameter.setParameterIndex(i);
                 if (
-                    resolver.supportsParameter(dependencies[i], methodParameter)
+                    resolver.supportsParameter(
+                        dependencies[i],
+                        methodParameter,
+                        context,
+                        binder
+                    )
                 ) {
                     dependencies[i] =
                         resolver.resolveParameter(
@@ -297,7 +326,14 @@ public class ControllerHandler implements Handler {
         }
         methodParameter.setParameterIndex(-1);
         for (final RequestParametersPostResolver resolver : registry.getRequestParametersPostResolvers()) {
-            if (resolver.supportsParameters(dependencies, methodParameter)) {
+            if (
+                resolver.supportsParameters(
+                    dependencies,
+                    methodParameter,
+                    context,
+                    binder
+                )
+            ) {
                 dependencies =
                     resolver.resolveParameters(
                         dependencies,
@@ -339,7 +375,13 @@ public class ControllerHandler implements Handler {
             methodAnnotation
         );
         for (final ResponseReturnValueResolver resolver : registry.getResponseReturnValueResolvers()) {
-            if (resolver.supportsReturnType(returnValue, methodReturnValue)) {
+            if (
+                resolver.supportsReturnType(
+                    returnValue,
+                    methodReturnValue,
+                    context
+                )
+            ) {
                 returnValue =
                     resolver.resolveReturnValue(
                         returnValue,
@@ -349,5 +391,43 @@ public class ControllerHandler implements Handler {
             }
         }
         return returnValue;
+    }
+
+    private Response processConvertResolver(
+        Object returnValue,
+        final Object controller,
+        final MergedAnnotation methodAnnotation,
+        final WebResolverRegistry registry,
+        final WebContext context,
+        final RouteInfo info
+    ) {
+        final MethodReturnValue methodReturnValue = new MethodReturnValue(
+            controller,
+            this.controllerClass,
+            method,
+            methodAnnotation
+        );
+        for (ResponseConvertResolver converter : registry.getResponseConverters()) {
+            if (
+                converter.supportsConvert(
+                    returnValue,
+                    methodReturnValue,
+                    context,
+                    info
+                )
+            ) {
+                return converter.resolveConvert(
+                    returnValue,
+                    methodReturnValue,
+                    context,
+                    info
+                );
+            }
+        }
+        throw new ResponseException(
+            "The return value cannot be converted into a response. [" +
+            returnValue.getClass() +
+            "]"
+        );
     }
 }

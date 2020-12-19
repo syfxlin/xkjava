@@ -41,7 +41,7 @@ import javax.servlet.http.Part;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.annotations.ScopeType;
-import me.ixk.framework.route.RouteResult;
+import me.ixk.framework.route.RouteInfo;
 import me.ixk.framework.utils.DataUtils;
 import me.ixk.framework.utils.Json;
 
@@ -60,7 +60,7 @@ public class Request extends HttpServletRequestWrapper {
     protected volatile String body;
     protected volatile JsonNode parseBody = null;
     protected Map<String, Cookie> cookies;
-    protected volatile RouteResult route;
+    protected volatile RouteInfo route;
 
     /**
      * Only used cglib
@@ -115,11 +115,11 @@ public class Request extends HttpServletRequestWrapper {
         );
     }
 
-    public RouteResult getRoute() {
+    public RouteInfo getRoute() {
         return route;
     }
 
-    public Request setRoute(final RouteResult route) {
+    public Request setRoute(final RouteInfo route) {
         this.route = route;
         return this;
     }

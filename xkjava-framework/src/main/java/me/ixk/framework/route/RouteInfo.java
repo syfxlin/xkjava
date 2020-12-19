@@ -13,7 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Otstar Lin
  * @date 2020/10/14 下午 4:52
  */
-public class RouteResult {
+public class RouteInfo {
+
     protected volatile RouteStatus status = RouteStatus.NOT_FOUND;
 
     protected volatile String route = null;
@@ -22,17 +23,17 @@ public class RouteResult {
 
     protected Map<String, String> params = null;
 
-    public RouteResult() {}
+    public RouteInfo() {}
 
-    public RouteResult(RouteStatus status) {
+    public RouteInfo(RouteStatus status) {
         this.status = status;
     }
 
-    public RouteResult(RouteStatus status, RouteHandler handler, String route) {
+    public RouteInfo(RouteStatus status, RouteHandler handler, String route) {
         this(status, handler, new ConcurrentHashMap<>(), route);
     }
 
-    public RouteResult(
+    public RouteInfo(
         RouteStatus status,
         RouteHandler handler,
         Map<String, String> params,

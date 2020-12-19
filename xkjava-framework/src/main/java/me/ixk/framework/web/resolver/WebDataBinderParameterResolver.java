@@ -29,6 +29,7 @@ import me.ixk.framework.web.WebDataBinder;
 @Order(Order.LOWEST_PRECEDENCE)
 public class WebDataBinderParameterResolver
     implements RequestParameterResolver {
+
     private static final Set<Class<?>> SKIP_TYPES = new HashSet<>(
         Arrays.asList(ValidResult.class, ValidGroup.class)
     );
@@ -36,7 +37,9 @@ public class WebDataBinderParameterResolver
     @Override
     public boolean supportsParameter(
         final Object value,
-        final MethodParameter parameter
+        final MethodParameter parameter,
+        WebContext context,
+        WebDataBinder binder
     ) {
         if (SKIP_TYPES.contains(parameter.getParameterType())) {
             return false;
