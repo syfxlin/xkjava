@@ -118,7 +118,12 @@ public class Container {
 
     public void registerContext(final Context context) {
         final Class<? extends Context> contextType = context.getClass();
-        log.debug("Container registered context: {}", contextType.getName());
+        if (log.isDebugEnabled()) {
+            log.debug(
+                "Container registered context: {}",
+                contextType.getName()
+            );
+        }
         this.contexts.put(contextType, context);
     }
 
@@ -129,7 +134,9 @@ public class Container {
 
     public void removeContext(final Context context) {
         final Class<? extends Context> contextType = context.getClass();
-        log.debug("Container remove context: {}", contextType.getName());
+        if (log.isDebugEnabled()) {
+            log.debug("Container remove context: {}", contextType.getName());
+        }
         if (context.isCreated()) {
             for (final Entry<String, Binding> entry : this.bindings.entrySet()) {
                 if (context.matchesScope(entry.getValue().getScope())) {
@@ -206,7 +213,9 @@ public class Container {
     }
 
     public Binding setBinding(final String name, final Binding binding) {
-        log.debug("Container set binding: {}", name);
+        if (log.isDebugEnabled()) {
+            log.debug("Container set binding: {}", name);
+        }
         this.bindings.put(this.getCanonicalName(name), binding);
         return binding;
     }
@@ -220,7 +229,9 @@ public class Container {
     }
 
     public void removeBinding(final String name) {
-        log.debug("Container remove binding: {}", name);
+        if (log.isDebugEnabled()) {
+            log.debug("Container remove binding: {}", name);
+        }
         this.bindings.remove(this.getCanonicalName(name));
     }
 
@@ -270,7 +281,9 @@ public class Container {
         if (alias == null || alias.equals(name)) {
             return;
         }
-        log.debug("Container add alias: {} => {}", alias, name);
+        if (log.isDebugEnabled()) {
+            log.debug("Container add alias: {} => {}", alias, name);
+        }
         if (!this.checkHasBinding(alias, overwrite)) {
             throw new IllegalStateException(
                 "Alias [" + alias + "] has contains"
@@ -280,7 +293,9 @@ public class Container {
     }
 
     public void removeAlias(final String alias) {
-        log.debug("Container remove alias: {}", alias);
+        if (log.isDebugEnabled()) {
+            log.debug("Container remove alias: {}", alias);
+        }
         this.aliases.remove(alias);
     }
 
@@ -431,12 +446,14 @@ public class Container {
         final String alias,
         final boolean overwrite
     ) {
-        log.debug(
-            "Container bind: {} - {}({})",
-            binding.getScope(),
-            bindName,
-            alias
-        );
+        if (log.isDebugEnabled()) {
+            log.debug(
+                "Container bind: {} - {}({})",
+                binding.getScope(),
+                bindName,
+                alias
+            );
+        }
         if (alias != null) {
             this.alias(alias, bindName, overwrite);
         }
@@ -490,7 +507,9 @@ public class Container {
         if (ClassUtils.isSkipBuildType(instanceType)) {
             return ClassUtil.getDefaultValue(instanceType);
         }
-        log.debug("Container build: {}", instanceType);
+        if (log.isDebugEnabled()) {
+            log.debug("Container build: {}", instanceType);
+        }
         final Constructor<?>[] constructors = ReflectUtils.sortConstructors(
             instanceType.getDeclaredConstructors()
         );
@@ -539,7 +558,9 @@ public class Container {
         final String instanceName,
         final Class<T> returnType
     ) {
-        log.debug("Container make: {} - {}", instanceName, returnType);
+        if (log.isDebugEnabled()) {
+            log.debug("Container make: {} - {}", instanceName, returnType);
+        }
         Binding binding = this.getOrDefaultBinding(instanceName);
         ScopeType scopeType = binding.getScope();
         Object instance = binding.getInstance();
@@ -562,7 +583,9 @@ public class Container {
     /* ===================== doRemove ===================== */
 
     protected Container doRemove(final String name) {
-        log.debug("Container remove: {}", name);
+        if (log.isDebugEnabled()) {
+            log.debug("Container remove: {}", name);
+        }
         final Binding binding = this.getBinding(name);
         if (binding.isCreated()) {
             this.processBeanAfter(binding, binding.getInstance());
@@ -578,7 +601,9 @@ public class Container {
         final Method method,
         final Class<T> returnType
     ) {
-        log.debug("Container call method: {} - {}", method, returnType);
+        if (log.isDebugEnabled()) {
+            log.debug("Container call method: {} - {}", method, returnType);
+        }
         final Object[] dependencies =
             this.processParameterInjector(null, method);
         return Convert.convert(
@@ -1322,19 +1347,25 @@ public class Container {
     }
 
     public Container addFirstInstanceInjector(final InstanceInjector injector) {
-        log.debug("Container add instance injector: {}", injector);
+        if (log.isDebugEnabled()) {
+            log.debug("Container add instance injector: {}", injector);
+        }
         this.instanceInjectors.addFirst(injector);
         return this;
     }
 
     public Container addInstanceInjector(final InstanceInjector injector) {
-        log.debug("Container add instance injector: {}", injector);
+        if (log.isDebugEnabled()) {
+            log.debug("Container add instance injector: {}", injector);
+        }
         this.instanceInjectors.addLast(injector);
         return this;
     }
 
     public Container removeInstanceInjector(final InstanceInjector injector) {
-        log.debug("Container remove instance injector: {}", injector);
+        if (log.isDebugEnabled()) {
+            log.debug("Container remove instance injector: {}", injector);
+        }
         this.instanceInjectors.remove(injector);
         return this;
     }
@@ -1346,19 +1377,25 @@ public class Container {
     public Container addFirstParameterInjector(
         final ParameterInjector injector
     ) {
-        log.debug("Container add parameter injector: {}", injector);
+        if (log.isDebugEnabled()) {
+            log.debug("Container add parameter injector: {}", injector);
+        }
         this.parameterInjectors.addFirst(injector);
         return this;
     }
 
     public Container addParameterInjector(final ParameterInjector injector) {
-        log.debug("Container add parameter injector: {}", injector);
+        if (log.isDebugEnabled()) {
+            log.debug("Container add parameter injector: {}", injector);
+        }
         this.parameterInjectors.addLast(injector);
         return this;
     }
 
     public Container removeParameterInjector(final ParameterInjector injector) {
-        log.debug("Container remove parameter injector: {}", injector);
+        if (log.isDebugEnabled()) {
+            log.debug("Container remove parameter injector: {}", injector);
+        }
         this.parameterInjectors.remove(injector);
         return this;
     }
@@ -1370,7 +1407,9 @@ public class Container {
     public Container addFirstBeanBeforeProcessor(
         final BeanBeforeProcessor processor
     ) {
-        log.debug("Container add bean before processor: {}", processor);
+        if (log.isDebugEnabled()) {
+            log.debug("Container add bean before processor: {}", processor);
+        }
         this.beanBeforeProcessors.addFirst(processor);
         return this;
     }
@@ -1378,7 +1417,9 @@ public class Container {
     public Container addBeanBeforeProcessor(
         final BeanBeforeProcessor processor
     ) {
-        log.debug("Container add bean before processor: {}", processor);
+        if (log.isDebugEnabled()) {
+            log.debug("Container add bean before processor: {}", processor);
+        }
         this.beanBeforeProcessors.addLast(processor);
         return this;
     }
@@ -1386,7 +1427,9 @@ public class Container {
     public Container removeBeanBeforeProcessor(
         final BeanBeforeProcessor processor
     ) {
-        log.debug("Container remove bean before processor: {}", processor);
+        if (log.isDebugEnabled()) {
+            log.debug("Container remove bean before processor: {}", processor);
+        }
         this.beanBeforeProcessors.remove(processor);
         return this;
     }
@@ -1398,13 +1441,17 @@ public class Container {
     public Container addFirstBeanAfterProcessor(
         final BeanAfterProcessor processor
     ) {
-        log.debug("Container add bean after processor: {}", processor);
+        if (log.isDebugEnabled()) {
+            log.debug("Container add bean after processor: {}", processor);
+        }
         this.beanAfterProcessors.addFirst(processor);
         return this;
     }
 
     public Container addBeanAfterProcessor(final BeanAfterProcessor processor) {
-        log.debug("Container add bean after processor: {}", processor);
+        if (log.isDebugEnabled()) {
+            log.debug("Container add bean after processor: {}", processor);
+        }
         this.beanAfterProcessors.addLast(processor);
         return this;
     }
@@ -1412,7 +1459,9 @@ public class Container {
     public Container removeBeanAfterProcessor(
         final BeanAfterProcessor processor
     ) {
-        log.debug("Container remove bean after processor: {}", processor);
+        if (log.isDebugEnabled()) {
+            log.debug("Container remove bean after processor: {}", processor);
+        }
         this.beanAfterProcessors.remove(processor);
         return this;
     }

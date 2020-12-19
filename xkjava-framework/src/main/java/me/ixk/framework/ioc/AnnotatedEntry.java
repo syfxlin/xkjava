@@ -5,6 +5,7 @@
 package me.ixk.framework.ioc;
 
 import java.lang.reflect.AnnotatedElement;
+import me.ixk.framework.annotations.Skip;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 
@@ -16,8 +17,8 @@ import me.ixk.framework.utils.MergedAnnotation;
  */
 public class AnnotatedEntry<E extends AnnotatedElement> {
 
-    private final E element;
-    private final MergedAnnotation annotation;
+    protected final E element;
+    protected final MergedAnnotation annotation;
 
     public AnnotatedEntry(final E element) {
         this.element = element;
@@ -55,7 +56,7 @@ public class AnnotatedEntry<E extends AnnotatedElement> {
         }
 
         public boolean isChanged() {
-            return changed;
+            return annotation.hasAnnotation(Skip.class) || changed;
         }
 
         public void setChanged(final boolean changed) {

@@ -51,6 +51,8 @@ public class CronTimer implements Runnable {
 
     public void stop() {
         isStop = false;
-        log.debug("CronTimer stop");
+        if (log.isDebugEnabled()) {
+            log.debug("CronTimer stop");
+        }
     }
 }

@@ -22,13 +22,16 @@ import org.slf4j.LoggerFactory;
  */
 public class RequestContext implements RequestAttributeContext {
 
-    private static final Logger log = LoggerFactory
-        .getLogger(RequestContext.class);
+    private static final Logger log = LoggerFactory.getLogger(
+        RequestContext.class
+    );
     private final ThreadLocal<HttpServletRequest> request = new InheritableThreadLocal<>();
 
     @Override
     public void removeContext() {
-        log.info("Remove request context");
+        if (log.isDebugEnabled()) {
+            log.debug("Remove request context");
+        }
         this.request.remove();
     }
 
@@ -42,7 +45,9 @@ public class RequestContext implements RequestAttributeContext {
 
     @Override
     public void setContext(final HttpServletRequest request) {
-        log.info("Set request context");
+        if (log.isDebugEnabled()) {
+            log.debug("Set request context");
+        }
         this.request.set(request);
     }
 
@@ -64,7 +69,9 @@ public class RequestContext implements RequestAttributeContext {
     @Override
     public Object get(final String name, final Class<?> returnType) {
         return ReflectUtils.proxyObjectFactory(
-            (ObjectFactory<Object>) () -> this.getNotProxy(name), returnType);
+            (ObjectFactory<Object>) () -> this.getNotProxy(name),
+            returnType
+        );
     }
 
     public Object getNotProxy(final String name) {

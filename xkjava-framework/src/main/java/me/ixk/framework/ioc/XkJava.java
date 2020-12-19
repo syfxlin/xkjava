@@ -216,17 +216,23 @@ public class XkJava extends Container {
 
         // 启动前回调
         if (this.bootingCallback != null) {
-            log.debug("Application call booting");
+            if (log.isDebugEnabled()) {
+                log.debug("Application call booting");
+            }
             this.bootedCallback.invoke(this);
         }
 
         // 通过调用 Bootstrap 注解处理器处理 Bootstrap
-        log.debug("Application process bootstrap");
+        if (log.isDebugEnabled()) {
+            log.debug("Application process bootstrap");
+        }
         this.bootstrapAnnotationProcessor.process();
 
         // 启动后回调
         if (this.bootedCallback != null) {
-            log.debug("Application call booted");
+            if (log.isDebugEnabled()) {
+                log.debug("Application call booted");
+            }
             this.bootedCallback.invoke(this);
         }
 

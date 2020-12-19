@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 @Component(name = "cookieManager")
 @Scope(type = ScopeType.REQUEST)
 public class CookieManager {
+
     private static final Logger log = LoggerFactory.getLogger(
         CookieManager.class
     );
@@ -62,7 +63,9 @@ public class CookieManager {
     /* ===================================== */
 
     public CookieManager put(SetCookie cookie) {
-        log.debug("Add cookie to queue: {}", cookie);
+        if (log.isDebugEnabled()) {
+            log.debug("Add cookie to queue: {}", cookie);
+        }
         this.cookies.put(cookie.getName(), cookie);
         return this;
     }

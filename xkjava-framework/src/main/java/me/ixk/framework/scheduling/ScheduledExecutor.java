@@ -70,14 +70,18 @@ public class ScheduledExecutor
 
     @Override
     public void shutdown() {
-        log.debug("ScheduledExecutor shutdown");
+        if (log.isDebugEnabled()) {
+            log.debug("ScheduledExecutor shutdown");
+        }
         this.cronTimer.stop();
         super.shutdown();
     }
 
     @Override
     public List<Runnable> shutdownNow() {
-        log.debug("ScheduledExecutor shutdown");
+        if (log.isDebugEnabled()) {
+            log.debug("ScheduledExecutor shutdown");
+        }
         this.cronTimer.stop();
         return super.shutdownNow();
     }

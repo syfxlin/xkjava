@@ -73,9 +73,11 @@ public class ComponentScanAnnotationProcessor
         final ComponentScan componentScan
     ) {
         this.scanner.addDefinition(componentScan);
-        log.debug(
-            "Application add base packages: {}",
-            Arrays.toString(componentScan.basePackages())
-        );
+        if (log.isDebugEnabled()) {
+            log.debug(
+                "Application add base packages: {}",
+                Arrays.toString(componentScan.basePackages())
+            );
+        }
     }
 }

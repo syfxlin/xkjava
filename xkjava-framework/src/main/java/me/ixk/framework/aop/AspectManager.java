@@ -24,6 +24,7 @@ import me.ixk.framework.utils.SoftCache;
  */
 public class AspectManager {
 
+    private static final SoftCache<Object, Boolean> MATCHES_CACHE = new SoftCache<>();
     private static final SoftCache<Method, List<Advice>> METHOD_CACHE = new SoftCache<>();
     /**
      * 所有的切面列表
@@ -58,21 +59,31 @@ public class AspectManager {
     }
 
     public boolean matches(Class<?> clazz) {
-        for (AdviceEntry entry : adviceList) {
-            if (entry.getPointcut().matches(clazz)) {
-                return true;
+        return MATCHES_CACHE.computeIfAbsent(
+            clazz,
+            c -> {
+                for (AdviceEntry entry : adviceList) {
+                    if (entry.getPointcut().matches((Class<?>) c)) {
+                        return true;
+                    }
+                }
+                return false;
             }
-        }
-        return false;
+        );
     }
 
     public boolean matches(Method method) {
-        for (AdviceEntry entry : adviceList) {
-            if (entry.getPointcut().matches(method)) {
-                return true;
+        return MATCHES_CACHE.computeIfAbsent(
+            method,
+            m -> {
+                for (AdviceEntry entry : adviceList) {
+                    if (entry.getPointcut().matches((Method) m)) {
+                        return true;
+                    }
+                }
+                return false;
             }
-        }
-        return false;
+        );
     }
 
     private static class AdviceEntry {

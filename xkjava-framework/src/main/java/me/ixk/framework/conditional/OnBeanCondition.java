@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 上午 8:55
  */
 public class OnBeanCondition implements Condition {
+
     private static final Logger log = LoggerFactory.getLogger(
         OnBeanCondition.class
     );
@@ -38,13 +39,17 @@ public class OnBeanCondition implements Condition {
             : ConditionalOnMissingBean.class;
         for (Class<?> beanType : (Class<?>[]) annotation.get(type, "value")) {
             if (!app.hasBinding(beanType)) {
-                log.debug(msg, beanType.getName());
+                if (log.isDebugEnabled()) {
+                    log.debug(msg, beanType.getName());
+                }
                 return !match;
             }
         }
         for (String beanName : (String[]) annotation.get(type, "name")) {
             if (!app.hasBinding(beanName)) {
-                log.debug(msg, beanName);
+                if (log.isDebugEnabled()) {
+                    log.debug(msg, beanName);
+                }
                 return !match;
             }
         }

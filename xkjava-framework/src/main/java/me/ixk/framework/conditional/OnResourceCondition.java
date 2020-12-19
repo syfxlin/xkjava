@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 上午 8:57
  */
 public class OnResourceCondition implements Condition {
+
     private static final Logger log = LoggerFactory.getLogger(
         OnResourceCondition.class
     );
@@ -35,7 +36,9 @@ public class OnResourceCondition implements Condition {
             "resources"
         )) {
             if (ResourceUtil.getResource(resource) == null) {
-                log.debug("Missing resource: {}", resource);
+                if (log.isDebugEnabled()) {
+                    log.debug("Missing resource: {}", resource);
+                }
                 return false;
             }
         }

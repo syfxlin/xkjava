@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 上午 8:55
  */
 public class OnClassCondition implements Condition {
+
     private static final Logger log = LoggerFactory.getLogger(
         OnClassCondition.class
     );
@@ -42,7 +43,9 @@ public class OnClassCondition implements Condition {
             try {
                 ClassUtil.loadClass(clazz.getName());
             } catch (UtilException e) {
-                log.debug(msg, clazz.getName());
+                if (log.isDebugEnabled()) {
+                    log.debug(msg, clazz.getName());
+                }
                 return !match;
             }
         }
@@ -50,7 +53,9 @@ public class OnClassCondition implements Condition {
             try {
                 ClassUtil.loadClass(name);
             } catch (UtilException e) {
-                log.debug(msg, name);
+                if (log.isDebugEnabled()) {
+                    log.debug(msg, name);
+                }
                 return !match;
             }
         }

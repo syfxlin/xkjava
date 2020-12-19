@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 上午 8:55
  */
 public class OnAttributeCondition implements Condition {
+
     private static final Logger log = LoggerFactory.getLogger(
         OnAttributeCondition.class
     );
@@ -39,7 +40,9 @@ public class OnAttributeCondition implements Condition {
             "name"
         )) {
             if (!app.hasAttribute(beanName)) {
-                log.debug(msg, beanName);
+                if (log.isDebugEnabled()) {
+                    log.debug(msg, beanName);
+                }
                 return !match;
             }
         }

@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.annotations.ScopeType;
+import me.ixk.framework.annotations.Skip;
 
 /**
  * 响应模型
@@ -23,6 +24,7 @@ public class Model extends LinkedHashMap<String, Object> {
 
     private static final long serialVersionUID = 9097159139320901236L;
 
+    @Skip
     private HttpStatus status = HttpStatus.OK;
 
     public HttpStatus getStatus() {

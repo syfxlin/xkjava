@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MybatisPlus
     implements me.ixk.framework.database.SqlSessionManager {
+
     private static final Logger log = LoggerFactory.getLogger(
         MybatisPlus.class
     );
@@ -100,7 +101,9 @@ public class MybatisPlus
 
     @Override
     public SqlSession startTransactionSession(TransactionIsolationLevel level) {
-        log.debug("Start transaction session: level {}", level);
+        if (log.isDebugEnabled()) {
+            log.debug("Start transaction session: level {}", level);
+        }
         this.sqlSessionManager.startManagedSession(level);
         return this.sqlSessionManager;
     }

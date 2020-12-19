@@ -20,14 +20,17 @@ import org.slf4j.LoggerFactory;
  */
 public class SessionContext implements SessionAttributeContext {
 
-    private static final Logger log = LoggerFactory
-        .getLogger(SessionContext.class);
+    private static final Logger log = LoggerFactory.getLogger(
+        SessionContext.class
+    );
 
     private final ThreadLocal<HttpSession> session = new InheritableThreadLocal<>();
 
     @Override
     public void removeContext() {
-        log.info("Remove session context");
+        if (log.isDebugEnabled()) {
+            log.debug("Remove session context");
+        }
         this.session.remove();
     }
 
@@ -41,7 +44,9 @@ public class SessionContext implements SessionAttributeContext {
 
     @Override
     public void setContext(final HttpSession session) {
-        log.info("Set session context");
+        if (log.isDebugEnabled()) {
+            log.debug("Set session context");
+        }
         this.session.set(session);
     }
 
@@ -63,7 +68,9 @@ public class SessionContext implements SessionAttributeContext {
     @Override
     public Object get(final String name, final Class<?> returnType) {
         return ReflectUtils.proxyObjectFactory(
-            (ObjectFactory<Object>) () -> this.getNotProxy(name), returnType);
+            (ObjectFactory<Object>) () -> this.getNotProxy(name),
+            returnType
+        );
     }
 
     public Object getNotProxy(final String name) {

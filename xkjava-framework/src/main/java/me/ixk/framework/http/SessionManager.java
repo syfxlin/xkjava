@@ -63,19 +63,25 @@ public class SessionManager {
     }
 
     public SessionManager put(String name, Object value) {
-        log.debug("Add session: {} {}", name, value);
+        if (log.isDebugEnabled()) {
+            log.debug("Add session: {} {}", name, value);
+        }
         this.session.setAttribute(name, value);
         return this;
     }
 
     public SessionManager forget(String name) {
-        log.debug("Remove session: {}", name);
+        if (log.isDebugEnabled()) {
+            log.debug("Remove session: {}", name);
+        }
         this.session.removeAttribute(name);
         return this;
     }
 
     public SessionManager forget(List<String> names) {
-        log.debug("Remove sessions: {}", String.join(",", names));
+        if (log.isDebugEnabled()) {
+            log.debug("Remove sessions: {}", String.join(",", names));
+        }
         for (String name : names) {
             this.session.removeAttribute(name);
             return this;
@@ -84,7 +90,9 @@ public class SessionManager {
     }
 
     public SessionManager flush() {
-        log.debug("Flush session");
+        if (log.isDebugEnabled()) {
+            log.debug("Flush session");
+        }
         while (this.session.getAttributeNames().hasMoreElements()) {
             String s = this.session.getAttributeNames().nextElement();
             this.session.removeAttribute(s);
