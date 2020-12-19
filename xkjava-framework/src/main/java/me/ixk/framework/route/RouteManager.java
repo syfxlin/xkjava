@@ -9,7 +9,6 @@ import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
-import me.ixk.framework.http.ResponseProcessor;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.web.BasicErrorHandler;
 
@@ -87,6 +86,6 @@ public class RouteManager {
             default:
             //
         }
-        return ResponseProcessor.dispatchResponse(response);
+        return response;
     }
 }

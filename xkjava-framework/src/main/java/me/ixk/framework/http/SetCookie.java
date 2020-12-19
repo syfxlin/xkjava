@@ -4,7 +4,6 @@
 
 package me.ixk.framework.http;
 
-import java.util.concurrent.TimeUnit;
 import javax.servlet.http.Cookie;
 
 /**
@@ -14,9 +13,6 @@ import javax.servlet.http.Cookie;
  * @date 2020/10/14 上午 10:28
  */
 public class SetCookie extends Cookie {
-    private long expiration;
-
-    private boolean encrypt = true;
 
     public SetCookie(Cookie cookie) {
         this(
@@ -87,42 +83,6 @@ public class SetCookie extends Cookie {
         this.setVersion(version);
     }
 
-    @Override
-    public void setMaxAge(int expiry) {
-        super.setMaxAge(expiry);
-        this.setExpiration();
-    }
-
-    public boolean isSecure() {
-        return this.getSecure();
-    }
-
-    private void setExpiration() {
-        int maxAge = this.getMaxAge();
-        this.expiration =
-            maxAge < 0
-                ? -1
-                : System.nanoTime() + TimeUnit.SECONDS.toNanos(maxAge);
-    }
-
-    public boolean isExpired(long timeNanos) {
-        return expiration >= 0 && timeNanos >= expiration;
-    }
-
-    public boolean isEncrypt() {
-        return encrypt;
-    }
-
-    public SetCookie setEncrypt(boolean encrypt) {
-        this.encrypt = encrypt;
-        return this;
-    }
-
-    public SetCookie encrypt(boolean encrypt) {
-        this.setEncrypt(encrypt);
-        return this;
-    }
-
     public SetCookie value(String value) {
         this.setValue(value);
         return this;
@@ -161,5 +121,37 @@ public class SetCookie extends Cookie {
     public SetCookie version(int version) {
         this.setVersion(version);
         return this;
+    }
+
+    public String value() {
+        return this.getValue();
+    }
+
+    public String domain() {
+        return this.getDomain();
+    }
+
+    public String path() {
+        return this.getPath();
+    }
+
+    public int maxAge() {
+        return this.getMaxAge();
+    }
+
+    public boolean httpOnly() {
+        return this.isHttpOnly();
+    }
+
+    public boolean secure() {
+        return this.getSecure();
+    }
+
+    public String comment() {
+        return this.getComment();
+    }
+
+    public int version() {
+        return this.getVersion();
     }
 }

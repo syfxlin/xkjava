@@ -4,8 +4,6 @@
 
 package me.ixk.framework.http;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.Cookie;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
@@ -30,47 +28,45 @@ public class CookieManager {
         CookieManager.class
     );
 
-    private Map<String, Cookie> requestCookies;
-
-    private Map<String, SetCookie> cookies;
+    private final Request request;
+    private final Response response;
 
     /**
      * Only used cglib
      */
     @Deprecated
-    public CookieManager() {}
+    public CookieManager() {
+        this(null, null);
+    }
 
-    public CookieManager(Request request) {
-        this.requestCookies = new ConcurrentHashMap<>();
-        for (Cookie cookie : request.getCookies()) {
-            this.requestCookies.put(cookie.getName(), cookie);
-        }
-        this.cookies = new ConcurrentHashMap<>();
+    public CookieManager(Request request, Response response) {
+        this.request = request;
+        this.response = response;
     }
 
     public boolean has(String name) {
-        return this.requestCookies.containsKey(name);
+        return this.request.hasCookie(name);
     }
 
     public Cookie get(String name) {
-        return this.requestCookies.get(name);
+        return this.request.cookie(name);
     }
 
     public Cookie get(String name, Cookie defaultValue) {
-        return this.requestCookies.getOrDefault(name, defaultValue);
+        return this.request.cookie(name, defaultValue);
     }
 
     /* ===================================== */
 
-    public CookieManager put(SetCookie cookie) {
+    public CookieManager put(Cookie cookie) {
         if (log.isDebugEnabled()) {
             log.debug("Add cookie to queue: {}", cookie);
         }
-        this.cookies.put(cookie.getName(), cookie);
+        this.response.cookie(cookie);
         return this;
     }
 
-    public CookieManager forever(SetCookie cookie) {
+    public CookieManager forever(Cookie cookie) {
         cookie.setMaxAge(157788000);
         this.put(cookie);
         return this;
@@ -83,29 +79,8 @@ public class CookieManager {
         return this;
     }
 
-    public boolean hasQueue(String name) {
-        return this.cookies.containsKey(name);
-    }
-
-    public CookieManager unqueue(String name) {
-        this.cookies.remove(name);
-        return this;
-    }
-
     public CookieManager queue(SetCookie cookie) {
         this.put(cookie);
         return this;
-    }
-
-    public SetCookie queued(String name) {
-        return this.queued(name, null);
-    }
-
-    public SetCookie queued(String name, SetCookie cookie) {
-        return this.cookies.getOrDefault(name, cookie);
-    }
-
-    public Map<String, SetCookie> getQueues() {
-        return this.cookies;
     }
 }

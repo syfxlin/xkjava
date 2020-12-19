@@ -21,6 +21,7 @@ import me.ixk.framework.ioc.XkJava;
  * @date 2020/10/14 上午 9:10
  */
 public abstract class AbstractHttpResult implements Renderable {
+
     private final Response response = XkJava.of().make(Response.class);
 
     public final Response getResponse() {

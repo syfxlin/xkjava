@@ -6,7 +6,6 @@ package me.ixk.framework.http;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -30,8 +29,8 @@ import me.ixk.framework.utils.Json;
 @Component(name = { "response", "javax.servlet.http.HttpServletResponse" })
 @Scope(type = ScopeType.REQUEST)
 public class Response extends HttpServletResponseWrapper {
+
     private static final HttpServletResponse EMPTY = new EmptyResponse();
-    protected final List<SetCookie> cookies = new ArrayList<>();
 
     /**
      * Only used cglib
@@ -134,22 +133,12 @@ public class Response extends HttpServletResponseWrapper {
     }
 
     public Response cookie(Cookie cookie) {
-        return this.cookie(
-                cookie.getName(),
-                cookie.getValue(),
-                cookie.getDomain(),
-                cookie.getPath(),
-                cookie.getMaxAge(),
-                cookie.getComment(),
-                cookie.isHttpOnly(),
-                cookie.getSecure(),
-                cookie.getVersion()
-            );
+        this.addCookie(cookie);
+        return this;
     }
 
     public Response cookie(SetCookie cookie) {
-        this.cookies.add(cookie);
-        return this;
+        return this.cookie((Cookie) cookie);
     }
 
     public Response cookie(
@@ -163,19 +152,16 @@ public class Response extends HttpServletResponseWrapper {
         boolean isSecure,
         int version
     ) {
-        final SetCookie cookie = new SetCookie(
-            name,
-            value,
-            domain,
-            path,
-            maxAge,
-            isHttpOnly,
-            isSecure,
-            comment,
-            version
-        );
-        this.cookies.add(cookie);
-        return this;
+        return this.cookie(
+                new SetCookie(name, value)
+                    .domain(domain)
+                    .path(path)
+                    .maxAge(maxAge)
+                    .comment(comment)
+                    .httpOnly(isHttpOnly)
+                    .secure(isSecure)
+                    .version(version)
+            );
     }
 
     public Response cookies(Collection<SetCookie> cookies) {
@@ -196,38 +182,6 @@ public class Response extends HttpServletResponseWrapper {
         for (Cookie cookie : cookies) {
             this.cookie(cookie);
         }
-        return this;
-    }
-
-    public Response pushCookieToHeader() {
-        for (SetCookie cookie : this.cookies) {
-            super.addCookie(cookie);
-        }
-        this.cookies.clear();
-        return this;
-    }
-
-    @Override
-    public void addCookie(Cookie cookie) {
-        this.cookie(cookie);
-    }
-
-    public List<SetCookie> getCookies() {
-        return cookies;
-    }
-
-    public Response setRedirect(int code, String location) {
-        if (
-            (code < HttpServletResponse.SC_MULTIPLE_CHOICES) ||
-            (code >= HttpServletResponse.SC_BAD_REQUEST)
-        ) {
-            throw new IllegalArgumentException("Not a 3xx redirect code");
-        }
-        if (location == null) {
-            throw new IllegalArgumentException();
-        }
-        this.header(HttpHeader.LOCATION, location);
-        this.status(code);
         return this;
     }
 
@@ -347,7 +301,12 @@ public class Response extends HttpServletResponseWrapper {
     ) {
         this.reset();
         this.headers(headers);
-        this.setRedirect(status.getValue(), url);
+        this.status(status);
+        try {
+            this.sendRedirect(url);
+        } catch (IOException e) {
+            throw new ResponseException(e);
+        }
         return this;
     }
 
