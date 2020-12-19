@@ -19,6 +19,7 @@ import me.ixk.framework.middleware.Runner;
  * @date 2020/10/14 下午 4:51
  */
 public class RouteHandler {
+
     private final Method method;
     private final Handler handler;
     private final List<Middleware> middlewares;
@@ -42,7 +43,6 @@ public class RouteHandler {
             this.handler.before(result, request, response);
             final Response value = new Runner(this.handler, this.middlewares)
             .then(request, response);
-            this.handler.after(value, request, response);
             return this.handler.afterReturning(value, request, response);
         } catch (final Throwable e) {
             final Response res =

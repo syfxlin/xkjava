@@ -40,19 +40,6 @@ public interface Handler {
     Object handle(Request request, Response response);
 
     /**
-     * 后置处理器
-     *
-     * @param response         响应对象
-     * @param request          请求
-     * @param originalResponse 响应
-     */
-    default void after(
-        Response response,
-        Request request,
-        Response originalResponse
-    ) {}
-
-    /**
      * 后置异常处理器
      *
      * @param e        响应对象
