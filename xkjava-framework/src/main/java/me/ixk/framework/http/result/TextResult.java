@@ -13,14 +13,16 @@ import me.ixk.framework.http.MimeType;
  * @date 2020/10/14 上午 9:11
  */
 public class TextResult extends AbstractHttpResult {
+
     protected String text;
 
-    public TextResult(String text) {
+    public TextResult(final String text) {
         this.text = text;
     }
 
-    public void with(String text) {
+    public TextResult with(final String text) {
         this.text = text;
+        return this;
     }
 
     public String getText() {

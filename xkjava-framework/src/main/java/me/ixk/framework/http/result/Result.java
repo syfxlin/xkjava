@@ -6,10 +6,13 @@ package me.ixk.framework.http.result;
 
 import cn.hutool.core.util.ReflectUtil;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.File;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.exceptions.HttpException;
 import me.ixk.framework.http.HttpStatus;
+import me.ixk.framework.http.MimeType;
 import me.ixk.framework.view.FilterCallback;
 
 /**
@@ -19,6 +22,7 @@ import me.ixk.framework.view.FilterCallback;
  * @date 2020/10/14 上午 9:11
  */
 public class Result {
+
     public static final String EMPTY_RETURN = "empty:";
     public static final String HTML_RETURN = "html:";
     public static final String JSON_RETURN = "json:";
@@ -87,6 +91,41 @@ public class Result {
         FilterCallback callback
     ) {
         return new ViewResult(view, data, callback);
+    }
+
+    public static StreamResult stream(String contentType, InputStream stream) {
+        return new StreamResult(contentType, stream);
+    }
+
+    public static StreamResult stream(
+        MimeType contentType,
+        InputStream stream
+    ) {
+        return new StreamResult(contentType, stream);
+    }
+
+    public static FileResult file(String contentType, String file) {
+        return new FileResult(file).contentType(contentType);
+    }
+
+    public static FileResult file(MimeType contentType, String file) {
+        return new FileResult(file).contentType(contentType);
+    }
+
+    public static FileResult file(String contentType, File file) {
+        return new FileResult(file).contentType(contentType);
+    }
+
+    public static FileResult file(MimeType contentType, File file) {
+        return new FileResult(file).contentType(contentType);
+    }
+
+    public static FileResult file(String file) {
+        return new FileResult(file);
+    }
+
+    public static FileResult file(File file) {
+        return new FileResult(file);
     }
 
     public static void abort(HttpStatus status) {

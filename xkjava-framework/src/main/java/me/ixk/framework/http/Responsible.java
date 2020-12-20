@@ -4,6 +4,8 @@
 
 package me.ixk.framework.http;
 
+import java.io.IOException;
+
 /**
  * 可响应
  *
@@ -20,6 +22,8 @@ public interface Responsible {
      * @param result   返回值
      *
      * @return 响应对象
+     * @throws IOException IO 异常
      */
-    Response toResponse(Request request, Response response, Object result);
+    Response toResponse(Request request, Response response, Object result)
+        throws IOException;
 }

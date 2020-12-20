@@ -4,7 +4,9 @@
 
 package me.ixk.app.controllers;
 
+import cn.hutool.core.io.IoUtil;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.FileNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import me.ixk.app.beans.SessionTest;
@@ -26,9 +28,14 @@ import me.ixk.framework.annotations.ResponseStatus;
 import me.ixk.framework.annotations.WebBind;
 import me.ixk.framework.annotations.WebBind.Type;
 import me.ixk.framework.http.HttpStatus;
+import me.ixk.framework.http.MimeType;
 import me.ixk.framework.http.Model;
+import me.ixk.framework.http.result.FileResult;
+import me.ixk.framework.http.result.Result;
+import me.ixk.framework.http.result.StreamResult;
 import me.ixk.framework.ioc.DataBinder.Converter;
 import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.utils.ResourceUtils;
 import me.ixk.framework.utils.ValidGroup;
 import me.ixk.framework.utils.ValidResult;
 import me.ixk.framework.web.WebDataBinder;
@@ -157,6 +164,23 @@ public class TestController {
         @QueryValue(name = "name", defaultValue = "default") String name
     ) {
         return name;
+    }
+
+    @GetMapping("/stream")
+    public StreamResult stream() throws FileNotFoundException {
+        return Result.stream(
+            MimeType.VIDEO_MPEG,
+            IoUtil.toStream(
+                ResourceUtils.getFile(
+                    "file:/E:/Data/Videos/天气之子/天气之子.mp4"
+                )
+            )
+        );
+    }
+
+    @GetMapping("/file")
+    public FileResult file() {
+        return Result.file("file:/E:/Data/Videos/天气之子/天气之子.mp4");
     }
 
     @InitBinder

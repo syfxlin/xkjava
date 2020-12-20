@@ -22,7 +22,7 @@ import me.ixk.framework.ioc.XkJava;
  */
 public abstract class AbstractHttpResult implements Renderable {
 
-    private final Response response = XkJava.of().make(Response.class);
+    protected final Response response = XkJava.of().make(Response.class);
 
     public final Response getResponse() {
         return response;

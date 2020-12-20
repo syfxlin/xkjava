@@ -13,11 +13,12 @@ import me.ixk.framework.http.MimeType;
  * @date 2020/11/1 下午 10:32
  */
 public class StringJsonResult extends AbstractHttpResult {
+
     private String json;
 
     public StringJsonResult() {}
 
-    public StringJsonResult(String json) {
+    public StringJsonResult(final String json) {
         this.json = json;
     }
 
@@ -25,8 +26,9 @@ public class StringJsonResult extends AbstractHttpResult {
         return json;
     }
 
-    public void with(String json) {
+    public StringJsonResult with(final String json) {
         this.json = json;
+        return this;
     }
 
     @Override

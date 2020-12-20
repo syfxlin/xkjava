@@ -4,6 +4,7 @@
 
 package me.ixk.framework.web.resolver;
 
+import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.exceptions.ResponseException;
@@ -49,11 +50,15 @@ public class ResponsibleResponseConvertResolver
             return context.getResponse();
         }
         if (value instanceof Responsible) {
-            return ((Responsible) value).toResponse(
-                    context.getRequest(),
-                    context.getResponse(),
-                    value
-                );
+            try {
+                return ((Responsible) value).toResponse(
+                        context.getRequest(),
+                        context.getResponse(),
+                        value
+                    );
+            } catch (IOException e) {
+                throw new ResponseException(e);
+            }
         }
         if (value instanceof Response) {
             return (Response) value;

@@ -4,7 +4,10 @@
 
 package me.ixk.framework.http;
 
+import cn.hutool.core.exceptions.UtilException;
+import cn.hutool.core.io.IoUtil;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,33 +43,42 @@ public class Response extends HttpServletResponseWrapper {
         super(EMPTY);
     }
 
-    public Response(HttpServletResponse response) {
+    public Response(final HttpServletResponse response) {
         super(response);
     }
 
-    public Response characterEncoding(String charset) {
+    public Response characterEncoding(final String charset) {
         this.setCharacterEncoding(charset);
         return this;
     }
 
-    public Response contentLength(long len) {
+    public Response contentLength(final long len) {
         this.setContentLengthLong(len);
         return this;
     }
 
-    public Response contentType(String contentType) {
+    public Response contentType(final String contentType) {
         this.setContentType(contentType);
         return this;
     }
 
-    public Response contentType(MimeType type) {
+    public Response contentType(final MimeType type) {
         return contentType(type.asString());
     }
 
-    public Response content(String content) {
+    public Response content(final String content) {
         try {
             this.getWriter().write(content == null ? "" : content);
-        } catch (IOException e) {
+        } catch (final IOException e) {
+            throw new ResponseException("Get writer error", e);
+        }
+        return this;
+    }
+
+    public Response content(final InputStream in) {
+        try {
+            IoUtil.copy(in, this.getOutputStream());
+        } catch (final UtilException | IOException e) {
             throw new ResponseException("Get writer error", e);
         }
         return this;
@@ -75,45 +87,45 @@ public class Response extends HttpServletResponseWrapper {
     public String getContent() {
         try {
             return this.getWriter().toString();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             return null;
         }
     }
 
-    public Response status(int status) {
+    public Response status(final int status) {
         this.setStatus(status);
         return this;
     }
 
-    public Response status(HttpStatus status) {
+    public Response status(final HttpStatus status) {
         return this.status(status.getValue(), status.getReasonPhrase());
     }
 
-    public Response status(int status, String reason) {
+    public Response status(final int status, final String reason) {
         this.setStatus(status, reason);
         return this;
     }
 
-    public Response header(String name, String value) {
+    public Response header(final String name, final String value) {
         this.setHeader(name, value);
         return this;
     }
 
-    public Response header(HttpHeader header, String value) {
+    public Response header(final HttpHeader header, final String value) {
         return this.header(header.asString(), value);
     }
 
-    public Response headers(Map<Object, String> headers) {
+    public Response headers(final Map<Object, String> headers) {
         return this.setHeaders(headers);
     }
 
-    public Response headers(HttpHeaders headers) {
+    public Response headers(final HttpHeaders headers) {
         return this.setHeaders(headers);
     }
 
-    private Response setHeaders(Map<Object, String> headers) {
-        for (Map.Entry<Object, String> header : headers.entrySet()) {
-            Object key = header.getKey();
+    private Response setHeaders(final Map<Object, String> headers) {
+        for (final Map.Entry<Object, String> header : headers.entrySet()) {
+            final Object key = header.getKey();
             if (key.getClass().isAssignableFrom(String.class)) {
                 this.header((String) key, header.getValue());
             } else if (key.getClass().isAssignableFrom(HttpHeader.class)) {
@@ -123,34 +135,34 @@ public class Response extends HttpServletResponseWrapper {
         return this;
     }
 
-    private Response setHeaders(HttpHeaders headers) {
-        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
-            for (String value : entry.getValue()) {
+    private Response setHeaders(final HttpHeaders headers) {
+        for (final Map.Entry<String, List<String>> entry : headers.entrySet()) {
+            for (final String value : entry.getValue()) {
                 this.header(entry.getKey(), value);
             }
         }
         return this;
     }
 
-    public Response cookie(Cookie cookie) {
+    public Response cookie(final Cookie cookie) {
         this.addCookie(cookie);
         return this;
     }
 
-    public Response cookie(SetCookie cookie) {
+    public Response cookie(final SetCookie cookie) {
         return this.cookie((Cookie) cookie);
     }
 
     public Response cookie(
-        String name,
-        String value,
-        String domain,
-        String path,
-        int maxAge,
-        String comment,
-        boolean isHttpOnly,
-        boolean isSecure,
-        int version
+        final String name,
+        final String value,
+        final String domain,
+        final String path,
+        final int maxAge,
+        final String comment,
+        final boolean isHttpOnly,
+        final boolean isSecure,
+        final int version
     ) {
         return this.cookie(
                 new SetCookie(name, value)
@@ -164,22 +176,22 @@ public class Response extends HttpServletResponseWrapper {
             );
     }
 
-    public Response cookies(Collection<SetCookie> cookies) {
-        for (SetCookie cookie : cookies) {
+    public Response cookies(final Collection<SetCookie> cookies) {
+        for (final SetCookie cookie : cookies) {
             this.cookie(cookie);
         }
         return this;
     }
 
-    public Response cookies(SetCookie[] cookies) {
-        for (SetCookie cookie : cookies) {
+    public Response cookies(final SetCookie[] cookies) {
+        for (final SetCookie cookie : cookies) {
             this.cookie(cookie);
         }
         return this;
     }
 
-    public Response cookies(Cookie[] cookies) {
-        for (Cookie cookie : cookies) {
+    public Response cookies(final Cookie[] cookies) {
+        for (final Cookie cookie : cookies) {
             this.cookie(cookie);
         }
         return this;
@@ -195,22 +207,22 @@ public class Response extends HttpServletResponseWrapper {
         return this.status(HttpStatus.OK);
     }
 
-    public Response text(String text) {
+    public Response text(final String text) {
         return this.text(text, HttpStatus.OK, new ConcurrentHashMap<>(0));
     }
 
-    public Response text(String text, HttpStatus status) {
+    public Response text(final String text, final HttpStatus status) {
         return this.text(text, status, new ConcurrentHashMap<>(0));
     }
 
-    public Response text(String text, int status) {
+    public Response text(final String text, final int status) {
         return this.text(text, status, new ConcurrentHashMap<>(0));
     }
 
     public Response text(
-        String text,
-        HttpStatus status,
-        Map<Object, String> headers
+        final String text,
+        final HttpStatus status,
+        final Map<Object, String> headers
     ) {
         this.reset();
         this.content(text);
@@ -220,26 +232,30 @@ public class Response extends HttpServletResponseWrapper {
         return this;
     }
 
-    public Response text(String text, int status, Map<Object, String> headers) {
+    public Response text(
+        final String text,
+        final int status,
+        final Map<Object, String> headers
+    ) {
         return this.text(text, HttpStatus.valueOf(status), headers);
     }
 
-    public Response html(String html) {
+    public Response html(final String html) {
         return this.html(html, HttpStatus.OK, new ConcurrentHashMap<>(0));
     }
 
-    public Response html(String html, HttpStatus status) {
+    public Response html(final String html, final HttpStatus status) {
         return this.html(html, status, new ConcurrentHashMap<>(0));
     }
 
-    public Response html(String html, int status) {
+    public Response html(final String html, final int status) {
         return this.html(html, status, new ConcurrentHashMap<>(0));
     }
 
     public Response html(
-        String html,
-        HttpStatus status,
-        Map<Object, String> headers
+        final String html,
+        final HttpStatus status,
+        final Map<Object, String> headers
     ) {
         this.reset();
         this.content(html);
@@ -249,26 +265,30 @@ public class Response extends HttpServletResponseWrapper {
         return this;
     }
 
-    public Response html(String html, int status, Map<Object, String> headers) {
+    public Response html(
+        final String html,
+        final int status,
+        final Map<Object, String> headers
+    ) {
         return this.html(html, HttpStatus.valueOf(status), headers);
     }
 
-    public Response json(Object data) {
+    public Response json(final Object data) {
         return this.json(data, HttpStatus.OK, Collections.emptyMap());
     }
 
-    public Response json(Object data, HttpStatus status) {
+    public Response json(final Object data, final HttpStatus status) {
         return this.json(data, status, Collections.emptyMap());
     }
 
-    public Response json(Object data, int status) {
+    public Response json(final Object data, final int status) {
         return this.json(data, status, Collections.emptyMap());
     }
 
     public Response json(
-        Object data,
-        HttpStatus status,
-        Map<Object, String> headers
+        final Object data,
+        final HttpStatus status,
+        final Map<Object, String> headers
     ) {
         this.reset();
         this.content(Json.stringify(data));
@@ -278,131 +298,140 @@ public class Response extends HttpServletResponseWrapper {
         return this;
     }
 
-    public Response json(Object data, int status, Map<Object, String> headers) {
+    public Response json(
+        final Object data,
+        final int status,
+        final Map<Object, String> headers
+    ) {
         return this.json(data, HttpStatus.valueOf(status), headers);
     }
 
-    public Response redirect(String url) {
+    public Response redirect(final String url) {
         return this.redirect(url, HttpStatus.FOUND);
     }
 
-    public Response redirect(String url, HttpStatus status) {
+    public Response redirect(final String url, final HttpStatus status) {
         return this.redirect(url, status, Collections.emptyMap());
     }
 
-    public Response redirect(String url, int status) {
+    public Response redirect(final String url, final int status) {
         return this.redirect(url, status, Collections.emptyMap());
     }
 
     public Response redirect(
-        String url,
-        HttpStatus status,
-        Map<Object, String> headers
+        final String url,
+        final HttpStatus status,
+        final Map<Object, String> headers
     ) {
         this.reset();
         this.headers(headers);
         this.status(status);
         try {
             this.sendRedirect(url);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new ResponseException(e);
         }
         return this;
     }
 
     public Response redirect(
-        String url,
-        int status,
-        Map<Object, String> headers
+        final String url,
+        final int status,
+        final Map<Object, String> headers
     ) {
         return this.redirect(url, HttpStatus.valueOf(status), headers);
     }
 
-    public void error(String message) {
+    public void error(final String message) {
         this.error(message, HttpStatus.OK);
     }
 
-    public void error(String message, HttpStatus status) {
+    public void error(final String message, final HttpStatus status) {
         this.error(message, status, Collections.emptyMap());
     }
 
-    public void error(String message, int status) {
+    public void error(final String message, final int status) {
         this.error(message, status, Collections.emptyMap());
     }
 
     public void error(
-        String message,
-        HttpStatus status,
-        Map<Object, String> headers
+        final String message,
+        final HttpStatus status,
+        final Map<Object, String> headers
     ) {
         this.reset();
         try {
             this.headers(headers).sendError(status.getValue(), message);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new ResponseException("SendError error", e);
         }
     }
 
-    public void error(String message, int status, Map<Object, String> headers) {
+    public void error(
+        final String message,
+        final int status,
+        final Map<Object, String> headers
+    ) {
         this.error(message, HttpStatus.valueOf(status), headers);
     }
 
     private static class EmptyResponse implements HttpServletResponse {
 
         @Override
-        public void addCookie(Cookie cookie) {}
+        public void addCookie(final Cookie cookie) {}
 
         @Override
-        public boolean containsHeader(String name) {
+        public boolean containsHeader(final String name) {
             return false;
         }
 
         @Override
-        public String encodeURL(String url) {
+        public String encodeURL(final String url) {
             return null;
         }
 
         @Override
-        public String encodeRedirectURL(String url) {
+        public String encodeRedirectURL(final String url) {
             return null;
         }
 
         @Override
-        public String encodeUrl(String url) {
+        public String encodeUrl(final String url) {
             return null;
         }
 
         @Override
-        public String encodeRedirectUrl(String url) {
+        public String encodeRedirectUrl(final String url) {
             return null;
         }
 
         @Override
-        public void sendError(int sc, String msg) throws IOException {}
+        public void sendError(final int sc, final String msg)
+            throws IOException {}
 
         @Override
-        public void sendError(int sc) throws IOException {}
+        public void sendError(final int sc) throws IOException {}
 
         @Override
-        public void sendRedirect(String location) throws IOException {}
+        public void sendRedirect(final String location) throws IOException {}
 
         @Override
-        public void setDateHeader(String name, long date) {}
+        public void setDateHeader(final String name, final long date) {}
 
         @Override
-        public void addDateHeader(String name, long date) {}
+        public void addDateHeader(final String name, final long date) {}
 
         @Override
-        public void setHeader(String name, String value) {}
+        public void setHeader(final String name, final String value) {}
 
         @Override
-        public void addHeader(String name, String value) {}
+        public void addHeader(final String name, final String value) {}
 
         @Override
-        public void setIntHeader(String name, int value) {}
+        public void setIntHeader(final String name, final int value) {}
 
         @Override
-        public void addIntHeader(String name, int value) {}
+        public void addIntHeader(final String name, final int value) {}
 
         @Override
         public String getCharacterEncoding() {
@@ -410,7 +439,7 @@ public class Response extends HttpServletResponseWrapper {
         }
 
         @Override
-        public void setStatus(int sc) {}
+        public void setStatus(final int sc) {}
 
         @Override
         public String getContentType() {
@@ -418,7 +447,7 @@ public class Response extends HttpServletResponseWrapper {
         }
 
         @Override
-        public void setStatus(int sc, String sm) {}
+        public void setStatus(final int sc, final String sm) {}
 
         @Override
         public ServletOutputStream getOutputStream() throws IOException {
@@ -436,20 +465,20 @@ public class Response extends HttpServletResponseWrapper {
         }
 
         @Override
-        public String getHeader(String name) {
+        public String getHeader(final String name) {
             return null;
         }
 
         @Override
-        public void setContentType(String type) {}
-
-        @Override
-        public Collection<String> getHeaders(String name) {
+        public Collection<String> getHeaders(final String name) {
             return null;
         }
 
         @Override
-        public void setCharacterEncoding(String charset) {}
+        public void setCharacterEncoding(final String charset) {}
+
+        @Override
+        public void setContentLength(final int len) {}
 
         @Override
         public Collection<String> getHeaderNames() {
@@ -457,13 +486,13 @@ public class Response extends HttpServletResponseWrapper {
         }
 
         @Override
-        public void setContentLength(int len) {}
+        public void setContentLengthLong(final long len) {}
 
         @Override
-        public void setContentLengthLong(long len) {}
+        public void setContentType(final String type) {}
 
         @Override
-        public void setBufferSize(int size) {}
+        public void setBufferSize(final int size) {}
 
         @Override
         public int getBufferSize() {
@@ -485,7 +514,7 @@ public class Response extends HttpServletResponseWrapper {
         public void reset() {}
 
         @Override
-        public void setLocale(Locale loc) {}
+        public void setLocale(final Locale loc) {}
 
         @Override
         public Locale getLocale() {
