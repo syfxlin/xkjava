@@ -8,17 +8,17 @@ import io.github.imsejin.expression.AccessException;
 import io.github.imsejin.expression.EvaluationContext;
 import io.github.imsejin.expression.PropertyAccessor;
 import io.github.imsejin.expression.TypedValue;
-import me.ixk.framework.property.Environment;
+import me.ixk.framework.property.PropertySource;
 
 /**
  * @author Otstar Lin
- * @date 2020/11/28 下午 10:10
+ * @date 2020/12/21 下午 11:30
  */
-public class EnvironmentAccessor implements PropertyAccessor {
+public class PropertySourceAccessor implements PropertyAccessor {
 
     @Override
     public Class<?>[] getSpecificTargetClasses() {
-        return new Class[] { Environment.class };
+        return new Class[] { PropertySource.class };
     }
 
     @Override
@@ -36,7 +36,7 @@ public class EnvironmentAccessor implements PropertyAccessor {
         Object target,
         String name
     ) throws AccessException {
-        return new TypedValue(((Environment) target).get(name));
+        return new TypedValue(((PropertySource<?>) target).get(name));
     }
 
     @Override

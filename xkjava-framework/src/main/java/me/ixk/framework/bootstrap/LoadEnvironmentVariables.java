@@ -4,15 +4,15 @@
 
 package me.ixk.framework.bootstrap;
 
-import cn.hutool.core.io.IoUtil;
 import java.io.IOException;
-import java.util.Properties;
 import me.ixk.framework.annotations.Bootstrap;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.exceptions.LoadEnvironmentFileException;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.kernel.Environment;
-import me.ixk.framework.utils.ResourceUtils;
+import me.ixk.framework.property.CommandLinePropertySource;
+import me.ixk.framework.property.Environment;
+import me.ixk.framework.property.PropertiesPropertySource;
+import me.ixk.framework.property.SystemPropertySource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,14 +25,10 @@ import org.slf4j.LoggerFactory;
 @Bootstrap
 @Order(Order.HIGHEST_PRECEDENCE + 1)
 public class LoadEnvironmentVariables extends AbstractBootstrap {
+
     private static final Logger log = LoggerFactory.getLogger(
         LoadEnvironmentVariables.class
     );
-
-    private static final String CONFIG_LOCATION_NAME = "xkjava.config.location";
-    private static final String CONFIG_ACTIVE_NAME = "xkjava.config.active";
-    private static final String DEFAULT_CONFIG_LOCATION =
-        "classpath:/application.properties";
 
     public LoadEnvironmentVariables(final XkJava app) {
         super(app);
@@ -40,61 +36,49 @@ public class LoadEnvironmentVariables extends AbstractBootstrap {
 
     @Override
     public void boot() {
-        final Properties properties = new Properties();
-        // 先读取传入的参数
-        final Properties cliProps = this.parseCliProperties();
-        // 如果配置了路径，则使用新的路径
-        final String configLocation = (String) cliProps.getOrDefault(
-            CONFIG_LOCATION_NAME,
-            DEFAULT_CONFIG_LOCATION
+        final Environment environment = new Environment("environment");
+        // 读取系统参数
+        final SystemPropertySource systemPropertySource = new SystemPropertySource(
+            "system"
         );
-        // 使用获得的路径读取主要的配置文件
-        final Properties primaryProps =
-            this.parseFileProperties(configLocation);
-        // 添加进配置中
-        properties.putAll(primaryProps);
+        environment.setPropertySource(systemPropertySource);
+        // 读取传入的参数
+        final CommandLinePropertySource commandLinePropertySource = new CommandLinePropertySource(
+            "commandLine",
+            this.app.args()
+        );
+        environment.setPropertySource(commandLinePropertySource);
+        // 如果配置了路径，则使用新的路径
+        final String location = environment.get(
+            Environment.CONFIG_LOCATION_NAME,
+            Environment.DEFAULT_CONFIG_LOCATION
+        );
+        environment.setPropertySource(
+            this.loadProperties(location, Environment.DEFAULT_CONFIG_NAME)
+        );
         // 次要配置文件
-        String activeName = (String) cliProps.get(CONFIG_ACTIVE_NAME);
-        if (activeName == null) {
-            activeName = (String) primaryProps.get(CONFIG_ACTIVE_NAME);
-        }
-        if (activeName != null) {
-            final Properties secondaryProps =
-                this.parseFileProperties(
-                        configLocation.replace(
-                            ".properties",
-                            String.format("-%s.properties", activeName)
-                        )
-                    );
-            properties.putAll(secondaryProps);
-        }
-        // 最终把 Cli 的配置覆盖到所有配置中
-        properties.putAll(cliProps);
-        this.app.instance(
-                Environment.class,
-                new Environment(this.app, properties),
-                "env"
+        for (String profile : environment.getActiveProfiles()) {
+            environment.setPropertySource(
+                this.loadProperties(location, profile)
             );
-    }
-
-    private Properties parseCliProperties() {
-        final Properties properties = new Properties();
-        for (final String arg : this.app.args()) {
-            if (!arg.startsWith("--") || !arg.contains("=")) {
-                throw new LoadEnvironmentFileException(
-                    "Incorrect command parameter format"
-                );
-            }
-            final String[] kv = arg.substring(2).split("=");
-            properties.put(kv[0], kv[1]);
         }
-        return properties;
+        this.app.instance(Environment.class, environment, "env");
     }
 
-    private Properties parseFileProperties(final String filePath) {
-        final Properties property = new Properties();
+    private PropertiesPropertySource loadProperties(
+        final String location,
+        final String active
+    ) {
         try {
-            property.load(IoUtil.toStream(ResourceUtils.getFile(filePath)));
+            return new PropertiesPropertySource(
+                active.isEmpty() ? "default" : active,
+                location +
+                "/" +
+                String.format(
+                    "application%s.properties",
+                    active.isEmpty() ? "" : "-" + active
+                )
+            );
         } catch (final IOException e) {
             log.error("Load environment [application.properties] failed");
             throw new LoadEnvironmentFileException(
@@ -102,6 +86,5 @@ public class LoadEnvironmentVariables extends AbstractBootstrap {
                 e
             );
         }
-        return property;
     }
 }

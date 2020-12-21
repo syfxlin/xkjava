@@ -12,7 +12,7 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SessionManager;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.kernel.Environment;
+import me.ixk.framework.property.Environment;
 import me.ixk.framework.servlet.DispatcherServlet;
 
 /**
@@ -24,6 +24,7 @@ import me.ixk.framework.servlet.DispatcherServlet;
 @Component(name = "webContext")
 @Scope(type = ScopeType.REQUEST)
 public class WebContext {
+
     private final XkJava application;
     private final Environment environment;
     private final DispatcherServlet servlet;
@@ -44,7 +45,7 @@ public class WebContext {
         this.sessionManager = null;
     }
 
-    public WebContext(XkJava application) {
+    public WebContext(final XkJava application) {
         this.application = application;
         this.environment = application.make(Environment.class);
         this.servlet = application.make(DispatcherServlet.class);

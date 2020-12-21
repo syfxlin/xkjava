@@ -5,6 +5,7 @@
 package me.ixk.framework.kernel;
 
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.property.Environment;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 

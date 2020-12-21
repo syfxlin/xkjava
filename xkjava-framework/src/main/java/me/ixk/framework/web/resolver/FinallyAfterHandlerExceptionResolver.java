@@ -18,7 +18,7 @@ import me.ixk.framework.http.MimeType;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.StdErrorJson;
-import me.ixk.framework.kernel.Environment;
+import me.ixk.framework.property.Environment;
 import me.ixk.framework.utils.ByteArrayUtf8Writer;
 import me.ixk.framework.utils.Json;
 import me.ixk.framework.web.AfterHandlerExceptionResolver;
@@ -36,6 +36,7 @@ import me.ixk.framework.web.WebDataBinder;
 @Order(Order.LOWEST_PRECEDENCE)
 public class FinallyAfterHandlerExceptionResolver
     implements AfterHandlerExceptionResolver {
+
     private static final String SHOW_STACK_KEY = "xkjava.app.showErrorStack";
     private final boolean showStack;
 
@@ -78,8 +79,7 @@ public class FinallyAfterHandlerExceptionResolver
         final Throwable e,
         final Request request,
         final Response response
-    )
-        throws IOException {
+    ) throws IOException {
         response.contentType(MimeType.TEXT_HTML);
         final Status status = this.getStatus(e, response);
         final ByteArrayUtf8Writer writer = new ByteArrayUtf8Writer(4096);
@@ -95,8 +95,7 @@ public class FinallyAfterHandlerExceptionResolver
         final Throwable e,
         final Request request,
         final Response response
-    )
-        throws IOException {
+    ) throws IOException {
         response.contentType(MimeType.APPLICATION_JSON);
         final Status status = this.getStatus(e, response);
         final ByteArrayUtf8Writer writer = new ByteArrayUtf8Writer(4096);
@@ -112,8 +111,7 @@ public class FinallyAfterHandlerExceptionResolver
         ByteArrayUtf8Writer writer,
         Throwable e,
         Status status
-    )
-        throws IOException {
+    ) throws IOException {
         StdErrorJson errorJson = new StdErrorJson(
             status.getCode(),
             status.getMessage(),
@@ -138,8 +136,7 @@ public class FinallyAfterHandlerExceptionResolver
         final ByteArrayUtf8Writer writer,
         final Throwable e,
         final Status status
-    )
-        throws IOException {
+    ) throws IOException {
         writer.write("<html>\n<head>\n");
         this.writeErrorPageHead(writer, status);
         writer.write("</head>\n<body>");
@@ -264,6 +261,7 @@ public class FinallyAfterHandlerExceptionResolver
     }
 
     private static class Status {
+
         private final int code;
         private final String message;
 

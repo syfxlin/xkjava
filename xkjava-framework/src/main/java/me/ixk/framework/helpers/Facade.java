@@ -11,7 +11,7 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SessionManager;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.kernel.Environment;
+import me.ixk.framework.property.Environment;
 import me.ixk.framework.route.RouteManager;
 import me.ixk.framework.servlet.DispatcherServlet;
 import me.ixk.framework.utils.Crypt;

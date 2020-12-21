@@ -14,11 +14,11 @@ import io.github.imsejin.expression.spel.standard.SpelExpressionParser;
 import io.github.imsejin.expression.spel.support.StandardEvaluationContext;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.expression.PropertyPlaceholderHelper.PlaceholderResolver;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.property.PropertySource;
 
 /**
  * Bean 表达式解析器
@@ -43,7 +43,7 @@ public class BeanExpressionResolver {
         if (this.app == null) {
             return null;
         }
-        return resolveEmbeddedValue(value, this.app.env().getProperties());
+        return resolveEmbeddedValue(value, this.app.env(), null);
     };
 
     public BeanExpressionResolver(XkJava app) {
@@ -61,7 +61,8 @@ public class BeanExpressionResolver {
 
     public static String resolveEmbeddedValue(
         String value,
-        Properties properties
+        PropertySource<?> properties,
+        String prefix
     ) {
         final int index = value.indexOf(":");
         String name = value;
@@ -70,7 +71,10 @@ public class BeanExpressionResolver {
             name = value.substring(0, index + 1);
             defaultValue = value.substring(index + 1);
         }
-        final Object result = caseGet(name, properties::get);
+        Object result = caseGet(name, properties::get);
+        if (result == null && prefix != null && !prefix.isEmpty()) {
+            result = caseGet(prefix + name, properties::get);
+        }
         if (result == null) {
             return defaultValue;
         }
@@ -119,6 +123,7 @@ public class BeanExpressionResolver {
         StandardEvaluationContext sec = new StandardEvaluationContext(root);
         sec.addPropertyAccessor(new MapAccessor());
         sec.addPropertyAccessor(new EnvironmentAccessor());
+        sec.addPropertyAccessor(new PropertySourceAccessor());
         sec.setBeanResolver(new ContainerBeanResolver(this.app));
         sec.setTypeConverter(new StandardTypeConverter());
         sec.setVariables(variables);
