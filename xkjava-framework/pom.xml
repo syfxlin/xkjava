@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <!--
   ~ Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
   -->
@@ -23,12 +23,12 @@
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-webapp</artifactId>
-      <version>9.4.34.v20201102</version>
+      <version>9.4.35.v20201120</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-annotations</artifactId>
-      <version>9.4.30.v20200611</version>
+      <version>9.4.35.v20201120</version>
     </dependency>
     <!-- View -->
     <dependency>
@@ -50,12 +50,12 @@
     <dependency>
       <groupId>com.baomidou</groupId>
       <artifactId>mybatis-plus</artifactId>
-      <version>3.3.2</version>
+      <version>3.4.1</version>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>8.0.20</version>
+      <version>8.0.22</version>
     </dependency>
     <dependency>
       <artifactId>lettuce-core</artifactId>
@@ -71,7 +71,7 @@
     <dependency>
       <groupId>org.aspectj</groupId>
       <artifactId>aspectjweaver</artifactId>
-      <version>1.9.5</version>
+      <version>1.9.6</version>
     </dependency>
     <dependency>
       <groupId>at.favre.lib</groupId>
@@ -81,7 +81,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.11.0</version>
+      <version>2.12.0</version>
     </dependency>
     <dependency>
       <groupId>org.reflections</groupId>
@@ -91,17 +91,17 @@
     <dependency>
       <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
-      <version>6.1.5.Final</version>
+      <version>6.1.6.Final</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish</groupId>
       <artifactId>javax.el</artifactId>
-      <version>3.0.1-b11</version>
+      <version>3.0.0</version>
     </dependency>
     <dependency>
       <groupId>cn.hutool</groupId>
       <artifactId>hutool-core</artifactId>
-      <version>5.4.7</version>
+      <version>5.5.2</version>
     </dependency>
     <dependency>
       <artifactId>cron-utils</artifactId>
@@ -112,7 +112,7 @@
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
-      <version>8.0.1</version>
+      <version>9.0</version>
     </dependency>
     <dependency>
       <groupId>cglib</groupId>

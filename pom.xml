@@ -33,7 +33,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.12</version>
+      <version>1.18.16</version>
     </dependency>
     <!-- Test & Logger -->
     <dependency>
@@ -49,12 +49,12 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>5.7.0-M1</version>
+      <version>5.7.0</version>
     </dependency>
     <dependency>
       <artifactId>hutool-http</artifactId>
       <groupId>cn.hutool</groupId>
-      <version>5.4.7</version>
+      <version>5.5.2</version>
     </dependency>
   </dependencies>
 
