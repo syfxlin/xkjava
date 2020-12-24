@@ -13,6 +13,7 @@ import java.util.Objects;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.PostConstruct;
 import me.ixk.framework.annotations.PreDestroy;
+import me.ixk.framework.annotations.Primary;
 import me.ixk.framework.ioc.context.Context;
 import me.ixk.framework.ioc.factory.FactoryBean;
 import me.ixk.framework.utils.MergedAnnotation;
@@ -31,7 +32,8 @@ public class Binding {
     private final Context context;
     private final String scope;
     private final String name;
-    private final Class<?> instanceType;
+    private final AnnotatedEntry<Class<?>> instanceTypeEntry;
+    private final boolean primary;
     private volatile BindingInfos bindingInfos;
 
     private volatile FactoryBean<?> factoryBean;
@@ -45,7 +47,8 @@ public class Binding {
         this.context = context;
         this.scope = scopeType;
         this.name = name;
-        this.instanceType = instanceType;
+        this.instanceTypeEntry = new AnnotatedEntry<>(instanceType);
+        this.primary = this.getAnnotation().hasAnnotation(Primary.class);
         this.init();
     }
 
@@ -71,6 +74,7 @@ public class Binding {
 
     @SuppressWarnings("unchecked")
     private void init() {
+        final Class<?> instanceType = this.instanceTypeEntry.getElement();
         if (instanceType != null) {
             this.bindingInfos =
                 CACHE.computeIfAbsent(
@@ -124,10 +128,23 @@ public class Binding {
     }
 
     public Class<?> getType() {
-        return instanceType;
+        return this.instanceTypeEntry.getElement();
+    }
+
+    public MergedAnnotation getAnnotation() {
+        return this.instanceTypeEntry.getAnnotation();
+    }
+
+    public AnnotatedEntry<Class<?>> getInstanceTypeEntry() {
+        return instanceTypeEntry;
+    }
+
+    public boolean isPrimary() {
+        return primary;
     }
 
     public Object getSource() {
+        final Class<?> instanceType = this.instanceTypeEntry.getElement();
         return this.isCreated()
             ? this.context.get(
                     name,

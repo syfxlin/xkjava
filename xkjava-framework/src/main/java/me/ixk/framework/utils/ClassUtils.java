@@ -24,6 +24,7 @@ import java.util.Set;
  * @date 2020/10/14 下午 5:02
  */
 public class ClassUtils extends ClassUtil {
+
     private static final String CGLIB_SPLIT = "$$";
 
     private static final Map<Class<?>, Class<?>> PRIMITIVE_WRAPPER_TYPE_MAP = new IdentityHashMap<>(
@@ -219,16 +220,7 @@ public class ClassUtils extends ClassUtil {
     }
 
     public static boolean isSkipBuildType(Class<?> clazz) {
-        if (
-            clazz == long.class ||
-            clazz == int.class ||
-            clazz == short.class ||
-            clazz == char.class ||
-            clazz == byte.class ||
-            clazz == double.class ||
-            clazz == float.class ||
-            clazz == boolean.class
-        ) {
+        if (clazz.isPrimitive()) {
             return true;
         }
         return clazz.getPackageName().startsWith("java.");

@@ -93,8 +93,6 @@ Controller 中进行错误处理。
 -   多级缓存
 -   自动配置
 -   异步控制器
--   容器同名称 Bean
--   按接口，类型，注解查找 Bean，以及扩展注入注解（参考 ListableBeanFactory）
 -   注入 List，Map 等集合类
 
 ## 文档 Doc

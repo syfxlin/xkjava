@@ -6,7 +6,7 @@ package me.ixk.framework.ioc;
 
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.StrUtil;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.bootstrap.LoadEnvironmentVariables;
@@ -223,18 +225,18 @@ public class Container {
     }
 
     public boolean has(final String name) {
-        return this.get(name) != null;
+        return this.getBinding(name) != null;
     }
 
     public boolean has(final Class<?> type) {
-        return this.has(this.getNameByType(type));
+        return this.has(this.getBeanNameByType(type));
     }
 
-    public Binding get(final Class<?> type) {
-        return this.get(this.getNameByType(type));
+    public Binding getBinding(final Class<?> type) {
+        return this.getBinding(this.getBeanNameByType(type));
     }
 
-    public Binding get(final String name) {
+    public Binding getBinding(final String name) {
         return this.bindings.get(this.getCanonicalName(name));
     }
 
@@ -242,9 +244,9 @@ public class Container {
         final String name,
         final Class<?> instanceType
     ) {
-        Binding binding = name == null ? null : this.get(name);
+        Binding binding = name == null ? null : this.getBinding(name);
         if (binding == null && instanceType != Object.class) {
-            binding = this.get(this.getNameByType(instanceType));
+            binding = this.getBinding(this.getBeanNameByType(instanceType));
         }
         if (binding == null) {
             binding =
@@ -257,7 +259,7 @@ public class Container {
         return binding;
     }
 
-    public void set(String name, final Binding binding) {
+    public void setBinding(String name, final Binding binding) {
         if (log.isDebugEnabled()) {
             log.debug("Container set binding: {}", name);
         }
@@ -265,9 +267,9 @@ public class Container {
         this.bindings.put(name, binding);
         Class<?> clazz = binding.getType();
         while (clazz != null && !ClassUtils.isSkipBuildType(clazz)) {
-            this.addType(name, clazz);
+            this.addType(name, clazz, binding.isPrimary());
             for (final Class<?> in : clazz.getInterfaces()) {
-                this.addType(name, in);
+                this.addType(name, in, binding.isPrimary());
             }
             clazz = clazz.getSuperclass();
         }
@@ -287,7 +289,7 @@ public class Container {
         final Binding binding = this.bindings.remove(name);
         Class<?> clazz = binding.getType();
         while (clazz != null && !ClassUtils.isSkipBuildType(clazz)) {
-            this.addType(name, clazz);
+            this.removeType(name, clazz);
             for (final Class<?> in : clazz.getInterfaces()) {
                 this.removeType(name, in);
             }
@@ -295,12 +297,20 @@ public class Container {
         }
     }
 
-    protected void addType(final String name, final Class<?> type) {
+    protected void addType(
+        final String name,
+        final Class<?> type,
+        final boolean isPrimary
+    ) {
         this.bindingNamesByType.compute(
                 type,
                 (t, o) -> {
                     if (o != null) {
-                        o.add(name);
+                        if (isPrimary) {
+                            o.add(0, name);
+                        } else {
+                            o.add(name);
+                        }
                         return o;
                     } else {
                         final List<String> list = new ArrayList<>();
@@ -318,19 +328,86 @@ public class Container {
         }
     }
 
-    protected String getNameByType(final Class<?> type) {
+    public String getBeanNameByType(final Class<?> type) {
         // 先查找 bindingNamesByType 里是否有类型
         final List<String> list = this.bindingNamesByType.get(type);
         if (list == null || list.isEmpty()) {
             // 未找到或空则使用短类名作为名称
-            return this.typeToName(type);
+            return this.typeToBeanName(type);
         }
         // 否则取第一个返回
         return list.get(0);
     }
 
-    protected String typeToName(final Class<?> type) {
-        return StrUtil.toCamelCase(type.getSimpleName());
+    public String typeToBeanName(final Class<?> type) {
+        final String name = type.getSimpleName();
+        if (name.length() == 0) {
+            return name;
+        }
+        if (
+            name.length() > 1 &&
+            Character.isUpperCase(name.charAt(1)) &&
+            Character.isUpperCase(name.charAt(0))
+        ) {
+            return name;
+        }
+        final char[] chars = name.toCharArray();
+        chars[0] = Character.toLowerCase(chars[0]);
+        return new String(chars);
+    }
+
+    /* ======================= Bean ======================= */
+
+    public List<String> getBeanNamesForType(final Class<?> type) {
+        return this.bindingNamesByType.get(type);
+    }
+
+    public <T> Map<String, T> getBeanOfType(final Class<T> type) {
+        final List<String> list = this.getBeanNamesForType(type);
+        if (list == null || list.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return list
+            .stream()
+            .collect(
+                Collectors.toMap(name -> name, name -> this.make(name, type))
+            );
+    }
+
+    public List<String> getBeanNamesForAnnotation(
+        final Class<? extends Annotation> annotationType
+    ) {
+        final List<String> list = new ArrayList<>();
+        for (final Entry<String, Binding> entry : this.bindings.entrySet()) {
+            final Class<?> type = entry.getValue().getType();
+            if (
+                type.isInterface() ||
+                type.isEnum() ||
+                type.isAnnotation() ||
+                type.isPrimitive() ||
+                type.isArray() ||
+                entry.getValue().getAnnotation().notAnnotation(annotationType)
+            ) {
+                continue;
+            }
+            list.add(entry.getKey());
+        }
+        return list;
+    }
+
+    public Map<String, Object> getBeansWithAnnotation(
+        final Class<? extends Annotation> annotationType
+    ) {
+        final List<String> list =
+            this.getBeanNamesForAnnotation(annotationType);
+        if (list.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Map<String, Object> beans = new HashMap<>();
+        for (String name : list) {
+            beans.put(name, this.make(name, Object.class));
+        }
+        return beans;
     }
 
     /* ===================== Alias ===================== */
@@ -459,8 +536,8 @@ public class Container {
     protected Object processBeanBefore(
         final Binding binding,
         Object instance,
-        Constructor<?> constructor,
-        Object[] args
+        final Constructor<?> constructor,
+        final Object[] args
     ) {
         final Class<?> instanceClass = ClassUtils.getUserClass(instance);
         final InstanceContext context = new InstanceContext(
@@ -519,7 +596,7 @@ public class Container {
         if (log.isDebugEnabled()) {
             log.debug("Container bind: {} - {}", binding.getScope(), name);
         }
-        this.set(name, binding);
+        this.setBinding(name, binding);
         return binding;
     }
 
@@ -560,7 +637,7 @@ public class Container {
         if (instanceType == null) {
             return null;
         }
-        // 排除 JDK 自带类的 doBuild
+        // 排除 JDK 自带类的
         if (ClassUtils.isSkipBuildType(instanceType)) {
             return ClassUtil.getDefaultValue(instanceType);
         }
@@ -652,7 +729,7 @@ public class Container {
         if (log.isDebugEnabled()) {
             log.debug("Container remove: {}", name);
         }
-        final Binding binding = this.get(name);
+        final Binding binding = this.getBinding(name);
         if (binding.isCreated()) {
             this.processBeanAfter(binding, binding.getSource());
         }
@@ -780,12 +857,12 @@ public class Container {
             final FactoryBean<?> factoryBean =
                 this.make((Class<? extends FactoryBean<?>>) type);
             return this.bind(
-                    this.typeToName(factoryBean.getObjectType()),
+                    this.typeToBeanName(factoryBean.getObjectType()),
                     factoryBean,
                     scopeType
                 );
         } else {
-            return this.bind(this.typeToName(type), type, scopeType);
+            return this.bind(this.typeToBeanName(type), type, scopeType);
         }
     }
 
@@ -793,9 +870,12 @@ public class Container {
         return this.bind(type, ScopeType.SINGLETON.asString());
     }
 
-    public Binding bind(final FactoryBean<?> factoryBean, String scopeType) {
+    public Binding bind(
+        final FactoryBean<?> factoryBean,
+        final String scopeType
+    ) {
         return this.bind(
-                this.typeToName(factoryBean.getObjectType()),
+                this.typeToBeanName(factoryBean.getObjectType()),
                 factoryBean,
                 scopeType
             );
@@ -809,7 +889,7 @@ public class Container {
 
     public Binding instance(final Object instance, final String scopeType) {
         return this.instance(
-                this.typeToName(instance.getClass()),
+                this.typeToBeanName(instance.getClass()),
                 instance,
                 scopeType
             );
@@ -822,7 +902,7 @@ public class Container {
     /* ===================== make ===================== */
 
     public <T> T make(final Class<T> returnType) {
-        return this.make(this.getNameByType(returnType), returnType);
+        return this.make(this.getBeanNameByType(returnType), returnType);
     }
 
     public <T> T make(final String name, final Class<T> returnType) {
@@ -1111,15 +1191,15 @@ public class Container {
         return beanAfterProcessors;
     }
 
-    public void setInstanceValue(String name, Object instance) {
-        final Binding binding = this.get(name);
+    public void setInstanceValue(final String name, final Object instance) {
+        final Binding binding = this.getBinding(name);
         if (binding == null) {
             throw new ContainerException("Target [" + name + "] not been bind");
         }
         binding.setSource(instance);
     }
 
-    public void setInstanceValue(Class<?> type, Object instance) {
-        this.setInstanceValue(this.getNameByType(type), instance);
+    public void setInstanceValue(final Class<?> type, final Object instance) {
+        this.setInstanceValue(this.getBeanNameByType(type), instance);
     }
 }
