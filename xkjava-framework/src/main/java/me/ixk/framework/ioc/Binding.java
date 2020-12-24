@@ -1,11 +1,8 @@
 /*
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
-
 package me.ixk.framework.ioc;
 
-import cn.hutool.core.exceptions.UtilException;
-import cn.hutool.core.util.ClassUtil;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -16,7 +13,8 @@ import java.util.Objects;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.PostConstruct;
 import me.ixk.framework.annotations.PreDestroy;
-import me.ixk.framework.annotations.ScopeType;
+import me.ixk.framework.ioc.context.Context;
+import me.ixk.framework.ioc.factory.FactoryBean;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.SoftCache;
 
@@ -31,41 +29,44 @@ public class Binding {
     private static final SoftCache<Class<?>, BindingInfos> CACHE = new SoftCache<>();
 
     private final Context context;
-    private volatile Wrapper wrapper;
-    private final ScopeType scope;
-    private final String instanceName;
+    private final String scope;
+    private final String name;
     private final Class<?> instanceType;
     private volatile BindingInfos bindingInfos;
 
+    private volatile FactoryBean<?> factoryBean;
+
     public Binding(
         final Context context,
-        final String instanceName,
-        final Wrapper wrapper,
-        final ScopeType scopeType
+        final String name,
+        final Class<?> instanceType,
+        final String scopeType
     ) {
         this.context = context;
-        this.wrapper = wrapper;
         this.scope = scopeType;
-        this.instanceName = instanceName;
-        Class<?> type;
-        try {
-            type = ClassUtil.loadClass(instanceName);
-        } catch (final UtilException e) {
-            type = null;
-        }
-        this.instanceType = type;
+        this.name = name;
+        this.instanceType = instanceType;
         this.init();
     }
 
     public Binding(
         final Context context,
-        final String instanceName,
+        final String name,
         final Object instance,
-        final ScopeType scopeType
+        final String scopeType
     ) {
-        this(context, instanceName, null, scopeType);
-        this.setInstance(instance);
-        this.setWrapper((container, with) -> this.getInstance());
+        this(context, name, instance.getClass(), scopeType);
+        this.setSource(instance);
+    }
+
+    public Binding(
+        final Context context,
+        final String name,
+        final FactoryBean<?> factoryBean,
+        final String scopeType
+    ) {
+        this(context, name, factoryBean.getObjectType(), scopeType);
+        this.setFactoryBean(factoryBean);
     }
 
     @SuppressWarnings("unchecked")
@@ -114,41 +115,45 @@ public class Binding {
         }
     }
 
-    public ScopeType getScope() {
+    public String getScope() {
         return scope;
     }
 
-    public String getInstanceName() {
-        return instanceName;
+    public String getName() {
+        return name;
     }
 
-    public Class<?> getInstanceType() {
+    public Class<?> getType() {
         return instanceType;
     }
 
-    public Object getInstance() {
+    public Object getSource() {
         return this.isCreated()
             ? this.context.get(
-                    instanceName,
+                    name,
                     instanceType == null ? Object.class : instanceType
                 )
             : null;
     }
 
-    public void setInstance(final Object instance) {
-        this.context.set(instanceName, instance);
+    public void setSource(final Object instance) {
+        this.context.set(name, instance);
+    }
+
+    public FactoryBean<?> getFactoryBean() {
+        return factoryBean;
+    }
+
+    public void setFactoryBean(FactoryBean<?> factoryBean) {
+        this.factoryBean = factoryBean;
     }
 
     public boolean isCreated() {
-        return this.context.has(instanceName);
+        return this.context.has(name);
     }
 
-    public Wrapper getWrapper() {
-        return wrapper;
-    }
-
-    public void setWrapper(final Wrapper wrapper) {
-        this.wrapper = wrapper;
+    public boolean isShared() {
+        return this.context.isShared(scope);
     }
 
     public Method getInitMethod() {
@@ -185,7 +190,7 @@ public class Binding {
 
     @Override
     public int hashCode() {
-        return Objects.hash(instanceName);
+        return Objects.hash(name);
     }
 
     @Override
@@ -197,7 +202,7 @@ public class Binding {
             return false;
         }
         Binding binding = (Binding) o;
-        return Objects.equals(instanceName, binding.instanceName);
+        return Objects.equals(name, binding.name);
     }
 
     private static class BindingInfos {

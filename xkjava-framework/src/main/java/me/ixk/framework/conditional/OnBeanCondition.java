@@ -38,7 +38,7 @@ public class OnBeanCondition implements Condition {
             ? ConditionalOnBean.class
             : ConditionalOnMissingBean.class;
         for (Class<?> beanType : (Class<?>[]) annotation.get(type, "value")) {
-            if (!app.hasBinding(beanType)) {
+            if (!app.has(beanType)) {
                 if (log.isDebugEnabled()) {
                     log.debug(msg, beanType.getName());
                 }
@@ -46,7 +46,7 @@ public class OnBeanCondition implements Condition {
             }
         }
         for (String beanName : (String[]) annotation.get(type, "name")) {
-            if (!app.hasBinding(beanName)) {
+            if (!app.has(beanName)) {
                 if (log.isDebugEnabled()) {
                     log.debug(msg, beanName);
                 }

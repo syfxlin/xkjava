@@ -16,7 +16,6 @@ import me.ixk.framework.kernel.BeanProcessorAnnotationProcessor;
 import me.ixk.framework.kernel.BootstrapAnnotationProcessor;
 import me.ixk.framework.kernel.ComponentScanAnnotationProcessor;
 import me.ixk.framework.kernel.InjectorAnnotationProcessor;
-import me.ixk.framework.processor.AnnotationProcessor;
 import me.ixk.framework.property.Environment;
 import me.ixk.framework.server.JettyServer;
 import me.ixk.framework.server.Server;
@@ -255,18 +254,10 @@ public class XkJava extends Container {
         final SessionContext sessionContext = new SessionContext();
         this.registerContext(sessionContext);
 
-        this.instance(XkJava.class, this, "app");
-        this.singleton(
-                AspectManager.class,
-                AspectManager.class,
-                "aspectManager"
-            );
-        this.instance(
-                AnnotationProcessor.class,
-                annotationProcessorManager,
-                "annotationProcessorManager"
-            );
-        this.instance(BeanScanner.class, this.beanScanner, "beanScanner");
+        this.instance("app", this);
+        this.bind("aspectManager", AspectManager.class);
+        this.instance("annotationProcessorManager", annotationProcessorManager);
+        this.instance("beanScanner", this.beanScanner);
     }
 
     /**

@@ -21,13 +21,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(XkJavaRunner.class)
 @Component
 public @interface XkJavaTest {
-    @AliasFor("properties")
+    @AliasFor("location")
     String value() default "";
 
     @AliasFor("value")
-    String properties() default "";
+    String location() default "";
 
-    String[] args() default {  };
+    String[] args() default {};
 
-    Class<?>[] classes() default {  };
+    Class<?>[] classes() default {};
 }

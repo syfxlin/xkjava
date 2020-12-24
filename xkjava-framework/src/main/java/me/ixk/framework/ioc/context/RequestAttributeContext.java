@@ -2,22 +2,22 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.ioc;
+package me.ixk.framework.ioc.context;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 import me.ixk.framework.utils.DataUtils;
 
 /**
- * SessionAttributeContext
+ * RequestAttributeContext
  *
  * @author Otstar Lin
- * @date 2020/10/26 下午 2:40
+ * @date 2020/10/14 下午 12:39
  */
-public interface SessionAttributeContext extends Context {
+public interface RequestAttributeContext extends Context {
     String INSTANCE_ATTRIBUTE_NAME = DataUtils.attributeName(
-        SessionAttributeContext.class,
+        RequestAttributeContext.class,
         "INSTANCE_ATTRIBUTE_NAME"
     );
 
@@ -29,24 +29,16 @@ public interface SessionAttributeContext extends Context {
     /**
      * 获取 Context
      *
-     * @return Session 对象
+     * @return Request 对象
      */
-    HttpSession getContext();
+    HttpServletRequest getContext();
 
     /**
      * 设置 Context
      *
-     * @param session Session 对象
+     * @param request Request 对象
      */
-    void setContext(HttpSession session);
-
-    /**
-     * 是否启动
-     *
-     * @return 是否启动
-     */
-    @Override
-    boolean isCreated();
+    void setContext(HttpServletRequest request);
 
     /**
      * 获取所有实例
@@ -64,4 +56,12 @@ public interface SessionAttributeContext extends Context {
         }
         return instances;
     }
+
+    /**
+     * 是否启动
+     *
+     * @return 是否启动
+     */
+    @Override
+    boolean isCreated();
 }

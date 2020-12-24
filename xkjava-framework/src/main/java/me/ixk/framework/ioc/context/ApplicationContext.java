@@ -6,8 +6,6 @@ package me.ixk.framework.ioc.context;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotations.ScopeType;
-import me.ixk.framework.ioc.Context;
 
 /**
  * ApplicationContext
@@ -22,18 +20,20 @@ public class ApplicationContext implements Context {
     private final Map<String, Object> instances = new ConcurrentHashMap<>();
 
     @Override
-    public boolean matchesScope(final ScopeType scopeType) {
-        switch (scopeType) {
-            case SINGLETON:
-            case PROTOTYPE:
-                return true;
-            default:
-                return false;
-        }
+    public boolean matchesScope(final String scopeType) {
+        return (
+            ScopeType.SINGLETON.is(scopeType) ||
+            ScopeType.PROTOTYPE.is(scopeType)
+        );
     }
 
     @Override
     public Map<String, Object> getInstances() {
         return this.instances;
+    }
+
+    @Override
+    public boolean isShared(String scopeType) {
+        return !ScopeType.PROTOTYPE.is(scopeType);
     }
 }

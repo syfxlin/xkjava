@@ -5,7 +5,6 @@
 package me.ixk.framework.registry.attribute;
 
 import java.lang.reflect.AnnotatedElement;
-import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.MergedAnnotation;
 
@@ -31,7 +30,7 @@ public interface AttributeRegistry {
         XkJava app,
         String attributeName,
         AnnotatedElement element,
-        ScopeType scopeType,
+        String scopeType,
         MergedAnnotation annotation
     );
 }

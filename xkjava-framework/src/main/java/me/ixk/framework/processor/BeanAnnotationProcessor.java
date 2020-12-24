@@ -19,11 +19,12 @@ import me.ixk.framework.annotations.BeforeRegistry;
 import me.ixk.framework.annotations.BindRegistry;
 import me.ixk.framework.annotations.Import;
 import me.ixk.framework.annotations.Lazy;
-import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.AnnotatedEntry;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.ImportSelector;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.ioc.context.ScopeType;
+import me.ixk.framework.ioc.factory.FactoryBean;
 import me.ixk.framework.registry.BeanBindRegistry;
 import me.ixk.framework.registry.after.AfterBeanRegistry;
 import me.ixk.framework.registry.before.BeforeBeanRegistry;
@@ -83,7 +84,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
             );
         // Make bean
         for (final String beanName : this.makeList) {
-            this.app.make(beanName);
+            this.app.make(beanName, Object.class);
         }
     }
 
@@ -91,7 +92,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
             method
         );
-        final ScopeType scopeType = this.getScoopType(annotation);
+        final String scopeType = this.getScoopType(annotation);
         final String name = method.getName();
         final Class<?> clazz = method.getReturnType();
         final Bean beanAnnotation = annotation.getAnnotation(Bean.class);
@@ -100,17 +101,16 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         }
         final Method[] initAndDestroyMethod =
             this.getInitAndDestroyMethod(beanAnnotation, clazz);
-        final boolean overwrite = beanAnnotation.overwrite();
         final Binding binding =
-            this.invokeRegistry(annotation, method, scopeType, overwrite);
+            this.invokeRegistry(annotation, method, scopeType);
         this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
         for (final String n : beanAnnotation.name()) {
-            this.app.alias(n, name, overwrite);
+            this.app.setAlias(n, binding.getName());
         }
-        for (final Class<?> type : beanAnnotation.type()) {
-            this.app.alias(type.getName(), name, overwrite);
-        }
-        if (scopeType.isSingleton() && annotation.notAnnotation(Lazy.class)) {
+        if (
+            ScopeType.SINGLETON.is(scopeType) &&
+            annotation.notAnnotation(Lazy.class)
+        ) {
             makeList.add(name);
         }
     }
@@ -123,21 +123,20 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         if (beanAnnotation == null) {
             return;
         }
-        final ScopeType scopeType = this.getScoopType(annotation);
+        final String scopeType = this.getScoopType(annotation);
         final Method[] initAndDestroyMethod =
             this.getInitAndDestroyMethod(beanAnnotation, clazz);
-        final boolean overwrite = beanAnnotation.overwrite();
         final Binding binding =
-            this.invokeRegistry(annotation, clazz, scopeType, overwrite);
+            this.invokeRegistry(annotation, clazz, scopeType);
         this.setInitAndDestroyMethod(binding, initAndDestroyMethod);
         for (final String name : beanAnnotation.name()) {
-            this.app.alias(name, clazz, overwrite);
-        }
-        for (final Class<?> type : beanAnnotation.type()) {
-            this.app.alias(type.getName(), clazz, overwrite);
+            this.app.setAlias(name, binding.getName());
         }
         // Add singleton to make list
-        if (scopeType.isSingleton() && annotation.notAnnotation(Lazy.class)) {
+        if (
+            ScopeType.SINGLETON.is(scopeType) &&
+            annotation.notAnnotation(Lazy.class)
+        ) {
             makeList.add(clazz.getName());
         }
     }
@@ -190,16 +189,23 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     private Binding invokeRegistry(
         final MergedAnnotation annotation,
         final Method method,
-        final ScopeType scopeType,
-        final boolean overwrite
+        final String scopeType
     ) {
         if (annotation.notAnnotation(BindRegistry.class)) {
             return this.app.bind(
                     method.getName(),
-                    (container, with) -> container.call(method),
-                    method.getReturnType().getName(),
-                    scopeType,
-                    overwrite
+                    new FactoryBean<Object>() {
+                        @Override
+                        public Object getObject() throws Exception {
+                            return app.call(method);
+                        }
+
+                        @Override
+                        public Class<?> getObjectType() {
+                            return method.getReturnType();
+                        }
+                    },
+                    scopeType
                 );
         } else {
             return this.app.make(
@@ -216,12 +222,11 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     private Binding invokeRegistry(
         final MergedAnnotation annotation,
         final Class<?> clazz,
-        final ScopeType scopeType,
-        final boolean overwrite
+        final String scopeType
     ) {
         // @BindRegistry
         if (annotation.notAnnotation(BindRegistry.class)) {
-            return this.app.bind(clazz, clazz, null, scopeType, overwrite);
+            return this.app.bind(clazz, scopeType);
         } else {
             return this.app.make(
                     (Class<BeanBindRegistry>) annotation.get(

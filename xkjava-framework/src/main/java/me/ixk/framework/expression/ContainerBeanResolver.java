@@ -17,13 +17,15 @@ public class ContainerBeanResolver implements BeanResolver {
 
     private final XkJava app;
 
-    public ContainerBeanResolver(XkJava app) {
+    public ContainerBeanResolver(final XkJava app) {
         this.app = app;
     }
 
     @Override
-    public Object resolve(EvaluationContext context, String beanName)
-        throws AccessException {
-        return this.app.make(beanName);
+    public Object resolve(
+        final EvaluationContext context,
+        final String beanName
+    ) throws AccessException {
+        return this.app.make(beanName, Object.class);
     }
 }

@@ -18,7 +18,7 @@ import me.ixk.framework.registry.MapperRegistry;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Scope(type = ScopeType.PROTOTYPE)
+@Scope(type = "prototype")
 @Bean
 @BindRegistry(MapperRegistry.class)
 public @interface Mapper {

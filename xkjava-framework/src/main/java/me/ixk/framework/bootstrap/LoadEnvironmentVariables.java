@@ -62,7 +62,7 @@ public class LoadEnvironmentVariables extends AbstractBootstrap {
                 this.loadProperties(location, profile)
             );
         }
-        this.app.instance(Environment.class, environment, "env");
+        this.app.instance("env", environment);
     }
 
     private PropertiesPropertySource loadProperties(

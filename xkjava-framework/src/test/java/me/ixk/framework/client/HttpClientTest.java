@@ -29,7 +29,7 @@ class HttpClientTest {
             "http://localhost:8080/welcome"
         ) final HttpResponse welcome
     ) {
-        assertEquals("enable", welcome.body());
+        assertEquals("welcome", welcome.body());
     }
 
     @Test

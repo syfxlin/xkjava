@@ -18,17 +18,15 @@ import me.ixk.framework.route.RouteManager;
  * @author Otstar Lin
  * @date 2020/10/14 下午 4:54
  */
-@Servlet(
-    url = "/*",
-    name = { "dispatcherServlet", "javax.servlet.http.HttpServlet" }
-)
+@Servlet(url = "/*", name = { "dispatcherServlet" })
 @MultipartConfig
 public class DispatcherServlet extends AbstractFrameworkServlet {
+
     private static final long serialVersionUID = -5890247928905581053L;
     protected final XkJava app;
 
     @Deprecated
-    public DispatcherServlet(XkJava app) {
+    public DispatcherServlet(final XkJava app) {
         this.app = app;
     }
 

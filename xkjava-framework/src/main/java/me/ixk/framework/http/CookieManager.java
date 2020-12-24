@@ -7,7 +7,6 @@ package me.ixk.framework.http;
 import javax.servlet.http.Cookie;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
-import me.ixk.framework.annotations.ScopeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 上午 9:12
  */
 @Component(name = "cookieManager")
-@Scope(type = ScopeType.REQUEST)
+@Scope(type = "request")
 public class CookieManager {
 
     private static final Logger log = LoggerFactory.getLogger(

@@ -34,6 +34,6 @@ class BeanAnnotationProcessorTest {
 
     @Test
     void processImport() {
-        assertTrue(app.hasBinding(ImportTarget.class));
+        assertTrue(app.has(ImportTarget.class));
     }
 }

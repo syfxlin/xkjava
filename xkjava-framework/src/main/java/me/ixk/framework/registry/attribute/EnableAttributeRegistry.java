@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import me.ixk.framework.annotations.Enable;
-import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.MergedAnnotation;
 
@@ -24,7 +23,7 @@ public class EnableAttributeRegistry implements AttributeRegistry {
         final XkJava app,
         final String attributeName,
         final AnnotatedElement element,
-        final ScopeType scopeType,
+        final String scopeType,
         final MergedAnnotation annotation
     ) {
         final Set<String> enableFunctions = app.enableFunctions();

@@ -2,7 +2,7 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.annotations;
+package me.ixk.framework.ioc.context;
 
 /**
  * 作用域类型
@@ -37,6 +37,14 @@ public enum ScopeType {
     @Override
     public String toString() {
         return this.name;
+    }
+
+    public String asString() {
+        return toString();
+    }
+
+    public boolean is(final String scopeType) {
+        return toString().equals(scopeType);
     }
 
     public boolean isShared() {

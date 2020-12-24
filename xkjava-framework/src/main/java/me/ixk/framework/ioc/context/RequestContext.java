@@ -5,9 +5,7 @@
 package me.ixk.framework.ioc.context;
 
 import javax.servlet.http.HttpServletRequest;
-import me.ixk.framework.annotations.ScopeType;
-import me.ixk.framework.factory.ObjectFactory;
-import me.ixk.framework.ioc.RequestAttributeContext;
+import me.ixk.framework.ioc.factory.ObjectFactory;
 import me.ixk.framework.utils.ReflectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,8 +55,8 @@ public class RequestContext implements RequestAttributeContext {
     }
 
     @Override
-    public boolean matchesScope(final ScopeType scopeType) {
-        return scopeType == ScopeType.REQUEST;
+    public boolean matchesScope(final String scopeType) {
+        return ScopeType.REQUEST.is(scopeType);
     }
 
     @Override

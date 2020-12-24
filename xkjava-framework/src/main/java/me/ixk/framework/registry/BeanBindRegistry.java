@@ -5,7 +5,6 @@
 package me.ixk.framework.registry;
 
 import java.lang.reflect.AnnotatedElement;
-import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.MergedAnnotation;
@@ -30,7 +29,7 @@ public interface BeanBindRegistry {
     Binding register(
         XkJava app,
         AnnotatedElement element,
-        ScopeType scopeType,
+        String scopeType,
         MergedAnnotation annotation
     );
 }

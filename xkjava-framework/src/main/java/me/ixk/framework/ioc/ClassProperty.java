@@ -2,7 +2,7 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.config;
+package me.ixk.framework.ioc;
 
 import java.lang.reflect.Field;
 import me.ixk.framework.utils.MergedAnnotation;
@@ -14,6 +14,7 @@ import me.ixk.framework.utils.MergedAnnotation;
  * @date 2020/11/8 下午 7:42
  */
 public class ClassProperty {
+
     private final Object instance;
     private final Class<?> instanceClass;
     private final Field property;

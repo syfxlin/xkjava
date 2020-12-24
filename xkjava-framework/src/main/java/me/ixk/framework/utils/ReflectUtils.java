@@ -17,7 +17,7 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.aop.CanGetTarget;
-import me.ixk.framework.factory.ObjectFactory;
+import me.ixk.framework.ioc.factory.ObjectFactory;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
@@ -146,6 +146,7 @@ public class ReflectUtils {
     private static class ObjectFactoryDelegatingInterceptor
         implements
             MethodInterceptor, InvocationHandler, Serializable, CanGetTarget {
+
         private final ObjectFactory<?> objectFactory;
 
         public ObjectFactoryDelegatingInterceptor(
@@ -160,8 +161,7 @@ public class ReflectUtils {
             Method method,
             Object[] args,
             MethodProxy proxy
-        )
-            throws Throwable {
+        ) throws Throwable {
             final Object object = this.objectFactory.getObject();
             if (object == null) {
                 throw new NullPointerException(

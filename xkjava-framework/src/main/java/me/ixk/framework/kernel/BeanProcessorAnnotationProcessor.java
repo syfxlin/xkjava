@@ -7,9 +7,9 @@ package me.ixk.framework.kernel;
 import cn.hutool.core.util.ReflectUtil;
 import me.ixk.framework.annotations.BeanProcessor;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
-import me.ixk.framework.ioc.BeanAfterProcessor;
-import me.ixk.framework.ioc.BeanBeforeProcessor;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.ioc.processor.BeanAfterProcessor;
+import me.ixk.framework.ioc.processor.BeanBeforeProcessor;
 import me.ixk.framework.processor.AbstractAnnotationProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BeanProcessorAnnotationProcessor
     extends AbstractAnnotationProcessor {
+
     private static final Logger log = LoggerFactory.getLogger(
         BeanProcessorAnnotationProcessor.class
     );

@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.exceptions.DispatchServletException;
 import me.ixk.framework.exceptions.Exception;
+import me.ixk.framework.ioc.DefaultDataBinder;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.registry.after.ExceptionHandlerRegistry;
 import me.ixk.framework.web.ExceptionInfo;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 @WebResolver
 public class ExceptionHandlerResolver implements HandlerExceptionResolver {
+
     private static final Logger log = LoggerFactory.getLogger(
         ExceptionHandlerResolver.class
     );
@@ -90,7 +92,11 @@ public class ExceptionHandlerResolver implements HandlerExceptionResolver {
                 args.put(Exception.class.getName(), exception);
                 args.put(Exception.class.getName(), exception);
                 // 获取返回值
-                return this.app.call(clazz, method, Object.class, args);
+                return this.app.call(
+                        clazz,
+                        method,
+                        new DefaultDataBinder(this.app, args)
+                    );
             }
         } catch (final Throwable e) {
             throw new DispatchServletException(

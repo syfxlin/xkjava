@@ -4,9 +4,9 @@
 
 package me.ixk.framework.ioc;
 
+import cn.hutool.core.convert.Convert;
 import java.util.Map;
 import me.ixk.framework.annotations.DataBind;
-import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**
@@ -16,6 +16,7 @@ import me.ixk.framework.utils.MergedAnnotation;
  * @date 2020/10/14 上午 11:38
  */
 public class DefaultDataBinder implements DataBinder {
+
     private final Container container;
 
     private final Map<String, Object> data;
@@ -43,9 +44,6 @@ public class DefaultDataBinder implements DataBinder {
         }
         if (object == null) {
             object = container.make(name, type, this);
-        }
-        if (object == null) {
-            object = container.make(type, this);
         }
         if (
             object == null &&

@@ -5,9 +5,7 @@
 package me.ixk.framework.ioc.context;
 
 import javax.servlet.http.HttpSession;
-import me.ixk.framework.annotations.ScopeType;
-import me.ixk.framework.factory.ObjectFactory;
-import me.ixk.framework.ioc.SessionAttributeContext;
+import me.ixk.framework.ioc.factory.ObjectFactory;
 import me.ixk.framework.utils.ReflectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +54,8 @@ public class SessionContext implements SessionAttributeContext {
     }
 
     @Override
-    public boolean matchesScope(final ScopeType scopeType) {
-        return scopeType == ScopeType.SESSION;
+    public boolean matchesScope(final String scopeType) {
+        return ScopeType.SESSION.is(scopeType);
     }
 
     @Override

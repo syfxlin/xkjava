@@ -10,7 +10,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
-import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.DataUtils;
 import org.slf4j.Logger;
@@ -23,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 上午 10:18
  */
 @Component(name = "sessionManager")
-@Scope(type = ScopeType.REQUEST)
+@Scope(type = "request")
 public class SessionManager {
 
     private static final Logger log = LoggerFactory.getLogger(

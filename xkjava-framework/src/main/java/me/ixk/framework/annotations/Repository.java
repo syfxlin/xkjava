@@ -17,15 +17,15 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Scope(type = ScopeType.PROTOTYPE)
+@Scope(type = "prototype")
 @Bean
 public @interface Repository {
     @AliasFor(value = "name", annotation = Bean.class, attribute = "value")
-    String[] value() default {  };
+    String[] value() default {};
 
     @AliasFor(value = "value", annotation = Bean.class, attribute = "name")
-    String[] name() default {  };
+    String[] name() default {};
 
     @AliasFor(annotation = Bean.class, attribute = "type")
-    Class<?>[] type() default {  };
+    Class<?>[] type() default {};
 }

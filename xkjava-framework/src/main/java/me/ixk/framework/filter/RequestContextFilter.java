@@ -13,11 +13,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.annotations.Filter;
 import me.ixk.framework.annotations.Order;
-import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.context.RequestContext;
+import me.ixk.framework.ioc.context.ScopeType;
 import me.ixk.framework.ioc.context.SessionContext;
 
 /**
@@ -29,6 +29,7 @@ import me.ixk.framework.ioc.context.SessionContext;
 @Filter(url = "/*")
 @Order(Order.HIGHEST_PRECEDENCE + 2)
 public class RequestContextFilter extends GenericFilter {
+
     protected final XkJava app;
     protected final RequestContext requestContext;
     protected final SessionContext sessionContext;
@@ -36,9 +37,13 @@ public class RequestContextFilter extends GenericFilter {
     public RequestContextFilter(XkJava app) {
         this.app = app;
         this.requestContext =
-            (RequestContext) this.app.getContextByScope(ScopeType.REQUEST);
+            (RequestContext) this.app.getContextByScope(
+                    ScopeType.REQUEST.asString()
+                );
         this.sessionContext =
-            (SessionContext) this.app.getContextByScope(ScopeType.SESSION);
+            (SessionContext) this.app.getContextByScope(
+                    ScopeType.SESSION.asString()
+                );
     }
 
     @Override
@@ -46,8 +51,7 @@ public class RequestContextFilter extends GenericFilter {
         ServletRequest request,
         ServletResponse response,
         FilterChain chain
-    )
-        throws IOException, ServletException {
+    ) throws IOException, ServletException {
         if (
             request instanceof HttpServletRequest &&
             response instanceof HttpServletResponse

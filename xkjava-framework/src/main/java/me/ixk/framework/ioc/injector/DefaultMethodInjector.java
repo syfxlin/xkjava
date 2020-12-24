@@ -11,7 +11,6 @@ import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.InstanceContext;
-import me.ixk.framework.ioc.InstanceInjector;
 
 /**
  * 默认的方法注入器

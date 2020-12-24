@@ -22,10 +22,10 @@ class RouteParserTest {
         assertEquals("/user", d1.getRegex());
 
         final RouteData d2 = parser.parse("/user/{id}");
-        assertEquals("/user/([^/]+)", d2.getRegex());
+        assertEquals("/user/([^/}]+)", d2.getRegex());
 
         final RouteData d3 = parser.parse("/user/{id?}");
-        assertEquals("/user/?([^/]+)?", d3.getRegex());
+        assertEquals("/user/?([^/}]+)?", d3.getRegex());
 
         final RouteData d4 = parser.parse("/user/{id:[a-z]+}");
         assertEquals("/user/([a-z]+)", d4.getRegex());
@@ -34,12 +34,12 @@ class RouteParserTest {
         assertEquals("/user/?([a-z]+)?", d5.getRegex());
 
         final RouteData d6 = parser.parse("/user/{id}/{name}");
-        assertEquals("/user/([^/]+)/([^/]+)", d6.getRegex());
+        assertEquals("/user/([^/}]+)/([^/}]+)", d6.getRegex());
 
         final RouteData d7 = parser.parse("/user/name");
         assertEquals("/user/name", d7.getRegex());
 
         final RouteData d8 = parser.parse("/user/name/{name}");
-        assertEquals("/user/name/([^/]+)", d8.getRegex());
+        assertEquals("/user/name/([^/}]+)", d8.getRegex());
     }
 }

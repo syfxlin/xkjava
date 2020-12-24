@@ -7,9 +7,9 @@ package me.ixk.framework.kernel;
 import cn.hutool.core.util.ReflectUtil;
 import me.ixk.framework.annotations.Injector;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
-import me.ixk.framework.ioc.InstanceInjector;
-import me.ixk.framework.ioc.ParameterInjector;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.ioc.injector.InstanceInjector;
+import me.ixk.framework.ioc.injector.ParameterInjector;
 import me.ixk.framework.processor.AbstractAnnotationProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/11/9 下午 8:55
  */
 public class InjectorAnnotationProcessor extends AbstractAnnotationProcessor {
+
     private static final Logger log = LoggerFactory.getLogger(
         InjectorAnnotationProcessor.class
     );

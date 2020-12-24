@@ -32,11 +32,16 @@ class EnableAttributeRegistryTest {
     @Test
     void registry() {
         assertEquals(
-            Set.of("testEnable", EnableAttributeRegistryTest.class.getName()),
+            Set.of(
+                "cache",
+                "task",
+                "testEnable",
+                EnableAttributeRegistryTest.class.getName()
+            ),
             app.enableFunctions()
         );
-        assertTrue(app.hasBinding("enable"));
-        assertFalse(app.hasBinding("disable"));
+        assertTrue(app.has("enable"));
+        assertFalse(app.has("disable"));
     }
 
     @ConditionalOnEnable(name = "testEnable")

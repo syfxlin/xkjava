@@ -2,10 +2,9 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.ioc;
+package me.ixk.framework.ioc.context;
 
 import java.util.Map;
-import me.ixk.framework.annotations.ScopeType;
 
 /**
  * Context
@@ -21,7 +20,18 @@ public interface Context {
      *
      * @return 是否匹配
      */
-    boolean matchesScope(ScopeType scopeType);
+    boolean matchesScope(String scopeType);
+
+    /**
+     * 是否是共享的，即单例
+     *
+     * @param scopeType 作用域类型
+     *
+     * @return 是否
+     */
+    default boolean isShared(String scopeType) {
+        return true;
+    }
 
     /**
      * 该 Context 是否启动，一般的 Context 只要 new 后就会启动 但是如果是 ThreadLocal 则需要另行启动

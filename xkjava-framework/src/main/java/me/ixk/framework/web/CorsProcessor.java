@@ -23,6 +23,7 @@ import me.ixk.framework.http.Response;
  */
 @Component(name = "corsProcessor")
 public class CorsProcessor {
+
     public static final String DYNAMIC_ORIGIN = "DYNAMIC";
     public static final String ALL = "*";
     public static final String TRUE = "true";
@@ -70,12 +71,11 @@ public class CorsProcessor {
     }
 
     public static class Configuration {
+
         private final String allowedOrigin;
         private final List<String> allowedMethods;
         private final List<String> allowedHeaders;
         private final boolean allowCredentials;
-        private final boolean allowedAllMethod;
-        private final boolean allowedAllHeaders;
 
         public Configuration(
             final String allowedOrigin,
@@ -87,8 +87,6 @@ public class CorsProcessor {
             this.allowedMethods = allowedMethods;
             this.allowedHeaders = allowedHeaders;
             this.allowCredentials = allowCredentials;
-            this.allowedAllMethod = this.allowedMethods.contains(ALL);
-            this.allowedAllHeaders = this.allowedHeaders.contains(ALL);
         }
 
         public Configuration(final CrossOrigin crossOrigin) {
@@ -105,8 +103,6 @@ public class CorsProcessor {
                     Arrays.asList(crossOrigin.allowedHeaders())
                 );
             this.allowCredentials = crossOrigin.allowCredentials();
-            this.allowedAllMethod = this.allowedMethods.contains(ALL);
-            this.allowedAllHeaders = this.allowedHeaders.contains(ALL);
         }
 
         public String getAllowedOrigin(Request request) {

@@ -25,6 +25,7 @@ import me.ixk.framework.web.CorsProcessor.Configuration;
 @Filter(url = "/*")
 @Order(Order.HIGHEST_PRECEDENCE + 3)
 public class CorsFilter extends GenericFilter {
+
     private final CorsProcessor corsProcessor;
     private Configuration configuration;
 
@@ -32,21 +33,20 @@ public class CorsFilter extends GenericFilter {
         this.corsProcessor = corsProcessor;
     }
 
-    public CorsFilter(
-        CorsProcessor corsProcessor,
-        Configuration configuration
-    ) {
-        this.corsProcessor = corsProcessor;
-        this.configuration = configuration;
-    }
+    // public CorsFilter(
+    //     CorsProcessor corsProcessor,
+    //     Configuration configuration
+    // ) {
+    //     this.corsProcessor = corsProcessor;
+    //     this.configuration = configuration;
+    // }
 
     @Override
     public void doFilter(
         ServletRequest request,
         ServletResponse response,
         FilterChain chain
-    )
-        throws IOException, ServletException {
+    ) throws IOException, ServletException {
         if (this.configuration != null) {
             this.corsProcessor.processRequest(
                     this.configuration,

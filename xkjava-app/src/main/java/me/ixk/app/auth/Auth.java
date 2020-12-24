@@ -17,7 +17,6 @@ import me.ixk.app.entity.Users;
 import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
-import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.http.SetCookie;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.DataUtils;
@@ -25,7 +24,7 @@ import me.ixk.framework.utils.ValidResult;
 import me.ixk.framework.utils.Validation;
 
 @Component(name = "auth")
-@Scope(type = ScopeType.REQUEST)
+@Scope(type = "request")
 public class Auth {
 
     protected Users user = null;

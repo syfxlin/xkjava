@@ -23,11 +23,7 @@ import me.ixk.framework.scheduling.ScheduledTaskExecutor;
 @Provider
 public class TaskProvider {
 
-    @Bean(
-        name = "scheduledExecutor",
-        type = { AsyncTaskExecutor.class, ScheduledTaskExecutor.class },
-        destroyMethod = "shutdown"
-    )
+    @Bean(name = "scheduledExecutor", destroyMethod = "shutdown")
     @ConditionalOnMissingBean(
         value = {
             ScheduledExecutor.class,

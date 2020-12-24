@@ -12,13 +12,14 @@ import java.lang.reflect.Parameter;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.exceptions.Exception;
 import me.ixk.framework.exceptions.ResponseException;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.ioc.DataBinder;
+import me.ixk.framework.ioc.DefaultDataBinder;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.ioc.context.ScopeType;
 import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.registry.after.InitBinderRegistry;
 import me.ixk.framework.registry.after.WebResolverRegistry;
@@ -95,12 +96,12 @@ public class ControllerHandler implements Handler {
         this.app.setAttribute(
                 "me.ixk.framework.web.ControllerHandler.controllerClass",
                 this.controllerClass,
-                ScopeType.REQUEST
+                ScopeType.REQUEST.asString()
             );
         this.app.setAttribute(
                 "me.ixk.framework.web.ControllerHandler.controllerMethod",
                 this.method,
-                ScopeType.REQUEST
+                ScopeType.REQUEST.asString()
             );
         // 创建 WebContext
         this.context = this.app.make(WebContext.class);
@@ -194,12 +195,20 @@ public class ControllerHandler implements Handler {
             .get(this.controllerClass);
         if (resolver != null) {
             for (final Method method : resolver.resolveMethods()) {
-                this.app.call(this.controllerClass, method, Object.class, args);
+                this.app.call(
+                        this.controller,
+                        method,
+                        new DefaultDataBinder(this.app, args)
+                    );
             }
         }
         for (final InitBinderHandlerResolver handlerResolver : registry.getAdviceResolvers()) {
             for (final Method method : handlerResolver.resolveMethods()) {
-                this.app.call(this.controllerClass, method, Object.class, args);
+                this.app.call(
+                        this.controller,
+                        method,
+                        new DefaultDataBinder(this.app, args)
+                    );
             }
         }
     }

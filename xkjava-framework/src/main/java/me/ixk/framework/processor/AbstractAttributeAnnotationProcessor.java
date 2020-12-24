@@ -7,7 +7,6 @@ package me.ixk.framework.processor;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import me.ixk.framework.annotations.Attribute;
-import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.registry.attribute.AttributeRegistry;
@@ -64,7 +63,7 @@ public abstract class AbstractAttributeAnnotationProcessor
         final AnnotatedElement element,
         final MergedAnnotation attributeAnnotation
     ) {
-        ScopeType scoopType = this.getScoopType(attributeAnnotation);
+        String scoopType = this.getScoopType(attributeAnnotation);
         for (Attribute attribute : attributeAnnotation.getAnnotations(
             Attribute.class
         )) {

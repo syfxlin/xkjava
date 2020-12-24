@@ -9,9 +9,9 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import me.ixk.framework.annotations.Scheduled;
-import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.ioc.factory.FactoryBean;
 import me.ixk.framework.registry.BeanBindRegistry;
 import me.ixk.framework.utils.MergedAnnotation;
 
@@ -27,33 +27,40 @@ public class ScheduledRegistry implements BeanBindRegistry {
     public Binding register(
         final XkJava app,
         final AnnotatedElement element,
-        final ScopeType scopeType,
+        final String scopeType,
         final MergedAnnotation annotation
     ) {
         return app.bind(
             ((Method) element).getName(),
-            (container, dataBinder) -> {
-                final ScheduledTaskExecutor executor = app.make(
-                    ScheduledTaskExecutor.class
-                );
-                if (executor == null) {
-                    throw new NullPointerException(
-                        "No executor specified and no default executor set on scheduled task"
+            new FactoryBean<>() {
+                @Override
+                public Object getObject() throws Exception {
+                    final ScheduledTaskExecutor executor = app.make(
+                        ScheduledTaskExecutor.class
                     );
-                }
-                for (final Scheduled scheduled : annotation.getAnnotations(
-                    Scheduled.class
-                )) {
-                    this.processScheduled(
+                    if (executor == null) {
+                        throw new NullPointerException(
+                            "No executor specified and no default executor set on scheduled task"
+                        );
+                    }
+                    for (final Scheduled scheduled : annotation.getAnnotations(
+                        Scheduled.class
+                    )) {
+                        processScheduled(
                             scheduled,
                             executor,
                             app,
                             (Method) element
                         );
+                    }
+                    return EXECUTED;
                 }
-                return EXECUTED;
+
+                @Override
+                public Class<?> getObjectType() {
+                    return Void.class;
+                }
             },
-            null,
             scopeType
         );
     }

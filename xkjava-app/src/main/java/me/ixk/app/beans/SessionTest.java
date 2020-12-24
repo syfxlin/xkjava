@@ -6,14 +6,13 @@ package me.ixk.app.beans;
 
 import me.ixk.framework.annotations.Bean;
 import me.ixk.framework.annotations.Scope;
-import me.ixk.framework.annotations.ScopeType;
 
 /**
  * @author Otstar Lin
  * @date 2020/10/26 下午 10:05
  */
 @Bean
-@Scope(type = ScopeType.SESSION)
+@Scope(type = "session")
 public class SessionTest {
 
     private String name;

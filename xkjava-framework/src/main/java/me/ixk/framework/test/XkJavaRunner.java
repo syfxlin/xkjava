@@ -32,6 +32,7 @@ public class XkJavaRunner
         TestInstanceFactory,
         ParameterResolver,
         InvocationInterceptor {
+
     private static final String CONFIG_LOCATION_NAME =
         "--xkjava.config.location=";
     private XkJava app;
@@ -46,19 +47,19 @@ public class XkJavaRunner
             XkJavaTest.class
         );
         String[] args = xkJavaTest.args();
-        if (!xkJavaTest.properties().isEmpty()) {
+        if (!xkJavaTest.location().isEmpty()) {
             final String[] copy = new String[args.length + 1];
             boolean in = false;
             for (int i = 0; i < args.length; i++) {
                 copy[i] = args[i];
                 if (args[i].startsWith(CONFIG_LOCATION_NAME)) {
-                    args[i] = CONFIG_LOCATION_NAME + xkJavaTest.properties();
+                    args[i] = CONFIG_LOCATION_NAME + xkJavaTest.location();
                     in = true;
                 }
             }
             if (!in) {
                 copy[args.length] =
-                    CONFIG_LOCATION_NAME + xkJavaTest.properties();
+                    CONFIG_LOCATION_NAME + xkJavaTest.location();
                 args = copy;
             }
         }
@@ -80,8 +81,7 @@ public class XkJavaRunner
     public Object createTestInstance(
         final TestInstanceFactoryContext factoryContext,
         final ExtensionContext extensionContext
-    )
-        throws TestInstantiationException {
+    ) throws TestInstantiationException {
         return this.app.make(factoryContext.getTestClass());
     }
 
@@ -90,8 +90,7 @@ public class XkJavaRunner
         Invocation<Void> invocation,
         ReflectiveInvocationContext<Method> invocationContext,
         ExtensionContext extensionContext
-    )
-        throws Throwable {
+    ) throws Throwable {
         this.app.call(invocationContext.getExecutable());
         invocation.skip();
     }
@@ -100,8 +99,7 @@ public class XkJavaRunner
     public boolean supportsParameter(
         ParameterContext parameterContext,
         ExtensionContext extensionContext
-    )
-        throws ParameterResolutionException {
+    ) throws ParameterResolutionException {
         return true;
     }
 
@@ -109,8 +107,7 @@ public class XkJavaRunner
     public Object resolveParameter(
         ParameterContext parameterContext,
         ExtensionContext extensionContext
-    )
-        throws ParameterResolutionException {
+    ) throws ParameterResolutionException {
         return null;
     }
 }

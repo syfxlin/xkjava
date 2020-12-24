@@ -6,6 +6,7 @@ package me.ixk.framework.ioc;
 
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.StrUtil;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
@@ -20,12 +21,18 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Supplier;
-import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.ProxyCreator;
 import me.ixk.framework.bootstrap.LoadEnvironmentVariables;
 import me.ixk.framework.exceptions.ContainerException;
+import me.ixk.framework.ioc.context.Context;
+import me.ixk.framework.ioc.context.ScopeType;
+import me.ixk.framework.ioc.factory.FactoryBean;
+import me.ixk.framework.ioc.injector.InstanceInjector;
+import me.ixk.framework.ioc.injector.ParameterInjector;
+import me.ixk.framework.ioc.processor.BeanAfterProcessor;
+import me.ixk.framework.ioc.processor.BeanBeforeProcessor;
 import me.ixk.framework.utils.ClassUtils;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.ReflectUtils;
@@ -33,16 +40,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * IoC 容器
+ * 容器
  *
  * @author Otstar Lin
- * @date 2020/10/14 上午 11:17
+ * @date 2020/12/23 下午 10:37
  */
 public class Container {
 
     private static final Logger log = LoggerFactory.getLogger(Container.class);
 
-    private static final int ARRAY_METHOD_DEF_LENGTH = 2;
+    private static final String FACTORY_BEAN_PREFIX = "&_";
     private static final String ATTRIBUTE_PREFIX = "$_";
     /**
      * 参数注入器
@@ -71,9 +78,16 @@ public class Container {
     );
 
     /**
-     * Bindings
+     * Bindings key：Bean 名称
      */
     private final Map<String, Binding> bindings = new ConcurrentHashMap<>(256);
+
+    /**
+     * Bindings 类型索引 key：类型，value：Bean 名称
+     */
+    private final Map<Class<?>, List<String>> bindingNamesByType = new ConcurrentHashMap<>(
+        265
+    );
 
     /**
      * 别名
@@ -104,14 +118,16 @@ public class Container {
         log.info("Container destroyed");
     }
 
-    /* ===================== Base ===================== */
+    public Map<String, Binding> getBindings() {
+        return bindings;
+    }
+
+    public Map<Class<?>, List<String>> getBindingNamesByType() {
+        return bindingNamesByType;
+    }
 
     public Map<String, String> getAliases() {
         return aliases;
-    }
-
-    public Map<String, Binding> getBindings() {
-        return bindings;
     }
 
     /* ===================== Context ===================== */
@@ -153,7 +169,7 @@ public class Container {
         }
     }
 
-    public Context getContextByScope(final ScopeType scopeType) {
+    public Context getContextByScope(final String scopeType) {
         for (final Context context : this.contexts.values()) {
             if (context.matchesScope(scopeType)) {
                 return context;
@@ -168,23 +184,23 @@ public class Container {
 
     /* ===================== Binding ===================== */
 
-    protected Binding newBinding(
+    public Binding newBinding(
         final String name,
-        final Wrapper wrapper,
-        final ScopeType scopeType
+        final Class<?> instanceType,
+        final String scopeType
     ) {
         return new Binding(
             this.getContextByScope(scopeType),
             name,
-            wrapper,
+            instanceType,
             scopeType
         );
     }
 
-    protected Binding newBinding(
+    public Binding newBinding(
         final String name,
         final Object instance,
-        final ScopeType scopeType
+        final String scopeType
     ) {
         return new Binding(
             this.getContextByScope(scopeType),
@@ -194,101 +210,148 @@ public class Container {
         );
     }
 
-    public Binding getBinding(final String name) {
+    public Binding newBinding(
+        final String name,
+        final FactoryBean<?> factoryBean,
+        final String scopeType
+    ) {
+        return new Binding(
+            this.getContextByScope(scopeType),
+            name,
+            factoryBean,
+            scopeType
+        );
+    }
+
+    public boolean has(final String name) {
+        return this.get(name) != null;
+    }
+
+    public boolean has(final Class<?> type) {
+        return this.has(this.getNameByType(type));
+    }
+
+    public Binding get(final Class<?> type) {
+        return this.get(this.getNameByType(type));
+    }
+
+    public Binding get(final String name) {
         return this.bindings.get(this.getCanonicalName(name));
     }
 
-    public Binding getOrDefaultBinding(final String name) {
-        Binding binding = this.getBinding(name);
+    public Binding getOrDefaultBinding(
+        final String name,
+        final Class<?> instanceType
+    ) {
+        Binding binding = name == null ? null : this.get(name);
+        if (binding == null && instanceType != Object.class) {
+            binding = this.get(this.getNameByType(instanceType));
+        }
         if (binding == null) {
-            binding = this.newBinding(name, null, ScopeType.PROTOTYPE);
-            final Binding finalBinding = binding;
-            binding.setWrapper((container, with) -> this.doBuild(finalBinding));
+            binding =
+                this.newBinding(
+                        name,
+                        instanceType,
+                        ScopeType.PROTOTYPE.asString()
+                    );
         }
         return binding;
     }
 
-    public Binding getOrDefaultBinding(final Class<?> type) {
-        return this.getOrDefaultBinding(type.getName());
-    }
-
-    public Binding setBinding(final String name, final Binding binding) {
+    public void set(String name, final Binding binding) {
         if (log.isDebugEnabled()) {
             log.debug("Container set binding: {}", name);
         }
-        this.bindings.put(this.getCanonicalName(name), binding);
-        return binding;
+        name = this.getCanonicalName(name);
+        this.bindings.put(name, binding);
+        Class<?> clazz = binding.getType();
+        while (clazz != null && !ClassUtils.isSkipBuildType(clazz)) {
+            this.addType(name, clazz);
+            for (final Class<?> in : clazz.getInterfaces()) {
+                this.addType(name, in);
+            }
+            clazz = clazz.getSuperclass();
+        }
     }
 
-    public boolean hasBinding(final String name) {
-        return this.bindings.containsKey(this.getCanonicalName(name));
+    private void validHas(final String name, final String message) {
+        if (this.has(name)) {
+            throw new IllegalStateException(String.format(message, name));
+        }
     }
 
-    public boolean hasBinding(final Class<?> type) {
-        return this.hasBinding(type.getName());
-    }
-
-    public void removeBinding(final String name) {
+    public void removeBinding(String name) {
         if (log.isDebugEnabled()) {
             log.debug("Container remove binding: {}", name);
         }
-        this.bindings.remove(this.getCanonicalName(name));
-    }
-
-    protected boolean checkHasBinding(
-        final String name,
-        final boolean overwrite
-    ) {
-        return overwrite || !this.hasBinding(name);
-    }
-
-    public void setInstanceValue(final String name, final Object instance) {
-        final Binding binding = this.getBinding(name);
-        if (binding == null) {
-            throw new NullPointerException(
-                "Target [" + name + "] not been bind"
-            );
+        name = this.getCanonicalName(name);
+        final Binding binding = this.bindings.remove(name);
+        Class<?> clazz = binding.getType();
+        while (clazz != null && !ClassUtils.isSkipBuildType(clazz)) {
+            this.addType(name, clazz);
+            for (final Class<?> in : clazz.getInterfaces()) {
+                this.removeType(name, in);
+            }
+            clazz = clazz.getSuperclass();
         }
-        binding.setInstance(instance);
     }
 
-    public void setInstanceValue(final Class<?> type, final Object instance) {
-        this.setInstanceValue(type.getName(), instance);
+    protected void addType(final String name, final Class<?> type) {
+        this.bindingNamesByType.compute(
+                type,
+                (t, o) -> {
+                    if (o != null) {
+                        o.add(name);
+                        return o;
+                    } else {
+                        final List<String> list = new ArrayList<>();
+                        list.add(name);
+                        return list;
+                    }
+                }
+            );
+    }
+
+    protected void removeType(final String name, final Class<?> type) {
+        final List<String> list = this.bindingNamesByType.get(type);
+        if (list != null) {
+            list.remove(name);
+        }
+    }
+
+    protected String getNameByType(final Class<?> type) {
+        // 先查找 bindingNamesByType 里是否有类型
+        final List<String> list = this.bindingNamesByType.get(type);
+        if (list == null || list.isEmpty()) {
+            // 未找到或空则使用短类名作为名称
+            return this.typeToName(type);
+        }
+        // 否则取第一个返回
+        return list.get(0);
+    }
+
+    protected String typeToName(final Class<?> type) {
+        return StrUtil.toCamelCase(type.getSimpleName());
     }
 
     /* ===================== Alias ===================== */
 
     private String getCanonicalName(final String name) {
-        String canonicalName = name;
-        String resolvedName;
-        do {
-            resolvedName = this.getAlias(canonicalName);
-            if (resolvedName != null) {
-                if (name.equals(resolvedName)) {
-                    break;
-                }
-                canonicalName = resolvedName;
-            }
-        } while (resolvedName != null);
-        return canonicalName;
+        final String resolve = this.getAlias(name);
+        if (resolve == null) {
+            return name;
+        }
+        return resolve;
     }
 
-    public void setAlias(
-        final String alias,
-        final String name,
-        final boolean overwrite
-    ) {
+    public void setAlias(final String alias, final String name) {
         if (alias == null || alias.equals(name)) {
             return;
         }
         if (log.isDebugEnabled()) {
             log.debug("Container add alias: {} => {}", alias, name);
         }
-        if (!this.checkHasBinding(alias, overwrite)) {
-            throw new IllegalStateException(
-                "Alias [" + alias + "] has contains"
-            );
-        }
+        this.validHas(alias, "Alias [%s] has contains");
         this.aliases.put(alias, name);
     }
 
@@ -300,7 +363,7 @@ public class Container {
     }
 
     public boolean hasAlias(final String alias) {
-        return this.aliases.containsKey(alias);
+        return this.getAlias(alias) != null;
     }
 
     public String getAlias(final String alias) {
@@ -334,21 +397,21 @@ public class Container {
     public void setAttribute(
         final String name,
         final Object attribute,
-        final ScopeType scopeType
+        final String scopeType
     ) {
         this.getContextByScope(scopeType)
             .set(ATTRIBUTE_PREFIX + name, attribute);
     }
 
-    public void removeAttribute(final String name, final ScopeType scopeType) {
+    public void removeAttribute(final String name, final String scopeType) {
         this.getContextByScope(scopeType).remove(ATTRIBUTE_PREFIX + name);
     }
 
-    public Object getAttribute(final String name, final ScopeType scopeType) {
+    public Object getAttribute(final String name, final String scopeType) {
         return this.getContextByScope(scopeType).get(ATTRIBUTE_PREFIX + name);
     }
 
-    public boolean hasAttribute(final String name, final ScopeType scopeType) {
+    public boolean hasAttribute(final String name, final String scopeType) {
         return this.getAttribute(name, scopeType) != null;
     }
 
@@ -406,7 +469,10 @@ public class Container {
         return instance;
     }
 
-    protected void processBeanAfter(final Binding binding, Object instance) {
+    protected void processBeanAfter(
+        final Binding binding,
+        final Object instance
+    ) {
         final Class<?> instanceClass = ClassUtils.getUserClass(instance);
         final InstanceContext context = new InstanceContext(
             binding,
@@ -440,66 +506,48 @@ public class Container {
 
     /* ===================== doBind ===================== */
 
-    private Binding doBind(
-        final String bindName,
-        final Binding binding,
-        final String alias,
-        final boolean overwrite
-    ) {
+    protected Binding doBind(final String name, final Binding binding) {
         if (log.isDebugEnabled()) {
-            log.debug(
-                "Container bind: {} - {}({})",
-                binding.getScope(),
-                bindName,
-                alias
-            );
+            log.debug("Container bind: {} - {}", binding.getScope(), name);
         }
-        if (alias != null) {
-            this.alias(alias, bindName, overwrite);
-        }
-        return this.setBinding(bindName, binding);
+        this.set(name, binding);
+        return binding;
     }
 
     protected Binding doBind(
-        final String bindName,
-        final Wrapper wrapper,
-        final String alias,
-        final ScopeType scopeType,
-        final boolean overwrite
+        final String name,
+        final FactoryBean<?> factoryBean,
+        final String scopeType
     ) {
-        if (!this.checkHasBinding(bindName, overwrite)) {
-            throw new IllegalStateException(
-                "Target [" + bindName + "] has been bind"
-            );
-        }
-        final Binding binding = this.newBinding(bindName, wrapper, scopeType);
-        return this.doBind(bindName, binding, alias, overwrite);
+        this.validHas(name, "Target [%s] has been bind");
+        final Binding binding = this.newBinding(name, factoryBean, scopeType);
+        return this.doBind(name, binding);
     }
 
-    /* ===================== doInstance ===================== */
-
-    protected Container doInstance(
-        final String instanceName,
-        final Object instance,
-        final String alias,
-        final ScopeType scopeType,
-        final boolean overwrite
+    protected Binding doBind(
+        final String name,
+        final Class<?> instanceType,
+        final String scopeType
     ) {
-        Binding binding = this.getBinding(instanceName);
-        if (binding != null) {
-            throw new IllegalStateException(
-                "Target [" + instanceName + "] has been bind"
-            );
-        }
-        binding = this.newBinding(instanceName, instance, scopeType);
-        this.doBind(instanceName, binding, alias, overwrite);
-        return this;
+        this.validHas(name, "Target [%s] has been bind");
+        final Binding binding = this.newBinding(name, instanceType, scopeType);
+        return this.doBind(name, binding);
+    }
+
+    protected Binding doBind(
+        final String name,
+        final Object instance,
+        final String scopeType
+    ) {
+        this.validHas(name, "Target [%s] has been bind");
+        final Binding binding = this.newBinding(name, instance, scopeType);
+        return this.doBind(name, binding);
     }
 
     /* ===================== doBuild ===================== */
 
     protected Object doBuild(final Binding binding) {
-        final Class<?> instanceType = binding.getInstanceType();
+        final Class<?> instanceType = binding.getType();
         if (instanceType == null) {
             return null;
         }
@@ -561,42 +609,55 @@ public class Container {
         if (log.isDebugEnabled()) {
             log.debug("Container make: {} - {}", instanceName, returnType);
         }
-        Binding binding = this.getOrDefaultBinding(instanceName);
-        ScopeType scopeType = binding.getScope();
-        Object instance = binding.getInstance();
+        final Binding binding =
+            this.getOrDefaultBinding(instanceName, returnType);
+        Object instance = binding.getSource();
         if (instance != null) {
             return Convert.convert(returnType, instance);
         }
         try {
-            instance =
-                binding.getWrapper().getInstance(this, this.dataBinder.get());
+            FactoryBean<?> factoryBean = binding.getFactoryBean();
+            if (factoryBean == null) {
+                factoryBean =
+                    new FactoryBean<>() {
+                        @Override
+                        public Object getObject() throws Exception {
+                            return doBuild(binding);
+                        }
+
+                        @Override
+                        public Class<?> getObjectType() {
+                            return binding.getType();
+                        }
+                    };
+            }
+            instance = factoryBean.getObject();
         } catch (final Throwable e) {
             throw new ContainerException("Instance make failed", e);
         }
         final T returnInstance = Convert.convert(returnType, instance);
-        if (scopeType.isShared()) {
-            binding.setInstance(returnInstance);
+        if (binding.isShared()) {
+            binding.setSource(returnInstance);
         }
         return returnInstance;
     }
 
     /* ===================== doRemove ===================== */
 
-    protected Container doRemove(final String name) {
+    protected void doRemove(final String name) {
         if (log.isDebugEnabled()) {
             log.debug("Container remove: {}", name);
         }
-        final Binding binding = this.getBinding(name);
+        final Binding binding = this.get(name);
         if (binding.isCreated()) {
-            this.processBeanAfter(binding, binding.getInstance());
-            this.removeBinding(name);
+            this.processBeanAfter(binding, binding.getSource());
         }
-        return this;
+        this.removeBinding(name);
     }
 
-    /* ===================== callMethod =============== */
+    /* ===================== doCall =============== */
 
-    protected <T> T callMethod(
+    protected <T> T doCall(
         final Object instance,
         final Method method,
         final Class<T> returnType
@@ -612,7 +673,7 @@ public class Container {
         );
     }
 
-    protected <T> T callMethod(
+    protected <T> T doCall(
         final Object instance,
         final String methodName,
         final Class<T> returnType
@@ -630,568 +691,163 @@ public class Container {
                 "The called method cannot be overloaded"
             );
         }
-        return this.callMethod(instance, methods[0], returnType);
+        return this.doCall(instance, methods[0], returnType);
     }
 
-    protected <T> T callMethod(
-        final String typeName,
-        final String methodName,
-        final Class<T> returnType
-    ) {
-        return this.callMethod(this.make(typeName), methodName, returnType);
-    }
-
-    protected <T> T callMethod(
-        final Class<?> type,
-        final String methodName,
-        final Class<T> returnType
-    ) {
-        return this.callMethod(type.getName(), methodName, returnType);
-    }
-
-    /*======================  alias  ==================*/
-
-    public void alias(final String alias, final String name) {
-        this.alias(alias, name, false);
-    }
-
-    public void alias(final String alias, final Class<?> type) {
-        this.alias(alias, type.getName());
-    }
-
-    public void alias(
-        final String alias,
+    protected <T> T doCall(
         final String name,
-        final boolean overwrite
+        final String methodName,
+        final Class<T> returnType
     ) {
-        this.setAlias(alias, name, overwrite);
+        return this.doCall(
+                this.make(name, Object.class),
+                methodName,
+                returnType
+            );
     }
 
-    public void alias(
-        final String alias,
+    protected <T> T doCall(
         final Class<?> type,
-        final boolean overwrite
+        final String methodName,
+        final Class<T> returnType
     ) {
-        this.alias(alias, type.getName(), overwrite);
-    }
-
-    /* ===================== build ==================== */
-
-    public Object build(final String instanceName) {
-        return this.doBuild(this.getOrDefaultBinding(instanceName));
-    }
-
-    public Object build(final Class<?> instanceType) {
-        return this.doBuild(this.getOrDefaultBinding(instanceType));
-    }
-
-    public Object build(final Binding binding) {
-        return this.doBuild(binding);
+        return this.doCall(this.make(type), methodName, returnType);
     }
 
     /* ===================== bind ===================== */
 
-    // String
-    // String, Wrapper
-
-    public Binding bind(final String bindName) {
-        return this.bind(
-                bindName,
-                (container, with) -> container.build(bindName)
-            );
-    }
-
-    public Binding bind(final String bindName, final Wrapper wrapper) {
-        return this.bind(bindName, wrapper, null);
+    // name, factory
+    // name, type
+    @SuppressWarnings("unchecked")
+    public Binding bind(
+        final String name,
+        final Class<?> type,
+        final String scopeType
+    ) {
+        if (FactoryBean.class.isAssignableFrom(type)) {
+            return this.bind(
+                    name,
+                    this.make(
+                            FACTORY_BEAN_PREFIX + name,
+                            (Class<? extends FactoryBean<?>>) type
+                        ),
+                    scopeType
+                );
+        } else {
+            return this.doBind(name, type, scopeType);
+        }
     }
 
     public Binding bind(
-        final String bindName,
-        final Wrapper wrapper,
-        final String alias
+        final String name,
+        final FactoryBean<?> factoryBean,
+        final String scopeType
     ) {
-        return this.bind(bindName, wrapper, alias, ScopeType.PROTOTYPE);
+        return this.doBind(name, factoryBean, scopeType);
     }
 
-    public Binding bind(
-        final String bindName,
-        final Wrapper wrapper,
-        final String alias,
-        final ScopeType scopeType
-    ) {
-        return this.bind(bindName, wrapper, alias, scopeType, false);
+    public Binding bind(final String name, final Class<?> type) {
+        return this.bind(name, type, ScopeType.SINGLETON.asString());
     }
 
-    public Binding bind(
-        final String bindName,
-        final Wrapper wrapper,
-        final String alias,
-        final ScopeType scopeType,
-        final boolean overwrite
-    ) {
-        return this.doBind(bindName, wrapper, alias, scopeType, overwrite);
+    public Binding bind(final String name, final FactoryBean<?> factoryBean) {
+        return this.bind(name, factoryBean, ScopeType.SINGLETON.asString());
     }
 
-    // Class
-    // Class, Wrapper
+    // name, instance
 
-    public Binding bind(final Class<?> bingType) {
-        return this.bind(
-                bingType,
-                (container, with) -> container.build(bingType)
-            );
-    }
-
-    public Binding bind(final Class<?> bingType, final Wrapper wrapper) {
-        return this.bind(bingType, wrapper, null);
-    }
-
-    public Binding bind(
-        final Class<?> bingType,
-        final Wrapper wrapper,
-        final String alias
-    ) {
-        return this.bind(bingType, wrapper, alias, ScopeType.SINGLETON);
-    }
-
-    public Binding bind(
-        final Class<?> bingType,
-        final Wrapper wrapper,
-        final String alias,
-        final ScopeType scopeType
-    ) {
-        return this.bind(bingType, wrapper, alias, scopeType, false);
-    }
-
-    public Binding bind(
-        final Class<?> bindType,
-        final Wrapper wrapper,
-        final String alias,
-        final ScopeType scopeType,
-        final boolean overwrite
-    ) {
-        return this.doBind(
-                bindType.getName(),
-                wrapper,
-                alias,
-                scopeType,
-                overwrite
-            );
-    }
-
-    // String, String
-
-    public Binding bind(final String bindName, final String wrapper) {
-        return this.bind(bindName, wrapper, null);
-    }
-
-    public Binding bind(
-        final String bindName,
-        final String wrapper,
-        final String alias
-    ) {
-        return this.bind(bindName, wrapper, alias, ScopeType.PROTOTYPE);
-    }
-
-    public Binding bind(
-        final String bindName,
-        final String wrapper,
-        final String alias,
-        final ScopeType scopeType
-    ) {
-        return this.bind(bindName, wrapper, alias, scopeType, false);
-    }
-
-    public Binding bind(
-        final String bindName,
-        final String wrapper,
-        final String alias,
-        final ScopeType scopeType,
-        final boolean overwrite
-    ) {
-        return this.doBind(
-                bindName,
-                (container, with) -> this.build(wrapper),
-                alias,
-                scopeType,
-                overwrite
-            );
-    }
-
-    // Class, Class
-
-    public Binding bind(final Class<?> bindType, final Class<?> wrapper) {
-        return this.bind(bindType, wrapper, null);
-    }
-
-    public Binding bind(
-        final Class<?> bindType,
-        final Class<?> wrapper,
-        final String alias
-    ) {
-        return this.bind(bindType, wrapper, alias, ScopeType.PROTOTYPE);
-    }
-
-    public Binding bind(
-        final Class<?> bindType,
-        final Class<?> wrapper,
-        final String alias,
-        final ScopeType scopeType
-    ) {
-        return this.bind(bindType, wrapper, alias, scopeType, false);
-    }
-
-    public Binding bind(
-        final Class<?> bindType,
-        final Class<?> wrapper,
-        final String alias,
-        final ScopeType scopeType,
-        final boolean overwrite
-    ) {
-        return this.doBind(
-                bindType.getName(),
-                (container, with) -> this.build(wrapper),
-                alias,
-                scopeType,
-                overwrite
-            );
-    }
-
-    /* ==================== singleton ====================== */
-
-    public Binding singleton(final String bindName) {
-        return this.singleton(bindName, bindName);
-    }
-
-    public Binding singleton(final String bindName, final String wrapper) {
-        return this.singleton(bindName, wrapper, null);
-    }
-
-    public Binding singleton(
-        final String bindName,
-        final String wrapper,
-        final String alias
-    ) {
-        return this.singleton(bindName, wrapper, alias, false);
-    }
-
-    public Binding singleton(
-        final String bindName,
-        final String wrapper,
-        final String alias,
-        final boolean overwrite
-    ) {
-        return this.bind(
-                bindName,
-                wrapper,
-                alias,
-                ScopeType.SINGLETON,
-                overwrite
-            );
-    }
-
-    public Binding singleton(final String bindName, final Wrapper wrapper) {
-        return this.singleton(bindName, wrapper, null);
-    }
-
-    public Binding singleton(
-        final String bindName,
-        final Wrapper wrapper,
-        final String alias
-    ) {
-        return this.singleton(bindName, wrapper, alias, false);
-    }
-
-    public Binding singleton(
-        final String bindName,
-        final Wrapper wrapper,
-        final String alias,
-        final boolean overwrite
-    ) {
-        return this.bind(
-                bindName,
-                wrapper,
-                alias,
-                ScopeType.SINGLETON,
-                overwrite
-            );
-    }
-
-    public Binding singleton(final Class<?> bindType) {
-        return this.singleton(bindType, bindType);
-    }
-
-    public Binding singleton(final Class<?> bindType, final Class<?> wrapper) {
-        return this.singleton(bindType, wrapper, null);
-    }
-
-    public Binding singleton(
-        final Class<?> bindType,
-        final Class<?> wrapper,
-        final String alias
-    ) {
-        return this.singleton(bindType, wrapper, alias, false);
-    }
-
-    public Binding singleton(
-        final Class<?> bindType,
-        final Class<?> wrapper,
-        final String alias,
-        final boolean overwrite
-    ) {
-        return this.bind(
-                bindType,
-                wrapper,
-                alias,
-                ScopeType.SINGLETON,
-                overwrite
-            );
-    }
-
-    public Binding singleton(final Class<?> bindType, final Wrapper wrapper) {
-        return this.singleton(bindType, wrapper, null);
-    }
-
-    public Binding singleton(
-        final Class<?> bindType,
-        final Wrapper wrapper,
-        final String alias
-    ) {
-        return this.singleton(bindType, wrapper, alias, false);
-    }
-
-    public Binding singleton(
-        final Class<?> bindType,
-        final Wrapper wrapper,
-        final String alias,
-        final boolean overwrite
-    ) {
-        return this.bind(
-                bindType,
-                wrapper,
-                alias,
-                ScopeType.SINGLETON,
-                overwrite
-            );
-    }
-
-    /* ======================= instance =========================== */
-
-    public Container instance(final String bindName, final Object instance) {
-        return this.instance(bindName, instance, null, ScopeType.SINGLETON);
-    }
-
-    public Container instance(
-        final String bindName,
+    public Binding instance(
+        final String name,
         final Object instance,
-        final ScopeType scopeType
+        final String scopeType
     ) {
-        return this.instance(bindName, instance, null, scopeType);
+        return this.doBind(name, instance, scopeType);
     }
 
-    public Container instance(
-        final String bindName,
-        final Object instance,
-        final String alias
-    ) {
+    public Binding instance(final String name, final Object instance) {
+        return this.instance(name, instance, ScopeType.SINGLETON.asString());
+    }
+
+    // factory
+    // type
+    @SuppressWarnings("unchecked")
+    public Binding bind(final Class<?> type, final String scopeType) {
+        if (FactoryBean.class.isAssignableFrom(type)) {
+            final FactoryBean<?> factoryBean =
+                this.make((Class<? extends FactoryBean<?>>) type);
+            return this.bind(
+                    this.typeToName(factoryBean.getObjectType()),
+                    factoryBean,
+                    scopeType
+                );
+        } else {
+            return this.bind(this.typeToName(type), type, scopeType);
+        }
+    }
+
+    public Binding bind(final Class<?> type) {
+        return this.bind(type, ScopeType.SINGLETON.asString());
+    }
+
+    public Binding bind(final FactoryBean<?> factoryBean, String scopeType) {
+        return this.bind(
+                this.typeToName(factoryBean.getObjectType()),
+                factoryBean,
+                scopeType
+            );
+    }
+
+    public Binding bind(final FactoryBean<?> factoryBean) {
+        return this.bind(factoryBean, ScopeType.SINGLETON.asString());
+    }
+
+    // instance
+
+    public Binding instance(final Object instance, final String scopeType) {
         return this.instance(
-                bindName,
+                this.typeToName(instance.getClass()),
                 instance,
-                alias,
-                ScopeType.SINGLETON,
-                false
+                scopeType
             );
     }
 
-    public Container instance(
-        final String bindName,
-        final Object instance,
-        final String alias,
-        final ScopeType scopeType
-    ) {
-        return this.instance(bindName, instance, alias, scopeType, false);
+    public Binding instance(final Object instance) {
+        return this.instance(instance, ScopeType.SINGLETON.asString());
     }
 
-    public Container instance(
-        final String bindName,
-        final Object instance,
-        final String alias,
-        final boolean overwrite
-    ) {
-        return this.doInstance(
-                bindName,
-                instance,
-                alias,
-                ScopeType.SINGLETON,
-                overwrite
-            );
+    /* ===================== make ===================== */
+
+    public <T> T make(final Class<T> returnType) {
+        return this.make(this.getNameByType(returnType), returnType);
     }
 
-    public Container instance(
-        final String bindName,
-        final Object instance,
-        final String alias,
-        final ScopeType scopeType,
-        final boolean overwrite
-    ) {
-        return this.doInstance(bindName, instance, alias, scopeType, overwrite);
+    public <T> T make(final String name, final Class<T> returnType) {
+        return this.doMake(name, returnType);
     }
 
-    public Container instance(final Class<?> bindType, final Object instance) {
-        return this.instance(
-                bindType.getName(),
-                instance,
-                null,
-                ScopeType.SINGLETON
-            );
-    }
-
-    public Container instance(
-        final Class<?> bindType,
-        final Object instance,
-        final ScopeType scopeType
-    ) {
-        return this.instance(bindType.getName(), instance, null, scopeType);
-    }
-
-    public Container instance(
-        final Class<?> bindType,
-        final Object instance,
-        final String alias
-    ) {
-        return this.instance(
-                bindType.getName(),
-                instance,
-                alias,
-                ScopeType.SINGLETON
-            );
-    }
-
-    public Container instance(
-        final Class<?> bindType,
-        final Object instance,
-        final String alias,
-        final ScopeType scopeType
-    ) {
-        return this.instance(bindType.getName(), instance, alias, scopeType);
-    }
-
-    /* ======================= make =========================== */
-
-    public Object make(final String bindName) {
-        return this.make(bindName, Object.class);
-    }
-
-    public <T> T make(final String bindName, final Class<T> returnType) {
-        return this.make(bindName, returnType, this.dataBinder.get());
+    public <T> T make(final Class<T> returnType, final DataBinder dataBinder) {
+        return this.withAndReset(() -> this.make(returnType), dataBinder);
     }
 
     public <T> T make(
-        final String bindName,
+        final String name,
         final Class<T> returnType,
         final DataBinder dataBinder
     ) {
-        return this.withAndReset(
-                () -> this.doMake(bindName, returnType),
-                dataBinder
-            );
-    }
-
-    public <T> T make(
-        final String bindName,
-        final Class<T> returnType,
-        final Map<String, Object> args
-    ) {
-        return this.make(
-                bindName,
-                returnType,
-                new DefaultDataBinder(this, args)
-            );
-    }
-
-    public <T> T make(final Class<T> bindType) {
-        return this.make(bindType.getName(), bindType, this.dataBinder.get());
-    }
-
-    public <T> T make(final Class<T> bindType, final Map<String, Object> args) {
-        return this.make(bindType.getName(), bindType, args);
-    }
-
-    public <T> T make(final Class<T> bindType, final DataBinder dataBinder) {
-        return this.make(bindType.getName(), bindType, dataBinder);
+        return this.withAndReset(() -> this.make(name, returnType), dataBinder);
     }
 
     /* ====================== remove ======================= */
 
-    public Container remove(final String name) {
-        return this.doRemove(name);
+    public void remove(final String name) {
+        this.doRemove(name);
     }
 
-    public Container remove(final Class<?> type) {
-        return this.doRemove(type.getName());
-    }
+    /* ====================== call ======================= */
 
-    /* ====================== call ========================= */
-
-    public <T> T call(final String[] target, final Class<T> returnType) {
-        if (target.length != ARRAY_METHOD_DEF_LENGTH) {
-            throw new IllegalArgumentException(
-                "The length of the target array must be 2"
-            );
-        }
-        return this.callMethod(target[0], target[1], returnType);
-    }
-
-    public <T> T call(
-        final String[] target,
-        final Class<T> returnType,
-        final Map<String, Object> args
-    ) {
-        return this.withAndReset(
-                () -> this.call(target, returnType),
-                new DefaultDataBinder(this, args)
-            );
-    }
-
-    public <T> T call(final String target, final Class<T> returnType) {
-        return this.call(target.split("@"), returnType);
-    }
-
-    public <T> T call(
-        final String target,
-        final Class<T> returnType,
-        final Map<String, Object> args
-    ) {
-        return this.call(target.split("@"), returnType, args);
-    }
-
-    public <T> T call(
-        final Class<?> type,
-        final Method method,
-        final Class<T> returnType
-    ) {
-        return this.callMethod(this.make(type), method, returnType);
-    }
-
-    public <T> T call(
-        final Class<?> type,
-        final Method method,
-        final Class<T> returnType,
-        final Map<String, Object> args
-    ) {
-        return this.call(this.make(type), method, returnType, args);
-    }
-
-    public <T> T call(final Method method, final Class<T> returnType) {
-        return this.call(method.getDeclaringClass(), method, returnType);
-    }
-
-    public <T> T call(
-        final Method method,
-        final Class<T> returnType,
-        final Map<String, Object> args
-    ) {
-        return this.call(method.getDeclaringClass(), method, returnType, args);
+    @SuppressWarnings("unchecked")
+    public <T> T call(final Object instance, final Method method) {
+        return (T) this.call(instance, method, method.getReturnType());
     }
 
     public <T> T call(
@@ -1199,33 +855,7 @@ public class Container {
         final Method method,
         final Class<T> returnType
     ) {
-        return this.callMethod(instance, method, returnType);
-    }
-
-    public <T> T call(
-        final Object instance,
-        final Method method,
-        final Class<T> returnType,
-        final Map<String, Object> args
-    ) {
-        return this.call(
-                instance,
-                method,
-                returnType,
-                new DefaultDataBinder(this, args)
-            );
-    }
-
-    public <T> T call(
-        final Object instance,
-        final Method method,
-        final Class<T> returnType,
-        final DataBinder binder
-    ) {
-        return this.withAndReset(
-                () -> this.callMethod(instance, method, returnType),
-                binder
-            );
+        return this.doCall(instance, method, returnType);
     }
 
     public <T> T call(
@@ -1233,20 +863,46 @@ public class Container {
         final String methodName,
         final Class<T> returnType
     ) {
-        return this.callMethod(instance, methodName, returnType);
+        return this.doCall(instance, methodName, returnType);
+    }
+
+    public <T> T call(
+        final String name,
+        final String methodName,
+        final Class<T> returnType
+    ) {
+        return this.doCall(name, methodName, returnType);
+    }
+
+    public <T> T call(
+        final Class<?> type,
+        final String methodName,
+        final Class<T> returnType
+    ) {
+        return this.doCall(type, methodName, returnType);
+    }
+
+    public <T> T call(final Method method) {
+        return this.call(this.make(method.getDeclaringClass()), method);
     }
 
     public <T> T call(
         final Object instance,
-        final String methodName,
-        final Class<T> returnType,
-        final Map<String, Object> args
+        final Method method,
+        final DataBinder dataBinder
     ) {
-        return this.call(
-                instance,
-                methodName,
-                returnType,
-                new DefaultDataBinder(this, args)
+        return this.withAndReset(() -> this.call(instance, method), dataBinder);
+    }
+
+    public <T> T call(
+        final Object instance,
+        final Method method,
+        final Class<T> returnType,
+        final DataBinder dataBinder
+    ) {
+        return this.withAndReset(
+                () -> this.call(instance, method, returnType),
+                dataBinder
             );
     }
 
@@ -1257,7 +913,19 @@ public class Container {
         final DataBinder dataBinder
     ) {
         return this.withAndReset(
-                () -> this.callMethod(instance, methodName, returnType),
+                () -> this.call(instance, methodName, returnType),
+                dataBinder
+            );
+    }
+
+    public <T> T call(
+        final String name,
+        final String methodName,
+        final Class<T> returnType,
+        final DataBinder dataBinder
+    ) {
+        return this.withAndReset(
+                () -> this.call(name, methodName, returnType),
                 dataBinder
             );
     }
@@ -1265,48 +933,17 @@ public class Container {
     public <T> T call(
         final Class<?> type,
         final String methodName,
-        final Class<T> returnType
-    ) {
-        return this.callMethod(type, methodName, returnType);
-    }
-
-    public <T> T call(
-        final Class<?> type,
-        final String methodName,
         final Class<T> returnType,
-        final Map<String, Object> args
-    ) {
-        return this.call(
-                type,
-                methodName,
-                returnType,
-                new DefaultDataBinder(this, args)
-            );
-    }
-
-    public <T> T call(
-        final Class<?> type,
-        final String methodName,
-        final Class<T> returnType,
-        final DataBinder binder
+        final DataBinder dataBinder
     ) {
         return this.withAndReset(
                 () -> this.call(type, methodName, returnType),
-                binder
+                dataBinder
             );
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T call(final Method method) {
-        return (T) this.call(
-                method.getDeclaringClass(),
-                method,
-                method.getReturnType()
-            );
-    }
-
-    public <T> T call(final Method method, final DataBinder binder) {
-        return this.withAndReset(() -> this.call(method), binder);
+    public <T> T call(final Method method, final DataBinder dataBinder) {
+        return this.withAndReset(() -> this.call(method), dataBinder);
     }
 
     /* ===================================================== */
@@ -1468,5 +1105,17 @@ public class Container {
 
     public Deque<BeanAfterProcessor> getBeanAfterProcessors() {
         return beanAfterProcessors;
+    }
+
+    public void setInstanceValue(String name, Object instance) {
+        final Binding binding = this.get(name);
+        if (binding == null) {
+            throw new ContainerException("Target [" + name + "] not been bind");
+        }
+        binding.setSource(instance);
+    }
+
+    public void setInstanceValue(Class<?> type, Object instance) {
+        this.setInstanceValue(this.getNameByType(type), instance);
     }
 }

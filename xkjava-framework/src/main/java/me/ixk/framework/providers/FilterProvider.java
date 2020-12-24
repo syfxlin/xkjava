@@ -20,7 +20,7 @@ import me.ixk.framework.web.CorsProcessor;
 @Provider
 public class FilterProvider {
 
-    @Bean(name = "encodingFilter", overwrite = true)
+    @Bean(name = "encodingFilter")
     @ConditionalOnMissingBean(
         name = "encodingFilter",
         value = EncodingFilter.class
@@ -29,7 +29,7 @@ public class FilterProvider {
         return new EncodingFilter("UTF-8");
     }
 
-    @Bean(name = "corsFilter", overwrite = true)
+    @Bean(name = "corsFilter")
     @ConditionalOnMissingBean(name = "corsFilter", value = CorsFilter.class)
     public CorsFilter corsFilter(CorsProcessor processor) {
         return new CorsFilter(processor);

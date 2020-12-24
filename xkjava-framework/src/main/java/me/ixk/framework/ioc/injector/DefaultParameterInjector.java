@@ -12,7 +12,6 @@ import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.DataBinder;
 import me.ixk.framework.ioc.ParameterContext;
 import me.ixk.framework.ioc.ParameterContext.ParameterEntry;
-import me.ixk.framework.ioc.ParameterInjector;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
@@ -27,6 +26,7 @@ import org.slf4j.LoggerFactory;
 @Injector
 @Order(Order.LOWEST_PRECEDENCE)
 public class DefaultParameterInjector implements ParameterInjector {
+
     private static final Logger log = LoggerFactory.getLogger(
         DefaultParameterInjector.class
     );

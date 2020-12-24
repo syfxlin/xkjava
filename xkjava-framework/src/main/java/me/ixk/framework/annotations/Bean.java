@@ -26,10 +26,6 @@ public @interface Bean {
     @AliasFor("value")
     String[] name() default {};
 
-    Class<?>[] type() default {};
-
-    boolean overwrite() default false;
-
     String initMethod() default "";
 
     String destroyMethod() default "";

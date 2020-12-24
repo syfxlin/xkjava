@@ -40,7 +40,6 @@ import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
-import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.route.RouteInfo;
 import me.ixk.framework.utils.DataUtils;
 import me.ixk.framework.utils.Json;
@@ -51,8 +50,8 @@ import me.ixk.framework.utils.Json;
  * @author Otstar Lin
  * @date 2020/10/24 下午 2:06
  */
-@Component(name = { "request", "javax.servlet.http.HttpServletRequest" })
-@Scope(type = ScopeType.REQUEST)
+@Component(name = { "request" })
+@Scope(type = "request")
 public class Request extends HttpServletRequestWrapper {
 
     private static final HttpServletRequest EMPTY = new EmptyRequest();

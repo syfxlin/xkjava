@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
-import me.ixk.framework.annotations.ScopeType;
 import me.ixk.framework.exceptions.ResponseException;
 import me.ixk.framework.utils.Json;
 
@@ -29,8 +28,8 @@ import me.ixk.framework.utils.Json;
  * @author Otstar Lin
  * @date 2020/10/24 下午 3:45
  */
-@Component(name = { "response", "javax.servlet.http.HttpServletResponse" })
-@Scope(type = ScopeType.REQUEST)
+@Component(name = { "response" })
+@Scope(type = "request")
 public class Response extends HttpServletResponseWrapper {
 
     private static final HttpServletResponse EMPTY = new EmptyResponse();

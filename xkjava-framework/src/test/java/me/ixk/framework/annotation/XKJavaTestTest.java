@@ -19,11 +19,12 @@ import org.junit.jupiter.api.Test;
  * @date 2020/11/9 上午 11:24
  */
 @XkJavaTest(
-    properties = "classpath:/test.properties",
+    location = "classpath:/",
     args = "--test-args=true",
     classes = XkJava.class
 )
 class XKJavaTestTest {
+
     @Autowired
     public XkJava app;
 
