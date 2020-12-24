@@ -4,6 +4,7 @@
 
 package me.ixk.framework.ioc.processor;
 
+import me.ixk.framework.ioc.ConstructorContext;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.InstanceContext;
 
@@ -19,15 +20,17 @@ public interface BeanBeforeProcessor {
     /**
      * 处理
      *
-     * @param container 容器
-     * @param instance  Bean 实例
-     * @param context   实例上下文
+     * @param container   容器
+     * @param instance    Bean 实例
+     * @param context     实例上下文
+     * @param constructor 构造参数
      *
      * @return Bean 实例
      */
     Object process(
         Container container,
         Object instance,
-        InstanceContext context
+        InstanceContext context,
+        ConstructorContext constructor
     );
 }

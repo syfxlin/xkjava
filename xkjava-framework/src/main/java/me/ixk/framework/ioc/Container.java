@@ -23,7 +23,6 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Supplier;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
-import me.ixk.framework.aop.ProxyCreator;
 import me.ixk.framework.bootstrap.LoadEnvironmentVariables;
 import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.ioc.context.Context;
@@ -457,14 +456,24 @@ public class Container {
         return dependencies;
     }
 
-    protected Object processBeanBefore(final Binding binding, Object instance) {
+    protected Object processBeanBefore(
+        final Binding binding,
+        Object instance,
+        Constructor<?> constructor,
+        Object[] args
+    ) {
         final Class<?> instanceClass = ClassUtils.getUserClass(instance);
         final InstanceContext context = new InstanceContext(
             binding,
             instanceClass
         );
+        final ConstructorContext constructorContext = new ConstructorContext(
+            constructor,
+            args
+        );
         for (final BeanBeforeProcessor processor : this.beanBeforeProcessors) {
-            instance = processor.process(this, instance, context);
+            instance =
+                processor.process(this, instance, context, constructorContext);
         }
         return instance;
     }
@@ -574,18 +583,13 @@ public class Container {
                 continue;
             }
             instance = this.processInstanceInjector(binding, instance);
-            instance = this.processBeanBefore(binding, instance);
-            if (this.aspectMatches(instanceType)) {
-                instance =
-                    ProxyCreator.createAop(
-                        this.make(AspectManager.class),
+            instance =
+                this.processBeanBefore(
+                        binding,
                         instance,
-                        instanceType,
-                        instanceType.getInterfaces(),
-                        constructor.getParameterTypes(),
+                        constructor,
                         dependencies
                     );
-            }
             if (instance != null) {
                 return instance;
             }

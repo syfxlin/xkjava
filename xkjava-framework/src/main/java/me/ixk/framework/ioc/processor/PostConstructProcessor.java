@@ -7,6 +7,7 @@ package me.ixk.framework.ioc.processor;
 import java.lang.reflect.Method;
 import me.ixk.framework.annotations.BeanProcessor;
 import me.ixk.framework.annotations.Order;
+import me.ixk.framework.ioc.ConstructorContext;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.InstanceContext;
 
@@ -24,7 +25,8 @@ public class PostConstructProcessor implements BeanBeforeProcessor {
     public Object process(
         Container container,
         Object instance,
-        InstanceContext context
+        InstanceContext context,
+        ConstructorContext constructor
     ) {
         Method method = context.getBinding().getInitMethod();
         if (method != null) {
