@@ -8,6 +8,7 @@ import static me.ixk.framework.utils.DataUtils.caseGet;
 
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Map 配置数据源
@@ -31,7 +32,19 @@ public class MapPropertySource<T> extends PropertySource<Map<String, T>> {
         return caseGet(name, this.source::get);
     }
 
-    public String[] getPropertyNames() {
-        return this.source.keySet().toArray(String[]::new);
+    @Override
+    @SuppressWarnings("unchecked")
+    public void setProperty(final String name, final Object value) {
+        this.source.put(name, (T) value);
+    }
+
+    @Override
+    public Set<String> getPropertyNames() {
+        return this.source.keySet();
+    }
+
+    @Override
+    public void removeProperty(final String name) {
+        this.source.remove(name);
     }
 }

@@ -8,7 +8,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.annotations.AliasFor;
 import me.ixk.framework.annotations.Component;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -21,11 +20,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(XkJavaRunner.class)
 @Component
 public @interface XkJavaTest {
-    @AliasFor("location")
-    String value() default "";
-
-    @AliasFor("value")
     String location() default "";
+
+    String name() default "";
+
+    String active() default "";
+
+    String[] imports() default {};
 
     String[] args() default {};
 

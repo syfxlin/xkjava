@@ -19,8 +19,10 @@ public class Environment extends CompositePropertySource {
 
     public static final String CONFIG_LOCATION_NAME = "xkjava.config.location";
     public static final String CONFIG_ACTIVE_NAME = "xkjava.config.active";
+    public static final String CONFIG_NAME_NAME = "xkjava.config.name";
+    public static final String CONFIG_IMPORT_NAME = "xkjava.config.import";
     public static final String DEFAULT_CONFIG_LOCATION = "classpath:/";
-    public static final String DEFAULT_CONFIG_NAME = "";
+    public static final String DEFAULT_CONFIG_NAME = "application";
 
     private final Set<String> activeProfiles = new LinkedHashSet<>();
 

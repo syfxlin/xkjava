@@ -53,32 +53,37 @@ public class LoadEnvironmentVariables extends AbstractBootstrap {
             Environment.CONFIG_LOCATION_NAME,
             Environment.DEFAULT_CONFIG_LOCATION
         );
-        environment.setPropertySource(
-            this.loadProperties(location, Environment.DEFAULT_CONFIG_NAME)
+        final String name = environment.get(
+            Environment.CONFIG_NAME_NAME,
+            Environment.DEFAULT_CONFIG_NAME
         );
+        environment.setPropertySource(this.loadProperties(location, name, ""));
         // 次要配置文件
         for (String profile : environment.getActiveProfiles()) {
             environment.setPropertySource(
-                this.loadProperties(location, profile)
+                this.loadProperties(location, name, profile)
             );
+        }
+        // 导入的其他配置文件
+        final String imports = environment.get(
+            Environment.CONFIG_IMPORT_NAME,
+            String.class
+        );
+        if (imports != null) {
+            for (String path : imports.trim().split(",")) {
+                path = path.trim();
+                environment.setPropertySource(this.loadProperties(path, path));
+            }
         }
         this.app.instance("env", environment);
     }
 
     private PropertiesPropertySource loadProperties(
-        final String location,
-        final String active
+        final String name,
+        final String path
     ) {
         try {
-            return new PropertiesPropertySource(
-                active.isEmpty() ? "default" : active,
-                location +
-                "/" +
-                String.format(
-                    "application%s.properties",
-                    active.isEmpty() ? "" : "-" + active
-                )
-            );
+            return new PropertiesPropertySource(name, path);
         } catch (final IOException e) {
             log.error("Load environment [application.properties] failed");
             throw new LoadEnvironmentFileException(
@@ -86,5 +91,22 @@ public class LoadEnvironmentVariables extends AbstractBootstrap {
                 e
             );
         }
+    }
+
+    private PropertiesPropertySource loadProperties(
+        final String location,
+        final String name,
+        final String active
+    ) {
+        return this.loadProperties(
+                active.isEmpty() ? "default" : active,
+                location +
+                "/" +
+                String.format(
+                    "%s%s.properties",
+                    name,
+                    active.isEmpty() ? "" : "-" + active
+                )
+            );
     }
 }

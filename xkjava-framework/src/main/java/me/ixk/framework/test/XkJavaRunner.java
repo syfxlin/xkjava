@@ -5,7 +5,9 @@
 package me.ixk.framework.test;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
@@ -35,6 +37,9 @@ public class XkJavaRunner
 
     private static final String CONFIG_LOCATION_NAME =
         "--xkjava.config.location=";
+    private static final String CONFIG_NAME_NAME = "--xkjava.config.name=";
+    private static final String CONFIG_ACTIVE_NAME = "--xkjava.config.active=";
+    private static final String CONFIG_IMPORT_NAME = "--xkjava.config.import=";
     private XkJava app;
 
     @Override
@@ -46,22 +51,20 @@ public class XkJavaRunner
         final XkJavaTest xkJavaTest = annotation.getAnnotation(
             XkJavaTest.class
         );
-        String[] args = xkJavaTest.args();
+        List<String> args = new ArrayList<>(Arrays.asList(xkJavaTest.args()));
         if (!xkJavaTest.location().isEmpty()) {
-            final String[] copy = new String[args.length + 1];
-            boolean in = false;
-            for (int i = 0; i < args.length; i++) {
-                copy[i] = args[i];
-                if (args[i].startsWith(CONFIG_LOCATION_NAME)) {
-                    args[i] = CONFIG_LOCATION_NAME + xkJavaTest.location();
-                    in = true;
-                }
-            }
-            if (!in) {
-                copy[args.length] =
-                    CONFIG_LOCATION_NAME + xkJavaTest.location();
-                args = copy;
-            }
+            args.add(CONFIG_LOCATION_NAME + xkJavaTest.location());
+        }
+        if (!xkJavaTest.name().isEmpty()) {
+            args.add(CONFIG_NAME_NAME + xkJavaTest.name());
+        }
+        if (!xkJavaTest.active().isEmpty()) {
+            args.add(CONFIG_ACTIVE_NAME + xkJavaTest.active());
+        }
+        if (xkJavaTest.imports().length > 0) {
+            args.add(
+                CONFIG_IMPORT_NAME + String.join(",", xkJavaTest.imports())
+            );
         }
         final Class<?>[] classes = Arrays.copyOf(
             xkJavaTest.classes(),
@@ -69,7 +72,7 @@ public class XkJavaRunner
         );
         classes[xkJavaTest.classes().length] = testClass;
 
-        this.app = XkJava.boot(classes, args);
+        this.app = XkJava.boot(classes, args.toArray(String[]::new));
 
         // HttpClientInjector
         HttpClientInjector injector = new HttpClientInjector();

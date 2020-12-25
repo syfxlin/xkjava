@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
  */
 @XkJavaTest(
     location = "classpath:/",
+    imports = { "classpath:/test.properties" },
     args = "--test-args=true",
     classes = XkJava.class
 )

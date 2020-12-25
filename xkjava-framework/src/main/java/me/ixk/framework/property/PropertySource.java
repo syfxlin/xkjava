@@ -5,6 +5,7 @@
 package me.ixk.framework.property;
 
 import io.github.imsejin.expression.util.ObjectUtils;
+import java.util.Set;
 import me.ixk.framework.utils.Convert;
 
 /**
@@ -35,7 +36,31 @@ public abstract class PropertySource<T> {
         return (this.getProperty(name) != null);
     }
 
+    /**
+     * 获取属性值
+     *
+     * @param name 属性名
+     *
+     * @return 属性值
+     */
     public abstract Object getProperty(String name);
+
+    /**
+     * 设置属性值
+     *
+     * @param name  属性名
+     * @param value 属性值
+     */
+    public abstract void setProperty(String name, Object value);
+
+    /**
+     * 获取所有属性名称
+     *
+     * @return 所有属性名称
+     */
+    public abstract Set<String> getPropertyNames();
+
+    public abstract void removeProperty(String name);
 
     public Object getProperty(String name, Object defaultValue) {
         final Object value = this.getProperty(name);
@@ -43,6 +68,14 @@ public abstract class PropertySource<T> {
             return defaultValue;
         }
         return value;
+    }
+
+    public void set(final String name, Object value) {
+        this.setProperty(name, value);
+    }
+
+    public void remove(final String name) {
+        this.removeProperty(name);
     }
 
     public Object get(final String name) {
