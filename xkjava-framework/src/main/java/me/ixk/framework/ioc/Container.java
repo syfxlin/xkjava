@@ -665,11 +665,13 @@ public class Container {
                 errors.add(e);
                 continue;
             }
+            boolean createEarlyMap = false;
             earlyBeans = this.earlyBeans.get();
             if (earlyBeans == null) {
                 earlyBeans = new HashMap<>();
                 earlyBeans.put(binding.getName(), instance);
                 this.earlyBeans.set(earlyBeans);
+                createEarlyMap = true;
             }
             try {
                 instance = this.processInstanceInjector(binding, instance);
@@ -681,7 +683,9 @@ public class Container {
                             dependencies
                         );
             } finally {
-                this.earlyBeans.remove();
+                if (createEarlyMap) {
+                    this.earlyBeans.remove();
+                }
             }
             if (instance != null) {
                 return instance;

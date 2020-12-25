@@ -10,11 +10,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import cn.hutool.core.util.ReflectUtil;
 import java.util.Map;
 import me.ixk.framework.ioc.bean.AutoWiredTest;
 import me.ixk.framework.ioc.bean.DataBinderUser;
 import me.ixk.framework.ioc.bean.Early1;
 import me.ixk.framework.ioc.bean.Early2;
+import me.ixk.framework.ioc.bean.Early3;
 import me.ixk.framework.ioc.bean.TypeUser;
 import me.ixk.framework.ioc.bean.User;
 import me.ixk.framework.ioc.context.ApplicationContext;
@@ -186,17 +188,30 @@ class ContainerTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void early() {
         container.bind(Early1.class);
         container.bind(Early2.class);
+        container.bind(Early3.class);
 
         final Early1 early1 = container.make(Early1.class);
         final Early2 early2 = container.make(Early2.class);
-        assertEquals(early1, early2.getEarly1());
+        final Early3 early3 = container.make(Early3.class);
+        assertEquals(early1, early3.getEarly1());
         assertEquals(early2, early1.getEarly2());
+        assertEquals(early3, early2.getEarly3());
+
+        assertNull(
+            (
+                (ThreadLocal<Map<String, Object>>) ReflectUtil.getFieldValue(
+                    container,
+                    "earlyBeans"
+                )
+            ).get()
+        );
     }
 
-    public User method1(User user) {
+    public User method1(final User user) {
         return user;
     }
 }

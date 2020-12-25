@@ -10,13 +10,13 @@ package me.ixk.framework.ioc.bean;
  */
 public class Early2 {
 
-    private Early1 early1;
+    private Early3 early3;
 
-    public Early1 getEarly1() {
-        return early1;
+    public Early3 getEarly3() {
+        return early3;
     }
 
-    public void setEarly1(final Early1 early1) {
-        this.early1 = early1;
+    public void setEarly3(final Early3 early3) {
+        this.early3 = early3;
     }
 }
