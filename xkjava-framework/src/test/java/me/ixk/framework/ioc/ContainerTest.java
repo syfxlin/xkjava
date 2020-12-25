@@ -13,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Map;
 import me.ixk.framework.ioc.bean.AutoWiredTest;
 import me.ixk.framework.ioc.bean.DataBinderUser;
+import me.ixk.framework.ioc.bean.Early1;
+import me.ixk.framework.ioc.bean.Early2;
 import me.ixk.framework.ioc.bean.TypeUser;
 import me.ixk.framework.ioc.bean.User;
 import me.ixk.framework.ioc.context.ApplicationContext;
@@ -43,16 +45,16 @@ class ContainerTest {
 
     @Test
     void alias() {
-        container.setAlias("user", "User");
-        assertNotNull(container.make("user", User.class));
+        container.setAlias("User", "user");
+        assertNotNull(container.make("User", User.class));
 
-        assertTrue(container.hasAlias("user"));
+        assertTrue(container.hasAlias("User"));
 
-        assertEquals("User", container.getAlias("user"));
+        assertEquals("user", container.getAlias("User"));
 
-        container.removeAlias("user");
+        container.removeAlias("User");
 
-        assertNull(container.getAlias("user"));
+        assertNull(container.getAlias("User"));
     }
 
     @Test
@@ -148,7 +150,7 @@ class ContainerTest {
         assertTrue(container.has("remove1"));
         container.remove("remove1");
         assertFalse(container.has("remove1"));
-        assertFalse(
+        assertTrue(
             container.getBindingNamesByType().get(AutoWiredTest.class).isEmpty()
         );
     }
@@ -162,7 +164,7 @@ class ContainerTest {
         );
         assertEquals("syfxlin", result1.getName());
 
-        final String result2 = container.call("User", "getName", String.class);
+        final String result2 = container.call("user", "getName", String.class);
         assertEquals("syfxlin", result2);
 
         final String result3 = container.call(
@@ -181,6 +183,17 @@ class ContainerTest {
             "syfxlin",
             container.call(this, "method1", User.class).getName()
         );
+    }
+
+    @Test
+    void early() {
+        container.bind(Early1.class);
+        container.bind(Early2.class);
+
+        final Early1 early1 = container.make(Early1.class);
+        final Early2 early2 = container.make(Early2.class);
+        assertEquals(early1, early2.getEarly1());
+        assertEquals(early2, early1.getEarly2());
     }
 
     public User method1(User user) {

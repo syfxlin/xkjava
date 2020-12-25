@@ -100,6 +100,8 @@ public class Container {
      */
     private final ThreadLocal<DataBinder> dataBinder = new InheritableThreadLocal<>();
 
+    private final ThreadLocal<Map<String, Object>> earlyBeans = new InheritableThreadLocal<>();
+
     public Container() {
         this.dataBinder.set(
                 new DefaultDataBinder(this, new ConcurrentHashMap<>())
@@ -644,6 +646,10 @@ public class Container {
         if (log.isDebugEnabled()) {
             log.debug("Container build: {}", instanceType);
         }
+        Map<String, Object> earlyBeans = this.earlyBeans.get();
+        if (earlyBeans != null && earlyBeans.containsKey(binding.getName())) {
+            return earlyBeans.get(binding.getName());
+        }
         final Constructor<?>[] constructors = ReflectUtils.sortConstructors(
             instanceType.getDeclaredConstructors()
         );
@@ -659,14 +665,24 @@ public class Container {
                 errors.add(e);
                 continue;
             }
-            instance = this.processInstanceInjector(binding, instance);
-            instance =
-                this.processBeanBefore(
-                        binding,
-                        instance,
-                        constructor,
-                        dependencies
-                    );
+            earlyBeans = this.earlyBeans.get();
+            if (earlyBeans == null) {
+                earlyBeans = new HashMap<>();
+                earlyBeans.put(binding.getName(), instance);
+                this.earlyBeans.set(earlyBeans);
+            }
+            try {
+                instance = this.processInstanceInjector(binding, instance);
+                instance =
+                    this.processBeanBefore(
+                            binding,
+                            instance,
+                            constructor,
+                            dependencies
+                        );
+            } finally {
+                this.earlyBeans.remove();
+            }
             if (instance != null) {
                 return instance;
             }
