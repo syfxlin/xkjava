@@ -16,7 +16,7 @@ import me.ixk.framework.cache.KeyGenerator;
  * @author Otstar Lin
  * @date 2020/11/27 下午 2:15
  */
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CacheConfig {
     String cacheName() default "";

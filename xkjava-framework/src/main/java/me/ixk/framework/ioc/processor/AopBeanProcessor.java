@@ -10,9 +10,9 @@ import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.ProxyCreator;
 import me.ixk.framework.bootstrap.LoadEnvironmentVariables;
-import me.ixk.framework.ioc.ConstructorContext;
 import me.ixk.framework.ioc.Container;
-import me.ixk.framework.ioc.InstanceContext;
+import me.ixk.framework.ioc.entity.ConstructorContext;
+import me.ixk.framework.ioc.entity.InjectContext;
 import me.ixk.framework.utils.ClassUtils;
 
 /**
@@ -23,16 +23,16 @@ import me.ixk.framework.utils.ClassUtils;
  */
 @BeanProcessor
 @Order(Order.LOWEST_PRECEDENCE)
-public class AopBeanProcessor implements BeanBeforeProcessor {
+public class AopBeanProcessor implements BeanAfterCreateProcessor {
 
     @Override
     public Object process(
         Container container,
         Object instance,
-        InstanceContext context,
+        InjectContext context,
         ConstructorContext constructor
     ) {
-        final Class<?> instanceType = context.getInstanceType();
+        final Class<?> instanceType = context.getType();
         if (this.aspectMatches(instanceType, container)) {
             return ProxyCreator.createAop(
                 container.make(AspectManager.class),

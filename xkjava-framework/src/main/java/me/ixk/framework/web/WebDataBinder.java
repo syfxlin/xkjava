@@ -16,8 +16,8 @@ import me.ixk.framework.annotations.WebBind;
 import me.ixk.framework.annotations.WebBind.Type;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.ioc.Container;
-import me.ixk.framework.ioc.DataBinder;
-import me.ixk.framework.ioc.ObjectWrapperDataBinder;
+import me.ixk.framework.ioc.binder.DataBinder;
+import me.ixk.framework.ioc.binder.ObjectWrapperDataBinder;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**
@@ -27,6 +27,7 @@ import me.ixk.framework.utils.MergedAnnotation;
  * @date 2020/10/14 下午 5:23
  */
 public class WebDataBinder extends ObjectWrapperDataBinder {
+
     private final Map<String, Object> data;
     private final Map<Type, Function<String, Object>> typeFunctions;
 

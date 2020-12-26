@@ -18,7 +18,7 @@ import me.ixk.framework.ioc.PropertyResolver;
  * @author Otstar Lin
  * @date 2020/11/5 下午 10:29
  */
-@Target(ElementType.FIELD)
+@Target({ ElementType.FIELD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PropertyValue {
     String EMPTY = "EMPTY";

@@ -2,12 +2,13 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.ioc;
+package me.ixk.framework.ioc.entity;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
-import me.ixk.framework.ioc.AnnotatedEntry.ChangeableEntry;
+import me.ixk.framework.ioc.binder.DataBinder;
+import me.ixk.framework.ioc.entity.AnnotatedEntry.ChangeableEntry;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ParameterNameDiscoverer;
 
@@ -19,15 +20,15 @@ import me.ixk.framework.utils.ParameterNameDiscoverer;
  */
 public class ParameterContext {
 
-    private final Binding binding;
+    private final InjectContext context;
     private final AnnotatedEntry<Executable> executableEntry;
     private final ParameterEntry[] parameterEntries;
 
     public ParameterContext(
-        final Binding binding,
+        final InjectContext context,
         final Executable executable
     ) {
-        this.binding = binding;
+        this.context = context;
         this.executableEntry = new AnnotatedEntry<>(executable);
         this.parameterEntries =
             new ParameterEntry[executable.getParameterCount()];
@@ -71,8 +72,12 @@ public class ParameterContext {
             .toArray(MergedAnnotation[]::new);
     }
 
-    public Binding getBinding() {
-        return binding;
+    public InjectContext getContext() {
+        return context;
+    }
+
+    public DataBinder getBinder() {
+        return context.getBinder();
     }
 
     public static class ParameterEntry extends ChangeableEntry<Parameter> {

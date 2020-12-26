@@ -16,7 +16,7 @@ import me.ixk.framework.http.HttpMethod;
  * @author Otstar Lin
  * @date 2020/10/13 下午 5:06
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @RequestMapping(method = HttpMethod.PUT)
 public @interface PutMapping {

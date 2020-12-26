@@ -19,7 +19,7 @@ import me.ixk.framework.registry.after.InitBinderRegistry;
  * @author Otstar Lin
  * @date 2020/10/13 下午 4:46
  */
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Lazy
 @Bean

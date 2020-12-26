@@ -2,11 +2,12 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.ioc;
+package me.ixk.framework.ioc.binder;
 
 import cn.hutool.core.convert.Convert;
 import java.util.Map;
 import me.ixk.framework.annotations.DataBind;
+import me.ixk.framework.ioc.Container;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**

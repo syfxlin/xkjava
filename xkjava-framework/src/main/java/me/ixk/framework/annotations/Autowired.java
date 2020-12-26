@@ -24,7 +24,14 @@ import java.lang.annotation.Target;
  * @author Otstar Lin
  * @date 2020/10/13 下午 4:20
  */
-@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.CONSTRUCTOR })
+@Target(
+    {
+        ElementType.FIELD,
+        ElementType.METHOD,
+        ElementType.CONSTRUCTOR,
+        ElementType.ANNOTATION_TYPE,
+    }
+)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Autowired {
     Class<?> type() default Class.class;

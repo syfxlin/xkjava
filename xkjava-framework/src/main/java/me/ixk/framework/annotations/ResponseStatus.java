@@ -19,7 +19,7 @@ import me.ixk.framework.registry.request.ResponseStatusRegistry;
  * @author Otstar Lin
  * @date 2020/10/13 下午 5:46
  */
-@Target({ ElementType.METHOD })
+@Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @RequestAttribute(
     name = "me.ixk.framework.annotations.ResponseStatus",

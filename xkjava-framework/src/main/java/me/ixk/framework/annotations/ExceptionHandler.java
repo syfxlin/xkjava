@@ -19,12 +19,12 @@ import java.lang.annotation.Target;
  * @author Otstar Lin
  * @date 2020/10/13 下午 4:50
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ExceptionHandler {
     @AliasFor("exception")
-    Class<? extends Throwable>[] value() default {  };
+    Class<? extends Throwable>[] value() default {};
 
     @AliasFor("value")
-    Class<? extends Throwable>[] exception() default {  };
+    Class<? extends Throwable>[] exception() default {};
 }

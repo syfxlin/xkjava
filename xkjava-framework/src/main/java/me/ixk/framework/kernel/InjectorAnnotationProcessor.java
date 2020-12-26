@@ -39,20 +39,22 @@ public class InjectorAnnotationProcessor extends AbstractAnnotationProcessor {
                             processorType
                         )
                     );
-            } else if (InstanceInjector.class.isAssignableFrom(processorType)) {
+                continue;
+            }
+            if (InstanceInjector.class.isAssignableFrom(processorType)) {
                 this.app.addInstanceInjector(
                         (InstanceInjector) ReflectUtil.newInstance(
                             processorType
                         )
                     );
-            } else {
-                log.error(
-                    "Classes marked by the Injector annotation should implement the ParameterInjector or InstanceInjector interface"
-                );
-                throw new AnnotationProcessorException(
-                    "Classes marked by the Injector annotation should implement the ParameterInjector or InstanceInjector interface"
-                );
+                continue;
             }
+            log.error(
+                "Classes marked by the Injector annotation should implement the ParameterInjector or InstanceInjector interface"
+            );
+            throw new AnnotationProcessorException(
+                "Classes marked by the Injector annotation should implement the ParameterInjector or InstanceInjector interface"
+            );
         }
     }
 }

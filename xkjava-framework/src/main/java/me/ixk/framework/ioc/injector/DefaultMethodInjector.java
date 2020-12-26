@@ -9,8 +9,7 @@ import java.util.List;
 import me.ixk.framework.annotations.Injector;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.Container;
-import me.ixk.framework.ioc.DataBinder;
-import me.ixk.framework.ioc.InstanceContext;
+import me.ixk.framework.ioc.entity.InjectContext;
 
 /**
  * 默认的方法注入器
@@ -25,7 +24,7 @@ import me.ixk.framework.ioc.InstanceContext;
 public class DefaultMethodInjector implements InstanceInjector {
 
     @Override
-    public boolean supportsInstance(InstanceContext context, Object instance) {
+    public boolean supportsInstance(InjectContext context, Object instance) {
         return !context.getBinding().getAutowiredMethods().isEmpty();
     }
 
@@ -33,13 +32,12 @@ public class DefaultMethodInjector implements InstanceInjector {
     public Object inject(
         Container container,
         Object instance,
-        InstanceContext context,
-        DataBinder dataBinder
+        InjectContext context
     ) {
         final List<Method> methods = context.getBinding().getAutowiredMethods();
         for (final Method method : methods) {
             // Set 注入
-            container.call(instance, method, Object.class, dataBinder);
+            container.call(instance, method, Object.class, context.getBinder());
         }
         return instance;
     }

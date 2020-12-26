@@ -5,8 +5,7 @@
 package me.ixk.framework.ioc.injector;
 
 import me.ixk.framework.ioc.Container;
-import me.ixk.framework.ioc.DataBinder;
-import me.ixk.framework.ioc.ParameterContext;
+import me.ixk.framework.ioc.entity.ParameterContext;
 
 /**
  * 参数注入器
@@ -31,18 +30,16 @@ public interface ParameterInjector {
      * @param container    容器
      * @param context      参数上下文
      * @param dependencies 参数值
-     * @param dataBinder   数据绑定器
      *
      * @return 参数值
      */
     default Object[] process(
         Container container,
         Object[] dependencies,
-        ParameterContext context,
-        DataBinder dataBinder
+        ParameterContext context
     ) {
         if (this.supportsParameter(context, dependencies)) {
-            return this.inject(container, dependencies, context, dataBinder);
+            return this.inject(container, dependencies, context);
         }
         return dependencies;
     }
@@ -53,14 +50,12 @@ public interface ParameterInjector {
      * @param container    容器
      * @param context      参数信息
      * @param dependencies 参数值
-     * @param dataBinder   数据绑定器
      *
      * @return 参数值
      */
     Object[] inject(
         Container container,
         Object[] dependencies,
-        ParameterContext context,
-        DataBinder dataBinder
+        ParameterContext context
     );
 }

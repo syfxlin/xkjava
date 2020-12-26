@@ -23,17 +23,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import me.ixk.framework.aop.Advice;
-import me.ixk.framework.aop.AspectManager;
-import me.ixk.framework.bootstrap.LoadEnvironmentVariables;
 import me.ixk.framework.exceptions.ContainerException;
+import me.ixk.framework.ioc.binder.DataBinder;
+import me.ixk.framework.ioc.binder.DefaultDataBinder;
 import me.ixk.framework.ioc.context.Context;
 import me.ixk.framework.ioc.context.ScopeType;
+import me.ixk.framework.ioc.entity.Binding;
+import me.ixk.framework.ioc.entity.ConstructorContext;
+import me.ixk.framework.ioc.entity.InjectContext;
+import me.ixk.framework.ioc.entity.ParameterContext;
 import me.ixk.framework.ioc.factory.FactoryBean;
 import me.ixk.framework.ioc.injector.InstanceInjector;
 import me.ixk.framework.ioc.injector.ParameterInjector;
-import me.ixk.framework.ioc.processor.BeanAfterProcessor;
-import me.ixk.framework.ioc.processor.BeanBeforeProcessor;
+import me.ixk.framework.ioc.processor.BeanAfterCreateProcessor;
+import me.ixk.framework.ioc.processor.BeanDestroyProcessor;
+import me.ixk.framework.ioc.processor.BeforeInjectProcessor;
 import me.ixk.framework.utils.ClassUtils;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.ReflectUtils;
@@ -63,13 +67,17 @@ public class Container {
     private final Deque<InstanceInjector> instanceInjectors = new ConcurrentLinkedDeque<>();
 
     /**
-     * 前置处理器，在初始化后进行
+     * 创建前置处理器，在初始化前进行
      */
-    private final Deque<BeanBeforeProcessor> beanBeforeProcessors = new ConcurrentLinkedDeque<>();
+    private final Deque<BeforeInjectProcessor> beforeInjectProcessors = new ConcurrentLinkedDeque<>();
     /**
-     * 后置处理,在删除前进行
+     * 创建后置处理器，在初始化后进行
      */
-    private final Deque<BeanAfterProcessor> beanAfterProcessors = new ConcurrentLinkedDeque<>();
+    private final Deque<BeanAfterCreateProcessor> beanAfterCreateProcessors = new ConcurrentLinkedDeque<>();
+    /**
+     * 销毁处理器，在删除前进行
+     */
+    private final Deque<BeanDestroyProcessor> beanDestroyProcessors = new ConcurrentLinkedDeque<>();
 
     /**
      * Contexts，存储实例的空间
@@ -495,101 +503,72 @@ public class Container {
 
     /* ===================== Process ===================== */
 
+    protected InjectContext processBeforeInject(final Binding binding) {
+        final InjectContext context = new InjectContext(
+            binding,
+            this.dataBinder.get()
+        );
+        for (BeforeInjectProcessor processor : this.beforeInjectProcessors) {
+            processor.process(this, context);
+        }
+        return context;
+    }
+
     protected Object processInstanceInjector(
-        final Binding binding,
+        final InjectContext context,
         Object instance
     ) {
-        final Class<?> instanceClass = ClassUtils.getUserClass(instance);
-        final InstanceContext context = new InstanceContext(
-            binding,
-            instanceClass
-        );
         for (final InstanceInjector injector : this.instanceInjectors) {
-            instance =
-                injector.process(
-                    this,
-                    instance,
-                    context,
-                    this.dataBinder.get()
-                );
+            instance = injector.process(this, instance, context);
         }
         return instance;
     }
 
     protected Object[] processParameterInjector(
-        final Binding binding,
+        final InjectContext context,
         Executable method
     ) {
         Object[] dependencies = new Object[method.getParameterCount()];
         method = ClassUtils.getUserMethod(method);
-        final ParameterContext context = new ParameterContext(binding, method);
+        final ParameterContext parameterContext = new ParameterContext(
+            context,
+            method
+        );
         for (final ParameterInjector injector : this.parameterInjectors) {
             dependencies =
-                injector.process(
-                    this,
-                    dependencies,
-                    context,
-                    this.dataBinder.get()
-                );
+                injector.process(this, dependencies, parameterContext);
         }
         return dependencies;
     }
 
-    protected Object processBeanBefore(
-        final Binding binding,
+    protected Object processBeanAfterCreate(
+        final InjectContext context,
         Object instance,
         final Constructor<?> constructor,
         final Object[] args
     ) {
-        final Class<?> instanceClass = ClassUtils.getUserClass(instance);
-        final InstanceContext context = new InstanceContext(
-            binding,
-            instanceClass
-        );
         final ConstructorContext constructorContext = new ConstructorContext(
             constructor,
             args
         );
-        for (final BeanBeforeProcessor processor : this.beanBeforeProcessors) {
+        for (final BeanAfterCreateProcessor processor : this.beanAfterCreateProcessors) {
             instance =
                 processor.process(this, instance, context, constructorContext);
         }
         return instance;
     }
 
-    protected void processBeanAfter(
+    protected void processBeanDestroy(
         final Binding binding,
         final Object instance
     ) {
-        final Class<?> instanceClass = ClassUtils.getUserClass(instance);
-        final InstanceContext context = new InstanceContext(
+        final InjectContext context = new InjectContext(
             binding,
-            instanceClass
+            this.dataBinder.get()
         );
-        for (final BeanAfterProcessor processor : this.beanAfterProcessors) {
+        for (final BeanDestroyProcessor processor : this.beanDestroyProcessors) {
             processor.process(this, instance, context);
         }
-    }
-
-    protected boolean aspectMatches(final Class<?> type) {
-        // Disable proxy Advice and AspectManager
-        if (
-            Advice.class.isAssignableFrom(type) || type == AspectManager.class
-        ) {
-            return false;
-        }
-        // Disable some bootstrap
-        if (type == LoadEnvironmentVariables.class) {
-            return false;
-        }
-        if (ClassUtils.isSkipBuildType(type)) {
-            return false;
-        }
-        final AspectManager aspectManager = this.make(AspectManager.class);
-        if (aspectManager == null) {
-            return false;
-        }
-        return aspectManager.matches(type);
     }
 
     /* ===================== doBind ===================== */
@@ -657,8 +636,9 @@ public class Container {
         final List<Exception> errors = new ArrayList<>();
         for (final Constructor<?> constructor : constructors) {
             constructor.setAccessible(true);
+            final InjectContext context = this.processBeforeInject(binding);
             final Object[] dependencies =
-                this.processParameterInjector(binding, constructor);
+                this.processParameterInjector(context, constructor);
             try {
                 instance = constructor.newInstance(dependencies);
             } catch (final Exception e) {
@@ -674,10 +654,10 @@ public class Container {
                 createEarlyMap = true;
             }
             try {
-                instance = this.processInstanceInjector(binding, instance);
+                instance = this.processInstanceInjector(context, instance);
                 instance =
-                    this.processBeanBefore(
-                            binding,
+                    this.processBeanAfterCreate(
+                            context,
                             instance,
                             constructor,
                             dependencies
@@ -751,7 +731,7 @@ public class Container {
         }
         final Binding binding = this.getBinding(name);
         if (binding.isCreated()) {
-            this.processBeanAfter(binding, binding.getSource());
+            this.processBeanDestroy(binding, binding.getSource());
         }
         this.removeBinding(name);
     }
@@ -766,8 +746,17 @@ public class Container {
         if (log.isDebugEnabled()) {
             log.debug("Container call method: {} - {}", method, returnType);
         }
+        final String name = this.typeToBeanName(instance.getClass());
+        final InjectContext context =
+            this.processBeforeInject(
+                    this.newBinding(
+                            name,
+                            instance,
+                            ScopeType.PROTOTYPE.asString()
+                        )
+                );
         final Object[] dependencies =
-            this.processParameterInjector(null, method);
+            this.processParameterInjector(context, method);
         return Convert.convert(
             returnType,
             ReflectUtil.invoke(instance, method, dependencies)
@@ -1145,70 +1134,106 @@ public class Container {
         return parameterInjectors;
     }
 
-    public Container addFirstBeanBeforeProcessor(
-        final BeanBeforeProcessor processor
+    public Container addFirstBeforeInjectProcessor(
+        final BeforeInjectProcessor processor
     ) {
         if (log.isDebugEnabled()) {
             log.debug("Container add bean before processor: {}", processor);
         }
-        this.beanBeforeProcessors.addFirst(processor);
+        this.beforeInjectProcessors.addFirst(processor);
         return this;
     }
 
-    public Container addBeanBeforeProcessor(
-        final BeanBeforeProcessor processor
+    public Container addBeforeInjectProcessor(
+        final BeforeInjectProcessor processor
     ) {
         if (log.isDebugEnabled()) {
             log.debug("Container add bean before processor: {}", processor);
         }
-        this.beanBeforeProcessors.addLast(processor);
+        this.beforeInjectProcessors.addLast(processor);
         return this;
     }
 
-    public Container removeBeanBeforeProcessor(
-        final BeanBeforeProcessor processor
+    public Container removeBeforeInjectProcessor(
+        final BeforeInjectProcessor processor
     ) {
         if (log.isDebugEnabled()) {
             log.debug("Container remove bean before processor: {}", processor);
         }
-        this.beanBeforeProcessors.remove(processor);
+        this.beforeInjectProcessors.remove(processor);
         return this;
     }
 
-    public Deque<BeanBeforeProcessor> getBeanBeforeProcessors() {
-        return beanBeforeProcessors;
+    public Deque<BeforeInjectProcessor> getBeforeInjectProcessors() {
+        return beforeInjectProcessors;
     }
 
-    public Container addFirstBeanAfterProcessor(
-        final BeanAfterProcessor processor
+    public Container addFirstBeanAfterCreateProcessor(
+        final BeanAfterCreateProcessor processor
+    ) {
+        if (log.isDebugEnabled()) {
+            log.debug("Container add bean before processor: {}", processor);
+        }
+        this.beanAfterCreateProcessors.addFirst(processor);
+        return this;
+    }
+
+    public Container addBeanAfterCreateProcessor(
+        final BeanAfterCreateProcessor processor
+    ) {
+        if (log.isDebugEnabled()) {
+            log.debug("Container add bean before processor: {}", processor);
+        }
+        this.beanAfterCreateProcessors.addLast(processor);
+        return this;
+    }
+
+    public Container removeBeanAfterCreateProcessor(
+        final BeanAfterCreateProcessor processor
+    ) {
+        if (log.isDebugEnabled()) {
+            log.debug("Container remove bean before processor: {}", processor);
+        }
+        this.beanAfterCreateProcessors.remove(processor);
+        return this;
+    }
+
+    public Deque<BeanAfterCreateProcessor> getBeanAfterCreateProcessors() {
+        return beanAfterCreateProcessors;
+    }
+
+    public Container addFirstBeanDestroyProcessor(
+        final BeanDestroyProcessor processor
     ) {
         if (log.isDebugEnabled()) {
             log.debug("Container add bean after processor: {}", processor);
         }
-        this.beanAfterProcessors.addFirst(processor);
+        this.beanDestroyProcessors.addFirst(processor);
         return this;
     }
 
-    public Container addBeanAfterProcessor(final BeanAfterProcessor processor) {
+    public Container addBeanDestroyProcessor(
+        final BeanDestroyProcessor processor
+    ) {
         if (log.isDebugEnabled()) {
             log.debug("Container add bean after processor: {}", processor);
         }
-        this.beanAfterProcessors.addLast(processor);
+        this.beanDestroyProcessors.addLast(processor);
         return this;
     }
 
-    public Container removeBeanAfterProcessor(
-        final BeanAfterProcessor processor
+    public Container removeBeanDestroyProcessor(
+        final BeanDestroyProcessor processor
     ) {
         if (log.isDebugEnabled()) {
             log.debug("Container remove bean after processor: {}", processor);
         }
-        this.beanAfterProcessors.remove(processor);
+        this.beanDestroyProcessors.remove(processor);
         return this;
     }
 
-    public Deque<BeanAfterProcessor> getBeanAfterProcessors() {
-        return beanAfterProcessors;
+    public Deque<BeanDestroyProcessor> getBeanDestroyProcessors() {
+        return beanDestroyProcessors;
     }
 
     public void setInstanceValue(final String name, final Object instance) {

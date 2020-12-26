@@ -23,19 +23,19 @@ import me.ixk.framework.conditional.OnPropertyCondition;
  * @author Otstar Lin
  * @date 2020/10/13 下午 4:39
  */
-@Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Conditional({ OnPropertyCondition.class })
 @Order(Order.HIGHEST_PRECEDENCE + 2)
 public @interface ConditionalOnProperty {
     @AliasFor("name")
-    String[] value() default {  };
+    String[] value() default {};
 
     String prefix() default "";
 
     @AliasFor("value")
-    String[] name() default {  };
+    String[] name() default {};
 
     String havingValue() default "";
 

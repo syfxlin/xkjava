@@ -14,12 +14,11 @@ import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
 import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.http.MimeType;
-import me.ixk.framework.ioc.AnnotatedEntry.ChangeableEntry;
 import me.ixk.framework.ioc.Container;
-import me.ixk.framework.ioc.DataBinder;
-import me.ixk.framework.ioc.InstanceContext;
-import me.ixk.framework.ioc.ParameterContext;
-import me.ixk.framework.ioc.ParameterContext.ParameterEntry;
+import me.ixk.framework.ioc.entity.AnnotatedEntry.ChangeableEntry;
+import me.ixk.framework.ioc.entity.InjectContext;
+import me.ixk.framework.ioc.entity.ParameterContext;
+import me.ixk.framework.ioc.entity.ParameterContext.ParameterEntry;
 import me.ixk.framework.ioc.injector.InstanceInjector;
 import me.ixk.framework.ioc.injector.ParameterInjector;
 import me.ixk.framework.test.ClientResponse.RequestProcessor;
@@ -83,7 +82,7 @@ public class HttpClientInjector implements ParameterInjector, InstanceInjector {
     }
 
     @Override
-    public boolean supportsInstance(InstanceContext context, Object instance) {
+    public boolean supportsInstance(InjectContext context, Object instance) {
         return context.getFieldEntries().length > 0;
     }
 
@@ -91,8 +90,7 @@ public class HttpClientInjector implements ParameterInjector, InstanceInjector {
     public Object inject(
         Container container,
         Object instance,
-        InstanceContext context,
-        DataBinder dataBinder
+        InjectContext context
     ) {
         for (final ChangeableEntry<Field> entry : context.getFieldEntries()) {
             if (entry.isChanged()) {
@@ -106,7 +104,7 @@ public class HttpClientInjector implements ParameterInjector, InstanceInjector {
                     continue;
                 }
                 final PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
-                    context.getInstanceType(),
+                    context.getType(),
                     field.getName()
                 );
                 final java.lang.reflect.Method writeMethod = propertyDescriptor ==
@@ -142,8 +140,7 @@ public class HttpClientInjector implements ParameterInjector, InstanceInjector {
     public Object[] inject(
         Container container,
         Object[] dependencies,
-        ParameterContext context,
-        DataBinder dataBinder
+        ParameterContext context
     ) {
         final ParameterEntry[] entries = context.getParameterEntries();
         for (int i = 0; i < entries.length; i++) {

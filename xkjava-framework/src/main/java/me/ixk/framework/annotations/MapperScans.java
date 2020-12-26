@@ -16,8 +16,8 @@ import me.ixk.framework.registry.after.MapperScannerRegistry;
  * @author Otstar Lin
  * @date 2020/10/13 下午 5:01
  */
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
 @AfterRegistry(MapperScannerRegistry.class)
 @RepeatItem(MapperScan.class)
 public @interface MapperScans {

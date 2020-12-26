@@ -16,7 +16,7 @@ import me.ixk.framework.registry.after.MiddlewareRegistry;
  * @author Otstar Lin
  * @date 2020/10/13 下午 5:47
  */
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @AfterRegistry(MiddlewareRegistry.class)
 public @interface RouteMiddleware {

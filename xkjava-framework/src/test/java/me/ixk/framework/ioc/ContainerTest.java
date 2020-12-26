@@ -19,6 +19,7 @@ import me.ixk.framework.ioc.bean.Early2;
 import me.ixk.framework.ioc.bean.Early3;
 import me.ixk.framework.ioc.bean.TypeUser;
 import me.ixk.framework.ioc.bean.User;
+import me.ixk.framework.ioc.binder.DefaultDataBinder;
 import me.ixk.framework.ioc.context.ApplicationContext;
 import me.ixk.framework.ioc.context.ScopeType;
 import me.ixk.framework.ioc.factory.FactoryBean;

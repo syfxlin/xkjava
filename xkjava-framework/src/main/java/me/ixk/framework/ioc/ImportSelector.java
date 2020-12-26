@@ -4,6 +4,8 @@
 
 package me.ixk.framework.ioc;
 
+import me.ixk.framework.ioc.entity.AnnotatedEntry;
+
 /**
  * 导入选择器
  *

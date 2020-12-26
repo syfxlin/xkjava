@@ -9,7 +9,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import me.ixk.framework.annotations.WebBind.Type;
-import me.ixk.framework.ioc.DataBinder.Converter;
+import me.ixk.framework.ioc.binder.DataBinder.Converter;
 
 /**
  * HTTP 头字段值
@@ -17,7 +17,7 @@ import me.ixk.framework.ioc.DataBinder.Converter;
  * @author Otstar Lin
  * @date 2020/10/13 下午 4:54
  */
-@Target({ ElementType.PARAMETER })
+@Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @WebBind(type = Type.HEADER)
 public @interface HeaderValue {
@@ -34,5 +34,5 @@ public @interface HeaderValue {
     String defaultValue() default DataBind.EMPTY;
 
     @AliasFor(annotation = WebBind.class, attribute = "converter")
-    Class<? extends Converter>[] converter() default {  };
+    Class<? extends Converter>[] converter() default {};
 }

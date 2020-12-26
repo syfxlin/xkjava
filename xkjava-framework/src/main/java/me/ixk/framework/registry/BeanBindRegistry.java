@@ -5,8 +5,8 @@
 package me.ixk.framework.registry;
 
 import java.lang.reflect.AnnotatedElement;
-import me.ixk.framework.ioc.Binding;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.ioc.entity.Binding;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**

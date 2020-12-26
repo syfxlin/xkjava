@@ -8,8 +8,9 @@ import cn.hutool.core.util.ReflectUtil;
 import me.ixk.framework.annotations.BeanProcessor;
 import me.ixk.framework.exceptions.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.ioc.processor.BeanAfterProcessor;
-import me.ixk.framework.ioc.processor.BeanBeforeProcessor;
+import me.ixk.framework.ioc.processor.BeanAfterCreateProcessor;
+import me.ixk.framework.ioc.processor.BeanDestroyProcessor;
+import me.ixk.framework.ioc.processor.BeforeInjectProcessor;
 import me.ixk.framework.processor.AbstractAnnotationProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,28 +37,38 @@ public class BeanProcessorAnnotationProcessor
         for (Class<?> processorType : this.getTypesAnnotated(
                 BeanProcessor.class
             )) {
-            if (BeanBeforeProcessor.class.isAssignableFrom(processorType)) {
-                this.app.addBeanBeforeProcessor(
-                        (BeanBeforeProcessor) ReflectUtil.newInstance(
+            if (BeforeInjectProcessor.class.isAssignableFrom(processorType)) {
+                this.app.addBeforeInjectProcessor(
+                        (BeforeInjectProcessor) ReflectUtil.newInstance(
                             processorType
                         )
                     );
-            } else if (
-                BeanAfterProcessor.class.isAssignableFrom(processorType)
-            ) {
-                this.app.addBeanAfterProcessor(
-                        (BeanAfterProcessor) ReflectUtil.newInstance(
-                            processorType
-                        )
-                    );
-            } else {
-                log.error(
-                    "Classes marked by the BeanProcessor annotation should implement the BeanBeforeProcessor or BeanAfterProcessor interface"
-                );
-                throw new AnnotationProcessorException(
-                    "Classes marked by the BeanProcessor annotation should implement the BeanBeforeProcessor or BeanAfterProcessor interface"
-                );
+                continue;
             }
+            if (
+                BeanAfterCreateProcessor.class.isAssignableFrom(processorType)
+            ) {
+                this.app.addBeanAfterCreateProcessor(
+                        (BeanAfterCreateProcessor) ReflectUtil.newInstance(
+                            processorType
+                        )
+                    );
+                continue;
+            }
+            if (BeanDestroyProcessor.class.isAssignableFrom(processorType)) {
+                this.app.addBeanDestroyProcessor(
+                        (BeanDestroyProcessor) ReflectUtil.newInstance(
+                            processorType
+                        )
+                    );
+                continue;
+            }
+            log.error(
+                "Classes marked by the BeanProcessor annotation should implement the BeanBeforeProcessor or BeanAfterProcessor interface"
+            );
+            throw new AnnotationProcessorException(
+                "Classes marked by the BeanProcessor annotation should implement the BeanBeforeProcessor or BeanAfterProcessor interface"
+            );
         }
     }
 }

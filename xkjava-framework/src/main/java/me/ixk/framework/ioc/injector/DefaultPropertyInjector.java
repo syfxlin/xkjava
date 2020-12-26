@@ -12,10 +12,9 @@ import java.lang.reflect.Method;
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.Injector;
 import me.ixk.framework.annotations.Order;
-import me.ixk.framework.ioc.AnnotatedEntry.ChangeableEntry;
 import me.ixk.framework.ioc.Container;
-import me.ixk.framework.ioc.DataBinder;
-import me.ixk.framework.ioc.InstanceContext;
+import me.ixk.framework.ioc.entity.AnnotatedEntry.ChangeableEntry;
+import me.ixk.framework.ioc.entity.InjectContext;
 import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,7 @@ public class DefaultPropertyInjector implements InstanceInjector {
     );
 
     @Override
-    public boolean supportsInstance(InstanceContext context, Object instance) {
+    public boolean supportsInstance(InjectContext context, Object instance) {
         return context.getFieldEntries().length > 0;
     }
 
@@ -43,8 +42,7 @@ public class DefaultPropertyInjector implements InstanceInjector {
     public Object inject(
         Container container,
         Object instance,
-        InstanceContext context,
-        DataBinder dataBinder
+        InjectContext context
     ) {
         for (ChangeableEntry<Field> entry : context.getFieldEntries()) {
             if (entry.isChanged()) {
@@ -55,7 +53,7 @@ public class DefaultPropertyInjector implements InstanceInjector {
             Autowired autowired = annotation.getAnnotation(Autowired.class);
             if (autowired == null) {
                 PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
-                    context.getInstanceType(),
+                    context.getType(),
                     field.getName()
                 );
                 if (propertyDescriptor == null) {
@@ -65,11 +63,9 @@ public class DefaultPropertyInjector implements InstanceInjector {
                 if (writeMethod == null) {
                     continue;
                 }
-                Object dependency = dataBinder.getObject(
-                    field.getName(),
-                    field.getType(),
-                    annotation
-                );
+                Object dependency = context
+                    .getBinder()
+                    .getObject(field.getName(), field.getType(), annotation);
                 if (dependency == null) {
                     dependency = ReflectUtil.getFieldValue(instance, field);
                 }
@@ -88,11 +84,13 @@ public class DefaultPropertyInjector implements InstanceInjector {
                         autowiredClass = type;
                     }
                     dependency =
-                        dataBinder.getObject(
-                            field.getName(),
-                            autowiredClass,
-                            annotation
-                        );
+                        context
+                            .getBinder()
+                            .getObject(
+                                field.getName(),
+                                autowiredClass,
+                                annotation
+                            );
                 }
                 if (dependency == null) {
                     dependency = ReflectUtil.getFieldValue(instance, field);
@@ -101,14 +99,14 @@ public class DefaultPropertyInjector implements InstanceInjector {
                 if (dependency == null && autowired.required()) {
                     final NullPointerException exception = new NullPointerException(
                         "Target [" +
-                        context.getInstanceType().getName() +
+                        context.getType().getName() +
                         "::" +
                         field.getName() +
                         "] is required, but inject value is null"
                     );
                     log.error(
                         "Target [{}::{}] is required, but inject value is null",
-                        context.getInstanceType().getName(),
+                        context.getType().getName(),
                         field.getName()
                     );
                     throw exception;

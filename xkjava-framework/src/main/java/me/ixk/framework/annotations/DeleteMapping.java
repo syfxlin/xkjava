@@ -16,7 +16,7 @@ import me.ixk.framework.http.HttpMethod;
  * @author Otstar Lin
  * @date 2020/10/13 下午 4:49
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @RequestMapping(method = HttpMethod.DELETE)
 public @interface DeleteMapping {
@@ -25,12 +25,12 @@ public @interface DeleteMapping {
         annotation = RequestMapping.class,
         attribute = "value"
     )
-    String[] value() default {  };
+    String[] value() default {};
 
     @AliasFor(
         value = "value",
         annotation = RequestMapping.class,
         attribute = "path"
     )
-    String[] path() default {  };
+    String[] path() default {};
 }

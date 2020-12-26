@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
  * @author Otstar Lin
  * @date 2020/11/9 下午 8:52
  */
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface BeanProcessor {
 }

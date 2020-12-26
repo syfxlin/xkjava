@@ -19,8 +19,8 @@ import me.ixk.framework.conditional.OnExpressionCondition;
  * @author Otstar Lin
  * @date 2020/10/13 下午 4:35
  */
-@Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Conditional({ OnExpressionCondition.class })
 @Order(Order.LOWEST_PRECEDENCE - 1)

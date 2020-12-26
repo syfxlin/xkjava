@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
  * @author Otstar Lin
  * @date 2020/11/29 上午 12:06
  */
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Repeatable(PropertySources.class)
 public @interface PropertySource {

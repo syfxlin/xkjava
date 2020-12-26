@@ -18,7 +18,7 @@ import me.ixk.framework.registry.after.WebResolverRegistry;
  * @author Otstar Lin
  * @date 2020/10/13 下午 5:57
  */
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @AfterRegistry(WebResolverRegistry.class)
 public @interface WebResolver {

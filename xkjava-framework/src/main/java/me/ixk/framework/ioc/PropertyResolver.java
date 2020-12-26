@@ -6,6 +6,7 @@ package me.ixk.framework.ioc;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.ioc.entity.ClassProperty;
 
 /**
  * 属性解析器

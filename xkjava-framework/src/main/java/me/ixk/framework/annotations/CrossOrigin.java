@@ -21,7 +21,7 @@ import me.ixk.framework.web.CorsProcessor;
  * @author Otstar Lin
  * @date 2020/10/13 下午 4:47
  */
-@Target({ ElementType.METHOD })
+@Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @RequestAttribute(
     name = "me.ixk.framework.annotation.CrossOrigin",
@@ -35,9 +35,9 @@ public @interface CrossOrigin {
     @AliasFor("value")
     String origin() default CorsProcessor.DYNAMIC_ORIGIN;
 
-    String[] allowedHeaders() default {  };
+    String[] allowedHeaders() default {};
 
-    HttpMethod[] methods() default {  };
+    HttpMethod[] methods() default {};
 
     boolean allowCredentials() default false;
 }

@@ -11,36 +11,26 @@ import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
 import java.beans.PropertyDescriptor;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import me.ixk.framework.annotations.ConfigurationProperties;
 import me.ixk.framework.annotations.Injector;
 import me.ixk.framework.annotations.Order;
-import me.ixk.framework.annotations.PropertySource;
 import me.ixk.framework.annotations.PropertyValue;
 import me.ixk.framework.annotations.Value;
 import me.ixk.framework.bootstrap.Bootstrap;
-import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.expression.BeanExpressionResolver;
-import me.ixk.framework.ioc.AnnotatedEntry.ChangeableEntry;
-import me.ixk.framework.ioc.ClassProperty;
 import me.ixk.framework.ioc.Container;
-import me.ixk.framework.ioc.DataBinder;
-import me.ixk.framework.ioc.InstanceContext;
 import me.ixk.framework.ioc.PropertyResolver;
+import me.ixk.framework.ioc.entity.AnnotatedEntry.ChangeableEntry;
+import me.ixk.framework.ioc.entity.ClassProperty;
+import me.ixk.framework.ioc.entity.InjectContext;
+import me.ixk.framework.ioc.processor.PropertiesProcessor;
 import me.ixk.framework.property.CompositePropertySource;
 import me.ixk.framework.property.Environment;
-import me.ixk.framework.property.MapPropertySource;
-import me.ixk.framework.property.PropertiesPropertySource;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.MergedAnnotation;
-import me.ixk.framework.utils.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +51,7 @@ public class PropertiesValueInjector implements InstanceInjector {
 
     @Override
     public boolean supportsInstance(
-        final InstanceContext context,
+        final InjectContext context,
         final Object instance
     ) {
         if (
@@ -78,8 +68,7 @@ public class PropertiesValueInjector implements InstanceInjector {
     public Object inject(
         final Container container,
         final Object instance,
-        final InstanceContext context,
-        final DataBinder dataBinder
+        final InjectContext context
     ) {
         for (final ChangeableEntry<Field> entry : context.getFieldEntries()) {
             if (entry.isChanged()) {
@@ -103,7 +92,7 @@ public class PropertiesValueInjector implements InstanceInjector {
                 continue;
             }
             final PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
-                context.getInstanceType(),
+                context.getType(),
                 field.getName()
             );
             final Method writeMethod = propertyDescriptor == null
@@ -111,13 +100,19 @@ public class PropertiesValueInjector implements InstanceInjector {
                 : propertyDescriptor.getWriteMethod();
             final ClassProperty property = new ClassProperty(
                 instance,
-                context.getInstanceType(),
+                context.getType(),
                 field,
                 field.getName(),
                 context.getAnnotation(),
                 fieldAnnotation
             );
-            final Object value = this.resolveValue(property, container);
+            final Object value =
+                this.resolveValue(
+                        property,
+                        context.getData(PropertiesProcessor.PROPERTIES),
+                        context.getData(PropertiesProcessor.PROPERTIES_PREFIX),
+                        container
+                    );
             // 有 Write 方法就使用 Write 方法
             if (writeMethod != null) {
                 ReflectUtil.invoke(instance, writeMethod, value);
@@ -131,43 +126,17 @@ public class PropertiesValueInjector implements InstanceInjector {
 
     private Object resolveValue(
         final ClassProperty property,
+        CompositePropertySource compositePropertySource,
+        String prefix,
         final Container container
     ) {
         final MergedAnnotation classAnnotation = property.getClassAnnotation();
         final ConfigurationProperties configurationProperties = classAnnotation.getAnnotation(
             ConfigurationProperties.class
         );
-        final List<PropertySource> propertySources = classAnnotation.getAnnotations(
-            PropertySource.class
-        );
-        final CompositePropertySource compositePropertySource = new CompositePropertySource(
-            property.getInstanceClass().getName()
-        );
-        compositePropertySource.setPropertySource(
-            container.make(Environment.class)
-        );
-        if (!propertySources.isEmpty()) {
-            for (final PropertySource propertySource : propertySources) {
-                this.loadPropertySource(
-                        compositePropertySource,
-                        propertySource
-                    );
-            }
-        }
-        String prefix = configurationProperties == null
-            ? ""
-            : configurationProperties.prefix();
-        if (!prefix.isEmpty() && !prefix.endsWith(PROPERTIES_SPLIT)) {
-            prefix += PROPERTIES_SPLIT;
-        }
         final String propertyName = property.getPropertyName();
         Object value =
-            this.resolveValue(
-                    property,
-                    compositePropertySource,
-                    prefix,
-                    container
-                );
+            this.getValue(property, compositePropertySource, prefix, container);
         if (
             value == null &&
             !(
@@ -202,48 +171,9 @@ public class PropertiesValueInjector implements InstanceInjector {
         return value;
     }
 
-    private void loadPropertySource(
-        final CompositePropertySource compositePropertySource,
-        final PropertySource propertySource
-    ) {
-        final String name = propertySource.location();
-        if (!name.isEmpty()) {
-            try {
-                final File file = ResourceUtils.getFile(name);
-                final String encoding = propertySource.encoding();
-                compositePropertySource.setPropertySource(
-                    new PropertiesPropertySource(
-                        compositePropertySource.getName() + ":" + name,
-                        file,
-                        encoding
-                    )
-                );
-            } catch (final FileNotFoundException e) {
-                if (!propertySource.ignoreResourceNotFound()) {
-                    throw new ContainerException(e);
-                }
-            }
-        }
-        if (propertySource.value().length > 0) {
-            Map<String, Object> map = new HashMap<>(
-                propertySource.value().length
-            );
-            for (final String value : propertySource.value()) {
-                final String[] kv = value.split("=");
-                map.put(kv[0], kv.length > 1 ? kv[1] : "");
-            }
-            compositePropertySource.setPropertySource(
-                new MapPropertySource<>(
-                    compositePropertySource.getName() + ":inline",
-                    map
-                )
-            );
-        }
-    }
-
-    private Object resolveValue(
+    private Object getValue(
         final ClassProperty property,
-        final me.ixk.framework.property.PropertySource<?> properties,
+        final CompositePropertySource properties,
         final String prefix,
         final Container container
     ) {

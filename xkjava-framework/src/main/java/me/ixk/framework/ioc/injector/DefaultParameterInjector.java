@@ -5,14 +5,18 @@
 package me.ixk.framework.ioc.injector;
 
 import java.lang.reflect.Parameter;
+import java.util.Collections;
 import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.annotations.Injector;
 import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotations.Value;
+import me.ixk.framework.expression.BeanExpressionResolver;
 import me.ixk.framework.ioc.Container;
-import me.ixk.framework.ioc.DataBinder;
-import me.ixk.framework.ioc.ParameterContext;
-import me.ixk.framework.ioc.ParameterContext.ParameterEntry;
-import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.ioc.entity.InjectContext;
+import me.ixk.framework.ioc.entity.ParameterContext;
+import me.ixk.framework.ioc.entity.ParameterContext.ParameterEntry;
+import me.ixk.framework.ioc.processor.PropertiesProcessor;
+import me.ixk.framework.property.CompositePropertySource;
 import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +47,7 @@ public class DefaultParameterInjector implements ParameterInjector {
     public Object[] inject(
         Container container,
         Object[] dependencies,
-        ParameterContext context,
-        DataBinder dataBinder
+        ParameterContext context
     ) {
         final ParameterEntry[] entries = context.getParameterEntries();
         for (int i = 0; i < entries.length; i++) {
@@ -53,16 +56,32 @@ public class DefaultParameterInjector implements ParameterInjector {
             }
             Parameter parameter = entries[i].getElement();
             String parameterName = entries[i].getName();
-            MergedAnnotation annotation = AnnotationUtils.getAnnotation(
-                parameter
-            );
+            MergedAnnotation annotation = entries[i].getAnnotation();
             DataBind dataBind = annotation.getAnnotation(DataBind.class);
-            dependencies[i] =
-                dataBinder.getObject(
-                    parameterName,
-                    parameter.getType(),
-                    annotation
-                );
+            final Value value = annotation.getAnnotation(Value.class);
+            if (value != null) {
+                final InjectContext injectContext = context.getContext();
+                dependencies[i] =
+                    this.resolveExpression(
+                            value,
+                            injectContext.getData(
+                                PropertiesProcessor.PROPERTIES
+                            ),
+                            injectContext.getData(
+                                PropertiesProcessor.PROPERTIES_PREFIX
+                            ),
+                            container
+                        );
+            } else {
+                dependencies[i] =
+                    context
+                        .getBinder()
+                        .getObject(
+                            parameterName,
+                            parameter.getType(),
+                            annotation
+                        );
+            }
             if (
                 dependencies[i] == null &&
                 dataBind != null &&
@@ -88,5 +107,28 @@ public class DefaultParameterInjector implements ParameterInjector {
             entries[i].setChanged(true);
         }
         return dependencies;
+    }
+
+    private Object resolveExpression(
+        final Value value,
+        final CompositePropertySource properties,
+        final String prefix,
+        final Container container
+    ) {
+        final BeanExpressionResolver resolver = container.make(
+            BeanExpressionResolver.class
+        );
+        return resolver.evaluateResolver(
+            value.expression(),
+            Object.class,
+            properties,
+            Collections.emptyMap(),
+            name ->
+                BeanExpressionResolver.resolveEmbeddedValue(
+                    name,
+                    properties,
+                    prefix
+                )
+        );
     }
 }

@@ -5,8 +5,7 @@
 package me.ixk.framework.ioc.injector;
 
 import me.ixk.framework.ioc.Container;
-import me.ixk.framework.ioc.DataBinder;
-import me.ixk.framework.ioc.InstanceContext;
+import me.ixk.framework.ioc.entity.InjectContext;
 
 /**
  * 实例注入器
@@ -23,26 +22,24 @@ public interface InstanceInjector {
      *
      * @return 是否匹配
      */
-    boolean supportsInstance(final InstanceContext context, Object instance);
+    boolean supportsInstance(final InjectContext context, Object instance);
 
     /**
      * 处理
      *
-     * @param container  容器
-     * @param instance   实例
-     * @param context    参数上下文
-     * @param dataBinder 数据绑定器
+     * @param container 容器
+     * @param instance  实例
+     * @param context   参数上下文
      *
      * @return 实例
      */
     default Object process(
         final Container container,
         final Object instance,
-        final InstanceContext context,
-        final DataBinder dataBinder
+        final InjectContext context
     ) {
         if (this.supportsInstance(context, instance)) {
-            return this.inject(container, instance, context, dataBinder);
+            return this.inject(container, instance, context);
         }
         return instance;
     }
@@ -50,17 +47,11 @@ public interface InstanceInjector {
     /**
      * 注入
      *
-     * @param container  容器
-     * @param instance   实例
-     * @param context    参数上下文
-     * @param dataBinder 数据绑定器
+     * @param container 容器
+     * @param instance  实例
+     * @param context   参数上下文
      *
      * @return 实例
      */
-    Object inject(
-        Container container,
-        Object instance,
-        InstanceContext context,
-        DataBinder dataBinder
-    );
+    Object inject(Container container, Object instance, InjectContext context);
 }

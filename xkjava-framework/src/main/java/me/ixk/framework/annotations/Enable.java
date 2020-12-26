@@ -17,7 +17,7 @@ import me.ixk.framework.registry.attribute.EnableAttributeRegistry;
  * @author Otstar Lin
  * @date 2020/11/30 上午 11:09
  */
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Attribute(name = "enableFunctions", registry = EnableAttributeRegistry.class)
 @Repeatable(Enables.class)

@@ -4,19 +4,19 @@
 
 package me.ixk.framework.ioc.processor;
 
-import me.ixk.framework.ioc.ConstructorContext;
 import me.ixk.framework.ioc.Container;
-import me.ixk.framework.ioc.InstanceContext;
+import me.ixk.framework.ioc.entity.ConstructorContext;
+import me.ixk.framework.ioc.entity.InjectContext;
 
 /**
- * Bean 前置处理器
+ * Bean 创建后置处理器
  * <p>
  * 在 Bean 初始化前执行，instance 绑定的 Bean 无法被处理
  *
  * @author Otstar Lin
  * @date 2020/10/14 上午 11:08
  */
-public interface BeanBeforeProcessor {
+public interface BeanAfterCreateProcessor {
     /**
      * 处理
      *
@@ -30,7 +30,7 @@ public interface BeanBeforeProcessor {
     Object process(
         Container container,
         Object instance,
-        InstanceContext context,
+        InjectContext context,
         ConstructorContext constructor
     );
 }

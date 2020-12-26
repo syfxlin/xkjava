@@ -16,10 +16,10 @@ import org.apache.ibatis.session.TransactionIsolationLevel;
  * @author Otstar Lin
  * @date 2020/10/13 下午 5:52
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Transactional {
     TransactionIsolationLevel isolation() default TransactionIsolationLevel.READ_COMMITTED;
 
-    Class<? extends Exception>[] rollbackFor() default {  };
+    Class<? extends Exception>[] rollbackFor() default {};
 }

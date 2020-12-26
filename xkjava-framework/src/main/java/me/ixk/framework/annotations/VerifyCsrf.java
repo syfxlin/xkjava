@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
  * @author Otstar Lin
  * @date 2020/10/13 下午 5:53
  */
-@Target({ ElementType.METHOD })
+@Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Middleware(middleware = me.ixk.framework.middleware.VerifyCsrfToken.class)
 public @interface VerifyCsrf {

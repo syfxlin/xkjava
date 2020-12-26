@@ -18,8 +18,8 @@ import java.lang.annotation.Target;
  * @author Otstar Lin
  * @date 2020/10/13 下午 4:28
  */
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
 @Repeatable(ComponentScans.class)
 public @interface ComponentScan {
     @AliasFor("basePackages")

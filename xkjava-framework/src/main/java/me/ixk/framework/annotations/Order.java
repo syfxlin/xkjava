@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * @author Otstar Lin
  * @date 2020/10/13 下午 5:02
  */
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Order {
     int HIGHEST_PRECEDENCE = Integer.MIN_VALUE;

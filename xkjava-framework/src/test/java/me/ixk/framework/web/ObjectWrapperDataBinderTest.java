@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.entity.User;
-import me.ixk.framework.ioc.ObjectWrapperDataBinder;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.ioc.binder.ObjectWrapperDataBinder;
 import me.ixk.framework.test.XkJavaTest;
 import me.ixk.framework.utils.AnnotationUtils;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,6 @@ class ObjectWrapperDataBinderTest {
             List.of(map::get)
         );
         final DataBind dataBind = new DataBind() {
-
             @Override
             public Class<? extends Annotation> annotationType() {
                 return DataBind.class;

@@ -8,7 +8,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.ioc.DataBinder.Converter;
+import me.ixk.framework.ioc.binder.DataBinder.Converter;
 
 /**
  * Web 数据绑定
@@ -32,7 +32,7 @@ public @interface WebBind {
     @AliasFor(annotation = DataBind.class, attribute = "defaultValue")
     String defaultValue() default DataBind.EMPTY;
 
-    Class<? extends Converter>[] converter() default {  };
+    Class<? extends Converter>[] converter() default {};
 
     Type type() default Type.ALL;
 

@@ -17,8 +17,8 @@ import me.ixk.framework.conditional.OnEnableCondition;
  * @author Otstar Lin
  * @date 2020/11/30 上午 11:53
  */
-@Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Conditional({ OnEnableCondition.class })
 @Order(Order.HIGHEST_PRECEDENCE + 2)

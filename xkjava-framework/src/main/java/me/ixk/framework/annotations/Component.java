@@ -17,16 +17,16 @@ import java.lang.annotation.Target;
  * @author Otstar Lin
  * @date 2020/10/13 下午 4:28
  */
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Bean
 public @interface Component {
     @AliasFor(value = "name", annotation = Bean.class, attribute = "value")
-    String[] value() default {  };
+    String[] value() default {};
 
     @AliasFor(value = "value", annotation = Bean.class, attribute = "name")
-    String[] name() default {  };
+    String[] name() default {};
 
     @AliasFor(annotation = Bean.class, attribute = "type")
-    Class<?>[] type() default {  };
+    Class<?>[] type() default {};
 }

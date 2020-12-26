@@ -16,7 +16,7 @@ import me.ixk.framework.http.HttpMethod;
  * @author Otstar Lin
  * @date 2020/10/13 下午 5:04
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @RequestMapping(method = HttpMethod.PATCH)
 public @interface PatchMapping {
@@ -25,12 +25,12 @@ public @interface PatchMapping {
         annotation = RequestMapping.class,
         attribute = "value"
     )
-    String[] value() default {  };
+    String[] value() default {};
 
     @AliasFor(
         value = "value",
         annotation = RequestMapping.class,
         attribute = "path"
     )
-    String[] path() default {  };
+    String[] path() default {};
 }
