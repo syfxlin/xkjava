@@ -7,7 +7,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import me.ixk.framework.annotations.Autowired;
@@ -34,7 +33,7 @@ public class Binding {
     private final String name;
     private final AnnotatedEntry<Class<?>> instanceTypeEntry;
     private final boolean primary;
-    private volatile BindingInfos bindingInfos;
+    private final BindingInfos bindingInfos;
 
     private volatile FactoryBean<?> factoryBean;
 
@@ -49,7 +48,8 @@ public class Binding {
         this.name = name;
         this.instanceTypeEntry = new AnnotatedEntry<>(instanceType);
         this.primary = this.getAnnotation().hasAnnotation(Primary.class);
-        this.init();
+        this.bindingInfos =
+            CACHE.computeIfAbsent(instanceType, BindingInfos::new);
     }
 
     public Binding(
@@ -70,53 +70,6 @@ public class Binding {
     ) {
         this(context, name, factoryBean.getObjectType(), scopeType);
         this.setFactoryBean(factoryBean);
-    }
-
-    @SuppressWarnings("unchecked")
-    private void init() {
-        final Class<?> instanceType = this.instanceTypeEntry.getElement();
-        if (instanceType != null) {
-            this.bindingInfos =
-                CACHE.computeIfAbsent(
-                    instanceType,
-                    type -> {
-                        BindingInfos infos = new BindingInfos();
-                        // Fields
-                        infos.setFieldEntries(
-                            Arrays
-                                .stream(instanceType.getDeclaredFields())
-                                .map(AnnotatedEntry::new)
-                                .toArray(AnnotatedEntry[]::new)
-                        );
-                        // Methods
-                        infos.setMethodEntries(
-                            Arrays
-                                .stream(instanceType.getDeclaredMethods())
-                                .map(AnnotatedEntry::new)
-                                .toArray(AnnotatedEntry[]::new)
-                        );
-                        // InitMethod, DestroyMethod, AutowiredMethod
-                        final List<Method> autowiredMethods = new ArrayList<>();
-                        for (AnnotatedEntry<Method> entry : infos.getMethodEntries()) {
-                            final Method method = entry.getElement();
-                            final MergedAnnotation annotation = entry.getAnnotation();
-                            if (annotation.hasAnnotation(PostConstruct.class)) {
-                                infos.setInitMethod(method);
-                            }
-                            if (annotation.hasAnnotation(PreDestroy.class)) {
-                                infos.setDestroyMethod(method);
-                            }
-                            if (annotation.hasAnnotation(Autowired.class)) {
-                                autowiredMethods.add(method);
-                            }
-                        }
-                        infos.setAutowiredMethods(autowiredMethods);
-                        return infos;
-                    }
-                );
-        } else {
-            this.bindingInfos = new BindingInfos();
-        }
     }
 
     public String getScope() {
@@ -173,28 +126,16 @@ public class Binding {
         return this.context.isShared(scope);
     }
 
-    public Method getInitMethod() {
-        return this.bindingInfos.getInitMethod();
+    public List<Method> getInitMethods() {
+        return this.bindingInfos.getInitMethods();
     }
 
-    public void setInitMethod(final Method initMethod) {
-        this.bindingInfos.setInitMethod(initMethod);
-    }
-
-    public Method getDestroyMethod() {
-        return this.bindingInfos.getDestroyMethod();
-    }
-
-    public void setDestroyMethod(final Method destroyMethod) {
-        this.bindingInfos.setDestroyMethod(destroyMethod);
+    public List<Method> getDestroyMethods() {
+        return this.bindingInfos.getDestroyMethods();
     }
 
     public List<Method> getAutowiredMethods() {
         return this.bindingInfos.getAutowiredMethods();
-    }
-
-    public void setAutowiredMethods(final List<Method> autowiredMethods) {
-        this.bindingInfos.setAutowiredMethods(autowiredMethods);
     }
 
     public AnnotatedEntry<Field>[] getFieldEntries() {
@@ -224,57 +165,61 @@ public class Binding {
 
     private static class BindingInfos {
 
-        private volatile Method initMethod;
-        private volatile Method destroyMethod;
-        private volatile List<Method> autowiredMethods;
+        private final List<Method> initMethods = new ArrayList<>();
+        private final List<Method> destroyMethods = new ArrayList<>();
+        private final List<Method> autowiredMethods = new ArrayList<>();
 
-        private volatile AnnotatedEntry<Field>[] fieldEntries;
-        private volatile AnnotatedEntry<Method>[] methodEntries;
+        private final AnnotatedEntry<Field>[] fieldEntries;
+        private final AnnotatedEntry<Method>[] methodEntries;
 
-        public Method getInitMethod() {
-            return initMethod;
+        @SuppressWarnings("unchecked")
+        public BindingInfos(final Class<?> instanceType) {
+            // Fields
+            this.fieldEntries =
+                Arrays
+                    .stream(instanceType.getDeclaredFields())
+                    .map(AnnotatedEntry::new)
+                    .toArray(AnnotatedEntry[]::new);
+            // Methods
+            this.methodEntries =
+                Arrays
+                    .stream(instanceType.getDeclaredMethods())
+                    .map(AnnotatedEntry::new)
+                    .toArray(AnnotatedEntry[]::new);
+            // InitMethod, DestroyMethod, AutowiredMethod
+            for (AnnotatedEntry<Method> entry : this.methodEntries) {
+                final Method method = entry.getElement();
+                final MergedAnnotation annotation = entry.getAnnotation();
+                if (annotation.hasAnnotation(PostConstruct.class)) {
+                    initMethods.add(method);
+                }
+                if (annotation.hasAnnotation(PreDestroy.class)) {
+                    destroyMethods.add(method);
+                }
+                if (annotation.hasAnnotation(Autowired.class)) {
+                    autowiredMethods.add(method);
+                }
+            }
         }
 
-        public void setInitMethod(final Method initMethod) {
-            this.initMethod = initMethod;
+        public List<Method> getInitMethods() {
+            return initMethods;
         }
 
-        public Method getDestroyMethod() {
-            return destroyMethod;
-        }
-
-        public void setDestroyMethod(final Method destroyMethod) {
-            this.destroyMethod = destroyMethod;
+        public List<Method> getDestroyMethods() {
+            return destroyMethods;
         }
 
         public List<Method> getAutowiredMethods() {
-            return autowiredMethods == null
-                ? Collections.emptyList()
-                : autowiredMethods;
+            return autowiredMethods;
         }
 
-        public void setAutowiredMethods(final List<Method> autowiredMethods) {
-            this.autowiredMethods = autowiredMethods;
-        }
-
-        @SuppressWarnings("unchecked")
         public AnnotatedEntry<Field>[] getFieldEntries() {
-            return fieldEntries == null ? new AnnotatedEntry[0] : fieldEntries;
+            return fieldEntries;
         }
 
-        public void setFieldEntries(AnnotatedEntry<Field>[] fieldEntries) {
-            this.fieldEntries = fieldEntries;
-        }
-
-        @SuppressWarnings("unchecked")
         public AnnotatedEntry<Method>[] getMethodEntries() {
-            return methodEntries == null
-                ? new AnnotatedEntry[0]
-                : methodEntries;
-        }
-
-        public void setMethodEntries(AnnotatedEntry<Method>[] methodEntries) {
-            this.methodEntries = methodEntries;
+            return methodEntries;
         }
     }
 }

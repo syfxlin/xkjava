@@ -28,9 +28,8 @@ public class PostConstructProcessor implements BeanAfterCreateProcessor {
         InjectContext context,
         ConstructorContext constructor
     ) {
-        Method method = context.getBinding().getInitMethod();
-        if (method != null) {
-            container.call(instance, method, Object.class);
+        for (Method initMethod : context.getBinding().getInitMethods()) {
+            container.call(instance, initMethod, Object.class);
         }
         return instance;
     }

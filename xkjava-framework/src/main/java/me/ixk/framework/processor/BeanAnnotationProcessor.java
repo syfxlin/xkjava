@@ -160,11 +160,11 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         final Binding binding,
         final Method[] methods
     ) {
-        if (binding.getInitMethod() == null) {
-            binding.setInitMethod(methods[0]);
+        if (methods[0] != null) {
+            binding.getInitMethods().add(methods[0]);
         }
-        if (binding.getDestroyMethod() == null) {
-            binding.setDestroyMethod(methods[1]);
+        if (methods[1] != null) {
+            binding.getDestroyMethods().add(methods[1]);
         }
     }
 

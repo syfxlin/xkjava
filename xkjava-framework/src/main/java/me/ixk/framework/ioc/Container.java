@@ -305,6 +305,7 @@ public class Container {
             }
             clazz = clazz.getSuperclass();
         }
+        this.removeAlias(name);
     }
 
     protected void addType(

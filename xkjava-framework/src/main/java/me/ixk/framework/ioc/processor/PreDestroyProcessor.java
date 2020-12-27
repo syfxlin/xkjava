@@ -26,9 +26,8 @@ public class PreDestroyProcessor implements BeanDestroyProcessor {
         Object instance,
         InjectContext context
     ) {
-        final Method method = context.getBinding().getDestroyMethod();
-        if (method != null) {
-            container.call(instance, method, Object.class);
+        for (Method destroyMethod : context.getBinding().getDestroyMethods()) {
+            container.call(instance, destroyMethod, Object.class);
         }
     }
 }
