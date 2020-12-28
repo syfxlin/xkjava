@@ -12,6 +12,7 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import me.ixk.framework.exceptions.ContainerException;
@@ -89,19 +91,23 @@ public class Container {
     /**
      * Bindings key：Bean 名称
      */
-    private final Map<String, Binding> bindings = new ConcurrentHashMap<>(256);
+    private final ConcurrentMap<String, Binding> bindings = new ConcurrentHashMap<>(
+        256
+    );
 
     /**
      * Bindings 类型索引 key：类型，value：Bean 名称
      */
-    private final Map<Class<?>, List<String>> bindingNamesByType = new ConcurrentHashMap<>(
+    private final ConcurrentMap<Class<?>, List<String>> bindingNamesByType = new ConcurrentHashMap<>(
         265
     );
 
     /**
      * 别名
      */
-    private final Map<String, String> aliases = new ConcurrentHashMap<>(256);
+    private final ConcurrentMap<String, String> aliases = new ConcurrentHashMap<>(
+        256
+    );
 
     /**
      * 注入的临时变量
@@ -129,15 +135,15 @@ public class Container {
         log.info("Container destroyed");
     }
 
-    public Map<String, Binding> getBindings() {
+    public ConcurrentMap<String, Binding> getBindings() {
         return bindings;
     }
 
-    public Map<Class<?>, List<String>> getBindingNamesByType() {
+    public ConcurrentMap<Class<?>, List<String>> getBindingNamesByType() {
         return bindingNamesByType;
     }
 
-    public Map<String, String> getAliases() {
+    public ConcurrentMap<String, String> getAliases() {
         return aliases;
     }
 
@@ -195,7 +201,7 @@ public class Container {
 
     /* ===================== Binding ===================== */
 
-    public Binding newBinding(
+    protected Binding newBinding(
         final String name,
         final Class<?> instanceType,
         final String scopeType
@@ -208,7 +214,7 @@ public class Container {
         );
     }
 
-    public Binding newBinding(
+    protected Binding newBinding(
         final String name,
         final Object instance,
         final String scopeType
@@ -221,7 +227,7 @@ public class Container {
         );
     }
 
-    public Binding newBinding(
+    protected Binding newBinding(
         final String name,
         final FactoryBean<?> factoryBean,
         final String scopeType
@@ -250,7 +256,7 @@ public class Container {
         return this.bindings.get(this.getCanonicalName(name));
     }
 
-    public Binding getOrDefaultBinding(
+    protected Binding getOrDefaultBinding(
         final String name,
         final Class<?> instanceType
     ) {
@@ -285,7 +291,7 @@ public class Container {
         }
     }
 
-    private void validHas(final String name, final String message) {
+    protected void validHas(final String name, final String message) {
         if (this.has(name)) {
             throw new IllegalStateException(String.format(message, name));
         }
@@ -414,8 +420,8 @@ public class Container {
         if (list.isEmpty()) {
             return Collections.emptyMap();
         }
-        Map<String, Object> beans = new HashMap<>();
-        for (String name : list) {
+        final Map<String, Object> beans = new HashMap<>();
+        for (final String name : list) {
             beans.put(name, this.make(name, Object.class));
         }
         return beans;
@@ -509,7 +515,7 @@ public class Container {
             binding,
             this.dataBinder.get()
         );
-        for (BeforeInjectProcessor processor : this.beforeInjectProcessors) {
+        for (final BeforeInjectProcessor processor : this.beforeInjectProcessors) {
             processor.process(this, context);
         }
         return context;
@@ -619,10 +625,6 @@ public class Container {
         if (instanceType == null) {
             return null;
         }
-        // 排除 JDK 自带类的
-        if (ClassUtils.isSkipBuildType(instanceType)) {
-            return ClassUtil.getDefaultValue(instanceType);
-        }
         if (log.isDebugEnabled()) {
             log.debug("Container build: {}", instanceType);
         }
@@ -684,15 +686,38 @@ public class Container {
 
     /* ===================== doMake ===================== */
 
-    protected <T> T doMake(
-        final String instanceName,
-        final Class<T> returnType
-    ) {
+    @SuppressWarnings("unchecked")
+    protected <T> T doMake(final String name, final Class<T> returnType) {
         if (log.isDebugEnabled()) {
-            log.debug("Container make: {} - {}", instanceName, returnType);
+            log.debug("Container make: {} - {}", name, returnType);
         }
-        final Binding binding =
-            this.getOrDefaultBinding(instanceName, returnType);
+        Binding binding = name == null ? null : this.getBinding(name);
+        if (binding == null) {
+            if (returnType.isArray()) {
+                // 注入类型为数组
+                return Convert.convert(
+                    returnType,
+                    this.getBeanOfType(returnType.getComponentType()).values()
+                );
+            } else if (
+                Collection.class.isAssignableFrom(returnType) &&
+                returnType.isInterface()
+            ) {
+                return (T) ClassUtil.getDefaultValue(returnType);
+            } else if (ClassUtils.isSkipBuildType(returnType)) {
+                return (T) ClassUtil.getDefaultValue(returnType);
+            } else {
+                binding = this.getBinding(this.getBeanNameByType(returnType));
+            }
+        }
+        if (binding == null) {
+            binding =
+                this.newBinding(
+                        name,
+                        returnType,
+                        ScopeType.PROTOTYPE.asString()
+                    );
+        }
         Object instance = binding.getSource();
         if (instance != null) {
             return Convert.convert(returnType, instance);
@@ -700,16 +725,17 @@ public class Container {
         try {
             FactoryBean<?> factoryBean = binding.getFactoryBean();
             if (factoryBean == null) {
+                Binding finalBinding = binding;
                 factoryBean =
                     new FactoryBean<>() {
                         @Override
                         public Object getObject() throws Exception {
-                            return doBuild(binding);
+                            return doBuild(finalBinding);
                         }
 
                         @Override
                         public Class<?> getObjectType() {
-                            return binding.getType();
+                            return finalBinding.getType();
                         }
                     };
             }

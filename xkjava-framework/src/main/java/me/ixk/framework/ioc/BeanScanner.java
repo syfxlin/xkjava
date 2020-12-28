@@ -89,15 +89,9 @@ public class BeanScanner {
     public Set<Class<?>> getTypesAnnotated(
         final Class<? extends Annotation> annotation
     ) {
-        final Set<Class<?>> cache = CLASS_ANNOTATION_CACHE.get(annotation);
-        if (cache != null) {
-            return cache;
-        }
-        return CLASS_ANNOTATION_CACHE.put(
+        return CLASS_ANNOTATION_CACHE.computeIfAbsent(
             annotation,
-            AnnotationUtils.sortByOrderAnnotation(
-                getTypesAnnotatedWith(annotation)
-            )
+            a -> AnnotationUtils.sortByOrderAnnotation(getTypesAnnotatedWith(a))
         );
     }
 
@@ -105,15 +99,12 @@ public class BeanScanner {
     public Set<Method> getMethodsAnnotated(
         final Class<? extends Annotation> annotation
     ) {
-        final Set<Method> cache = METHOD_ANNOTATION_CACHE.get(annotation);
-        if (cache != null) {
-            return cache;
-        }
-        return METHOD_ANNOTATION_CACHE.put(
+        return METHOD_ANNOTATION_CACHE.computeIfAbsent(
             annotation,
-            AnnotationUtils.sortByOrderAnnotation(
-                getMethodsAnnotatedWith(annotation)
-            )
+            a ->
+                AnnotationUtils.sortByOrderAnnotation(
+                    getMethodsAnnotatedWith(a)
+                )
         );
     }
 

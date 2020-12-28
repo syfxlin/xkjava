@@ -9,6 +9,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.Filter;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.http.Request;
@@ -27,19 +28,21 @@ import me.ixk.framework.web.CorsProcessor.Configuration;
 public class CorsFilter extends GenericFilter {
 
     private final CorsProcessor corsProcessor;
+
     private Configuration configuration;
 
+    @Autowired
     public CorsFilter(CorsProcessor corsProcessor) {
         this.corsProcessor = corsProcessor;
     }
 
-    // public CorsFilter(
-    //     CorsProcessor corsProcessor,
-    //     Configuration configuration
-    // ) {
-    //     this.corsProcessor = corsProcessor;
-    //     this.configuration = configuration;
-    // }
+    public CorsFilter(
+        CorsProcessor corsProcessor,
+        Configuration configuration
+    ) {
+        this.corsProcessor = corsProcessor;
+        this.configuration = configuration;
+    }
 
     @Override
     public void doFilter(

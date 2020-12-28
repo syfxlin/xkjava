@@ -46,7 +46,7 @@ public class BeanExpressionResolver {
         return resolveEmbeddedValue(value, this.app.env(), null);
     };
 
-    public BeanExpressionResolver(XkJava app) {
+    public BeanExpressionResolver(final XkJava app) {
         this.app = app;
     }
 
@@ -60,9 +60,9 @@ public class BeanExpressionResolver {
     }
 
     public static String resolveEmbeddedValue(
-        String value,
-        PropertySource<?> properties,
-        String prefix
+        final String value,
+        final PropertySource<?> properties,
+        final String prefix
     ) {
         final int index = value.indexOf(":");
         String name = value;
@@ -96,7 +96,7 @@ public class BeanExpressionResolver {
             );
     }
 
-    protected void customContext(StandardEvaluationContext context) {
+    protected void customContext(final StandardEvaluationContext context) {
         context.setVariable("app", this.app);
         context.setVariable("env", this.app.env());
         context.setVariable("e", this.app.env());
@@ -111,16 +111,19 @@ public class BeanExpressionResolver {
     ) {
         expression =
             placeholderHelper.replacePlaceholders(expression, resolver);
-        Expression expr = this.expressionCache.get(expression);
-        if (expr == null) {
-            expr =
-                this.expressionParser.parseExpression(
-                        expression,
-                        this.parserContext
-                    );
-            this.expressionCache.put(expression, expr);
-        }
-        StandardEvaluationContext sec = new StandardEvaluationContext(root);
+        String finalExpression = expression;
+        final Expression expr =
+            this.expressionCache.computeIfAbsent(
+                    expression,
+                    e ->
+                        this.expressionParser.parseExpression(
+                                finalExpression,
+                                this.parserContext
+                            )
+                );
+        final StandardEvaluationContext sec = new StandardEvaluationContext(
+            root
+        );
         sec.addPropertyAccessor(new MapAccessor());
         sec.addPropertyAccessor(new EnvironmentAccessor());
         sec.addPropertyAccessor(new PropertySourceAccessor());

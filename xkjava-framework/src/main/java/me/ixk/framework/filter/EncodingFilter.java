@@ -9,6 +9,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.Filter;
 import me.ixk.framework.annotations.Order;
 
@@ -21,9 +22,11 @@ import me.ixk.framework.annotations.Order;
 @Filter(url = "/*")
 @Order(Order.HIGHEST_PRECEDENCE)
 public class EncodingFilter extends GenericFilter {
+
     private String requestEncoding;
     private String responseEncoding;
 
+    @Autowired
     public EncodingFilter() {}
 
     public EncodingFilter(String encoding) {
@@ -56,8 +59,7 @@ public class EncodingFilter extends GenericFilter {
         ServletRequest request,
         ServletResponse response,
         FilterChain chain
-    )
-        throws IOException, ServletException {
+    ) throws IOException, ServletException {
         if (this.requestEncoding != null) {
             request.setCharacterEncoding(this.requestEncoding);
         }

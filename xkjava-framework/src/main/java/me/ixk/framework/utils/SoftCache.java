@@ -4,17 +4,37 @@
 
 package me.ixk.framework.utils;
 
+import io.github.imsejin.expression.util.ConcurrentReferenceHashMap;
+
 /**
  * 软引用缓存
  *
  * @author Otstar Lin
  * @date 2020/12/2 下午 12:14
  */
-public class SoftCache<K, V> extends WeakCache<K, V> {
-
-    private static final long serialVersionUID = 9085585773514267688L;
+public class SoftCache<K, V> extends ConcurrentReferenceHashMap<K, V> {
 
     public SoftCache() {
-        super(new SoftHashMap<>());
+        super();
+    }
+
+    public SoftCache(int initialCapacity) {
+        super(initialCapacity);
+    }
+
+    public SoftCache(int initialCapacity, float loadFactor) {
+        super(initialCapacity, loadFactor);
+    }
+
+    public SoftCache(int initialCapacity, int concurrencyLevel) {
+        super(initialCapacity, concurrencyLevel);
+    }
+
+    public SoftCache(
+        int initialCapacity,
+        float loadFactor,
+        int concurrencyLevel
+    ) {
+        super(initialCapacity, loadFactor, concurrencyLevel);
     }
 }
