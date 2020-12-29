@@ -738,8 +738,10 @@ public class Container {
                 returnType,
                 new ObjectProvider<>() {
                     @Override
-                    public Object getObject(Map<String, Object> args) {
-                        return make(name, componentType, args);
+                    @SuppressWarnings("unchecked")
+                    public Collection<Object> getObjects() {
+                        return (Collection<Object>) getBeanOfType(componentType)
+                            .values();
                     }
 
                     @Override

@@ -1,6 +1,7 @@
 package me.ixk.framework.ioc.factory;
 
-import java.util.Map;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -10,15 +11,13 @@ import java.util.function.Supplier;
  * @author Otstar Lin
  * @date 2020/12/29 下午 7:30
  */
-public interface ObjectProvider<T> extends ObjectFactory<T> {
+public interface ObjectProvider<T> extends ObjectFactory<T>, Iterable<T> {
     /**
-     * 获取对象实例，显示构造
+     * 获取集合对象
      *
-     * @param args 参数
-     *
-     * @return 对象
+     * @return 集合
      */
-    T getObject(Map<String, Object> args);
+    Collection<T> getObjects();
 
     /**
      * 获取对象实例，如果不存在则返回 Supplier 的返回值
@@ -42,5 +41,10 @@ public interface ObjectProvider<T> extends ObjectFactory<T> {
         if (dependency != null) {
             dependencyConsumer.accept(dependency);
         }
+    }
+
+    @Override
+    default Iterator<T> iterator() {
+        return getObjects().iterator();
     }
 }
