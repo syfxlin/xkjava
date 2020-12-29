@@ -35,6 +35,8 @@ import me.ixk.framework.ioc.entity.ConstructorContext;
 import me.ixk.framework.ioc.entity.InjectContext;
 import me.ixk.framework.ioc.entity.ParameterContext;
 import me.ixk.framework.ioc.factory.FactoryBean;
+import me.ixk.framework.ioc.factory.ObjectFactory;
+import me.ixk.framework.ioc.factory.ObjectProvider;
 import me.ixk.framework.ioc.injector.InstanceInjector;
 import me.ixk.framework.ioc.injector.ParameterInjector;
 import me.ixk.framework.ioc.processor.BeanAfterCreateProcessor;
@@ -687,6 +689,69 @@ public class Container {
 
     /* ===================== doMake ===================== */
 
+    protected <T> T doResolveType(
+        String name,
+        Class<T> returnType,
+        TypeWrapper<T> typeWrapper
+    ) {
+        if (returnType.isArray()) {
+            // 注入类型为数组
+            return Convert.convert(
+                returnType,
+                this.getBeanOfType(returnType.getComponentType()).values()
+            );
+        } else if (
+            Collection.class.isAssignableFrom(returnType) &&
+            returnType.isInterface()
+        ) {
+            // 注入集合
+            final Class<?> componentType = typeWrapper.getGeneric(0);
+            if (componentType == null) {
+                return null;
+            }
+            return Convert.convert(
+                returnType,
+                this.getBeanOfType(componentType).values()
+            );
+        } else if (Map.class == returnType) {
+            Class<?> keyType = typeWrapper.getGeneric(0);
+            if (String.class != keyType) {
+                return null;
+            }
+            Class<?> valueType = typeWrapper.getGeneric(1);
+            if (valueType == null) {
+                return null;
+            }
+            return Convert.convert(
+                returnType,
+                this.getBeanOfType(valueType).values()
+            );
+        } else if (ObjectFactory.class == returnType) {
+            final Class<?> componentType = typeWrapper.getGeneric(0);
+            return Convert.convert(
+                returnType,
+                (ObjectFactory<Object>) () -> make(name, componentType)
+            );
+        } else if (ObjectProvider.class == returnType) {
+            final Class<?> componentType = typeWrapper.getGeneric(0);
+            return Convert.convert(
+                returnType,
+                new ObjectProvider<>() {
+                    @Override
+                    public Object getObject(Map<String, Object> args) {
+                        return make(name, componentType, args);
+                    }
+
+                    @Override
+                    public Object getObject() {
+                        return make(name, componentType);
+                    }
+                }
+            );
+        }
+        return null;
+    }
+
     protected <T> T doMake(final String name, final Class<T> returnType) {
         return this.doMake(name, TypeWrapper.forClass(returnType));
     }
@@ -702,38 +767,10 @@ public class Container {
         }
         Binding binding = name == null ? null : this.getBinding(name);
         if (binding == null) {
-            if (returnType.isArray()) {
-                // 注入类型为数组
-                return Convert.convert(
-                    returnType,
-                    this.getBeanOfType(returnType.getComponentType()).values()
-                );
-            } else if (
-                Collection.class.isAssignableFrom(returnType) &&
-                returnType.isInterface()
-            ) {
-                // 注入集合
-                final Class<?> componentType = typeWrapper.getGeneric(0);
-                if (componentType == null) {
-                    return null;
-                }
-                return Convert.convert(
-                    returnType,
-                    this.getBeanOfType(componentType).values()
-                );
-            } else if (Map.class == returnType) {
-                Class<?> keyType = typeWrapper.getGeneric(0);
-                if (String.class != keyType) {
-                    return null;
-                }
-                Class<?> valueType = typeWrapper.getGeneric(1);
-                if (valueType == null) {
-                    return null;
-                }
-                return Convert.convert(
-                    returnType,
-                    this.getBeanOfType(valueType).values()
-                );
+            final T resolved =
+                this.doResolveType(name, returnType, typeWrapper);
+            if (resolved != null) {
+                return resolved;
             }
             if (ClassUtils.isSkipBuildType(returnType)) {
                 return (T) ClassUtil.getDefaultValue(returnType);
@@ -976,8 +1013,23 @@ public class Container {
         return this.doMake(name, returnType);
     }
 
+    public <T> T make(
+        final Class<T> returnType,
+        final Map<String, Object> args
+    ) {
+        return this.make(returnType, new DefaultDataBinder(this, args));
+    }
+
     public <T> T make(final Class<T> returnType, final DataBinder dataBinder) {
         return this.withAndReset(() -> this.make(returnType), dataBinder);
+    }
+
+    public <T> T make(
+        final String name,
+        final Class<T> returnType,
+        final Map<String, Object> args
+    ) {
+        return this.make(name, returnType, new DefaultDataBinder(this, args));
     }
 
     public <T> T make(
@@ -1001,9 +1053,24 @@ public class Container {
 
     public <T> T make(
         final TypeWrapper<T> returnType,
+        final Map<String, Object> args
+    ) {
+        return this.make(returnType, new DefaultDataBinder(this, args));
+    }
+
+    public <T> T make(
+        final TypeWrapper<T> returnType,
         final DataBinder dataBinder
     ) {
         return this.withAndReset(() -> this.make(returnType), dataBinder);
+    }
+
+    public <T> T make(
+        final String name,
+        final TypeWrapper<T> returnType,
+        final Map<String, Object> args
+    ) {
+        return this.make(name, returnType, new DefaultDataBinder(this, args));
     }
 
     public <T> T make(

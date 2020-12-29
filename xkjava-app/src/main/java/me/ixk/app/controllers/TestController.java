@@ -36,6 +36,7 @@ import me.ixk.framework.http.result.FileResult;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.StreamResult;
 import me.ixk.framework.ioc.binder.DataBinder.Converter;
+import me.ixk.framework.ioc.factory.ObjectProvider;
 import me.ixk.framework.ioc.type.TypeWrapper;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ResourceUtils;
@@ -55,6 +56,12 @@ public class TestController {
 
     @Autowired
     List<Advice>[] lists;
+
+    @Autowired
+    ObjectProvider<Advice> adviceObjectProvider;
+
+    @Autowired
+    ObjectProvider<String> notFoundObjectProvider;
 
     @Autowired(value = "name", required = false)
     private String name;
