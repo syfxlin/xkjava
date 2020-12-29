@@ -16,6 +16,7 @@ import me.ixk.framework.ioc.entity.InjectContext;
 import me.ixk.framework.ioc.entity.ParameterContext;
 import me.ixk.framework.ioc.entity.ParameterContext.ParameterEntry;
 import me.ixk.framework.ioc.processor.PropertiesProcessor;
+import me.ixk.framework.ioc.type.TypeWrapper;
 import me.ixk.framework.property.CompositePropertySource;
 import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
@@ -78,7 +79,7 @@ public class DefaultParameterInjector implements ParameterInjector {
                         .getBinder()
                         .getObject(
                             parameterName,
-                            parameter.getType(),
+                            TypeWrapper.forParameter(parameter),
                             annotation
                         );
             }

@@ -15,6 +15,7 @@ import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.entity.AnnotatedEntry.ChangeableEntry;
 import me.ixk.framework.ioc.entity.InjectContext;
+import me.ixk.framework.ioc.type.TypeWrapper;
 import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +66,11 @@ public class DefaultPropertyInjector implements InstanceInjector {
                 }
                 Object dependency = context
                     .getBinder()
-                    .getObject(field.getName(), field.getType(), annotation);
+                    .getObject(
+                        field.getName(),
+                        TypeWrapper.forField(field),
+                        annotation
+                    );
                 if (dependency == null) {
                     dependency = ReflectUtil.getFieldValue(instance, field);
                 }
@@ -77,11 +82,11 @@ public class DefaultPropertyInjector implements InstanceInjector {
                 if (!"".equals(name)) {
                     dependency = container.make(name, field.getType());
                 } else {
-                    Class<?> autowiredClass;
+                    TypeWrapper<?> autowiredClass;
                     if (type == Class.class) {
-                        autowiredClass = field.getType();
+                        autowiredClass = TypeWrapper.forField(field);
                     } else {
-                        autowiredClass = type;
+                        autowiredClass = TypeWrapper.forClass(type);
                     }
                     dependency =
                         context

@@ -11,6 +11,7 @@ import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.entity.User;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.binder.ObjectWrapperDataBinder;
+import me.ixk.framework.ioc.type.TypeWrapper;
 import me.ixk.framework.test.XkJavaTest;
 import me.ixk.framework.utils.AnnotationUtils;
 import org.junit.jupiter.api.Test;
@@ -66,7 +67,7 @@ class ObjectWrapperDataBinderTest {
         };
         final User user = dataBinder.getObject(
             "user",
-            User.class,
+            TypeWrapper.forClass(User.class),
             AnnotationUtils.wrapAnnotation(dataBind)
         );
         System.out.println(user);

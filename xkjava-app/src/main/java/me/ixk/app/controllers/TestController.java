@@ -7,6 +7,7 @@ package me.ixk.app.controllers;
 import cn.hutool.core.io.IoUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.FileNotFoundException;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import me.ixk.app.beans.SessionTest;
@@ -27,6 +28,7 @@ import me.ixk.framework.annotations.RequestMapping;
 import me.ixk.framework.annotations.ResponseStatus;
 import me.ixk.framework.annotations.WebBind;
 import me.ixk.framework.annotations.WebBind.Type;
+import me.ixk.framework.aop.Advice;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.MimeType;
 import me.ixk.framework.http.Model;
@@ -34,6 +36,7 @@ import me.ixk.framework.http.result.FileResult;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.StreamResult;
 import me.ixk.framework.ioc.binder.DataBinder.Converter;
+import me.ixk.framework.ioc.type.TypeWrapper;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ResourceUtils;
 import me.ixk.framework.utils.ValidGroup;
@@ -43,6 +46,15 @@ import me.ixk.framework.web.WebDataBinder;
 @Controller
 @RequestMapping("/test")
 public class TestController {
+
+    @Autowired
+    List<Advice> list;
+
+    @Autowired
+    Advice[] advice;
+
+    @Autowired
+    List<Advice>[] lists;
 
     @Autowired(value = "name", required = false)
     private String name;
@@ -138,7 +150,7 @@ public class TestController {
     }
 
     @GetMapping("/result-view")
-    public String resultView(Model model) {
+    public String resultView(final Model model) {
         model.addAttribute("name", "View Result");
         return "view:index";
     }
@@ -154,14 +166,14 @@ public class TestController {
     }
 
     @GetMapping("/result-status")
-    public String resultStatus(Model model) {
+    public String resultStatus(final Model model) {
         model.setStatus(HttpStatus.BAD_REQUEST);
         return "text:Status Result";
     }
 
     @GetMapping("/default")
     public String defaultValue(
-        @QueryValue(name = "name", defaultValue = "default") String name
+        @QueryValue(name = "name", defaultValue = "default") final String name
     ) {
         return name;
     }
@@ -203,7 +215,7 @@ public class TestController {
         public Object before(
             final Object object,
             final String name,
-            final Class<?> type,
+            final TypeWrapper<?> type,
             final MergedAnnotation annotation
         ) {
             return "test-converter";

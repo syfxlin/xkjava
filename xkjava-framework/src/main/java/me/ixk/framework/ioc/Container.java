@@ -40,6 +40,7 @@ import me.ixk.framework.ioc.injector.ParameterInjector;
 import me.ixk.framework.ioc.processor.BeanAfterCreateProcessor;
 import me.ixk.framework.ioc.processor.BeanDestroyProcessor;
 import me.ixk.framework.ioc.processor.BeforeInjectProcessor;
+import me.ixk.framework.ioc.type.TypeWrapper;
 import me.ixk.framework.utils.ClassUtils;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.ReflectUtils;
@@ -686,8 +687,16 @@ public class Container {
 
     /* ===================== doMake ===================== */
 
-    @SuppressWarnings("unchecked")
     protected <T> T doMake(final String name, final Class<T> returnType) {
+        return this.doMake(name, TypeWrapper.forClass(returnType));
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T> T doMake(
+        final String name,
+        final TypeWrapper<T> typeWrapper
+    ) {
+        Class<T> returnType = typeWrapper.getClazz();
         if (log.isDebugEnabled()) {
             log.debug("Container make: {} - {}", name, returnType);
         }
@@ -703,8 +712,30 @@ public class Container {
                 Collection.class.isAssignableFrom(returnType) &&
                 returnType.isInterface()
             ) {
-                return (T) ClassUtil.getDefaultValue(returnType);
-            } else if (ClassUtils.isSkipBuildType(returnType)) {
+                // 注入集合
+                final Class<?> componentType = typeWrapper.getGeneric(0);
+                if (componentType == null) {
+                    return null;
+                }
+                return Convert.convert(
+                    returnType,
+                    this.getBeanOfType(componentType).values()
+                );
+            } else if (Map.class == returnType) {
+                Class<?> keyType = typeWrapper.getGeneric(0);
+                if (String.class != keyType) {
+                    return null;
+                }
+                Class<?> valueType = typeWrapper.getGeneric(1);
+                if (valueType == null) {
+                    return null;
+                }
+                return Convert.convert(
+                    returnType,
+                    this.getBeanOfType(valueType).values()
+                );
+            }
+            if (ClassUtils.isSkipBuildType(returnType)) {
                 return (T) ClassUtil.getDefaultValue(returnType);
             } else {
                 binding = this.getBinding(this.getBeanNameByType(returnType));
@@ -952,6 +983,32 @@ public class Container {
     public <T> T make(
         final String name,
         final Class<T> returnType,
+        final DataBinder dataBinder
+    ) {
+        return this.withAndReset(() -> this.make(name, returnType), dataBinder);
+    }
+
+    public <T> T make(final TypeWrapper<T> returnType) {
+        return this.make(
+                this.getBeanNameByType(returnType.getClazz()),
+                returnType
+            );
+    }
+
+    public <T> T make(final String name, final TypeWrapper<T> returnType) {
+        return this.doMake(name, returnType);
+    }
+
+    public <T> T make(
+        final TypeWrapper<T> returnType,
+        final DataBinder dataBinder
+    ) {
+        return this.withAndReset(() -> this.make(returnType), dataBinder);
+    }
+
+    public <T> T make(
+        final String name,
+        final TypeWrapper<T> returnType,
         final DataBinder dataBinder
     ) {
         return this.withAndReset(() -> this.make(name, returnType), dataBinder);

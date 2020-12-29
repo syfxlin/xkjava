@@ -47,7 +47,6 @@ public class PropertiesValueInjector implements InstanceInjector {
     private static final Logger log = LoggerFactory.getLogger(
         PropertiesValueInjector.class
     );
-    protected static final String PROPERTIES_SPLIT = ".";
 
     @Override
     public boolean supportsInstance(

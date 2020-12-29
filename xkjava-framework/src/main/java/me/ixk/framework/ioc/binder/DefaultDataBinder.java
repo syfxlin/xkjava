@@ -8,6 +8,7 @@ import cn.hutool.core.convert.Convert;
 import java.util.Map;
 import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.ioc.Container;
+import me.ixk.framework.ioc.type.TypeWrapper;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**
@@ -30,7 +31,7 @@ public class DefaultDataBinder implements DataBinder {
     @Override
     public <T> T getObject(
         String name,
-        Class<T> type,
+        TypeWrapper<T> type,
         MergedAnnotation annotation
     ) {
         DataBind dataBind = annotation == null
@@ -41,7 +42,7 @@ public class DefaultDataBinder implements DataBinder {
         }
         Object object = this.data.get(name);
         if (object == null) {
-            object = this.data.get(type.getName());
+            object = this.data.get(type.getClazz().getName());
         }
         if (object == null) {
             object = container.make(name, type, this);
@@ -53,7 +54,7 @@ public class DefaultDataBinder implements DataBinder {
         ) {
             object = dataBind.defaultValue();
         }
-        return Convert.convert(type, object);
+        return Convert.convert(type.getClazz(), object);
     }
 
     public Map<String, Object> getData() {

@@ -4,6 +4,7 @@
 
 package me.ixk.framework.ioc.binder;
 
+import me.ixk.framework.ioc.type.TypeWrapper;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**
@@ -25,7 +26,11 @@ public interface DataBinder {
      *
      * @return 实例
      */
-    <T> T getObject(String name, Class<T> type, MergedAnnotation annotation);
+    <T> T getObject(
+        String name,
+        TypeWrapper<T> type,
+        MergedAnnotation annotation
+    );
 
     interface Converter {
         /**
@@ -41,7 +46,7 @@ public interface DataBinder {
         default Object before(
             Object object,
             String name,
-            Class<?> type,
+            TypeWrapper<?> type,
             MergedAnnotation annotation
         ) {
             return object;
@@ -60,7 +65,7 @@ public interface DataBinder {
         default <T> T after(
             T object,
             String name,
-            Class<T> type,
+            TypeWrapper<T> type,
             MergedAnnotation annotation
         ) {
             return object;

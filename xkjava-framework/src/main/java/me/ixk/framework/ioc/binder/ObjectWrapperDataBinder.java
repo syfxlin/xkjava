@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.function.Function;
 import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.ioc.Container;
+import me.ixk.framework.ioc.type.TypeWrapper;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.MergedAnnotation;
 
@@ -68,7 +69,7 @@ public class ObjectWrapperDataBinder implements DataBinder {
     @Override
     public <T> T getObject(
         String name,
-        final Class<T> type,
+        final TypeWrapper<T> type,
         final MergedAnnotation annotation
     ) {
         DataBind dataBind = annotation.getAnnotation(DataBind.class);
@@ -77,7 +78,7 @@ public class ObjectWrapperDataBinder implements DataBinder {
             this.prefix = "";
         }
         final String currentName = this.currentName(name);
-        final String typeName = type.getName();
+        final String typeName = type.getClazz().getName();
         Object object = null;
         for (final Function<String, Object> getter : this.getters) {
             object =
@@ -121,7 +122,7 @@ public class ObjectWrapperDataBinder implements DataBinder {
         for (Converter converter : this.converters) {
             object = converter.before(object, currentName, type, annotation);
         }
-        T result = Convert.convert(type, object);
+        T result = Convert.convert(type.getType(), object);
         for (Converter converter : converters) {
             result = converter.after(result, currentName, type, annotation);
         }

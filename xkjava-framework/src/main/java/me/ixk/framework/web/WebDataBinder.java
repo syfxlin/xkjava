@@ -18,6 +18,7 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.binder.DataBinder;
 import me.ixk.framework.ioc.binder.ObjectWrapperDataBinder;
+import me.ixk.framework.ioc.type.TypeWrapper;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**
@@ -72,7 +73,7 @@ public class WebDataBinder extends ObjectWrapperDataBinder {
     @Override
     public <T> T getObject(
         final String name,
-        final Class<T> type,
+        final TypeWrapper<T> type,
         final MergedAnnotation annotation
     ) {
         final WebBind bind = annotation.getAnnotation(WebBind.class);

@@ -10,6 +10,7 @@ import java.util.Set;
 import me.ixk.framework.annotations.DataBind;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.WebResolver;
+import me.ixk.framework.ioc.type.TypeWrapper;
 import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ValidGroup;
@@ -60,7 +61,7 @@ public class WebDataBinderParameterResolver
         final DataBind dataBind = annotation.getAnnotation(DataBind.class);
         final Object dependency = binder.getObject(
             parameter.getParameterName(),
-            parameter.getParameterType(),
+            TypeWrapper.forParameter(parameter.getParameter()),
             annotation
         );
         if (dependency == null && dataBind != null && dataBind.required()) {
