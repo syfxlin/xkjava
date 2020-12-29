@@ -728,12 +728,18 @@ public class Container {
             );
         } else if (ObjectFactory.class == returnType) {
             final Class<?> componentType = typeWrapper.getGeneric(0);
+            if (componentType == null) {
+                return null;
+            }
             return Convert.convert(
                 returnType,
                 (ObjectFactory<Object>) () -> make(name, componentType)
             );
         } else if (ObjectProvider.class == returnType) {
             final Class<?> componentType = typeWrapper.getGeneric(0);
+            if (componentType == null) {
+                return null;
+            }
             return Convert.convert(
                 returnType,
                 new ObjectProvider<>() {
