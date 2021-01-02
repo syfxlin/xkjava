@@ -36,6 +36,10 @@ public class Binding {
     private final BindingInfos bindingInfos;
 
     private volatile FactoryBean<?> factoryBean;
+    /**
+     * 用于锁住当前 Binding 的代理锁
+     */
+    private final Object mutex = new Object();
 
     public Binding(
         final Context context,
@@ -97,6 +101,16 @@ public class Binding {
     }
 
     public Object getSource() {
+        final Object source = this.getSourceUnsafe();
+        if (source == null) {
+            synchronized (this.getMutex()) {
+                return this.getSourceUnsafe();
+            }
+        }
+        return source;
+    }
+
+    private Object getSourceUnsafe() {
         final Class<?> instanceType = this.instanceTypeEntry.getElement();
         return this.isCreated()
             ? this.context.get(
@@ -107,23 +121,35 @@ public class Binding {
     }
 
     public void setSource(final Object instance) {
-        this.context.set(name, instance);
+        synchronized (this.getMutex()) {
+            this.context.set(name, instance);
+        }
     }
 
     public FactoryBean<?> getFactoryBean() {
         return factoryBean;
     }
 
-    public void setFactoryBean(FactoryBean<?> factoryBean) {
+    public void setFactoryBean(final FactoryBean<?> factoryBean) {
         this.factoryBean = factoryBean;
     }
 
     public boolean isCreated() {
-        return this.context.has(name);
+        final boolean has = this.context.has(name);
+        if (!has) {
+            synchronized (this.getMutex()) {
+                return this.context.has(name);
+            }
+        }
+        return true;
     }
 
     public boolean isShared() {
         return this.context.isShared(scope);
+    }
+
+    public Object getMutex() {
+        return this.mutex;
     }
 
     public List<Method> getInitMethods() {
@@ -152,14 +178,14 @@ public class Binding {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Binding binding = (Binding) o;
+        final Binding binding = (Binding) o;
         return Objects.equals(name, binding.name);
     }
 
@@ -187,7 +213,7 @@ public class Binding {
                     .map(AnnotatedEntry::new)
                     .toArray(AnnotatedEntry[]::new);
             // InitMethod, DestroyMethod, AutowiredMethod
-            for (AnnotatedEntry<Method> entry : this.methodEntries) {
+            for (final AnnotatedEntry<Method> entry : this.methodEntries) {
                 final Method method = entry.getElement();
                 final MergedAnnotation annotation = entry.getAnnotation();
                 if (annotation.hasAnnotation(PostConstruct.class)) {

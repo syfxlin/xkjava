@@ -4,9 +4,9 @@
 
 package me.ixk.framework.server;
 
-import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import javax.servlet.ServletContext;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.config.AppProperties;
@@ -37,9 +37,10 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
     type = me.ixk.framework.server.Server.class
 )
 public class JettyServer implements me.ixk.framework.server.Server {
+
     private Server server;
     private WebAppContext context;
-    private List<EventListener> listeners = new ArrayList<>();
+    private final List<EventListener> listeners = new CopyOnWriteArrayList<>();
 
     public JettyServer(AppProperties properties) {
         Resource resource = Resource.newClassPathResource("/public");

@@ -4,8 +4,8 @@
 
 package me.ixk.framework.ioc.context;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * ApplicationContext
@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ApplicationContext implements Context {
 
-    private final Map<String, Object> instances = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Object> instances = new ConcurrentHashMap<>();
 
     @Override
     public boolean matchesScope(final String scopeType) {
@@ -28,7 +28,7 @@ public class ApplicationContext implements Context {
     }
 
     @Override
-    public Map<String, Object> getInstances() {
+    public ConcurrentMap<String, Object> getInstances() {
         return this.instances;
     }
 

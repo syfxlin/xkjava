@@ -4,7 +4,7 @@
 
 package me.ixk.framework.ioc.context;
 
-import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Context
@@ -47,7 +47,7 @@ public interface Context {
      *
      * @return 所有实例
      */
-    Map<String, Object> getInstances();
+    ConcurrentMap<String, Object> getInstances();
 
     /**
      * 获取实例

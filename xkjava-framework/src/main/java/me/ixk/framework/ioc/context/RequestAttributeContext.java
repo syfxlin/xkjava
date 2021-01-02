@@ -4,8 +4,8 @@
 
 package me.ixk.framework.ioc.context;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import javax.servlet.http.HttpServletRequest;
 import me.ixk.framework.utils.DataUtils;
 
@@ -47,8 +47,8 @@ public interface RequestAttributeContext extends Context {
      */
     @Override
     @SuppressWarnings("unchecked")
-    default Map<String, Object> getInstances() {
-        Map<String, Object> instances = (Map<String, Object>) this.getContext()
+    default ConcurrentMap<String, Object> getInstances() {
+        ConcurrentMap<String, Object> instances = (ConcurrentMap<String, Object>) this.getContext()
             .getAttribute(INSTANCE_ATTRIBUTE_NAME);
         if (instances == null) {
             instances = new ConcurrentHashMap<>(50);

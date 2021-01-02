@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import me.ixk.framework.exceptions.ContainerException;
@@ -87,12 +88,14 @@ public class Container {
     /**
      * Contexts，存储实例的空间
      */
-    private final Map<Class<? extends Context>, Context> contexts = Collections.synchronizedMap(
-        new LinkedHashMap<>(5)
+    private final Map<Class<? extends Context>, Context> contexts = new LinkedHashMap<>(
+        5
     );
 
     /**
      * Bindings key：Bean 名称
+     * <p>
+     * bindings，bindingNamesByType，aliases 均使用 bindings 的对象锁
      */
     private final ConcurrentMap<String, Binding> bindings = new ConcurrentHashMap<>(
         256
@@ -131,11 +134,14 @@ public class Container {
      * 销毁方法
      */
     public void destroy() {
-        while (this.contexts.values().iterator().hasNext()) {
-            final Context context = this.contexts.values().iterator().next();
-            this.removeContext(context);
+        synchronized (this.contexts) {
+            while (this.contexts.values().iterator().hasNext()) {
+                final Context context =
+                    this.contexts.values().iterator().next();
+                this.removeContext(context);
+            }
+            log.info("Container destroyed");
         }
-        log.info("Container destroyed");
     }
 
     public ConcurrentMap<String, Binding> getBindings() {
@@ -160,27 +166,36 @@ public class Container {
                 contextType.getName()
             );
         }
-        this.contexts.put(contextType, context);
+        synchronized (this.contexts) {
+            this.contexts.put(contextType, context);
+        }
     }
 
     public void removeContext(final Class<? extends Context> contextType) {
-        final Context context = this.contexts.get(contextType);
-        this.removeContext(context);
+        synchronized (this.contexts) {
+            final Context context = this.contexts.get(contextType);
+            this.removeContext(context);
+        }
     }
 
     public void removeContext(final Context context) {
-        final Class<? extends Context> contextType = context.getClass();
-        if (log.isDebugEnabled()) {
-            log.debug("Container remove context: {}", contextType.getName());
-        }
-        if (context.isCreated()) {
-            for (final Entry<String, Binding> entry : this.bindings.entrySet()) {
-                if (context.matchesScope(entry.getValue().getScope())) {
-                    this.doRemove(entry.getKey());
+        synchronized (this.contexts) {
+            final Class<? extends Context> contextType = context.getClass();
+            this.contexts.remove(contextType);
+            if (log.isDebugEnabled()) {
+                log.debug(
+                    "Container remove context: {}",
+                    contextType.getName()
+                );
+            }
+            if (context.isCreated()) {
+                for (final Entry<String, Binding> entry : this.bindings.entrySet()) {
+                    if (context.matchesScope(entry.getValue().getScope())) {
+                        this.doRemove(entry.getKey());
+                    }
                 }
             }
         }
-        this.contexts.remove(contextType);
     }
 
     public void registerContexts(final List<Context> contexts) {
@@ -190,16 +205,20 @@ public class Container {
     }
 
     public Context getContextByScope(final String scopeType) {
-        for (final Context context : this.contexts.values()) {
-            if (context.matchesScope(scopeType)) {
-                return context;
+        synchronized (this.contexts) {
+            for (final Context context : this.contexts.values()) {
+                if (context.matchesScope(scopeType)) {
+                    return context;
+                }
             }
+            return null;
         }
-        return null;
     }
 
     public Context getContext(final Class<? extends Context> contextType) {
-        return this.contexts.get(contextType);
+        synchronized (this.contexts) {
+            return this.contexts.get(contextType);
+        }
     }
 
     /* ===================== Binding ===================== */
@@ -248,32 +267,34 @@ public class Container {
     }
 
     public boolean has(final Class<?> type) {
-        return this.has(this.getBeanNameByType(type));
+        final boolean has = this.has(this.getBeanNameByType(type));
+        if (!has) {
+            // 上面是复合操作，如果不存在，加锁再次检查
+            synchronized (this.bindings) {
+                return this.has(this.getBeanNameByType(type));
+            }
+        }
+        return true;
     }
 
     public Binding getBinding(final Class<?> type) {
-        return this.getBinding(this.getBeanNameByType(type));
-    }
-
-    public Binding getBinding(final String name) {
-        return this.bindings.get(this.getCanonicalName(name));
-    }
-
-    protected Binding getOrDefaultBinding(
-        final String name,
-        final Class<?> instanceType
-    ) {
-        Binding binding = name == null ? null : this.getBinding(name);
-        if (binding == null && instanceType != Object.class) {
-            binding = this.getBinding(this.getBeanNameByType(instanceType));
-        }
+        final Binding binding = this.getBinding(this.getBeanNameByType(type));
         if (binding == null) {
-            binding =
-                this.newBinding(
-                        name,
-                        instanceType,
-                        ScopeType.PROTOTYPE.asString()
-                    );
+            // 上面是复合操作，如果不存在，加锁再次检查
+            synchronized (this.bindings) {
+                return this.getBinding(this.getBeanNameByType(type));
+            }
+        }
+        return binding;
+    }
+
+    public Binding getBinding(String name) {
+        final Binding binding = this.bindings.get(this.getCanonicalName(name));
+        if (binding == null) {
+            // 上面是复合操作，如果不存在，加锁再次检查
+            synchronized (this.bindings) {
+                return this.bindings.get(this.getCanonicalName(name));
+            }
         }
         return binding;
     }
@@ -282,21 +303,25 @@ public class Container {
         if (log.isDebugEnabled()) {
             log.debug("Container set binding: {}", name);
         }
-        name = this.getCanonicalName(name);
-        this.bindings.put(name, binding);
-        Class<?> clazz = binding.getType();
-        while (clazz != null && !ClassUtils.isSkipBuildType(clazz)) {
-            this.addType(name, clazz, binding.isPrimary());
-            for (final Class<?> in : clazz.getInterfaces()) {
-                this.addType(name, in, binding.isPrimary());
+        synchronized (this.bindings) {
+            name = this.getCanonicalName(name);
+            this.bindings.put(name, binding);
+            Class<?> clazz = binding.getType();
+            while (clazz != null && !ClassUtils.isSkipBuildType(clazz)) {
+                this.addType(name, clazz, binding.isPrimary());
+                for (final Class<?> in : clazz.getInterfaces()) {
+                    this.addType(name, in, binding.isPrimary());
+                }
+                clazz = clazz.getSuperclass();
             }
-            clazz = clazz.getSuperclass();
         }
     }
 
     protected void validHas(final String name, final String message) {
-        if (this.has(name)) {
-            throw new IllegalStateException(String.format(message, name));
+        synchronized (this.bindings) {
+            if (this.has(name)) {
+                throw new IllegalStateException(String.format(message, name));
+            }
         }
     }
 
@@ -304,20 +329,26 @@ public class Container {
         if (log.isDebugEnabled()) {
             log.debug("Container remove binding: {}", name);
         }
-        name = this.getCanonicalName(name);
-        final Binding binding = this.bindings.remove(name);
-        Class<?> clazz = binding.getType();
-        while (clazz != null && !ClassUtils.isSkipBuildType(clazz)) {
-            this.removeType(name, clazz);
-            for (final Class<?> in : clazz.getInterfaces()) {
-                this.removeType(name, in);
+        synchronized (this.bindings) {
+            name = this.getCanonicalName(name);
+            final Binding binding = this.bindings.get(name);
+            if (binding == null) {
+                return;
             }
-            clazz = clazz.getSuperclass();
+            Class<?> clazz = binding.getType();
+            while (clazz != null && !ClassUtils.isSkipBuildType(clazz)) {
+                this.removeType(name, clazz);
+                for (final Class<?> in : clazz.getInterfaces()) {
+                    this.removeType(name, in);
+                }
+                clazz = clazz.getSuperclass();
+            }
+            this.removeAlias(name);
+            this.bindings.remove(name);
         }
-        this.removeAlias(name);
     }
 
-    protected void addType(
+    private void addType(
         final String name,
         final Class<?> type,
         final boolean isPrimary
@@ -333,7 +364,7 @@ public class Container {
                         }
                         return o;
                     } else {
-                        final List<String> list = new ArrayList<>();
+                        final List<String> list = new CopyOnWriteArrayList<>();
                         list.add(name);
                         return list;
                     }
@@ -341,19 +372,27 @@ public class Container {
             );
     }
 
-    protected void removeType(final String name, final Class<?> type) {
-        final List<String> list = this.bindingNamesByType.get(type);
-        if (list != null) {
-            list.remove(name);
-        }
+    private void removeType(final String name, final Class<?> type) {
+        this.bindingNamesByType.computeIfPresent(
+                type,
+                (k, v) -> {
+                    v.remove(name);
+                    return v;
+                }
+            );
     }
 
     public String getBeanNameByType(final Class<?> type) {
         // 先查找 bindingNamesByType 里是否有类型
-        final List<String> list = this.bindingNamesByType.get(type);
+        List<String> list = this.bindingNamesByType.get(type);
         if (list == null || list.isEmpty()) {
-            // 未找到或空则使用短类名作为名称
-            return this.typeToBeanName(type);
+            synchronized (this.bindings) {
+                list = this.bindingNamesByType.get(type);
+                if (list == null || list.isEmpty()) {
+                    // 未找到或空则使用短类名作为名称
+                    return this.typeToBeanName(type);
+                }
+            }
         }
         // 否则取第一个返回
         return list.get(0);
@@ -379,7 +418,13 @@ public class Container {
     /* ======================= Bean ======================= */
 
     public List<String> getBeanNamesForType(final Class<?> type) {
-        return this.bindingNamesByType.get(type);
+        final List<String> list = this.bindingNamesByType.get(type);
+        if (list == null) {
+            synchronized (this.bindings) {
+                return this.bindingNamesByType.get(type);
+            }
+        }
+        return list;
     }
 
     public <T> Map<String, T> getBeanOfType(final Class<T> type) {
@@ -447,15 +492,20 @@ public class Container {
         if (log.isDebugEnabled()) {
             log.debug("Container add alias: {} => {}", alias, name);
         }
-        this.validHas(alias, "Alias [%s] has contains");
-        this.aliases.put(alias, name);
+        // 二元操作，由于验证包含 alias 和 bindings，并发工具只能保护一个，所以要加锁
+        synchronized (this.bindings) {
+            this.validHas(alias, "Alias [%s] has contains");
+            this.aliases.put(alias, name);
+        }
     }
 
     public void removeAlias(final String alias) {
         if (log.isDebugEnabled()) {
             log.debug("Container remove alias: {}", alias);
         }
-        this.aliases.remove(alias);
+        synchronized (this.bindings) {
+            this.aliases.remove(alias);
+        }
     }
 
     public boolean hasAlias(final String alias) {
@@ -463,27 +513,37 @@ public class Container {
     }
 
     public String getAlias(final String alias) {
-        return this.aliases.get(alias);
+        String name = this.aliases.get(alias);
+        if (name == null) {
+            synchronized (this.bindings) {
+                return this.aliases.get(alias);
+            }
+        }
+        return name;
     }
 
     /*======================  Attribute  ==================*/
 
     public void removeAttribute(final String name) {
-        for (final Context context : this.contexts.values()) {
-            if (context.has(ATTRIBUTE_PREFIX + name)) {
-                context.remove(ATTRIBUTE_PREFIX + name);
-                return;
+        synchronized (this.contexts) {
+            for (final Context context : this.contexts.values()) {
+                if (context.has(ATTRIBUTE_PREFIX + name)) {
+                    context.remove(ATTRIBUTE_PREFIX + name);
+                    return;
+                }
             }
         }
     }
 
     public Object getAttribute(final String name) {
-        for (final Context context : this.contexts.values()) {
-            if (context.has(ATTRIBUTE_PREFIX + name)) {
-                return context.get(ATTRIBUTE_PREFIX + name);
+        synchronized (this.contexts) {
+            for (final Context context : this.contexts.values()) {
+                if (context.has(ATTRIBUTE_PREFIX + name)) {
+                    return context.get(ATTRIBUTE_PREFIX + name);
+                }
             }
+            return null;
         }
-        return null;
     }
 
     public boolean hasAttribute(final String name) {
@@ -596,9 +656,12 @@ public class Container {
         final FactoryBean<?> factoryBean,
         final String scopeType
     ) {
-        this.validHas(name, "Target [%s] has been bind");
-        final Binding binding = this.newBinding(name, factoryBean, scopeType);
-        return this.doBind(name, binding);
+        synchronized (this.bindings) {
+            this.validHas(name, "Target [%s] has been bind");
+            final Binding binding =
+                this.newBinding(name, factoryBean, scopeType);
+            return this.doBind(name, binding);
+        }
     }
 
     protected Binding doBind(
@@ -606,9 +669,12 @@ public class Container {
         final Class<?> instanceType,
         final String scopeType
     ) {
-        this.validHas(name, "Target [%s] has been bind");
-        final Binding binding = this.newBinding(name, instanceType, scopeType);
-        return this.doBind(name, binding);
+        synchronized (this.bindings) {
+            this.validHas(name, "Target [%s] has been bind");
+            final Binding binding =
+                this.newBinding(name, instanceType, scopeType);
+            return this.doBind(name, binding);
+        }
     }
 
     protected Binding doBind(
@@ -616,9 +682,11 @@ public class Container {
         final Object instance,
         final String scopeType
     ) {
-        this.validHas(name, "Target [%s] has been bind");
-        final Binding binding = this.newBinding(name, instance, scopeType);
-        return this.doBind(name, binding);
+        synchronized (this.bindings) {
+            this.validHas(name, "Target [%s] has been bind");
+            final Binding binding = this.newBinding(name, instance, scopeType);
+            return this.doBind(name, binding);
+        }
     }
 
     /* ===================== doBuild ===================== */
@@ -798,32 +866,39 @@ public class Container {
         if (instance != null) {
             return Convert.convert(returnType, instance);
         }
-        try {
-            FactoryBean<?> factoryBean = binding.getFactoryBean();
-            if (factoryBean == null) {
-                Binding finalBinding = binding;
-                factoryBean =
-                    new FactoryBean<>() {
-                        @Override
-                        public Object getObject() throws Exception {
-                            return doBuild(finalBinding);
-                        }
-
-                        @Override
-                        public Class<?> getObjectType() {
-                            return finalBinding.getType();
-                        }
-                    };
+        // 加锁，双重检查，防止二次初始化
+        synchronized (binding.getMutex()) {
+            instance = binding.getSource();
+            if (instance != null) {
+                return Convert.convert(returnType, instance);
             }
-            instance = factoryBean.getObject();
-        } catch (final Throwable e) {
-            throw new ContainerException("Instance make failed", e);
+            try {
+                FactoryBean<?> factoryBean = binding.getFactoryBean();
+                if (factoryBean == null) {
+                    Binding finalBinding = binding;
+                    factoryBean =
+                        new FactoryBean<>() {
+                            @Override
+                            public Object getObject() throws Exception {
+                                return doBuild(finalBinding);
+                            }
+
+                            @Override
+                            public Class<?> getObjectType() {
+                                return finalBinding.getType();
+                            }
+                        };
+                }
+                instance = factoryBean.getObject();
+            } catch (final Throwable e) {
+                throw new ContainerException("Instance make failed", e);
+            }
+            final T returnInstance = Convert.convert(returnType, instance);
+            if (binding.isShared()) {
+                binding.setSource(returnInstance);
+            }
+            return returnInstance;
         }
-        final T returnInstance = Convert.convert(returnType, instance);
-        if (binding.isShared()) {
-            binding.setSource(returnInstance);
-        }
-        return returnInstance;
     }
 
     /* ===================== doRemove ===================== */
@@ -1229,10 +1304,6 @@ public class Container {
         final T result = callback.get();
         this.dataBinder.set(reset);
         return result;
-    }
-
-    public Map<Class<? extends Context>, Context> getContexts() {
-        return contexts;
     }
 
     public Container addFirstInstanceInjector(final InstanceInjector injector) {
