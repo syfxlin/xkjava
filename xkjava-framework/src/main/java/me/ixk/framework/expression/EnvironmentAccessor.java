@@ -45,7 +45,7 @@ public class EnvironmentAccessor implements PropertyAccessor {
         Object target,
         String name
     ) throws AccessException {
-        return false;
+        return true;
     }
 
     @Override
@@ -54,5 +54,7 @@ public class EnvironmentAccessor implements PropertyAccessor {
         Object target,
         String name,
         Object newValue
-    ) throws AccessException {}
+    ) throws AccessException {
+        ((Environment) target).set(name, newValue);
+    }
 }

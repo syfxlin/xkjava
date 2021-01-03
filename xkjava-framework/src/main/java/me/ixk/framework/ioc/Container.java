@@ -267,36 +267,15 @@ public class Container {
     }
 
     public boolean has(final Class<?> type) {
-        final boolean has = this.has(this.getBeanNameByType(type));
-        if (!has) {
-            // 上面是复合操作，如果不存在，加锁再次检查
-            synchronized (this.bindings) {
-                return this.has(this.getBeanNameByType(type));
-            }
-        }
-        return true;
+        return this.has(this.getBeanNameByType(type));
     }
 
     public Binding getBinding(final Class<?> type) {
-        final Binding binding = this.getBinding(this.getBeanNameByType(type));
-        if (binding == null) {
-            // 上面是复合操作，如果不存在，加锁再次检查
-            synchronized (this.bindings) {
-                return this.getBinding(this.getBeanNameByType(type));
-            }
-        }
-        return binding;
+        return this.getBinding(this.getBeanNameByType(type));
     }
 
     public Binding getBinding(String name) {
-        final Binding binding = this.bindings.get(this.getCanonicalName(name));
-        if (binding == null) {
-            // 上面是复合操作，如果不存在，加锁再次检查
-            synchronized (this.bindings) {
-                return this.bindings.get(this.getCanonicalName(name));
-            }
-        }
-        return binding;
+        return this.bindings.get(this.getCanonicalName(name));
     }
 
     public void setBinding(String name, final Binding binding) {
@@ -383,16 +362,10 @@ public class Container {
     }
 
     public String getBeanNameByType(final Class<?> type) {
-        // 先查找 bindingNamesByType 里是否有类型
         List<String> list = this.bindingNamesByType.get(type);
         if (list == null || list.isEmpty()) {
-            synchronized (this.bindings) {
-                list = this.bindingNamesByType.get(type);
-                if (list == null || list.isEmpty()) {
-                    // 未找到或空则使用短类名作为名称
-                    return this.typeToBeanName(type);
-                }
-            }
+            // 未找到或空则使用短类名作为名称
+            return this.typeToBeanName(type);
         }
         // 否则取第一个返回
         return list.get(0);
@@ -418,13 +391,7 @@ public class Container {
     /* ======================= Bean ======================= */
 
     public List<String> getBeanNamesForType(final Class<?> type) {
-        final List<String> list = this.bindingNamesByType.get(type);
-        if (list == null) {
-            synchronized (this.bindings) {
-                return this.bindingNamesByType.get(type);
-            }
-        }
-        return list;
+        return this.bindingNamesByType.get(type);
     }
 
     public <T> Map<String, T> getBeanOfType(final Class<T> type) {
@@ -468,7 +435,7 @@ public class Container {
         if (list.isEmpty()) {
             return Collections.emptyMap();
         }
-        final Map<String, Object> beans = new HashMap<>();
+        final Map<String, Object> beans = new HashMap<>(list.size());
         for (final String name : list) {
             beans.put(name, this.make(name, Object.class));
         }
@@ -513,13 +480,7 @@ public class Container {
     }
 
     public String getAlias(final String alias) {
-        String name = this.aliases.get(alias);
-        if (name == null) {
-            synchronized (this.bindings) {
-                return this.aliases.get(alias);
-            }
-        }
-        return name;
+        return this.aliases.get(alias);
     }
 
     /*======================  Attribute  ==================*/
@@ -907,11 +868,13 @@ public class Container {
         if (log.isDebugEnabled()) {
             log.debug("Container remove: {}", name);
         }
-        final Binding binding = this.getBinding(name);
-        if (binding.isCreated()) {
-            this.processBeanDestroy(binding, binding.getSource());
+        synchronized (this.bindings) {
+            final Binding binding = this.getBinding(name);
+            if (binding.isCreated()) {
+                this.processBeanDestroy(binding, binding.getSource());
+            }
+            this.removeBinding(name);
         }
-        this.removeBinding(name);
     }
 
     /* ===================== doCall =============== */

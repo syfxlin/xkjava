@@ -45,7 +45,7 @@ public class PropertySourceAccessor implements PropertyAccessor {
         Object target,
         String name
     ) throws AccessException {
-        return false;
+        return true;
     }
 
     @Override
@@ -54,5 +54,7 @@ public class PropertySourceAccessor implements PropertyAccessor {
         Object target,
         String name,
         Object newValue
-    ) throws AccessException {}
+    ) throws AccessException {
+        ((PropertySource<?>) target).set(name, newValue);
+    }
 }

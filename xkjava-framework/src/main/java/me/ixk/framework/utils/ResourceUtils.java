@@ -7,18 +7,19 @@ package me.ixk.framework.utils;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.lang.Assert;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import me.ixk.framework.exceptions.ResourceException;
 
 /**
  * @author Otstar Lin
  * @date 2020/11/10 下午 5:42
  */
 public class ResourceUtils {
+
     public static final String CLASSPATH_URL_PREFIX = "classpath:";
     public static final String FILE_URL_PREFIX = "file:";
     public static final String JAR_URL_PREFIX = "jar:";
@@ -50,15 +51,14 @@ public class ResourceUtils {
         }
     }
 
-    public static URL getURL(String resourceLocation)
-        throws FileNotFoundException {
+    public static URL getUrl(String resourceLocation) {
         Assert.notNull(resourceLocation, "Resource location must not be null");
         if (resourceLocation.startsWith(CLASSPATH_URL_PREFIX)) {
             URL url = ResourceUtil.getResourceObj(resourceLocation).getUrl();
             if (url == null) {
                 String description =
                     "class path resource [" + resourceLocation + "]";
-                throw new FileNotFoundException(
+                throw new ResourceException(
                     description +
                     " cannot be resolved to URL because it does not exist"
                 );
@@ -73,7 +73,7 @@ public class ResourceUtils {
             try {
                 return new File(resourceLocation).toURI().toURL();
             } catch (MalformedURLException ex2) {
-                throw new FileNotFoundException(
+                throw new ResourceException(
                     "Resource location [" +
                     resourceLocation +
                     "] is neither a URL not a well-formed file path"
@@ -82,15 +82,14 @@ public class ResourceUtils {
         }
     }
 
-    public static File getFile(String resourceLocation)
-        throws FileNotFoundException {
+    public static File getFile(String resourceLocation) {
         Assert.notNull(resourceLocation, "Resource location must not be null");
         if (resourceLocation.startsWith(CLASSPATH_URL_PREFIX)) {
             String description =
                 "class path resource [" + resourceLocation + "]";
             URL url = ResourceUtil.getResourceObj(resourceLocation).getUrl();
             if (url == null) {
-                throw new FileNotFoundException(
+                throw new ResourceException(
                     description +
                     " cannot be resolved to absolute file path because it does not exist"
                 );
@@ -106,15 +105,14 @@ public class ResourceUtils {
         }
     }
 
-    public static File getFile(URL resourceUrl) throws FileNotFoundException {
+    public static File getFile(URL resourceUrl) {
         return getFile(resourceUrl, "URL");
     }
 
-    public static File getFile(URL resourceUrl, String description)
-        throws FileNotFoundException {
+    public static File getFile(URL resourceUrl, String description) {
         Assert.notNull(resourceUrl, "Resource URL must not be null");
         if (!URL_PROTOCOL_FILE.equals(resourceUrl.getProtocol())) {
-            throw new FileNotFoundException(
+            throw new ResourceException(
                 description +
                 " cannot be resolved to absolute file path " +
                 "because it does not reside in the file system: " +
@@ -122,22 +120,21 @@ public class ResourceUtils {
             );
         }
         try {
-            return new File(toURI(resourceUrl).getSchemeSpecificPart());
+            return new File(toUri(resourceUrl).getSchemeSpecificPart());
         } catch (URISyntaxException ex) {
             // Fallback for URLs that are not valid URIs (should hardly ever happen).
             return new File(resourceUrl.getFile());
         }
     }
 
-    public static File getFile(URI resourceUri) throws FileNotFoundException {
+    public static File getFile(URI resourceUri) {
         return getFile(resourceUri, "URI");
     }
 
-    public static File getFile(URI resourceUri, String description)
-        throws FileNotFoundException {
+    public static File getFile(URI resourceUri, String description) {
         Assert.notNull(resourceUri, "Resource URI must not be null");
         if (!URL_PROTOCOL_FILE.equals(resourceUri.getScheme())) {
-            throw new FileNotFoundException(
+            throw new ResourceException(
                 description +
                 " cannot be resolved to absolute file path " +
                 "because it does not reside in the file system: " +
@@ -147,7 +144,7 @@ public class ResourceUtils {
         return new File(resourceUri.getSchemeSpecificPart());
     }
 
-    public static boolean isFileURL(URL url) {
+    public static boolean isFileUrl(URL url) {
         String protocol = url.getProtocol();
         return (
             URL_PROTOCOL_FILE.equals(protocol) ||
@@ -156,7 +153,7 @@ public class ResourceUtils {
         );
     }
 
-    public static boolean isJarURL(URL url) {
+    public static boolean isJarUrl(URL url) {
         String protocol = url.getProtocol();
         return (
             URL_PROTOCOL_JAR.equals(protocol) ||
@@ -167,14 +164,14 @@ public class ResourceUtils {
         );
     }
 
-    public static boolean isJarFileURL(URL url) {
+    public static boolean isJarFileUrl(URL url) {
         return (
             URL_PROTOCOL_FILE.equals(url.getProtocol()) &&
             url.getPath().toLowerCase().endsWith(JAR_FILE_EXTENSION)
         );
     }
 
-    public static URL extractJarFileURL(URL jarUrl)
+    public static URL extractJarFileUrl(URL jarUrl)
         throws MalformedURLException {
         String urlFile = jarUrl.getFile();
         int separatorIndex = urlFile.indexOf(JAR_URL_SEPARATOR);
@@ -215,14 +212,14 @@ public class ResourceUtils {
         }
 
         // Regular "jar:file:...myjar.jar!/myentry.txt"
-        return extractJarFileURL(jarUrl);
+        return extractJarFileUrl(jarUrl);
     }
 
-    public static URI toURI(URL url) throws URISyntaxException {
-        return toURI(url.toString());
+    public static URI toUri(URL url) throws URISyntaxException {
+        return toUri(url.toString());
     }
 
-    public static URI toURI(String location) throws URISyntaxException {
+    public static URI toUri(String location) throws URISyntaxException {
         return new URI(location.replace(" ", "%20"));
     }
 
