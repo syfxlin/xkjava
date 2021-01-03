@@ -96,12 +96,12 @@ public class ControllerHandler implements Handler {
         this.app.setAttribute(
                 "me.ixk.framework.web.ControllerHandler.controllerClass",
                 this.controllerClass,
-                ScopeType.REQUEST.asString()
+                ScopeType.REQUEST
             );
         this.app.setAttribute(
                 "me.ixk.framework.web.ControllerHandler.controllerMethod",
                 this.method,
-                ScopeType.REQUEST.asString()
+                ScopeType.REQUEST
             );
         // 创建 WebContext
         this.context = this.app.make(WebContext.class);

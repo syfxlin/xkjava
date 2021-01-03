@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.annotations.Skip;
+import me.ixk.framework.ioc.context.ScopeType;
 
 /**
  * 响应模型
@@ -18,7 +19,7 @@ import me.ixk.framework.annotations.Skip;
  * @date 2020/11/1 下午 10:04
  */
 @Component(name = "responseModel")
-@Scope(type = "request")
+@Scope(ScopeType.REQUEST)
 public class Model extends LinkedHashMap<String, Object> {
 
     private static final long serialVersionUID = 9097159139320901236L;

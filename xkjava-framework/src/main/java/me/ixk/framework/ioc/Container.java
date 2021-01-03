@@ -816,12 +816,7 @@ public class Container {
             }
         }
         if (binding == null) {
-            binding =
-                this.newBinding(
-                        name,
-                        returnType,
-                        ScopeType.PROTOTYPE.asString()
-                    );
+            binding = this.newBinding(name, returnType, ScopeType.PROTOTYPE);
         }
         Object instance = binding.getSource();
         if (instance != null) {
@@ -890,11 +885,7 @@ public class Container {
         final String name = this.typeToBeanName(instance.getClass());
         final InjectContext context =
             this.processBeforeInject(
-                    this.newBinding(
-                            name,
-                            instance,
-                            ScopeType.PROTOTYPE.asString()
-                        )
+                    this.newBinding(name, instance, ScopeType.PROTOTYPE)
                 );
         final Object[] dependencies =
             this.processParameterInjector(context, method);
@@ -978,11 +969,11 @@ public class Container {
     }
 
     public Binding bind(final String name, final Class<?> type) {
-        return this.bind(name, type, ScopeType.SINGLETON.asString());
+        return this.bind(name, type, ScopeType.SINGLETON);
     }
 
     public Binding bind(final String name, final FactoryBean<?> factoryBean) {
-        return this.bind(name, factoryBean, ScopeType.SINGLETON.asString());
+        return this.bind(name, factoryBean, ScopeType.SINGLETON);
     }
 
     // name, instance
@@ -996,7 +987,7 @@ public class Container {
     }
 
     public Binding instance(final String name, final Object instance) {
-        return this.instance(name, instance, ScopeType.SINGLETON.asString());
+        return this.instance(name, instance, ScopeType.SINGLETON);
     }
 
     // factory
@@ -1017,7 +1008,7 @@ public class Container {
     }
 
     public Binding bind(final Class<?> type) {
-        return this.bind(type, ScopeType.SINGLETON.asString());
+        return this.bind(type, ScopeType.SINGLETON);
     }
 
     public Binding bind(
@@ -1032,7 +1023,7 @@ public class Container {
     }
 
     public Binding bind(final FactoryBean<?> factoryBean) {
-        return this.bind(factoryBean, ScopeType.SINGLETON.asString());
+        return this.bind(factoryBean, ScopeType.SINGLETON);
     }
 
     // instance
@@ -1046,7 +1037,7 @@ public class Container {
     }
 
     public Binding instance(final Object instance) {
-        return this.instance(instance, ScopeType.SINGLETON.asString());
+        return this.instance(instance, ScopeType.SINGLETON);
     }
 
     /* ===================== make ===================== */

@@ -56,7 +56,7 @@ public class RequestContext implements RequestAttributeContext {
 
     @Override
     public boolean matchesScope(final String scopeType) {
-        return ScopeType.REQUEST.is(scopeType);
+        return ScopeType.REQUEST.equalsIgnoreCase(scopeType);
     }
 
     @Override

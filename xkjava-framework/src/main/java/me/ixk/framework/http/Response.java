@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.exceptions.ResponseException;
+import me.ixk.framework.ioc.context.ScopeType;
 import me.ixk.framework.utils.Json;
 
 /**
@@ -29,7 +30,7 @@ import me.ixk.framework.utils.Json;
  * @date 2020/10/24 下午 3:45
  */
 @Component(name = { "response" })
-@Scope(type = "request")
+@Scope(ScopeType.REQUEST)
 public class Response extends HttpServletResponseWrapper {
 
     private static final HttpServletResponse EMPTY = new EmptyResponse();

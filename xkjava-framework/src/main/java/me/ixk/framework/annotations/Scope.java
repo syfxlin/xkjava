@@ -20,5 +20,9 @@ import java.lang.annotation.Target;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Scope {
+    @AliasFor("type")
+    String value() default "singleton";
+
+    @AliasFor("value")
     String type() default "singleton";
 }

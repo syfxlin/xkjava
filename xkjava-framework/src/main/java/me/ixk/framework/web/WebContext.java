@@ -11,6 +11,7 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SessionManager;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.ioc.context.ScopeType;
 import me.ixk.framework.property.Environment;
 import me.ixk.framework.servlet.DispatcherServlet;
 
@@ -21,7 +22,7 @@ import me.ixk.framework.servlet.DispatcherServlet;
  * @date 2020/10/14 下午 5:22
  */
 @Component(name = "webContext")
-@Scope(type = "request")
+@Scope(ScopeType.REQUEST)
 public class WebContext {
 
     private final XkJava application;

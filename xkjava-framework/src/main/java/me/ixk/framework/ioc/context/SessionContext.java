@@ -55,7 +55,7 @@ public class SessionContext implements SessionAttributeContext {
 
     @Override
     public boolean matchesScope(final String scopeType) {
-        return ScopeType.SESSION.is(scopeType);
+        return ScopeType.SESSION.equalsIgnoreCase(scopeType);
     }
 
     @Override

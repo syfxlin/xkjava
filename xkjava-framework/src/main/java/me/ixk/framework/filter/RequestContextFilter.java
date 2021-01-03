@@ -37,13 +37,9 @@ public class RequestContextFilter extends GenericFilter {
     public RequestContextFilter(XkJava app) {
         this.app = app;
         this.requestContext =
-            (RequestContext) this.app.getContextByScope(
-                    ScopeType.REQUEST.asString()
-                );
+            (RequestContext) this.app.getContextByScope(ScopeType.REQUEST);
         this.sessionContext =
-            (SessionContext) this.app.getContextByScope(
-                    ScopeType.SESSION.asString()
-                );
+            (SessionContext) this.app.getContextByScope(ScopeType.SESSION);
     }
 
     @Override

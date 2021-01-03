@@ -108,7 +108,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
             this.app.setAlias(n, binding.getName());
         }
         if (
-            ScopeType.SINGLETON.is(scopeType) &&
+            ScopeType.SINGLETON.equalsIgnoreCase(scopeType) &&
             annotation.notAnnotation(Lazy.class)
         ) {
             makeList.add(name);
@@ -134,7 +134,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         }
         // Add singleton to make list
         if (
-            ScopeType.SINGLETON.is(scopeType) &&
+            ScopeType.SINGLETON.equalsIgnoreCase(scopeType) &&
             annotation.notAnnotation(Lazy.class)
         ) {
             makeList.add(clazz.getName());

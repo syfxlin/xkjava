@@ -22,8 +22,8 @@ public class ApplicationContext implements Context {
     @Override
     public boolean matchesScope(final String scopeType) {
         return (
-            ScopeType.SINGLETON.is(scopeType) ||
-            ScopeType.PROTOTYPE.is(scopeType)
+            ScopeType.SINGLETON.equalsIgnoreCase(scopeType) ||
+            ScopeType.PROTOTYPE.equalsIgnoreCase(scopeType)
         );
     }
 
@@ -34,6 +34,6 @@ public class ApplicationContext implements Context {
 
     @Override
     public boolean isShared(String scopeType) {
-        return !ScopeType.PROTOTYPE.is(scopeType);
+        return !ScopeType.PROTOTYPE.equalsIgnoreCase(scopeType);
     }
 }

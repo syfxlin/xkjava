@@ -62,7 +62,7 @@ class ContainerTest {
 
     @Test
     void attribute() {
-        container.setAttribute("attr", "value", ScopeType.SINGLETON.asString());
+        container.setAttribute("attr", "value", ScopeType.SINGLETON);
         assertEquals("value", container.getAttribute("attr"));
 
         assertTrue(container.hasAttribute("attr"));
