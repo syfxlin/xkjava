@@ -30,13 +30,16 @@ public class AspectRegistry implements AfterBeanRegistry {
     @Override
     @SuppressWarnings("unchecked")
     public void register(
-        XkJava app,
-        AnnotatedElement element,
-        MergedAnnotation annotation
+        final XkJava app,
+        final AnnotatedElement element,
+        final MergedAnnotation annotation
     ) {
         final AspectManager aspectManager = app.make(AspectManager.class);
         if (Advice.class.isAssignableFrom((Class<?>) element)) {
-            String pointcut = annotation.get(Aspect.class, "pointcut");
+            final String pointcut = annotation.getString(
+                Aspect.class,
+                "pointcut"
+            );
             if (pointcut == null) {
                 return;
             }

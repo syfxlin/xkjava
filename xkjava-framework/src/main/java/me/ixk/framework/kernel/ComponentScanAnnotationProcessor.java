@@ -10,7 +10,7 @@ import me.ixk.framework.annotations.ComponentScan;
 import me.ixk.framework.ioc.BeanScanner;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.processor.AbstractAnnotationProcessor;
-import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergedAnnotation;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +42,8 @@ public class ComponentScanAnnotationProcessor
             this.scanner.addDefinition(
                     new String[] { source.getPackageName() }
                 );
-            for (final ComponentScan scan : AnnotationUtils
-                .getAnnotation(source)
+            for (final ComponentScan scan : MergedAnnotation
+                .from(source)
                 .getAnnotations(ComponentScan.class)) {
                 this.loadPackageScanAnnotationItem(scan);
             }
@@ -52,8 +52,8 @@ public class ComponentScanAnnotationProcessor
         for (Class<?> clazz : reflections.getTypesAnnotatedWith(
             ComponentScan.class
         )) {
-            for (ComponentScan scan : AnnotationUtils
-                .getAnnotation(clazz)
+            for (ComponentScan scan : MergedAnnotation
+                .from(clazz)
                 .getAnnotations(ComponentScan.class)) {
                 this.loadPackageScanAnnotationItem(scan);
             }
@@ -61,8 +61,8 @@ public class ComponentScanAnnotationProcessor
         for (Method method : reflections.getMethodsAnnotatedWith(
             ComponentScan.class
         )) {
-            for (ComponentScan scan : AnnotationUtils
-                .getAnnotation(method)
+            for (ComponentScan scan : MergedAnnotation
+                .from(method)
                 .getAnnotations(ComponentScan.class)) {
                 this.loadPackageScanAnnotationItem(scan);
             }

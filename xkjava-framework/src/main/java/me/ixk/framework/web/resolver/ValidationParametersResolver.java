@@ -9,7 +9,6 @@ import javax.validation.Valid;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.exceptions.ValidException;
-import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ValidGroup;
 import me.ixk.framework.utils.ValidResult;
@@ -66,7 +65,7 @@ public class ValidationParametersResolver
             } else if (parameter.getType() == ValidGroup.class) {
                 validGroupIndex = i;
             } else {
-                final boolean valid = AnnotationUtils.hasAnnotation(
+                final boolean valid = MergedAnnotation.has(
                     parameter,
                     Valid.class
                 );

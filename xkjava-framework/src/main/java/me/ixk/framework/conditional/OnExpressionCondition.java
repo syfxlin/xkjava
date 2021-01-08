@@ -31,7 +31,10 @@ public class OnExpressionCondition implements Condition {
             app
                 .make(BeanExpressionResolver.class)
                 .evaluate(
-                    annotation.get(ConditionalOnExpression.class, "value"),
+                    annotation.getString(
+                        ConditionalOnExpression.class,
+                        "value"
+                    ),
                     Boolean.class
                 )
         );

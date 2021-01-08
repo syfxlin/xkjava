@@ -57,7 +57,10 @@ public class MiddlewareRegistry implements AfterBeanRegistry {
             annotation.hasAnnotation(RouteMiddleware.class) &&
             Middleware.class.isAssignableFrom((Class<?>) element)
         ) {
-            final String name = annotation.get(RouteMiddleware.class, "name");
+            final String name = annotation.getString(
+                RouteMiddleware.class,
+                "name"
+            );
             this.routeMiddleware.put(
                     name,
                     (Class<? extends me.ixk.framework.middleware.Middleware>) element

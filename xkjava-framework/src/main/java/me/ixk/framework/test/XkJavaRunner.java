@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -45,9 +44,7 @@ public class XkJavaRunner
     @Override
     public void beforeAll(final ExtensionContext context) throws Exception {
         final Class<?> testClass = context.getRequiredTestClass();
-        final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
-            testClass
-        );
+        final MergedAnnotation annotation = MergedAnnotation.from(testClass);
         final XkJavaTest xkJavaTest = annotation.getAnnotation(
             XkJavaTest.class
         );

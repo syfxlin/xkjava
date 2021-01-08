@@ -11,7 +11,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.SoftCache;
 
 /**
@@ -86,9 +86,9 @@ public class AspectManager {
         ) {
             this.pointcut = pointcut;
             this.advice = advice;
-            final Integer order = AnnotationUtils
-                .getAnnotation(advice)
-                .get(Order.class, "order");
+            final Integer order = MergedAnnotation
+                .from(advice)
+                .get(Order.class, "order", Integer.class);
             this.order =
                 Objects.requireNonNullElse(order, Order.LOWEST_PRECEDENCE);
         }

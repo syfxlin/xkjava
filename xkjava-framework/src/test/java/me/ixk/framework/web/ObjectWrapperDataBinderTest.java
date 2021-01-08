@@ -13,7 +13,7 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.binder.ObjectWrapperDataBinder;
 import me.ixk.framework.ioc.type.TypeWrapper;
 import me.ixk.framework.test.XkJavaTest;
-import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergedAnnotation;
 import org.junit.jupiter.api.Test;
 
 @XkJavaTest
@@ -68,7 +68,7 @@ class ObjectWrapperDataBinderTest {
         final User user = dataBinder.getObject(
             "user",
             TypeWrapper.forClass(User.class),
-            AnnotationUtils.wrapAnnotation(dataBind)
+            MergedAnnotation.wrap(dataBind)
         );
         System.out.println(user);
     }

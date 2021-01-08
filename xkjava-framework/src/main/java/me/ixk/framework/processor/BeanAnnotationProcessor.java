@@ -28,7 +28,6 @@ import me.ixk.framework.ioc.factory.FactoryBean;
 import me.ixk.framework.registry.BeanBindRegistry;
 import me.ixk.framework.registry.after.AfterBeanRegistry;
 import me.ixk.framework.registry.before.BeforeBeanRegistry;
-import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**
@@ -54,7 +53,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
                 new Class[] { BeforeRegistry.class, Import.class },
                 clazz -> {
                     this.invokeBeforeRegistry(clazz);
-                    if (AnnotationUtils.hasAnnotation(clazz, Import.class)) {
+                    if (MergedAnnotation.has(clazz, Import.class)) {
                         this.processImport(clazz, this::invokeBeforeRegistry);
                     }
                 },
@@ -65,7 +64,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
                 new Class[] { Bean.class, Import.class },
                 clazz -> {
                     this.invokeBinding(clazz);
-                    if (AnnotationUtils.hasAnnotation(clazz, Import.class)) {
+                    if (MergedAnnotation.has(clazz, Import.class)) {
                         this.processImport(clazz, this::invokeBinding);
                     }
                 },
@@ -76,7 +75,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
                 new Class[] { AfterRegistry.class, Import.class },
                 clazz -> {
                     this.invokeAfterRegistry(clazz);
-                    if (AnnotationUtils.hasAnnotation(clazz, Import.class)) {
+                    if (MergedAnnotation.has(clazz, Import.class)) {
                         this.processImport(clazz, this::invokeAfterRegistry);
                     }
                 },
@@ -89,9 +88,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     }
 
     private void invokeBinding(final Method method) {
-        final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
-            method
-        );
+        final MergedAnnotation annotation = MergedAnnotation.from(method);
         final String scopeType = this.getScoopType(annotation);
         final String name = method.getName();
         final Class<?> clazz = method.getReturnType();
@@ -116,9 +113,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     }
 
     private void invokeBinding(final Class<?> clazz) {
-        final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
-            clazz
-        );
+        final MergedAnnotation annotation = MergedAnnotation.from(clazz);
         final Bean beanAnnotation = annotation.getAnnotation(Bean.class);
         if (beanAnnotation == null) {
             return;
@@ -169,9 +164,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     }
 
     private void invokeBeforeRegistry(final AnnotatedElement element) {
-        final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
-            element
-        );
+        final MergedAnnotation annotation = MergedAnnotation.from(element);
         // @BeforeRegistry
         if (annotation.hasAnnotation(BeforeRegistry.class)) {
             for (final BeforeRegistry beforeRegistry : annotation.getAnnotations(
@@ -239,9 +232,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
     }
 
     private void invokeAfterRegistry(final AnnotatedElement element) {
-        final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
-            element
-        );
+        final MergedAnnotation annotation = MergedAnnotation.from(element);
         // @AfterRegistry
         if (annotation.hasAnnotation(AfterRegistry.class)) {
             for (final AfterRegistry afterRegistry : annotation.getAnnotations(
@@ -260,9 +251,7 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         final Class<?> clazz,
         final Consumer<Class<?>> consumer
     ) {
-        final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
-            clazz
-        );
+        final MergedAnnotation annotation = MergedAnnotation.from(clazz);
         final Import importAnnotation = annotation.getAnnotation(Import.class);
         final AnnotatedEntry<Class<?>> annotatedEntry = new AnnotatedEntry<>(
             clazz,

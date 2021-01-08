@@ -15,7 +15,6 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.registry.after.WebResolverRegistry;
 import me.ixk.framework.route.RouteInfo;
-import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,9 +92,7 @@ public class BasicErrorHandler implements Handler {
             Request.class,
             Response.class
         );
-        final MergedAnnotation methodAnnotation = AnnotationUtils.getAnnotation(
-            method
-        );
+        final MergedAnnotation methodAnnotation = MergedAnnotation.from(method);
         final ExceptionInfo info = new ExceptionInfo(
             this,
             clazz,

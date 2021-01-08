@@ -14,7 +14,6 @@ import me.ixk.framework.annotations.Controller;
 import me.ixk.framework.annotations.ControllerAdvice;
 import me.ixk.framework.annotations.ExceptionHandler;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,8 +66,8 @@ public class ExceptionHandlerRegistry implements AfterBeanRegistry {
             16
         );
         for (Method method : clazz.getDeclaredMethods()) {
-            ExceptionHandler exceptionHandler = AnnotationUtils
-                .getAnnotation(method)
+            ExceptionHandler exceptionHandler = MergedAnnotation
+                .from(method)
                 .getAnnotation(ExceptionHandler.class);
             if (exceptionHandler != null) {
                 for (Class<? extends Throwable> exceptionType : exceptionHandler.exception()) {

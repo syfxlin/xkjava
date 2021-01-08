@@ -163,9 +163,7 @@ public class BeanScanner {
     }
 
     public boolean isCondition(final AnnotatedElement element) {
-        final MergedAnnotation annotation = AnnotationUtils.getAnnotation(
-            element
-        );
+        final MergedAnnotation annotation = MergedAnnotation.from(element);
         final List<Conditional> conditionals = annotation.getAnnotations(
             Conditional.class
         );

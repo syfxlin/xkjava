@@ -7,7 +7,6 @@ package me.ixk.framework.web;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
-import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**
@@ -17,6 +16,7 @@ import me.ixk.framework.utils.MergedAnnotation;
  * @date 2020/10/14 下午 5:17
  */
 public class MethodParameter {
+
     private final Object controller;
     private final Class<?> controllerClass;
     private final Method method;
@@ -27,12 +27,12 @@ public class MethodParameter {
     private volatile int parameterIndex;
 
     public MethodParameter(
-        Object controller,
-        Class<?> controllerClass,
-        Method method,
-        Parameter[] parameter,
-        String[] parameterName,
-        MergedAnnotation methodAnnotation
+        final Object controller,
+        final Class<?> controllerClass,
+        final Method method,
+        final Parameter[] parameter,
+        final String[] parameterName,
+        final MergedAnnotation methodAnnotation
     ) {
         this.controller = controller;
         this.controllerClass = controllerClass;
@@ -43,7 +43,7 @@ public class MethodParameter {
         this.parameterAnnotations =
             Arrays
                 .stream(parameter)
-                .map(AnnotationUtils::getAnnotation)
+                .map(MergedAnnotation::from)
                 .toArray(MergedAnnotation[]::new);
     }
 
@@ -56,7 +56,7 @@ public class MethodParameter {
         return parameterIndex;
     }
 
-    public void setParameterIndex(int parameterIndex) {
+    public void setParameterIndex(final int parameterIndex) {
         this.parameterIndex = parameterIndex;
     }
 

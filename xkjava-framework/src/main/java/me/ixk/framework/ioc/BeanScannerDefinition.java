@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import me.ixk.framework.annotations.ComponentScan;
 import me.ixk.framework.annotations.FilterType;
 import me.ixk.framework.ioc.entity.AnnotatedEntry;
-import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergedAnnotation;
 
 /**
  * Bean 扫描定义
@@ -169,7 +169,7 @@ public class BeanScannerDefinition {
                             if (this.type == FilterType.ANNOTATION) {
                                 if (
                                     type == clazz ||
-                                    AnnotationUtils.hasAnnotation(
+                                    MergedAnnotation.has(
                                         type,
                                         (Class<? extends Annotation>) clazz
                                     )

@@ -47,7 +47,7 @@ public abstract class AbstractAnnotationProcessor
     }
 
     protected String getScoopType(final MergedAnnotation annotation) {
-        final String scopeType = annotation.get(Scope.class, "type");
+        final String scopeType = annotation.getString(Scope.class, "type");
         return scopeType == null ? ScopeType.SINGLETON : scopeType;
     }
 

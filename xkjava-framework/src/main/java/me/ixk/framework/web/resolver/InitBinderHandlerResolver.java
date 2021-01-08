@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import me.ixk.framework.annotations.InitBinder;
-import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.utils.MergedAnnotation;
 
 /**
  * 初始化绑定处理程序解析器
@@ -17,11 +17,12 @@ import me.ixk.framework.utils.AnnotationUtils;
  * @date 2020/10/14 下午 1:33
  */
 public class InitBinderHandlerResolver {
+
     private final List<Method> methodList = new ArrayList<>();
 
-    public InitBinderHandlerResolver(Class<?> clazz) {
-        for (Method method : clazz.getDeclaredMethods()) {
-            if (AnnotationUtils.hasAnnotation(method, InitBinder.class)) {
+    public InitBinderHandlerResolver(final Class<?> clazz) {
+        for (final Method method : clazz.getDeclaredMethods()) {
+            if (MergedAnnotation.has(method, InitBinder.class)) {
                 this.methodList.add(method);
             }
         }

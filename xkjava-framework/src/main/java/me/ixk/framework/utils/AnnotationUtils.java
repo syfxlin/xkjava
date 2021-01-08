@@ -45,38 +45,16 @@ public class AnnotationUtils {
     private static final SoftCache<AnnotatedElement, Map<Class<? extends Annotation>, List<Annotation>>> MERGED_ANNOTATION_CACHE = new SoftCache<>();
 
     private static final Comparator<Object> ORDER_ANNOTATION_COMPARATOR = (o1, o2) -> {
-        Integer or1 = getAnnotation((AnnotatedElement) o1)
-            .get(Order.class, "order");
-        Integer or2 = getAnnotation((AnnotatedElement) o2)
-            .get(Order.class, "order");
+        Integer or1 = MergedAnnotation
+            .from((AnnotatedElement) o1)
+            .get(Order.class, "order", Integer.class);
+        Integer or2 = MergedAnnotation
+            .from((AnnotatedElement) o2)
+            .get(Order.class, "order", Integer.class);
         int i1 = or1 == null ? Order.MEDIUM_PRECEDENCE : or1;
         int i2 = or2 == null ? Order.MEDIUM_PRECEDENCE : or2;
         return Integer.compare(i1, i2);
     };
-
-    public static <A extends Annotation> A getAnnotation(
-        final AnnotatedElement element,
-        final Class<A> annotationType
-    ) {
-        return getAnnotation(element).getAnnotation(annotationType);
-    }
-
-    public static MergedAnnotation getAnnotation(
-        final AnnotatedElement element
-    ) {
-        return new MergedAnnotationImpl(element);
-    }
-
-    public static MergedAnnotation wrapAnnotation(final Annotation annotation) {
-        final MergedAnnotationImpl mergedAnnotation = new MergedAnnotationImpl();
-        mergedAnnotation
-            .annotations()
-            .put(
-                annotation.annotationType(),
-                Collections.singletonList(annotation)
-            );
-        return mergedAnnotation;
-    }
 
     @SuppressWarnings("unchecked")
     private static Map<String, Object> getMemberValues(
@@ -94,12 +72,6 @@ public class AnnotationUtils {
         } catch (final Exception e) {
             throw new RuntimeException("Get annotation member values failed");
         }
-    }
-
-    private static Map<String, Object> getAndCloneMemberValues(
-        final Annotation annotation
-    ) {
-        return new HashMap<>(getMemberValues(annotation));
     }
 
     public static boolean isDefaultValue(
@@ -176,13 +148,6 @@ public class AnnotationUtils {
         return repeatable.value();
     }
 
-    public static boolean hasAnnotation(
-        final AnnotatedElement element,
-        final Class<? extends Annotation> annotationType
-    ) {
-        return getAnnotation(element).hasAnnotation(annotationType);
-    }
-
     @SuppressWarnings("unchecked")
     public static <A extends Annotation> A annotationForMap(
         final Class<A> annotationType,
@@ -195,72 +160,10 @@ public class AnnotationUtils {
         );
     }
 
-    private static void walkAnnotation(
-        final AnnotatedElement element,
-        Map<Class<? extends Annotation>, List<Map<String, Object>>> map
+    private static Map<Class<? extends Annotation>, List<Annotation>> annotationForMergeAnnotation(
+        Map<Class<? extends Annotation>, List<Map<String, Object>>> annotationMap
     ) {
-        for (Annotation annotation : element.getAnnotations()) {
-            final Class<? extends Annotation> annotationType = annotation.annotationType();
-            if (isJdkAnnotation(annotationType)) {
-                continue;
-            }
-            final List<Map<String, Object>> annotationList = map.getOrDefault(
-                annotationType,
-                new ArrayList<>()
-            );
-            for (final Annotation item : element.getAnnotationsByType(
-                annotationType
-            )) {
-                annotationList.add(getAndCloneMemberValues(item));
-            }
-            map.put(annotationType, annotationList);
-            final Class<? extends Annotation> repeatItem = getRepeatItem(
-                annotationType
-            );
-            if (repeatItem != null) {
-                final List<Map<String, Object>> itemList = map.getOrDefault(
-                    repeatItem,
-                    new ArrayList<>()
-                );
-                for (final Annotation item : (Annotation[]) ReflectUtil.invoke(
-                    annotation,
-                    "value"
-                )) {
-                    itemList.add(getAndCloneMemberValues(item));
-                }
-                map.put(repeatItem, itemList);
-            }
-            walkAnnotation(annotationType, map);
-        }
-    }
-
-    private static void mergeAnnotation(
-        final AnnotatedElement element,
-        final Map<Class<? extends Annotation>, List<Map<String, Object>>> map
-    ) {
-        for (Annotation annotation : element.getAnnotations()) {
-            final Class<? extends Annotation> annotationType = annotation.annotationType();
-            if (isJdkAnnotation(annotationType)) {
-                continue;
-            }
-            mergeAnnotationValue(annotationType, map);
-            mergeAnnotation(annotationType, map);
-        }
-    }
-
-    public static Map<Class<? extends Annotation>, List<Annotation>> mergeAnnotation(
-        final AnnotatedElement element
-    ) {
-        final Map<Class<? extends Annotation>, List<Annotation>> cache = MERGED_ANNOTATION_CACHE.get(
-            element
-        );
-        if (cache != null) {
-            return cache;
-        }
-        final Map<Class<? extends Annotation>, List<Map<String, Object>>> map = new LinkedHashMap<>();
-        walkAnnotation(element, map);
-        mergeAnnotation(element, map);
-        final LinkedHashMap<Class<? extends Annotation>, List<Annotation>> result = map
+        return annotationMap
             .entrySet()
             .stream()
             .collect(
@@ -270,7 +173,13 @@ public class AnnotationUtils {
                         e
                             .getValue()
                             .stream()
-                            .map(i -> annotationForMap(e.getKey(), i))
+                            .map(
+                                i ->
+                                    AnnotationUtils.annotationForMap(
+                                        e.getKey(),
+                                        i
+                                    )
+                            )
                             .collect(Collectors.toList()),
                     (u, v) -> {
                         throw new IllegalStateException(
@@ -280,51 +189,137 @@ public class AnnotationUtils {
                     LinkedHashMap::new
                 )
             );
-        MERGED_ANNOTATION_CACHE.put(element, result);
-        return result;
     }
 
-    private static void mergeAnnotationValue(
-        final Class<? extends Annotation> annotationType,
-        final Map<Class<? extends Annotation>, List<Map<String, Object>>> map
+    public static Map<Class<? extends Annotation>, List<Annotation>> mergeAnnotation(
+        final Annotation annotation
     ) {
-        for (final Map<String, Object> memberValues : map.get(annotationType)) {
-            final Method[] methods = annotationType.getDeclaredMethods();
-            for (final Method method : methods) {
-                final AliasFor aliasFor = method.getAnnotation(AliasFor.class);
-                if (aliasFor == null) {
-                    continue;
+        final Map<Class<? extends Annotation>, List<Map<String, Object>>> annotationMap = new LinkedHashMap<>();
+        final HashMap<Class<? extends Annotation>, Map<String, Object>> overwriteMap = new HashMap<>();
+        final Class<? extends Annotation> annotationType = annotation.annotationType();
+        annotationMap.put(
+            annotationType,
+            Collections.singletonList(
+                mergeAnnotationValue(annotation, annotationMap, overwriteMap)
+            )
+        );
+        walkAnnotation(annotationType, annotationMap, overwriteMap);
+        return annotationForMergeAnnotation(annotationMap);
+    }
+
+    public static Map<Class<? extends Annotation>, List<Annotation>> mergeAnnotation(
+        final AnnotatedElement element
+    ) {
+        return MERGED_ANNOTATION_CACHE.computeIfAbsent(
+            element,
+            k -> {
+                final Map<Class<? extends Annotation>, List<Map<String, Object>>> annotationMap = new LinkedHashMap<>();
+                walkAnnotation(k, annotationMap, new HashMap<>());
+                return annotationForMergeAnnotation(annotationMap);
+            }
+        );
+    }
+
+    private static void walkAnnotation(
+        final AnnotatedElement element,
+        Map<Class<? extends Annotation>, List<Map<String, Object>>> annotationMap,
+        Map<Class<? extends Annotation>, Map<String, Object>> overwriteMap
+    ) {
+        for (Annotation annotation : element.getAnnotations()) {
+            final Class<? extends Annotation> annotationType = annotation.annotationType();
+            if (isJdkAnnotation(annotationType)) {
+                continue;
+            }
+            // 处理当前注解
+            final List<Map<String, Object>> annotations = annotationMap.getOrDefault(
+                annotationType,
+                new ArrayList<>()
+            );
+            for (Annotation item : element.getAnnotationsByType(
+                annotationType
+            )) {
+                annotations.add(
+                    mergeAnnotationValue(item, annotationMap, overwriteMap)
+                );
+            }
+            annotationMap.put(annotationType, annotations);
+            // 处理重复注解
+            final Class<? extends Annotation> repeatItem = getRepeatItem(
+                annotationType
+            );
+            if (repeatItem != null) {
+                final List<Map<String, Object>> itemList = annotationMap.getOrDefault(
+                    repeatItem,
+                    new ArrayList<>()
+                );
+                for (final Annotation item : (Annotation[]) ReflectUtil.invoke(
+                    annotation,
+                    "value"
+                )) {
+                    itemList.add(
+                        mergeAnnotationValue(item, annotationMap, overwriteMap)
+                    );
                 }
-                final String name = method.getName();
-                if (isDefaultValue(method, memberValues)) {
-                    final String alias = aliasFor.value();
-                    if (!aliasFor.value().isEmpty()) {
-                        memberValues.put(name, memberValues.get(alias));
-                    }
+                annotationMap.put(repeatItem, itemList);
+            }
+            // 处理父注解
+            walkAnnotation(annotationType, annotationMap, overwriteMap);
+        }
+    }
+
+    private static Map<String, Object> mergeAnnotationValue(
+        final Annotation annotation,
+        final Map<Class<? extends Annotation>, List<Map<String, Object>>> annotationMap,
+        final Map<Class<? extends Annotation>, Map<String, Object>> overwriteMap
+    ) {
+        final Class<? extends Annotation> annotationType = annotation.annotationType();
+        final Map<String, Object> overwrite = overwriteMap.get(annotationType);
+        // 原始 memberValues，不可修改，因为这是单例的
+        final Map<String, Object> memberValues = getMemberValues(annotation);
+        // 实际复制并操作后的 memberValues
+        final Map<String, Object> values = new HashMap<>(memberValues.size());
+        for (Entry<String, Object> entry : memberValues.entrySet()) {
+            final String attributeName = entry.getKey();
+            Object attributeValue = entry.getValue();
+            final Method method = ReflectUtil.getMethod(
+                annotationType,
+                attributeName
+            );
+            final AliasFor aliasFor = method.getAnnotation(AliasFor.class);
+            if (overwrite != null && overwrite.containsKey(attributeName)) {
+                // 如果从子元素设置了重写的值，那么就设置该值
+                attributeValue = overwrite.get(attributeName);
+            } else if (
+                aliasFor != null &&
+                !aliasFor.value().isEmpty() &&
+                isDefaultValue(method, memberValues)
+            ) {
+                // 如果为默认值，同时设置了 AliasFor.value 那么就使用别名的值（即使是默认值也一样）
+                final String alias = aliasFor.value();
+                if (overwrite != null && overwrite.containsKey(alias)) {
+                    attributeValue = overwrite.get(alias);
+                } else {
+                    attributeValue = memberValues.get(alias);
                 }
             }
-            for (final Method method : methods) {
-                final AliasFor aliasFor = method.getAnnotation(AliasFor.class);
-                if (aliasFor == null) {
-                    continue;
-                }
-                final String name = method.getName();
-                if (aliasFor.annotation() != Annotation.class) {
-                    final List<Map<String, Object>> parentList = map.get(
-                        aliasFor.annotation()
-                    );
-                    if (parentList != null) {
-                        for (Map<String, Object> parentMemberValues : parentList) {
-                            parentMemberValues.put(
-                                aliasFor.attribute().isEmpty()
-                                    ? name
-                                    : aliasFor.attribute(),
-                                memberValues.get(name)
-                            );
-                        }
-                    }
-                }
+            // 否则把自身 memberValues 值设置到新 Map 中
+            values.put(attributeName, attributeValue);
+            // 如果设置了 AliasFor.annotation 那么就设置父注解的重写值
+            if (aliasFor != null && aliasFor.annotation() != Annotation.class) {
+                final Class<? extends Annotation> parentType = aliasFor.annotation();
+                final Map<String, Object> parentOverwrite = overwriteMap.getOrDefault(
+                    parentType,
+                    new HashMap<>()
+                );
+                parentOverwrite.put(
+                    aliasFor.attribute().isEmpty()
+                        ? attributeName
+                        : aliasFor.attribute(),
+                    attributeValue
+                );
+                overwriteMap.put(parentType, parentOverwrite);
             }
         }
+        return values;
     }
 }

@@ -25,9 +25,10 @@ public class OnJavaCondition implements Condition {
         final AnnotatedElement element,
         final MergedAnnotation annotation
     ) {
-        JavaVersion version = annotation.get(
+        JavaVersion version = annotation.getEnum(
             ConditionalOnJava.class,
-            "version"
+            "version",
+            JavaVersion.class
         );
         return (
             version == null ||

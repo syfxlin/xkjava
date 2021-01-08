@@ -16,7 +16,6 @@ import me.ixk.framework.http.HttpMethod;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.route.AnnotationRouteDefinition;
 import me.ixk.framework.route.RouteDefinition;
-import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,8 +62,8 @@ public class RouteRegistry implements AfterBeanRegistry {
             if (a == null) {
                 return;
             }
-            final RequestMapping baseMapping = AnnotationUtils
-                .getAnnotation(method.getDeclaringClass())
+            final RequestMapping baseMapping = MergedAnnotation
+                .from(method.getDeclaringClass())
                 .getAnnotation(RequestMapping.class);
             for (String basePath : baseMapping == null
                 ? new String[] { "" }

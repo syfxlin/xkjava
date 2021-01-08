@@ -10,7 +10,6 @@ import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.RequestAttribute;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.registry.request.RequestAttributeRegistry;
-import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +24,7 @@ import org.slf4j.LoggerFactory;
 @Order(Order.MEDIUM_PRECEDENCE + 2)
 public class RequestAttributeAnnotationProcessor
     extends AbstractAnnotationProcessor {
+
     private static final Logger log = LoggerFactory.getLogger(
         RequestAttributeAnnotationProcessor.class
     );
@@ -52,7 +52,7 @@ public class RequestAttributeAnnotationProcessor
 
     @SuppressWarnings("unchecked")
     public void processAnnotation(Method method) {
-        MergedAnnotation annotation = AnnotationUtils.getAnnotation(method);
+        MergedAnnotation annotation = MergedAnnotation.from(method);
         this.app.make(me.ixk.framework.web.RequestAttributeRegistry.class)
             .addRegistry(
                 method,

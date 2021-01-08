@@ -4,8 +4,10 @@
 
 package me.ixk.framework.utils;
 
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ReflectUtil;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +37,6 @@ public interface MergedAnnotation {
      *
      * @param annotationType 注解类型
      * @param <A>            注解类型
-     *
      * @return 注解
      */
     default <A extends Annotation> A getAnnotation(
@@ -50,7 +51,6 @@ public interface MergedAnnotation {
      * @param annotationType 注解类型
      * @param index          索引
      * @param <A>            注解类型
-     *
      * @return 注解
      */
     @SuppressWarnings("unchecked")
@@ -82,7 +82,6 @@ public interface MergedAnnotation {
      *
      * @param annotationType 注解类型
      * @param <A>            注解类型
-     *
      * @return 注解列表
      */
     @SuppressWarnings("unchecked")
@@ -97,7 +96,6 @@ public interface MergedAnnotation {
      * 是否存在注解
      *
      * @param annotationType 注解类型
-     *
      * @return 是否存在
      */
     default boolean hasAnnotation(
@@ -110,7 +108,6 @@ public interface MergedAnnotation {
      * 是否不存在注解
      *
      * @param annotationType 注解类型
-     *
      * @return 是否不存在
      */
     default boolean notAnnotation(Class<? extends Annotation> annotationType) {
@@ -121,7 +118,6 @@ public interface MergedAnnotation {
      * 是否包含多个相同类型的注解
      *
      * @param annotationType 注解类型
-     *
      * @return 是否包含
      */
     default boolean hasMultiAnnotation(
@@ -174,11 +170,9 @@ public interface MergedAnnotation {
      * 获取注解值
      *
      * @param annotationType 注解类型
-     * @param <T>            注解值类型
-     *
      * @return 注解值
      */
-    default <T> T get(Class<? extends Annotation> annotationType) {
+    default Object get(Class<? extends Annotation> annotationType) {
         return this.get(annotationType, VALUE);
     }
 
@@ -187,12 +181,26 @@ public interface MergedAnnotation {
      *
      * @param annotationType 注解类型
      * @param name           方法名称
-     * @param <T>            注解值类型
-     *
      * @return 注解值
      */
-    default <T> T get(Class<? extends Annotation> annotationType, String name) {
-        return this.get(annotationType, name, 0);
+    default Object get(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, Object.class);
+    }
+
+    /**
+     * 获取注解值
+     *
+     * @param annotationType 注解类型
+     * @return 注解值
+     */
+    default <T> T get(
+        Class<? extends Annotation> annotationType,
+        Class<T> returnType
+    ) {
+        return this.get(annotationType, VALUE, returnType);
     }
 
     /**
@@ -200,14 +208,32 @@ public interface MergedAnnotation {
      *
      * @param annotationType 注解类型
      * @param name           方法名称
-     * @param index          索引
+     * @param returnType     返回类型
      * @param <T>            注解值类型
-     *
      * @return 注解值
      */
     default <T> T get(
         Class<? extends Annotation> annotationType,
         String name,
+        Class<T> returnType
+    ) {
+        return this.get(annotationType, name, returnType, 0);
+    }
+
+    /**
+     * 获取注解值
+     *
+     * @param annotationType 注解类型
+     * @param name           方法名称
+     * @param returnType     返回类型
+     * @param index          索引
+     * @param <T>            注解值类型
+     * @return 注解值
+     */
+    default <T> T get(
+        Class<? extends Annotation> annotationType,
+        String name,
+        Class<T> returnType,
         int index
     ) {
         final Annotation annotation = this.getAnnotation(annotationType, index);
@@ -215,6 +241,172 @@ public interface MergedAnnotation {
         if (annotation == null || method == null) {
             return null;
         }
-        return ReflectUtil.invoke(annotation, method);
+        return Convert.convert(
+            returnType,
+            ReflectUtil.invoke(annotation, method)
+        );
+    }
+
+    default byte getByte(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, byte.class);
+    }
+
+    default byte[] getByteArray(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, byte[].class);
+    }
+
+    default boolean getBoolean(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, boolean.class);
+    }
+
+    default boolean[] getBooleanArray(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, boolean[].class);
+    }
+
+    default char getChar(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, char.class);
+    }
+
+    default char[] getCharArray(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, char[].class);
+    }
+
+    default short getShort(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, short.class);
+    }
+
+    default short[] getShortArray(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, short[].class);
+    }
+
+    default int getInt(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, int.class);
+    }
+
+    default int[] getIntArray(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, int[].class);
+    }
+
+    default long getLong(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, long.class);
+    }
+
+    default long[] getLongArray(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, long[].class);
+    }
+
+    default double getDouble(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, double.class);
+    }
+
+    default double[] getDoubleArray(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, double[].class);
+    }
+
+    default float getFloat(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, float.class);
+    }
+
+    default float[] getFloatArray(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, float[].class);
+    }
+
+    default String getString(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, String.class);
+    }
+
+    default String[] getStringArray(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, String[].class);
+    }
+
+    default Class<?> getClass(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, Class.class);
+    }
+
+    default Class<?>[] getClassArray(
+        Class<? extends Annotation> annotationType,
+        String name
+    ) {
+        return this.get(annotationType, name, Class[].class);
+    }
+
+    default <E extends Enum<E>> E getEnum(
+        Class<? extends Annotation> annotationType,
+        String name,
+        Class<E> type
+    ) {
+        return this.get(annotationType, name, type);
+    }
+
+    static MergedAnnotation from(AnnotatedElement element) {
+        return new MergedAnnotationImpl(element);
+    }
+
+    static MergedAnnotation wrap(final Annotation annotation) {
+        return new MergedAnnotationImpl(annotation);
+    }
+
+    static boolean has(
+        AnnotatedElement element,
+        Class<? extends Annotation> annotationType
+    ) {
+        return from(element).getAnnotation(annotationType) != null;
     }
 }

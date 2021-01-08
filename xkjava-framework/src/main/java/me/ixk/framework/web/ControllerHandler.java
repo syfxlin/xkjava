@@ -24,7 +24,6 @@ import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.registry.after.InitBinderRegistry;
 import me.ixk.framework.registry.after.WebResolverRegistry;
 import me.ixk.framework.route.RouteInfo;
-import me.ixk.framework.utils.AnnotationUtils;
 import me.ixk.framework.utils.Convert;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ParameterNameDiscoverer;
@@ -59,7 +58,7 @@ public class ControllerHandler implements Handler {
     public ControllerHandler(final Method handler) {
         this.controllerClass = handler.getDeclaringClass();
         this.method = handler;
-        this.methodAnnotation = AnnotationUtils.getAnnotation(this.method);
+        this.methodAnnotation = MergedAnnotation.from(this.method);
         this.app = XkJava.of();
         this.registry = this.app.make(WebResolverRegistry.class);
     }
