@@ -22,9 +22,9 @@ public class OnExpressionCondition implements Condition {
 
     @Override
     public boolean matches(
-        XkJava app,
-        AnnotatedElement element,
-        MergedAnnotation annotation
+        final XkJava app,
+        final AnnotatedElement element,
+        final MergedAnnotation annotation
     ) {
         return Convert.convert(
             Boolean.class,

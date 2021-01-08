@@ -28,16 +28,19 @@ public class OnBeanCondition implements Condition {
 
     @Override
     public boolean matches(
-        XkJava app,
-        AnnotatedElement element,
-        MergedAnnotation annotation
+        final XkJava app,
+        final AnnotatedElement element,
+        final MergedAnnotation annotation
     ) {
-        boolean match = annotation.hasAnnotation(ConditionalOnBean.class);
-        String msg = match ? "Missing bean: {}" : "Visible bean: {}";
-        Class<? extends Annotation> type = match
+        final boolean match = annotation.hasAnnotation(ConditionalOnBean.class);
+        final String msg = match ? "Missing bean: {}" : "Visible bean: {}";
+        final Class<? extends Annotation> type = match
             ? ConditionalOnBean.class
             : ConditionalOnMissingBean.class;
-        for (Class<?> beanType : (Class<?>[]) annotation.get(type, "value")) {
+        for (final Class<?> beanType : (Class<?>[]) annotation.get(
+            type,
+            "value"
+        )) {
             if (!app.has(beanType)) {
                 if (log.isDebugEnabled()) {
                     log.debug(msg, beanType.getName());
@@ -45,7 +48,7 @@ public class OnBeanCondition implements Condition {
                 return !match;
             }
         }
-        for (String beanName : (String[]) annotation.get(type, "name")) {
+        for (final String beanName : (String[]) annotation.get(type, "name")) {
             if (!app.has(beanName)) {
                 if (log.isDebugEnabled()) {
                     log.debug(msg, beanName);

@@ -5,10 +5,10 @@
 package me.ixk.framework.aop;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.AnnotationUtils;
@@ -32,57 +32,43 @@ public class AspectManager {
     private final List<AdviceEntry> adviceList = new CopyOnWriteArrayList<>();
     private final XkJava app;
 
-    public AspectManager(XkJava app) {
+    public AspectManager(final XkJava app) {
         this.app = app;
     }
 
     public void addAdvice(
-        AspectPointcut pointcut,
-        Class<? extends Advice> advice
+        final AspectPointcut pointcut,
+        final Class<? extends Advice> advice
     ) {
         adviceList.add(new AdviceEntry(pointcut, advice));
     }
 
-    public List<Advice> getAdvices(Method method) {
+    public List<Advice> getAdvices(final Method method) {
         return METHOD_CACHE.computeIfAbsent(
             method,
-            m -> {
-                List<Advice> list = new ArrayList<>();
-                for (AdviceEntry entry : adviceList) {
-                    if (entry.getPointcut().matches(m)) {
-                        list.add(this.app.make(entry.getAdvice()));
-                    }
-                }
-                return list;
-            }
+            m ->
+                this.adviceList.stream()
+                    .filter(e -> this.matches(m))
+                    .map(e -> this.app.make(e.getAdvice()))
+                    .collect(Collectors.toList())
         );
     }
 
-    public boolean matches(Class<?> clazz) {
+    public boolean matches(final Class<?> clazz) {
         return MATCHES_CACHE.computeIfAbsent(
             clazz,
-            c -> {
-                for (AdviceEntry entry : adviceList) {
-                    if (entry.getPointcut().matches((Class<?>) c)) {
-                        return true;
-                    }
-                }
-                return false;
-            }
+            c ->
+                this.adviceList.stream()
+                    .anyMatch(e -> e.getPointcut().matches((Class<?>) c))
         );
     }
 
-    public boolean matches(Method method) {
+    public boolean matches(final Method method) {
         return MATCHES_CACHE.computeIfAbsent(
             method,
-            m -> {
-                for (AdviceEntry entry : adviceList) {
-                    if (entry.getPointcut().matches((Method) m)) {
-                        return true;
-                    }
-                }
-                return false;
-            }
+            m ->
+                this.adviceList.stream()
+                    .anyMatch(e -> e.getPointcut().matches((Method) m))
         );
     }
 
@@ -95,12 +81,12 @@ public class AspectManager {
         private final int order;
 
         public AdviceEntry(
-            AspectPointcut pointcut,
-            Class<? extends Advice> advice
+            final AspectPointcut pointcut,
+            final Class<? extends Advice> advice
         ) {
             this.pointcut = pointcut;
             this.advice = advice;
-            Integer order = AnnotationUtils
+            final Integer order = AnnotationUtils
                 .getAnnotation(advice)
                 .get(Order.class, "order");
             this.order =

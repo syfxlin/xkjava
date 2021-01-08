@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 上午 8:57
  */
 public class OnPropertyCondition implements Condition {
+
     private static final Logger log = LoggerFactory.getLogger(
         OnPropertyCondition.class
     );

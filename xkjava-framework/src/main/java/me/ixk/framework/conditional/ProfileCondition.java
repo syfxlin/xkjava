@@ -20,13 +20,13 @@ public class ProfileCondition implements Condition {
 
     @Override
     public boolean matches(
-        XkJava app,
-        AnnotatedElement element,
-        MergedAnnotation annotation
+        final XkJava app,
+        final AnnotatedElement element,
+        final MergedAnnotation annotation
     ) {
-        String current = app.profile();
+        final String current = app.profile();
         final Profile profile = annotation.getAnnotation(Profile.class);
-        for (String item : profile.value()) {
+        for (final String item : profile.value()) {
             if (current.equalsIgnoreCase(item)) {
                 return true;
             }

@@ -34,25 +34,30 @@ public class OnClassCondition implements Condition {
         final AnnotatedElement element,
         final MergedAnnotation annotation
     ) {
-        boolean match = annotation.hasAnnotation(ConditionalOnClass.class);
-        Class<? extends Annotation> type = match
+        final boolean match = annotation.hasAnnotation(
+            ConditionalOnClass.class
+        );
+        final Class<? extends Annotation> type = match
             ? ConditionalOnClass.class
             : ConditionalOnMissingClass.class;
-        String msg = match ? "Missing class: {}" : "Visible class: {}";
-        for (Class<?> clazz : (Class<?>[]) annotation.get(type, "value")) {
+        final String msg = match ? "Missing class: {}" : "Visible class: {}";
+        for (final Class<?> clazz : (Class<?>[]) annotation.get(
+            type,
+            "value"
+        )) {
             try {
                 ClassUtil.loadClass(clazz.getName());
-            } catch (UtilException e) {
+            } catch (final UtilException e) {
                 if (log.isDebugEnabled()) {
                     log.debug(msg, clazz.getName());
                 }
                 return !match;
             }
         }
-        for (String name : (String[]) annotation.get(type, "name")) {
+        for (final String name : (String[]) annotation.get(type, "name")) {
             try {
                 ClassUtil.loadClass(name);
-            } catch (UtilException e) {
+            } catch (final UtilException e) {
                 if (log.isDebugEnabled()) {
                     log.debug(msg, name);
                 }

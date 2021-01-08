@@ -27,13 +27,17 @@ public class OnAttributeCondition implements Condition {
 
     @Override
     public boolean matches(
-        XkJava app,
-        AnnotatedElement element,
-        MergedAnnotation annotation
+        final XkJava app,
+        final AnnotatedElement element,
+        final MergedAnnotation annotation
     ) {
-        boolean match = annotation.hasAnnotation(ConditionalOnAttribute.class);
-        String msg = match ? "Missing attribute: {}" : "Visible attribute: {}";
-        for (String beanName : (String[]) annotation.get(
+        final boolean match = annotation.hasAnnotation(
+            ConditionalOnAttribute.class
+        );
+        final String msg = match
+            ? "Missing attribute: {}"
+            : "Visible attribute: {}";
+        for (final String beanName : (String[]) annotation.get(
             match
                 ? ConditionalOnAttribute.class
                 : ConditionalOnMissingAttribute.class,

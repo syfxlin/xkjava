@@ -5,7 +5,7 @@
 package me.ixk.framework.aop;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -17,6 +17,7 @@ import java.util.List;
  * @date 2020/10/14 上午 8:39
  */
 public class TargetSource {
+
     private final Class<?> targetType;
     private final Class<?>[] interfaces;
     private final Object target;
@@ -48,7 +49,7 @@ public class TargetSource {
 
     public List<Advice> getAdvices(Method method) {
         if (this.aspectManager == null) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         return this.aspectManager.getAdvices(method);
     }

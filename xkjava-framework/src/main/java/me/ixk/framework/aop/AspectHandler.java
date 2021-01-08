@@ -5,10 +5,13 @@
 package me.ixk.framework.aop;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.ioc.entity.AnnotatedEntry;
+import me.ixk.framework.ioc.entity.ParameterContext.ParameterEntry;
 import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.utils.ParameterNameDiscoverer;
 import net.sf.cglib.proxy.MethodProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +25,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 上午 8:15
  */
 public class AspectHandler {
+
     private static final Logger log = LoggerFactory.getLogger(
         AspectHandler.class
     );
@@ -145,15 +149,14 @@ public class AspectHandler {
     }
 
     public static class TargetInfo {
+
         private final Object target;
         private final Object[] args;
         private final MethodProxy methodProxy;
 
-        private final Class<?> clazz;
-        private final MergedAnnotation classAnnotation;
-
-        private final Method method;
-        private final MergedAnnotation methodAnnotation;
+        private final AnnotatedEntry<Class<?>> clazzEntry;
+        private final AnnotatedEntry<Method> methodEntry;
+        private final ParameterEntry[] parameterEntries;
 
         public TargetInfo(
             Object target,
@@ -163,12 +166,19 @@ public class AspectHandler {
             Object[] args
         ) {
             this.target = target;
-            this.clazz = clazz;
-            this.classAnnotation = AnnotationUtils.getAnnotation(clazz);
-            this.method = method;
-            this.methodAnnotation = AnnotationUtils.getAnnotation(method);
+            this.clazzEntry = new AnnotatedEntry<>(clazz);
+            this.methodEntry = new AnnotatedEntry<>(method);
             this.methodProxy = methodProxy;
             this.args = args;
+            final Parameter[] parameters = method.getParameters();
+            final String[] parameterNames = ParameterNameDiscoverer.getParameterNames(
+                method
+            );
+            this.parameterEntries = new ParameterEntry[parameters.length];
+            for (int i = 0; i < parameters.length; i++) {
+                this.parameterEntries[i] =
+                    new ParameterEntry(parameters[i], parameterNames[i]);
+            }
         }
 
         public Object getTarget() {
@@ -184,19 +194,23 @@ public class AspectHandler {
         }
 
         public Class<?> getClazz() {
-            return clazz;
+            return clazzEntry.getElement();
         }
 
         public MergedAnnotation getClassAnnotation() {
-            return classAnnotation;
+            return clazzEntry.getAnnotation();
         }
 
         public Method getMethod() {
-            return method;
+            return methodEntry.getElement();
         }
 
         public MergedAnnotation getMethodAnnotation() {
-            return methodAnnotation;
+            return methodEntry.getAnnotation();
+        }
+
+        public ParameterEntry[] getParameterEntries() {
+            return parameterEntries;
         }
     }
 }

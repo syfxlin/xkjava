@@ -21,6 +21,7 @@ import org.aspectj.weaver.tools.ShadowMatch;
  * @date 2020/10/14 上午 8:27
  */
 public class AspectPointcut {
+
     private static final Set<PointcutPrimitive> POINTCUT_PRIMITIVES = new HashSet<>();
 
     static {

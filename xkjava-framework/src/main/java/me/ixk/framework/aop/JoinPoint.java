@@ -6,6 +6,7 @@ package me.ixk.framework.aop;
 
 import java.lang.reflect.Method;
 import me.ixk.framework.aop.AspectHandler.TargetInfo;
+import me.ixk.framework.ioc.entity.ParameterContext.ParameterEntry;
 import me.ixk.framework.utils.MergedAnnotation;
 
 /**
@@ -17,6 +18,7 @@ import me.ixk.framework.utils.MergedAnnotation;
  * @date 2020/10/14 上午 8:32
  */
 public class JoinPoint {
+
     protected final AspectHandler handler;
 
     protected final TargetInfo info;
@@ -31,7 +33,7 @@ public class JoinPoint {
      */
     protected volatile Throwable error;
 
-    public JoinPoint(AspectHandler handler, TargetInfo info) {
+    public JoinPoint(final AspectHandler handler, final TargetInfo info) {
         this.handler = handler;
         this.info = info;
     }
@@ -52,7 +54,7 @@ public class JoinPoint {
         return returnValue;
     }
 
-    public void setReturn(Object returnValue) {
+    public void setReturn(final Object returnValue) {
         this.returnValue = returnValue;
     }
 
@@ -60,7 +62,7 @@ public class JoinPoint {
         return error;
     }
 
-    public void setError(Throwable error) {
+    public void setError(final Throwable error) {
         this.error = error;
     }
 
@@ -74,5 +76,13 @@ public class JoinPoint {
 
     public MergedAnnotation getClassAnnotation() {
         return this.info.getClassAnnotation();
+    }
+
+    public ParameterEntry[] getParameterEntries() {
+        return this.info.getParameterEntries();
+    }
+
+    public TargetInfo getInfo() {
+        return info;
     }
 }

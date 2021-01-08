@@ -39,15 +39,17 @@ public class ProcessAnnotation extends AbstractBootstrap {
             this.scanner.getTypesAnnotated(
                     me.ixk.framework.annotations.AnnotationProcessor.class
                 );
-        for (Class<?> processorType : processors) {
-            if (!AnnotationProcessor.class.isAssignableFrom(processorType)) {
-                log.error(
-                    "Classes marked by the AnnotationProcessor annotation should implement the AnnotationProcessor interface"
-                );
-                throw new AnnotationProcessorException(
-                    "Classes marked by the AnnotationProcessor annotation should implement the AnnotationProcessor interface"
-                );
-            }
+        if (
+            processors
+                .stream()
+                .noneMatch(AnnotationProcessor.class::isAssignableFrom)
+        ) {
+            log.error(
+                "Classes marked by the AnnotationProcessor annotation should implement the AnnotationProcessor interface"
+            );
+            throw new AnnotationProcessorException(
+                "Classes marked by the AnnotationProcessor annotation should implement the AnnotationProcessor interface"
+            );
         }
         AnnotationProcessorManager manager =
             this.app.annotationProcessorManager();

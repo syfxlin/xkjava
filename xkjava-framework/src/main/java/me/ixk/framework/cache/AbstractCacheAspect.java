@@ -11,7 +11,7 @@ import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 import me.ixk.framework.expression.BeanExpressionResolver;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.ParameterNameDiscoverer;
+import me.ixk.framework.ioc.entity.ParameterContext.ParameterEntry;
 
 /**
  * @author Otstar Lin
@@ -48,15 +48,13 @@ public abstract class AbstractCacheAspect implements Advice {
 
     protected Map<String, Object> getVariables(ProceedingJoinPoint joinPoint) {
         // 生成用于 EL 语句的变量
-        final String[] names = ParameterNameDiscoverer.getParameterNames(
-            joinPoint.getMethod()
-        );
         final Object[] args = joinPoint.getArgs();
+        final ParameterEntry[] parameterEntries = joinPoint.getParameterEntries();
         final Map<String, Object> variables = new ConcurrentHashMap<>(
             args.length + 1
         );
-        for (int i = 0; i < names.length; i++) {
-            variables.put(names[i], args[i]);
+        for (int i = 0; i < parameterEntries.length; i++) {
+            variables.put(parameterEntries[i].getName(), args[i]);
         }
         variables.put("joinPoint", joinPoint);
         return variables;

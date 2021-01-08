@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 @Aspect("@annotation(me.ixk.framework.annotations.Transactional)")
 public class TransactionalAspect implements Advice {
+
     private static final Logger log = LoggerFactory.getLogger(
         TransactionalAspect.class
     );
