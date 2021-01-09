@@ -200,7 +200,7 @@ public class AnnotationUtils {
         annotationMap.put(
             annotationType,
             Collections.singletonList(
-                mergeAnnotationValue(annotation, annotationMap, overwriteMap)
+                mergeAnnotationValue(annotation, overwriteMap)
             )
         );
         walkAnnotation(annotationType, annotationMap, overwriteMap);
@@ -238,9 +238,7 @@ public class AnnotationUtils {
             for (Annotation item : element.getAnnotationsByType(
                 annotationType
             )) {
-                annotations.add(
-                    mergeAnnotationValue(item, annotationMap, overwriteMap)
-                );
+                annotations.add(mergeAnnotationValue(item, overwriteMap));
             }
             annotationMap.put(annotationType, annotations);
             // 处理重复注解
@@ -256,9 +254,7 @@ public class AnnotationUtils {
                     annotation,
                     "value"
                 )) {
-                    itemList.add(
-                        mergeAnnotationValue(item, annotationMap, overwriteMap)
-                    );
+                    itemList.add(mergeAnnotationValue(item, overwriteMap));
                 }
                 annotationMap.put(repeatItem, itemList);
             }
@@ -269,7 +265,6 @@ public class AnnotationUtils {
 
     private static Map<String, Object> mergeAnnotationValue(
         final Annotation annotation,
-        final Map<Class<? extends Annotation>, List<Map<String, Object>>> annotationMap,
         final Map<Class<? extends Annotation>, Map<String, Object>> overwriteMap
     ) {
         final Class<? extends Annotation> annotationType = annotation.annotationType();
