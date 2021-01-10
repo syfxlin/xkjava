@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.CrossOrigin;
 import me.ixk.framework.http.HttpHeader;
 import me.ixk.framework.http.HttpMethod;
-import me.ixk.framework.http.Request;
-import me.ixk.framework.http.Response;
 
 /**
  * CORS 处理器
@@ -30,43 +30,46 @@ public class CorsProcessor {
 
     public void processRequest(
         CrossOrigin crossOrigin,
-        Request request,
-        Response response
+        HttpServletRequest request,
+        HttpServletResponse response
     ) {
         this.processRequest(new Configuration(crossOrigin), request, response);
     }
 
     public void processRequest(
         Configuration config,
-        final Request request,
-        final Response response
+        final HttpServletRequest request,
+        final HttpServletResponse response
     ) {
-        response.header(
-            HttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN,
+        response.addHeader(
+            HttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.asString(),
             config.getAllowedOrigin(request)
         );
-        response.header(
-            HttpHeader.ACCESS_CONTROL_ALLOW_METHODS,
+        response.addHeader(
+            HttpHeader.ACCESS_CONTROL_ALLOW_METHODS.asString(),
             config.getAllowedMethods()
         );
-        response.header(
-            HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS,
+        response.addHeader(
+            HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.asString(),
             config.getAllowedHeaders()
         );
         final String allowCredentials = config.getAllowCredentials();
         if (allowCredentials != null) {
-            response.header(
-                HttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS,
+            response.addHeader(
+                HttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.asString(),
                 allowCredentials
             );
         }
     }
 
-    public boolean isPreFlightRequest(Request request) {
+    public boolean isPreFlightRequest(HttpServletRequest request) {
         return (
             HttpMethod.OPTIONS.is(request.getMethod()) &&
-            request.header(HttpHeader.ORIGIN) != null &&
-            request.header(HttpHeader.ACCESS_CONTROL_REQUEST_METHOD) != null
+            request.getHeader(HttpHeader.ORIGIN.asString()) != null &&
+            request.getHeader(
+                HttpHeader.ACCESS_CONTROL_REQUEST_METHOD.asString()
+            ) !=
+            null
         );
     }
 
@@ -105,9 +108,9 @@ public class CorsProcessor {
             this.allowCredentials = crossOrigin.allowCredentials();
         }
 
-        public String getAllowedOrigin(Request request) {
+        public String getAllowedOrigin(HttpServletRequest request) {
             return DYNAMIC_ORIGIN.equalsIgnoreCase(this.allowedOrigin)
-                ? request.header(HttpHeader.ORIGIN)
+                ? request.getHeader(HttpHeader.ORIGIN.asString())
                 : this.allowedOrigin;
         }
 

@@ -7,7 +7,6 @@ package me.ixk.framework.ioc.context;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import javax.servlet.http.HttpSession;
-import me.ixk.framework.utils.DataUtils;
 
 /**
  * SessionAttributeContext
@@ -16,10 +15,8 @@ import me.ixk.framework.utils.DataUtils;
  * @date 2020/10/26 下午 2:40
  */
 public interface SessionAttributeContext extends Context {
-    String INSTANCE_ATTRIBUTE_NAME = DataUtils.attributeName(
-        SessionAttributeContext.class,
-        "INSTANCE_ATTRIBUTE_NAME"
-    );
+    String INSTANCE_ATTRIBUTE_NAME =
+        SessionAttributeContext.class.getName() + ".INSTANCE_ATTRIBUTE_NAME";
 
     /**
      * 删除 Context
@@ -63,5 +60,10 @@ public interface SessionAttributeContext extends Context {
             this.getContext().setAttribute(INSTANCE_ATTRIBUTE_NAME, instances);
         }
         return instances;
+    }
+
+    @Override
+    default boolean useProxy() {
+        return true;
     }
 }

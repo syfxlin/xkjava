@@ -36,7 +36,6 @@ public interface Server {
      *
      * @param name   过滤器名称
      * @param filter 过滤器
-     *
      * @return Dynamic
      */
     default FilterRegistration.Dynamic addFilter(String name, Filter filter) {
@@ -71,7 +70,6 @@ public interface Server {
      *
      * @param name    Servlet 名称
      * @param servlet Servlet
-     *
      * @return Dynamic
      */
     default ServletRegistration.Dynamic addServlet(

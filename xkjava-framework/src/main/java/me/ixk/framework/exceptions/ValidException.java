@@ -18,22 +18,27 @@ import me.ixk.framework.utils.ValidResult;
  */
 public class ValidException extends HttpException {
 
-    public ValidException(ValidGroup validGroup) {
+    private static final long serialVersionUID = -7116939456564563129L;
+
+    public ValidException(final ValidGroup validGroup) {
         super(HttpStatus.BAD_REQUEST, getErrorMessage(validGroup));
     }
 
-    public ValidException(ValidGroup validGroup, Throwable cause) {
+    public ValidException(final ValidGroup validGroup, final Throwable cause) {
         super(HttpStatus.BAD_REQUEST, getErrorMessage(validGroup), cause);
     }
 
-    public ValidException(ValidGroup validGroup, Map<String, String> headers) {
+    public ValidException(
+        final ValidGroup validGroup,
+        final Map<String, String> headers
+    ) {
         super(HttpStatus.BAD_REQUEST, getErrorMessage(validGroup), headers);
     }
 
     public ValidException(
-        ValidGroup validGroup,
-        Map<String, String> headers,
-        Throwable cause
+        final ValidGroup validGroup,
+        final Map<String, String> headers,
+        final Throwable cause
     ) {
         super(
             HttpStatus.BAD_REQUEST,
@@ -43,17 +48,17 @@ public class ValidException extends HttpException {
         );
     }
 
-    protected static String getErrorMessage(ValidGroup validGroup) {
-        Map<String, ValidResult<Object>> errors = validGroup.getErrors();
-        StringBuilder builder = new StringBuilder(
+    protected static String getErrorMessage(final ValidGroup validGroup) {
+        final Map<String, ValidResult<Object>> errors = validGroup.getErrors();
+        final StringBuilder builder = new StringBuilder(
             "Validation failed. Error count: " + errors.size() + "\n"
         );
-        for (Map.Entry<String, ValidResult<Object>> entry : errors.entrySet()) {
-            ValidResult<Object> result = entry.getValue();
-            for (Map.Entry<String, ConstraintViolation<Object>> fieldEntry : result
+        for (final Map.Entry<String, ValidResult<Object>> entry : errors.entrySet()) {
+            final ValidResult<Object> result = entry.getValue();
+            for (final Map.Entry<String, ConstraintViolation<Object>> fieldEntry : result
                 .getErrors()
                 .entrySet()) {
-                ConstraintViolation<Object> violation = fieldEntry.getValue();
+                final ConstraintViolation<Object> violation = fieldEntry.getValue();
                 builder.append("Field error in object '");
                 builder.append(entry.getKey());
                 builder.append("' on field '");

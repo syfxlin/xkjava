@@ -5,8 +5,6 @@
 package me.ixk.framework.ioc.context;
 
 import javax.servlet.http.HttpServletRequest;
-import me.ixk.framework.ioc.factory.ObjectFactory;
-import me.ixk.framework.utils.ReflectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,22 +55,5 @@ public class RequestContext implements RequestAttributeContext {
     @Override
     public boolean matchesScope(final String scopeType) {
         return ScopeType.REQUEST.equalsIgnoreCase(scopeType);
-    }
-
-    @Override
-    public Object get(final String name) {
-        return this.getNotProxy(name);
-    }
-
-    @Override
-    public Object get(final String name, final Class<?> returnType) {
-        return ReflectUtils.proxyObjectFactory(
-            (ObjectFactory<Object>) () -> this.getNotProxy(name),
-            returnType
-        );
-    }
-
-    public Object getNotProxy(final String name) {
-        return this.getInstances().get(name);
     }
 }

@@ -17,12 +17,16 @@ import javax.validation.ConstraintViolation;
  * @date 2020/10/14 下午 5:15
  */
 public class ValidResult<T> {
+
     private final T target;
     private final Map<String, ConstraintViolation<T>> errors = new ConcurrentHashMap<>();
 
-    public ValidResult(T target, Set<ConstraintViolation<T>> violationSet) {
+    public ValidResult(
+        final T target,
+        final Set<ConstraintViolation<T>> violationSet
+    ) {
         this.target = target;
-        for (ConstraintViolation<T> violation : violationSet) {
+        for (final ConstraintViolation<T> violation : violationSet) {
             this.errors.put(violation.getPropertyPath().toString(), violation);
         }
     }
@@ -53,8 +57,8 @@ public class ValidResult<T> {
     }
 
     public Map<String, String> getErrorMessages() {
-        Map<String, String> map = new ConcurrentHashMap<>();
-        for (Map.Entry<String, ConstraintViolation<T>> entry : this.errors.entrySet()) {
+        final Map<String, String> map = new ConcurrentHashMap<>();
+        for (final Map.Entry<String, ConstraintViolation<T>> entry : this.errors.entrySet()) {
             map.put(entry.getKey(), entry.getValue().getMessage());
         }
         return map;
@@ -64,20 +68,20 @@ public class ValidResult<T> {
         return errors;
     }
 
-    public ConstraintViolation<T> getViolation(String name) {
+    public ConstraintViolation<T> getViolation(final String name) {
         return this.errors.get(name);
     }
 
-    public String getMessage(String name) {
-        ConstraintViolation<T> violation = this.getViolation(name);
+    public String getMessage(final String name) {
+        final ConstraintViolation<T> violation = this.getViolation(name);
         if (violation == null) {
             return null;
         }
         return violation.getMessage();
     }
 
-    public Object getInvalidValue(String name) {
-        ConstraintViolation<T> violation = this.getViolation(name);
+    public Object getInvalidValue(final String name) {
+        final ConstraintViolation<T> violation = this.getViolation(name);
         if (violation == null) {
             return null;
         }

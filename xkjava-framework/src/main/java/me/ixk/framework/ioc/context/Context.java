@@ -13,11 +13,12 @@ import java.util.concurrent.ConcurrentMap;
  * @date 2020/10/25 下午 9:27
  */
 public interface Context {
+    String PROXY_SOURCE_PREFIX = "$$";
+
     /**
      * 是否匹配作用域类型
      *
      * @param scopeType 作用域类型
-     *
      * @return 是否匹配
      */
     boolean matchesScope(String scopeType);
@@ -26,7 +27,6 @@ public interface Context {
      * 是否是共享的，即单例
      *
      * @param scopeType 作用域类型
-     *
      * @return 是否
      */
     default boolean isShared(String scopeType) {
@@ -43,6 +43,15 @@ public interface Context {
     }
 
     /**
+     * 是否需要代理
+     *
+     * @return 是否需要代理
+     */
+    default boolean useProxy() {
+        return false;
+    }
+
+    /**
      * 获取所有实例
      *
      * @return 所有实例
@@ -53,22 +62,9 @@ public interface Context {
      * 获取实例
      *
      * @param name 实例名称
-     *
      * @return 实例
      */
     default Object get(final String name) {
-        return this.get(name, Object.class);
-    }
-
-    /**
-     * 获取实例
-     *
-     * @param name       实例名称
-     * @param returnType 类型
-     *
-     * @return 实例
-     */
-    default Object get(final String name, final Class<?> returnType) {
         return this.getInstances().get(name);
     }
 
@@ -95,7 +91,6 @@ public interface Context {
      * 是否存在实例
      *
      * @param name 实例名称
-     *
      * @return 是否存在
      */
     default boolean has(final String name) {

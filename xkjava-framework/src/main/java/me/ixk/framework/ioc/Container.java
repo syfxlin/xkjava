@@ -828,10 +828,10 @@ public class Container {
             if (instance != null) {
                 return Convert.convert(returnType, instance);
             }
+            Binding finalBinding = binding;
             try {
                 FactoryBean<?> factoryBean = binding.getFactoryBean();
                 if (factoryBean == null) {
-                    Binding finalBinding = binding;
                     factoryBean =
                         new FactoryBean<>() {
                             @Override
@@ -849,7 +849,7 @@ public class Container {
             } catch (final Throwable e) {
                 throw new ContainerException("Instance make failed", e);
             }
-            final T returnInstance = Convert.convert(returnType, instance);
+            T returnInstance = Convert.convert(returnType, instance);
             if (binding.isShared()) {
                 binding.setSource(returnInstance);
             }

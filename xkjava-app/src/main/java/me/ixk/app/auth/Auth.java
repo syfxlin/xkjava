@@ -10,6 +10,7 @@ import static me.ixk.framework.helpers.Facade.session;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.app.entity.LoginUser;
 import me.ixk.app.entity.RegisterUser;
@@ -20,7 +21,6 @@ import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.http.SetCookie;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.context.ScopeType;
-import me.ixk.framework.utils.DataUtils;
 import me.ixk.framework.utils.ValidResult;
 import me.ixk.framework.utils.Validation;
 
@@ -137,7 +137,7 @@ public class Auth {
     protected void updateRememberToken(Users user) {
         String token = user.getRememberToken();
         if (token == null || token.length() == 0) {
-            token = DataUtils.strRandom(40);
+            token = UUID.randomUUID().toString();
             user.setRememberToken(token);
             this.usersService.updateById(user);
         }

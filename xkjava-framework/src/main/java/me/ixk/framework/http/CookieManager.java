@@ -14,8 +14,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Cookie 管理器
  * <p>
- * 用于获取 Cookie 和临时设置 Cookie，临时设置的 Cookie 会在响应发出前才插入到 Response，所以在响应发出前都可以修改
- * Cookie 及其设置
+ * 用于获取 Cookie 和临时设置 Cookie，临时设置的 Cookie 会在响应发出前才插入到 Response，所以在响应发出前都可以修改 Cookie 及其设置
  *
  * @author Otstar Lin
  * @date 2020/10/14 上午 9:12
@@ -39,26 +38,26 @@ public class CookieManager {
         this(null, null);
     }
 
-    public CookieManager(Request request, Response response) {
+    public CookieManager(final Request request, final Response response) {
         this.request = request;
         this.response = response;
     }
 
-    public boolean has(String name) {
+    public boolean has(final String name) {
         return this.request.hasCookie(name);
     }
 
-    public Cookie get(String name) {
+    public Cookie get(final String name) {
         return this.request.cookie(name);
     }
 
-    public Cookie get(String name, Cookie defaultValue) {
+    public Cookie get(final String name, final Cookie defaultValue) {
         return this.request.cookie(name, defaultValue);
     }
 
     /* ===================================== */
 
-    public CookieManager put(Cookie cookie) {
+    public CookieManager put(final Cookie cookie) {
         if (log.isDebugEnabled()) {
             log.debug("Add cookie to queue: {}", cookie);
         }
@@ -66,20 +65,20 @@ public class CookieManager {
         return this;
     }
 
-    public CookieManager forever(Cookie cookie) {
+    public CookieManager forever(final Cookie cookie) {
         cookie.setMaxAge(157788000);
         this.put(cookie);
         return this;
     }
 
-    public CookieManager forget(String name) {
-        SetCookie cookie = new SetCookie(name, "");
+    public CookieManager forget(final String name) {
+        final SetCookie cookie = new SetCookie(name, "");
         cookie.setMaxAge(1);
         this.put(cookie);
         return this;
     }
 
-    public CookieManager queue(SetCookie cookie) {
+    public CookieManager queue(final SetCookie cookie) {
         this.put(cookie);
         return this;
     }

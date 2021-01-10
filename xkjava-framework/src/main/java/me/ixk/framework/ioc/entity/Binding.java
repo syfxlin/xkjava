@@ -15,7 +15,9 @@ import me.ixk.framework.annotations.PreDestroy;
 import me.ixk.framework.annotations.Primary;
 import me.ixk.framework.ioc.context.Context;
 import me.ixk.framework.ioc.factory.FactoryBean;
+import me.ixk.framework.ioc.factory.ObjectFactory;
 import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.utils.ReflectUtils;
 import me.ixk.framework.utils.SoftCache;
 
 /**
@@ -111,18 +113,25 @@ public class Binding {
     }
 
     private Object getSourceUnsafe() {
-        final Class<?> instanceType = this.instanceTypeEntry.getElement();
-        return this.isCreated()
-            ? this.context.get(
-                    name,
-                    instanceType == null ? Object.class : instanceType
-                )
-            : null;
+        return this.isCreated() ? this.context.get(name) : null;
     }
 
     public void setSource(final Object instance) {
         synchronized (this.getMutex()) {
-            this.context.set(name, instance);
+            if (this.useProxy()) {
+                final String sourceName = Context.PROXY_SOURCE_PREFIX + name;
+                this.context.set(sourceName, instance);
+                this.context.set(
+                        name,
+                        ReflectUtils.proxyObjectFactory(
+                            (ObjectFactory<Object>) () ->
+                                this.context.get(sourceName),
+                            this.getType()
+                        )
+                    );
+            } else {
+                this.context.set(name, instance);
+            }
         }
     }
 
@@ -146,6 +155,10 @@ public class Binding {
 
     public boolean isShared() {
         return this.context.isShared(scope);
+    }
+
+    public boolean useProxy() {
+        return this.context.useProxy();
     }
 
     public Object getMutex() {

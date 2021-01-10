@@ -7,7 +7,6 @@ package me.ixk.framework.ioc.context;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import javax.servlet.http.HttpServletRequest;
-import me.ixk.framework.utils.DataUtils;
 
 /**
  * RequestAttributeContext
@@ -16,10 +15,8 @@ import me.ixk.framework.utils.DataUtils;
  * @date 2020/10/14 下午 12:39
  */
 public interface RequestAttributeContext extends Context {
-    String INSTANCE_ATTRIBUTE_NAME = DataUtils.attributeName(
-        RequestAttributeContext.class,
-        "INSTANCE_ATTRIBUTE_NAME"
-    );
+    String INSTANCE_ATTRIBUTE_NAME =
+        RequestAttributeContext.class.getName() + ".INSTANCE_ATTRIBUTE_NAME";
 
     /**
      * 删除 Context
@@ -64,4 +61,9 @@ public interface RequestAttributeContext extends Context {
      */
     @Override
     boolean isCreated();
+
+    @Override
+    default boolean useProxy() {
+        return true;
+    }
 }

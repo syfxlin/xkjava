@@ -6,13 +6,13 @@ package me.ixk.framework.http;
 
 import java.util.Enumeration;
 import java.util.List;
+import java.util.UUID;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.ioc.context.ScopeType;
 import me.ixk.framework.utils.Convert;
-import me.ixk.framework.utils.DataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,7 +115,7 @@ public class SessionManager {
     }
 
     public String regenerateToken() {
-        String token = DataUtils.strRandom(40);
+        String token = UUID.randomUUID().toString();
         this.put("_token", token);
         return token;
     }

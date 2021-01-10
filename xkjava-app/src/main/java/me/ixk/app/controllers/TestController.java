@@ -35,6 +35,7 @@ import me.ixk.framework.http.Model;
 import me.ixk.framework.http.result.FileResult;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.StreamResult;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.binder.DataBinder.Converter;
 import me.ixk.framework.ioc.factory.ObjectProvider;
 import me.ixk.framework.ioc.type.TypeWrapper;
@@ -43,10 +44,18 @@ import me.ixk.framework.utils.ResourceUtils;
 import me.ixk.framework.utils.ValidGroup;
 import me.ixk.framework.utils.ValidResult;
 import me.ixk.framework.web.WebDataBinder;
+import me.ixk.framework.web.async.WebAsyncManager;
+import me.ixk.framework.web.async.WebAsyncTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 @RequestMapping("/test")
 public class TestController {
+
+    private static final Logger log = LoggerFactory.getLogger(
+        TestController.class
+    );
 
     @Autowired
     List<Advice> list;
@@ -109,7 +118,7 @@ public class TestController {
 
     @PostMapping("/body")
     public String body(
-        @DataBind(name = "&BODY") final JsonNode body,
+        @DataBind(name = "&body") final JsonNode body,
         @DataBind final User2 user2,
         @DataBind(name = "request") final HttpServletRequest request
     ) {
@@ -200,6 +209,21 @@ public class TestController {
     @GetMapping("/file")
     public FileResult file() {
         return Result.file("file:/E:/Data/Videos/天气之子/天气之子.mp4");
+    }
+
+    @GetMapping("/async")
+    public void async() {
+        XkJava
+            .of()
+            .make(WebAsyncManager.class)
+            .startAsync(
+                new WebAsyncTask<>(
+                    () -> {
+                        log.info("WebAsyncTask");
+                        return "result";
+                    }
+                )
+            );
     }
 
     @InitBinder

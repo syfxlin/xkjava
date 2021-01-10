@@ -10,7 +10,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import me.ixk.framework.annotations.Aspect;
 import me.ixk.framework.annotations.Async;
@@ -49,9 +48,9 @@ public class AsyncAspect implements Advice {
             .getMethodAnnotation()
             .getAnnotation(Async.class);
 
-        ExecutorService executor = null;
+        AsyncTaskExecutor executor = null;
         if (async != null && !async.value().isEmpty()) {
-            executor = this.app.make(async.value(), ExecutorService.class);
+            executor = this.app.make(async.value(), AsyncTaskExecutor.class);
         }
         if (executor == null) {
             executor = DEFAULT_TASK_EXECUTOR;
@@ -75,7 +74,7 @@ public class AsyncAspect implements Advice {
 
     private Object submit(
         Callable<Object> task,
-        ExecutorService executor,
+        AsyncTaskExecutor executor,
         Class<?> returnType
     ) {
         if (CompletableFuture.class.isAssignableFrom(returnType)) {

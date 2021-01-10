@@ -14,15 +14,20 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.servlet.AsyncContext;
+import javax.servlet.AsyncEvent;
+import javax.servlet.AsyncListener;
 import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -52,14 +57,16 @@ import me.ixk.framework.utils.Json;
  */
 @Component(name = { "request" })
 @Scope(ScopeType.REQUEST)
-public class Request extends HttpServletRequestWrapper {
+public class Request
+    extends HttpServletRequestWrapper
+    implements AsyncListener {
 
-    private static final HttpServletRequest EMPTY = new EmptyRequest();
-    public static final String REQUEST_BODY = "&BODY";
-    protected volatile String body;
-    protected volatile JsonNode parseBody = null;
-    protected Map<String, Cookie> cookies;
-    protected volatile RouteInfo route;
+    public static final HttpServletRequest EMPTY = new EmptyRequest();
+    public static final String REQUEST_BODY = "&body";
+    private static final String REQUEST_WRAPPER_VALUE =
+        Request.class.getName() + ".requestWrapperValue";
+
+    private RequestWrapperValue wrapperValue;
 
     /**
      * Only used cglib
@@ -71,29 +78,38 @@ public class Request extends HttpServletRequestWrapper {
 
     public Request(final HttpServletRequest request) {
         super(request);
-        this.init();
+        this.wrapperValue =
+            (RequestWrapperValue) this.getAttribute(REQUEST_WRAPPER_VALUE);
+        if (this.wrapperValue == null) {
+            this.wrapperValue = new RequestWrapperValue();
+            this.init();
+            this.setAttribute(REQUEST_WRAPPER_VALUE, this.wrapperValue);
+        }
     }
 
     protected void init() {
         // JSON parse
         if (this.isJson()) {
+            String body = null;
             try {
-                this.body =
+                body =
                     IoUtil.read(
                         this.getInputStream(),
                         this.getCharacterEncoding()
                     );
             } catch (final IOException e) {
-                this.body = null;
+                // ignore
             }
-            this.parseBody = Json.parse(this.body);
+            this.wrapperValue.setBody(body);
+            this.wrapperValue.setParseBody(Json.parse(body));
         }
         // Cookies
         final Cookie[] cookies = this.getCookies();
-        this.cookies = new ConcurrentHashMap<>(cookies.length);
+        Map<String, Cookie> cookieMap = new ConcurrentHashMap<>(cookies.length);
         for (final Cookie cookie : cookies) {
-            this.cookies.put(cookie.getName(), cookie);
+            cookieMap.put(cookie.getName(), cookie);
         }
+        this.wrapperValue.setCookies(cookieMap);
     }
 
     private boolean isJson() {
@@ -115,20 +131,20 @@ public class Request extends HttpServletRequestWrapper {
     }
 
     public RouteInfo getRoute() {
-        return route;
+        return this.wrapperValue.getRoute();
     }
 
     public Request setRoute(final RouteInfo route) {
-        this.route = route;
+        this.wrapperValue.setRoute(route);
         return this;
     }
 
     public String getBody() {
-        return body;
+        return this.wrapperValue.getBody();
     }
 
     public JsonNode getParseBody() {
-        return parseBody;
+        return this.wrapperValue.getParseBody();
     }
 
     protected <T> T getOrDefault(final T result, final T defaultValue) {
@@ -212,7 +228,8 @@ public class Request extends HttpServletRequestWrapper {
 
     public JsonNode json() {
         final JsonNode node;
-        if (this.parseBody == null) {
+        JsonNode parseBody = this.getParseBody();
+        if (parseBody == null) {
             node =
                 Json.convertToNode(
                     this.getParameterMap()
@@ -229,7 +246,7 @@ public class Request extends HttpServletRequestWrapper {
                         )
                 );
         } else {
-            node = this.parseBody;
+            node = parseBody;
         }
         return node == null || node.isNull() ? null : node;
     }
@@ -262,7 +279,7 @@ public class Request extends HttpServletRequestWrapper {
     }
 
     public String route(final String name, final String defaultValue) {
-        return this.route.getParams().getOrDefault(name, defaultValue);
+        return this.getRoute().getParams().getOrDefault(name, defaultValue);
     }
 
     /* ================ cookie ============== */
@@ -272,11 +289,11 @@ public class Request extends HttpServletRequestWrapper {
     }
 
     public Cookie cookie(final String name) {
-        return this.cookies.get(name);
+        return this.wrapperValue.getCookies().get(name);
     }
 
     public Cookie cookie(final String name, final Cookie defaultValue) {
-        return this.cookies.getOrDefault(name, defaultValue);
+        return this.wrapperValue.getCookies().getOrDefault(name, defaultValue);
     }
 
     /* ================ session ============== */
@@ -462,6 +479,149 @@ public class Request extends HttpServletRequestWrapper {
     public Cookie[] getCookies() {
         final Cookie[] cookies = super.getCookies();
         return cookies == null ? new Cookie[0] : cookies;
+    }
+
+    /* ================ async ============== */
+
+    @Override
+    public AsyncContext startAsync() throws IllegalStateException {
+        if (this.isAsyncStarted()) {
+            return this.getAsyncContext();
+        }
+        final AsyncContext asyncContext = super.startAsync();
+        asyncContext.addListener(this);
+        Long timeout = this.wrapperValue.getTimeout();
+        if (timeout != null) {
+            asyncContext.setTimeout(timeout);
+        }
+        return asyncContext;
+    }
+
+    public void complete() {
+        if (this.isAsyncStarted()) {
+            this.getAsyncContext().complete();
+        }
+    }
+
+    public void dispatch() {
+        if (this.isAsyncStarted()) {
+            this.getAsyncContext().dispatch();
+        }
+    }
+
+    public void setTimeout(Long timeout) {
+        this.wrapperValue.setTimeout(timeout);
+    }
+
+    public Long getTimeout() {
+        return this.wrapperValue.getTimeout();
+    }
+
+    @Override
+    public void onComplete(AsyncEvent event) throws IOException {
+        this.wrapperValue.getCompletionHandlers().forEach(Runnable::run);
+    }
+
+    @Override
+    public void onTimeout(AsyncEvent event) throws IOException {
+        this.wrapperValue.getTimeoutHandlers().forEach(Runnable::run);
+    }
+
+    @Override
+    public void onError(AsyncEvent event) throws IOException {
+        this.wrapperValue.getExceptionHandlers()
+            .forEach(consumer -> consumer.accept(event.getThrowable()));
+    }
+
+    @Override
+    public void onStartAsync(AsyncEvent event) throws IOException {}
+
+    public void addTimeoutHandler(Runnable timeoutHandler) {
+        this.wrapperValue.addTimeoutHandler(timeoutHandler);
+    }
+
+    public void addErrorHandler(Consumer<Throwable> exceptionHandler) {
+        this.wrapperValue.addErrorHandler(exceptionHandler);
+    }
+
+    public void addCompletionHandler(Runnable runnable) {
+        this.wrapperValue.addCompletionHandler(runnable);
+    }
+
+    public static class RequestWrapperValue {
+
+        private String body;
+        private JsonNode parseBody = null;
+        private Map<String, Cookie> cookies;
+        private RouteInfo route;
+        private Long timeout;
+        private final List<Runnable> timeoutHandlers = new ArrayList<>();
+        private final List<Consumer<Throwable>> exceptionHandlers = new ArrayList<>();
+        private final List<Runnable> completionHandlers = new ArrayList<>();
+
+        public void setBody(String body) {
+            this.body = body;
+        }
+
+        public void setParseBody(JsonNode parseBody) {
+            this.parseBody = parseBody;
+        }
+
+        public void setCookies(Map<String, Cookie> cookies) {
+            this.cookies = cookies;
+        }
+
+        public void setRoute(RouteInfo route) {
+            this.route = route;
+        }
+
+        public void setTimeout(Long timeout) {
+            this.timeout = timeout;
+        }
+
+        public String getBody() {
+            return body;
+        }
+
+        public JsonNode getParseBody() {
+            return parseBody;
+        }
+
+        public Map<String, Cookie> getCookies() {
+            return cookies;
+        }
+
+        public RouteInfo getRoute() {
+            return route;
+        }
+
+        public Long getTimeout() {
+            return timeout;
+        }
+
+        public List<Runnable> getTimeoutHandlers() {
+            return timeoutHandlers;
+        }
+
+        public List<Consumer<Throwable>> getExceptionHandlers() {
+            return exceptionHandlers;
+        }
+
+        public List<Runnable> getCompletionHandlers() {
+            return completionHandlers;
+        }
+
+        public void addTimeoutHandler(Runnable timeoutHandler) {
+            this.timeoutHandlers.add(timeoutHandler);
+        }
+
+        public void addErrorHandler(Consumer<Throwable> exceptionHandler) {
+            this.exceptionHandlers.add(exceptionHandler);
+        }
+
+        public void addCompletionHandler(Runnable runnable) {
+            this.completionHandlers.add(runnable);
+        }
     }
 
     private static class EmptyRequest implements HttpServletRequest {

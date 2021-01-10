@@ -21,7 +21,6 @@ import me.ixk.framework.property.CompositePropertySource;
 import me.ixk.framework.property.Environment;
 import me.ixk.framework.property.MapPropertySource;
 import me.ixk.framework.property.PropertiesPropertySource;
-import me.ixk.framework.utils.DataUtils;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ResourceUtils;
 
@@ -35,14 +34,10 @@ import me.ixk.framework.utils.ResourceUtils;
 @Order(Order.HIGHEST_PRECEDENCE)
 public class PropertiesProcessor implements BeforeInjectProcessor {
 
-    public static final String PROPERTIES_PREFIX = DataUtils.attributeName(
-        PropertiesProcessor.class,
-        "PREFIX"
-    );
-    public static final String PROPERTIES = DataUtils.attributeName(
-        PropertiesProcessor.class,
-        "PROPERTIES"
-    );
+    public static final String PROPERTIES_PREFIX =
+        PropertiesProcessor.class.getName() + ".PREFIX";
+    public static final String PROPERTIES =
+        PropertiesProcessor.class.getName() + ".PROPERTIES";
     protected static final String PROPERTIES_SPLIT = ".";
 
     @Override

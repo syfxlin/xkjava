@@ -11,8 +11,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.http.HttpMethod;
-import me.ixk.framework.http.Request;
-import me.ixk.framework.http.Response;
 
 /**
  * AbstractFrameworkServlet
@@ -22,19 +20,26 @@ import me.ixk.framework.http.Response;
  */
 public abstract class AbstractFrameworkServlet extends HttpServlet {
 
-    protected abstract void dispatch(Request request, Response response);
+    private static final long serialVersionUID = 3052185294763480615L;
 
-    protected final void processRequest(
+    protected abstract void dispatch(
         HttpServletRequest request,
         HttpServletResponse response
+    );
+
+    protected final void processRequest(
+        final HttpServletRequest request,
+        final HttpServletResponse response
     ) {
-        this.dispatch((Request) request, (Response) response);
+        this.dispatch(request, response);
     }
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
-        String httpMethod = req.getMethod();
+    protected void service(
+        final HttpServletRequest req,
+        final HttpServletResponse resp
+    ) throws ServletException, IOException {
+        final String httpMethod = req.getMethod();
         if (
             httpMethod == null || HttpMethod.PATCH.asString().equals(httpMethod)
         ) {
@@ -45,39 +50,58 @@ public abstract class AbstractFrameworkServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doGet(
+        final HttpServletRequest req,
+        final HttpServletResponse resp
+    ) {
         this.processRequest(req, resp);
     }
 
     @Override
-    protected void doHead(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doHead(
+        final HttpServletRequest req,
+        final HttpServletResponse resp
+    ) {
         this.processRequest(req, resp);
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doPost(
+        final HttpServletRequest req,
+        final HttpServletResponse resp
+    ) {
         this.processRequest(req, resp);
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doPut(
+        final HttpServletRequest req,
+        final HttpServletResponse resp
+    ) {
         this.processRequest(req, resp);
     }
 
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doDelete(
+        final HttpServletRequest req,
+        final HttpServletResponse resp
+    ) {
         this.processRequest(req, resp);
     }
 
     @Override
-    protected void doOptions(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
+    protected void doOptions(
+        final HttpServletRequest req,
+        final HttpServletResponse resp
+    ) throws ServletException, IOException {
         super.doOptions(req, resp);
     }
 
     @Override
-    protected void doTrace(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
+    protected void doTrace(
+        final HttpServletRequest req,
+        final HttpServletResponse resp
+    ) throws ServletException, IOException {
         super.doTrace(req, resp);
     }
 
@@ -87,7 +111,7 @@ public abstract class AbstractFrameworkServlet extends HttpServlet {
     }
 
     @Override
-    public void init(ServletConfig config) throws ServletException {
+    public void init(final ServletConfig config) throws ServletException {
         super.init(config);
     }
 

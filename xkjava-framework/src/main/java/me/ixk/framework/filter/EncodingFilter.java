@@ -19,7 +19,7 @@ import me.ixk.framework.annotations.Order;
  * @author Otstar Lin
  * @date 2020/10/30 下午 10:45
  */
-@Filter(url = "/*")
+@Filter(url = "/*", asyncSupported = true)
 @Order(Order.HIGHEST_PRECEDENCE)
 public class EncodingFilter extends GenericFilter {
 

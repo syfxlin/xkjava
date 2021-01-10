@@ -14,7 +14,9 @@ import javax.servlet.http.Cookie;
  */
 public class SetCookie extends Cookie {
 
-    public SetCookie(Cookie cookie) {
+    private static final long serialVersionUID = -3838921053220689617L;
+
+    public SetCookie(final Cookie cookie) {
         this(
             cookie.getName(),
             cookie.getValue(),
@@ -28,44 +30,53 @@ public class SetCookie extends Cookie {
         );
     }
 
-    public SetCookie(String name, String value) {
+    public SetCookie(final String name, final String value) {
         this(name, value, -1);
     }
 
-    public SetCookie(String name, String value, boolean httpOnly) {
+    public SetCookie(
+        final String name,
+        final String value,
+        final boolean httpOnly
+    ) {
         this(name, value, null, null, -1, httpOnly, false);
     }
 
-    public SetCookie(String name, String value, String domain, String path) {
+    public SetCookie(
+        final String name,
+        final String value,
+        final String domain,
+        final String path
+    ) {
         this(name, value, domain, path, -1, false, false);
     }
 
-    public SetCookie(String name, String value, int maxAge) {
+    public SetCookie(final String name, final String value, final int maxAge) {
         this(name, value, null, null, maxAge, false, false);
     }
 
     public SetCookie(
-        String name,
-        String value,
-        String domain,
-        String path,
-        int maxAge,
-        boolean httpOnly,
-        boolean secure
+        final String name,
+        final String value,
+        final String domain,
+        final String path,
+        final int maxAge,
+        final boolean httpOnly,
+        final boolean secure
     ) {
         this(name, value, domain, path, maxAge, httpOnly, secure, null, 0);
     }
 
     public SetCookie(
-        String name,
-        String value,
-        String domain,
-        String path,
-        int maxAge,
-        boolean httpOnly,
-        boolean secure,
-        String comment,
-        int version
+        final String name,
+        final String value,
+        final String domain,
+        final String path,
+        final int maxAge,
+        final boolean httpOnly,
+        final boolean secure,
+        final String comment,
+        final int version
     ) {
         super(name, value);
         if (domain != null) {
@@ -83,42 +94,42 @@ public class SetCookie extends Cookie {
         this.setVersion(version);
     }
 
-    public SetCookie value(String value) {
+    public SetCookie value(final String value) {
         this.setValue(value);
         return this;
     }
 
-    public SetCookie domain(String domain) {
+    public SetCookie domain(final String domain) {
         this.setDomain(domain);
         return this;
     }
 
-    public SetCookie path(String uri) {
+    public SetCookie path(final String uri) {
         this.setPath(uri);
         return this;
     }
 
-    public SetCookie maxAge(int maxAge) {
+    public SetCookie maxAge(final int maxAge) {
         this.setMaxAge(maxAge);
         return this;
     }
 
-    public SetCookie httpOnly(boolean isHttpOnly) {
+    public SetCookie httpOnly(final boolean isHttpOnly) {
         this.setHttpOnly(isHttpOnly);
         return this;
     }
 
-    public SetCookie secure(boolean isSecure) {
+    public SetCookie secure(final boolean isSecure) {
         this.setSecure(isSecure);
         return this;
     }
 
-    public SetCookie comment(String comment) {
+    public SetCookie comment(final String comment) {
         this.setComment(comment);
         return this;
     }
 
-    public SetCookie version(int version) {
+    public SetCookie version(final int version) {
         this.setVersion(version);
         return this;
     }

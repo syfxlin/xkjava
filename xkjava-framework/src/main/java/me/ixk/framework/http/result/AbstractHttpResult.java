@@ -28,56 +28,62 @@ public abstract class AbstractHttpResult implements Renderable {
         return response;
     }
 
-    public final AbstractHttpResult status(int sc) {
+    public final AbstractHttpResult status(final int sc) {
         response.status(sc);
         return this;
     }
 
-    public final AbstractHttpResult status(HttpStatus status) {
+    public final AbstractHttpResult status(final HttpStatus status) {
         response.status(status);
         return this;
     }
 
-    public final AbstractHttpResult header(String name, String value) {
+    public final AbstractHttpResult header(
+        final String name,
+        final String value
+    ) {
         response.header(name, value);
         return this;
     }
 
-    public final AbstractHttpResult header(HttpHeader name, String value) {
+    public final AbstractHttpResult header(
+        final HttpHeader name,
+        final String value
+    ) {
         response.header(name, value);
         return this;
     }
 
-    public final AbstractHttpResult headers(Map<Object, String> headers) {
+    public final AbstractHttpResult headers(final Map<Object, String> headers) {
         response.headers(headers);
         return this;
     }
 
-    public final AbstractHttpResult headers(HttpHeaders headers) {
+    public final AbstractHttpResult headers(final HttpHeaders headers) {
         response.headers(headers);
         return this;
     }
 
-    public final AbstractHttpResult cookie(Cookie cookie) {
+    public final AbstractHttpResult cookie(final Cookie cookie) {
         response.cookie(cookie);
         return this;
     }
 
-    public final AbstractHttpResult cookie(SetCookie cookie) {
+    public final AbstractHttpResult cookie(final SetCookie cookie) {
         response.cookie(cookie);
         return this;
     }
 
     public final AbstractHttpResult cookie(
-        String name,
-        String value,
-        String domain,
-        String path,
-        int maxAge,
-        String comment,
-        boolean isSecure,
-        boolean isHttpOnly,
-        int version
+        final String name,
+        final String value,
+        final String domain,
+        final String path,
+        final int maxAge,
+        final String comment,
+        final boolean isSecure,
+        final boolean isHttpOnly,
+        final int version
     ) {
         response.cookie(
             name,

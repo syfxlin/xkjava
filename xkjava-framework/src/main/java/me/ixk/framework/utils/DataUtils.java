@@ -4,15 +4,11 @@
 
 package me.ixk.framework.utils;
 
-import cn.hutool.core.util.ClassUtil;
-import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.lang.reflect.Method;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -31,9 +27,6 @@ import java.util.function.Predicate;
  */
 public class DataUtils {
 
-    private static final String BASE_STRING =
-        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    private static final SecureRandom RANDOM = new SecureRandom();
     public static final String UNDERLINE = "_";
     public static final String DASHED = "-";
 
@@ -433,64 +426,6 @@ public class DataUtils {
             return Character.toLowerCase(name2.charAt(0)) + name2.substring(1);
         } else {
             return name2;
-        }
-    }
-
-    public static String attributeName(Class<?> clazz, String name) {
-        return clazz.getName() + "." + name;
-    }
-
-    public static String strRandom() {
-        return strRandom(10);
-    }
-
-    public static String strRandom(int length) {
-        StringBuilder stringBuilder = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            stringBuilder.append(
-                BASE_STRING.charAt(RANDOM.nextInt(BASE_STRING.length()))
-            );
-        }
-        return stringBuilder.toString();
-    }
-
-    public static String routeHandler(Class<?> clazz, String method) {
-        return clazz.getName() + "@" + method;
-    }
-
-    public static String routeHandler(Method method) {
-        return method.getDeclaringClass().getName() + "@" + method.getName();
-    }
-
-    public static String routeHandler(String[] handler) {
-        return handler[0] + "@" + handler[1];
-    }
-
-    public static HandlerDefinition routeHandler(String handler) {
-        final String[] handlerArr = handler.split("@");
-        final Class<?> clazz = ClassUtil.loadClass(handlerArr[0]);
-        final Method method = (Method) ClassUtils.getUserMethod(
-            ReflectUtil.getMethodByName(clazz, handlerArr[1])
-        );
-        return new HandlerDefinition(clazz, method);
-    }
-
-    public static class HandlerDefinition {
-
-        private final Class<?> controllerClass;
-        private final Method method;
-
-        public HandlerDefinition(Class<?> controllerClass, Method method) {
-            this.controllerClass = controllerClass;
-            this.method = method;
-        }
-
-        public Class<?> getControllerClass() {
-            return controllerClass;
-        }
-
-        public Method getMethod() {
-            return method;
         }
     }
 }
