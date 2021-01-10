@@ -2,7 +2,7 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.scheduling;
+package me.ixk.framework.task;
 
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
  */
 @XkJavaTest
 @Slf4j
-@Enable(name = "task")
+@Enable(name = "scheduled")
 class ScheduledTest {
 
     @Autowired

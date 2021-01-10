@@ -4,7 +4,6 @@
 
 package me.ixk.framework.expression;
 
-import io.github.imsejin.expression.AccessException;
 import io.github.imsejin.expression.EvaluationContext;
 import io.github.imsejin.expression.PropertyAccessor;
 import io.github.imsejin.expression.TypedValue;
@@ -26,7 +25,7 @@ public class PropertySourceAccessor implements PropertyAccessor {
         EvaluationContext context,
         Object target,
         String name
-    ) throws AccessException {
+    ) {
         return true;
     }
 
@@ -35,7 +34,7 @@ public class PropertySourceAccessor implements PropertyAccessor {
         EvaluationContext context,
         Object target,
         String name
-    ) throws AccessException {
+    ) {
         return new TypedValue(((PropertySource<?>) target).get(name));
     }
 
@@ -44,7 +43,7 @@ public class PropertySourceAccessor implements PropertyAccessor {
         EvaluationContext context,
         Object target,
         String name
-    ) throws AccessException {
+    ) {
         return true;
     }
 
@@ -54,7 +53,7 @@ public class PropertySourceAccessor implements PropertyAccessor {
         Object target,
         String name,
         Object newValue
-    ) throws AccessException {
+    ) {
         ((PropertySource<?>) target).set(name, newValue);
     }
 }

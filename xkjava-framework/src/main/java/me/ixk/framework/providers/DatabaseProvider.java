@@ -5,9 +5,7 @@
 package me.ixk.framework.providers;
 
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
-import com.baomidou.mybatisplus.extension.plugins.OptimisticLockerInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.SqlExplainInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.List;
@@ -83,18 +81,18 @@ public class DatabaseProvider {
             new JdbcTransactionFactory(),
             dataSource
         );
-        Configuration configuration = new MybatisConfiguration(environment);
+        final Configuration configuration = new MybatisConfiguration(
+            environment
+        );
         final List<String> scanPackages = app
             .make(MapperScannerRegistry.class)
             .getScanPackages();
         if (scanPackages != null) {
-            for (String scanPackage : scanPackages) {
+            for (final String scanPackage : scanPackages) {
                 configuration.addMappers(scanPackage);
             }
         }
-        configuration.addInterceptor(new PaginationInterceptor());
-        configuration.addInterceptor(new OptimisticLockerInterceptor());
-        configuration.addInterceptor(new SqlExplainInterceptor());
+        configuration.addInterceptor(new MybatisPlusInterceptor());
         return configuration;
     }
 }

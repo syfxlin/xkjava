@@ -2,7 +2,7 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.scheduling;
+package me.ixk.framework.task;
 
 import com.cronutils.model.time.ExecutionTime;
 import java.time.ZoneId;
@@ -14,11 +14,16 @@ import java.util.Optional;
  * @date 2020/11/26 下午 1:39
  */
 public class CronTask {
+
     private final Runnable task;
     private final ExecutionTime executionTime;
     private final ZoneId zoneId;
 
-    public CronTask(Runnable task, ExecutionTime executionTime, String zone) {
+    public CronTask(
+        final Runnable task,
+        final ExecutionTime executionTime,
+        final String zone
+    ) {
         this.task = task;
         this.executionTime = executionTime;
         this.zoneId =
@@ -35,7 +40,7 @@ public class CronTask {
         return executionTime;
     }
 
-    public boolean isMatch(ZonedDateTime date) {
+    public boolean isMatch(final ZonedDateTime date) {
         return this.executionTime.isMatch(date);
     }
 

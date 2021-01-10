@@ -21,7 +21,6 @@ import me.ixk.framework.http.StdErrorJson;
 import me.ixk.framework.property.Environment;
 import me.ixk.framework.utils.ByteArrayUtf8Writer;
 import me.ixk.framework.utils.Json;
-import me.ixk.framework.web.AfterHandlerExceptionResolver;
 import me.ixk.framework.web.ExceptionInfo;
 import me.ixk.framework.web.WebContext;
 import me.ixk.framework.web.WebDataBinder;

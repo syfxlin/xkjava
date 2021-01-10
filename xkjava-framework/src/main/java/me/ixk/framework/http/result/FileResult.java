@@ -301,7 +301,7 @@ public class FileResult extends AbstractHttpResult {
         // Prepare streams.
         try (
             RandomAccessFile input = new RandomAccessFile(this.file, "r");
-            OutputStream output = response.getOutputStream()
+            ServletOutputStream output = response.getOutputStream()
         ) {
             if (ranges.isEmpty() || ranges.get(0) == full) {
                 // Return full file.
@@ -341,7 +341,6 @@ public class FileResult extends AbstractHttpResult {
                 response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
 
                 // Cast back to ServletOutputStream to get the easy println methods.
-                ServletOutputStream sos = (ServletOutputStream) output;
 
                 // Copy multi part range.
                 for (Range r : ranges) {
@@ -351,10 +350,10 @@ public class FileResult extends AbstractHttpResult {
                         r.end
                     );
                     // Add multipart boundary and header fields for every range.
-                    sos.println();
-                    sos.println("--" + MULTIPART_BOUNDARY);
-                    sos.println("Content-Type: " + contentType);
-                    sos.println(
+                    output.println();
+                    output.println("--" + MULTIPART_BOUNDARY);
+                    output.println("Content-Type: " + contentType);
+                    output.println(
                         "Content-Range: bytes " +
                         r.start +
                         "-" +
@@ -367,8 +366,8 @@ public class FileResult extends AbstractHttpResult {
                 }
 
                 // End with multipart boundary.
-                sos.println();
-                sos.println("--" + MULTIPART_BOUNDARY + "--");
+                output.println();
+                output.println("--" + MULTIPART_BOUNDARY + "--");
             }
         }
         return response;
@@ -376,10 +375,10 @@ public class FileResult extends AbstractHttpResult {
 
     private static class Range {
 
-        long start;
-        long end;
-        long length;
-        long total;
+        final long start;
+        final long end;
+        final long length;
+        final long total;
 
         /**
          * Construct a byte range.
@@ -441,7 +440,6 @@ public class FileResult extends AbstractHttpResult {
          *
          * @param acceptHeader The accept header.
          * @param toAccept     The value to be accepted.
-         *
          * @return True if the given accept header accepts the given value.
          */
         public static boolean accepts(String acceptHeader, String toAccept) {
@@ -464,7 +462,6 @@ public class FileResult extends AbstractHttpResult {
          *
          * @param matchHeader The match header.
          * @param toMatch     The value to be matched.
-         *
          * @return True if the given match header matches the given value.
          */
         public static boolean matches(String matchHeader, String toMatch) {

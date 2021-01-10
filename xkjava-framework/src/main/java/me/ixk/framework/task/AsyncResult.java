@@ -2,12 +2,12 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.scheduling;
+package me.ixk.framework.task;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 异步调用返回值
@@ -16,6 +16,7 @@ import java.util.concurrent.TimeoutException;
  * @date 2020/11/26 上午 11:21
  */
 public class AsyncResult<V> implements Future<V> {
+
     private final V value;
     private final Throwable exception;
 
@@ -52,7 +53,7 @@ public class AsyncResult<V> implements Future<V> {
     }
 
     @Override
-    public V get() throws InterruptedException, ExecutionException {
+    public V get() throws ExecutionException {
         if (this.exception != null) {
             throw (
                 this.exception instanceof ExecutionException
@@ -64,8 +65,8 @@ public class AsyncResult<V> implements Future<V> {
     }
 
     @Override
-    public V get(final long timeout, TimeUnit unit)
-        throws InterruptedException, ExecutionException, TimeoutException {
+    public V get(final long timeout, final @NotNull TimeUnit unit)
+        throws InterruptedException, ExecutionException {
         return get();
     }
 }

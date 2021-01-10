@@ -8,7 +8,6 @@ import java.util.Enumeration;
 import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 
 /**
  * 通用过滤器
@@ -17,11 +16,11 @@ import javax.servlet.ServletException;
  * @date 2020/10/30 下午 10:57
  */
 public abstract class GenericFilter implements Filter {
+
     protected FilterConfig filterConfig;
 
     @Override
-    public final void init(final FilterConfig filterConfig)
-        throws ServletException {
+    public final void init(final FilterConfig filterConfig) {
         this.filterConfig = filterConfig;
         this.doInit(filterConfig);
     }

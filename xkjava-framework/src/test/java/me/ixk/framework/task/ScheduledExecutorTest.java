@@ -2,7 +2,7 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.scheduling;
+package me.ixk.framework.task;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -22,12 +22,13 @@ import org.junit.jupiter.api.Test;
 @XkJavaTest
 @Slf4j
 class ScheduledExecutorTest {
+
     @Autowired
     ScheduledExecutor executor;
 
     @Test
     void schedule() throws InterruptedException {
-        CountDownLatch count = new CountDownLatch(10);
+        final CountDownLatch count = new CountDownLatch(10);
         executor.scheduleAtFixedRate(
             () -> {
                 log.info("Task1: " + Thread.currentThread().getName());

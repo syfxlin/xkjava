@@ -9,8 +9,8 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.scheduling.ScheduledRegistry;
-import me.ixk.framework.scheduling.ScheduledTaskExecutor;
+import me.ixk.framework.task.ScheduledExecutor;
+import me.ixk.framework.task.ScheduledRegistry;
 
 /**
  * 定时任务
@@ -23,7 +23,7 @@ import me.ixk.framework.scheduling.ScheduledTaskExecutor;
 @Repeatable(Schedules.class)
 @Bean
 @BindRegistry(ScheduledRegistry.class)
-@ConditionalOnBean(value = ScheduledTaskExecutor.class)
+@ConditionalOnBean(value = ScheduledExecutor.class)
 public @interface Scheduled {
     String CRON_DISABLED = "-";
 

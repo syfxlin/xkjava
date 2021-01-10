@@ -187,9 +187,9 @@ public class BeanAnnotationProcessor extends AbstractAnnotationProcessor {
         if (annotation.notAnnotation(BindRegistry.class)) {
             return this.app.bind(
                     method.getName(),
-                    new FactoryBean<Object>() {
+                    new FactoryBean<>() {
                         @Override
-                        public Object getObject() throws Exception {
+                        public Object getObject() {
                             return app.call(method);
                         }
 

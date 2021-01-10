@@ -9,10 +9,8 @@ import me.ixk.framework.annotations.Bean;
 import me.ixk.framework.annotations.ConditionalOnEnable;
 import me.ixk.framework.annotations.ConditionalOnMissingBean;
 import me.ixk.framework.annotations.Provider;
-import me.ixk.framework.scheduling.AsyncTaskExecutor;
-import me.ixk.framework.scheduling.ScheduledExecutor;
-import me.ixk.framework.scheduling.ScheduledExecutor.DaemonThreadFactory;
-import me.ixk.framework.scheduling.ScheduledTaskExecutor;
+import me.ixk.framework.task.ScheduledExecutor;
+import me.ixk.framework.task.ScheduledExecutor.DaemonThreadFactory;
 
 /**
  * 任务提供者
@@ -25,17 +23,13 @@ public class TaskProvider {
 
     @Bean(name = "scheduledExecutor", destroyMethod = "shutdown")
     @ConditionalOnMissingBean(
-        value = {
-            ScheduledExecutor.class,
-            AsyncTaskExecutor.class,
-            ScheduledTaskExecutor.class,
-        },
+        value = { ScheduledExecutor.class },
         name = "scheduledExecutor"
     )
-    @ConditionalOnEnable(name = "task")
+    @ConditionalOnEnable(name = "scheduled")
     public ScheduledExecutor scheduledExecutor() {
         return new ScheduledExecutor(
-            8,
+            4,
             new DaemonThreadFactory(),
             new AbortPolicy()
         );

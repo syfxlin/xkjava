@@ -42,7 +42,7 @@ public class XkJavaRunner
     private XkJava app;
 
     @Override
-    public void beforeAll(final ExtensionContext context) throws Exception {
+    public void beforeAll(final ExtensionContext context) {
         final Class<?> testClass = context.getRequiredTestClass();
         final MergedAnnotation annotation = MergedAnnotation.from(testClass);
         final XkJavaTest xkJavaTest = annotation.getAnnotation(
@@ -90,7 +90,7 @@ public class XkJavaRunner
         Invocation<Void> invocation,
         ReflectiveInvocationContext<Method> invocationContext,
         ExtensionContext extensionContext
-    ) throws Throwable {
+    ) {
         this.app.call(invocationContext.getExecutable());
         invocation.skip();
     }

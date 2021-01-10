@@ -4,10 +4,8 @@
 
 package me.ixk.framework.bootstrap;
 
-import java.io.IOException;
 import me.ixk.framework.annotations.Bootstrap;
 import me.ixk.framework.annotations.Order;
-import me.ixk.framework.exceptions.LoadEnvironmentFileException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.property.CommandLinePropertySource;
 import me.ixk.framework.property.Environment;
@@ -82,15 +80,7 @@ public class LoadEnvironmentVariables extends AbstractBootstrap {
         final String name,
         final String path
     ) {
-        try {
-            return new PropertiesPropertySource(name, path);
-        } catch (final IOException e) {
-            log.error("Load environment [application.properties] failed");
-            throw new LoadEnvironmentFileException(
-                "Load environment [application.properties] failed",
-                e
-            );
-        }
+        return new PropertiesPropertySource(name, path);
     }
 
     private PropertiesPropertySource loadProperties(

@@ -6,7 +6,6 @@ package me.ixk.framework.property;
 
 import cn.hutool.core.io.IoUtil;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Properties;
@@ -27,20 +26,26 @@ public class PropertiesPropertySource extends MapPropertySource<Object> {
         PropertiesPropertySource.class
     );
 
-    public PropertiesPropertySource(String name, String path)
-        throws FileNotFoundException {
+    public PropertiesPropertySource(final String name, final String path) {
         this(name, ResourceUtils.getFile(path));
     }
 
-    public PropertiesPropertySource(String name, File file) {
+    public PropertiesPropertySource(final String name, final File file) {
         super(name, parseProperties(file, null));
     }
 
-    public PropertiesPropertySource(String name, File file, String encoding) {
+    public PropertiesPropertySource(
+        final String name,
+        final File file,
+        final String encoding
+    ) {
         super(name, parseProperties(file, encoding));
     }
 
-    private static Properties parseProperties(File file, String encoding) {
+    private static Properties parseProperties(
+        final File file,
+        final String encoding
+    ) {
         final Properties properties = new Properties();
         try {
             properties.load(

@@ -10,6 +10,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * ByteArrayUtf8Writer
@@ -18,6 +19,7 @@ import java.util.Arrays;
  * @date 2020/10/14 下午 5:01
  */
 public class ByteArrayUtf8Writer extends Writer {
+
     private byte[] buf;
     private int size;
     private ByteArrayOutputStream2 bout = null;
@@ -104,7 +106,7 @@ public class ByteArrayUtf8Writer extends Writer {
     }
 
     @Override
-    public void write(String s) throws IOException {
+    public void write(@NotNull String s) throws IOException {
         if (s == null) {
             write("null", 0, 4);
             return;
@@ -124,7 +126,8 @@ public class ByteArrayUtf8Writer extends Writer {
     }
 
     @Override
-    public void write(String s, int offset, int length) throws IOException {
+    public void write(@NotNull String s, int offset, int length)
+        throws IOException {
         ensureSpareCapacity(length);
         for (int i = 0; i < length; i++) {
             char c = s.charAt(offset + i);

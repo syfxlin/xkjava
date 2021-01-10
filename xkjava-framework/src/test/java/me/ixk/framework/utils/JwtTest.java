@@ -28,11 +28,6 @@ class JwtTest {
         final Map<String, String> decode = jwt.decode(encode);
         assertEquals("value", decode.get("key"));
         Thread.sleep(11 * 1000L);
-        assertThrows(
-            RuntimeException.class,
-            () -> {
-                jwt.decode(encode);
-            }
-        );
+        assertThrows(RuntimeException.class, () -> jwt.decode(encode));
     }
 }

@@ -87,7 +87,7 @@ class ContainerTest {
             "test2",
             new FactoryBean<String>() {
                 @Override
-                public String getObject() throws Exception {
+                public String getObject() {
                     return "value";
                 }
 
@@ -109,7 +109,7 @@ class ContainerTest {
         container.bind(
             new FactoryBean<Integer>() {
                 @Override
-                public Integer getObject() throws Exception {
+                public Integer getObject() {
                     return 1;
                 }
 

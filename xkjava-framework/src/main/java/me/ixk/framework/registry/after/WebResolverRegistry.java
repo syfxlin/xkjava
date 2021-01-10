@@ -10,12 +10,12 @@ import java.util.List;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.utils.MergedAnnotation;
-import me.ixk.framework.web.AfterHandlerExceptionResolver;
-import me.ixk.framework.web.HandlerExceptionResolver;
-import me.ixk.framework.web.RequestParameterResolver;
-import me.ixk.framework.web.RequestParametersPostResolver;
-import me.ixk.framework.web.ResponseConvertResolver;
-import me.ixk.framework.web.ResponseReturnValueResolver;
+import me.ixk.framework.web.resolver.AfterHandlerExceptionResolver;
+import me.ixk.framework.web.resolver.HandlerExceptionResolver;
+import me.ixk.framework.web.resolver.RequestParameterResolver;
+import me.ixk.framework.web.resolver.RequestParametersPostResolver;
+import me.ixk.framework.web.resolver.ResponseConvertResolver;
+import me.ixk.framework.web.resolver.ResponseReturnValueResolver;
 
 /**
  * WebResolverRegistry

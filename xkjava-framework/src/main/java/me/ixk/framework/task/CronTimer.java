@@ -2,7 +2,7 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.scheduling;
+package me.ixk.framework.task;
 
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;

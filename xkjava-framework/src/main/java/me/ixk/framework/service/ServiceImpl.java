@@ -42,13 +42,14 @@ import org.mybatis.spring.SqlSessionUtils;
  * @author Otstar Lin
  * @date 2020/10/14 下午 4:54
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("ALL")
 public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
+
     protected final Log log = LogFactory.getLog(getClass());
 
     protected final Class<M> mapperClass = (Class<M>) (
-        (ParameterizedType) me
-            .ixk.framework.utils.ClassUtils.getUserClass(this)
+        (ParameterizedType) me.ixk.framework.utils.ClassUtils
+            .getUserClass(this)
             .getGenericSuperclass()
     ).getActualTypeArguments()[0];
 
@@ -61,7 +62,6 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
      * 判断数据库操作是否成功
      *
      * @param result 数据库操作返回影响条数
-     *
      * @return boolean
      * @deprecated 3.3.1
      */
@@ -88,7 +88,6 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
      * 释放sqlSession
      *
      * @param sqlSession session
-     *
      * @deprecated 3.3.0
      */
     @Deprecated
@@ -103,7 +102,6 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
      * 获取 SqlStatement
      *
      * @param sqlMethod ignore
-     *
      * @return ignore
      */
     protected String sqlStatement(SqlMethod sqlMethod) {
@@ -117,7 +115,6 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
      *
      * @param entityList ignore
      * @param batchSize  ignore
-     *
      * @return ignore
      */
     @Override
@@ -189,7 +186,6 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
      * TableId 注解存在更新记录，否插入一条记录
      *
      * @param entity 实体对象
-     *
      * @return boolean
      */
     @Override
@@ -256,10 +252,8 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
      * 执行批量操作
      *
      * @param consumer consumer
-     *
      * @since 3.3.0
-     * @deprecated 3.3.1 后面我打算移除掉 {@link #executeBatch(Collection, int,
-     * BiConsumer)} }.
+     * @deprecated 3.3.1 后面我打算移除掉 {@link #executeBatch(Collection, int, BiConsumer)} }.
      */
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
@@ -291,7 +285,6 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
      * @param batchSize 批量大小
      * @param consumer  执行方法
      * @param <E>       泛型
-     *
      * @return 操作结果
      * @since 3.3.1
      */
@@ -325,7 +318,6 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
      * @param list     数据集合
      * @param consumer 执行方法
      * @param <E>      泛型
-     *
      * @return 操作结果
      * @since 3.3.1
      */

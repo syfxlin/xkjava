@@ -2,7 +2,7 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.scheduling;
+package me.ixk.framework.task;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -34,7 +34,7 @@ public class ScheduledRegistry implements BeanBindRegistry {
             ((Method) element).getName(),
             new FactoryBean<>() {
                 @Override
-                public Object getObject() throws Exception {
+                public Object getObject() {
                     final ScheduledTaskExecutor executor = app.make(
                         ScheduledTaskExecutor.class
                     );

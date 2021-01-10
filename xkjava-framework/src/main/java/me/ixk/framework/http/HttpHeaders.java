@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import me.ixk.framework.utils.LinkedCaseInsensitiveMultiValueMap;
 import me.ixk.framework.utils.MultiValueMap;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * HTTP 头字段（多）
@@ -21,6 +22,7 @@ import me.ixk.framework.utils.MultiValueMap;
  */
 public class HttpHeaders
     implements MultiValueMap<String, String>, Serializable {
+
     private static final long serialVersionUID = 1L;
 
     private final MultiValueMap<String, String> headers = new LinkedCaseInsensitiveMultiValueMap<>();
@@ -61,7 +63,9 @@ public class HttpHeaders
     }
 
     @Override
-    public void putAll(Map<? extends String, ? extends List<String>> m) {
+    public void putAll(
+        @NotNull Map<? extends String, ? extends List<String>> m
+    ) {
         this.headers.putAll(m);
     }
 
@@ -71,17 +75,17 @@ public class HttpHeaders
     }
 
     @Override
-    public Set<String> keySet() {
+    public @NotNull Set<String> keySet() {
         return this.headers.keySet();
     }
 
     @Override
-    public Collection<List<String>> values() {
+    public @NotNull Collection<List<String>> values() {
         return this.headers.values();
     }
 
     @Override
-    public Set<Entry<String, List<String>>> entrySet() {
+    public @NotNull Set<Entry<String, List<String>>> entrySet() {
         return this.headers.entrySet();
     }
 

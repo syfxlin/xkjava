@@ -28,7 +28,7 @@ public class MapAccessor implements CompilablePropertyAccessor {
         EvaluationContext context,
         Object target,
         String name
-    ) throws AccessException {
+    ) {
         return (
             target instanceof Map && ((Map<?, ?>) target).containsKey(name)
         );
@@ -53,7 +53,7 @@ public class MapAccessor implements CompilablePropertyAccessor {
         EvaluationContext context,
         Object target,
         String name
-    ) throws AccessException {
+    ) {
         return true;
     }
 
@@ -64,7 +64,7 @@ public class MapAccessor implements CompilablePropertyAccessor {
         Object target,
         String name,
         Object newValue
-    ) throws AccessException {
+    ) {
         Map<Object, Object> map = (Map<Object, Object>) target;
         map.put(name, newValue);
     }

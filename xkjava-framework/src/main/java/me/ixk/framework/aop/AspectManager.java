@@ -48,7 +48,7 @@ public class AspectManager {
             method,
             m ->
                 this.adviceList.stream()
-                    .filter(e -> this.matches(m))
+                    .filter(e -> e.getPointcut().matches(m))
                     .map(e -> this.app.make(e.getAdvice()))
                     .collect(Collectors.toList())
         );

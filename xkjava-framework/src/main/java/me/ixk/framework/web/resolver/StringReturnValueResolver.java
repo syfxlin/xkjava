@@ -10,14 +10,12 @@ import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Model;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.web.MethodReturnValue;
-import me.ixk.framework.web.ResponseReturnValueResolver;
 import me.ixk.framework.web.WebContext;
 
 /**
  * 字符串响应解析器
  * <p>
- * 响应不按模板进行处理,即输出真实的字符串：":view:123" => "view:123" "::view:123" => ":view:123"
- * ":view" => ":view"
+ * 响应不按模板进行处理,即输出真实的字符串：":view:123" => "view:123" "::view:123" => ":view:123" ":view" => ":view"
  * <p>
  * 空响应： "empty:"
  * <p>
@@ -42,7 +40,7 @@ public class StringReturnValueResolver implements ResponseReturnValueResolver {
     public boolean supportsReturnType(
         final Object value,
         final MethodReturnValue returnValue,
-        WebContext context
+        final WebContext context
     ) {
         return value instanceof String;
     }

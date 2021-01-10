@@ -17,7 +17,6 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.binder.DefaultDataBinder;
 import me.ixk.framework.registry.after.ExceptionHandlerRegistry;
 import me.ixk.framework.web.ExceptionInfo;
-import me.ixk.framework.web.HandlerExceptionResolver;
 import me.ixk.framework.web.WebContext;
 import me.ixk.framework.web.WebDataBinder;
 import org.slf4j.Logger;

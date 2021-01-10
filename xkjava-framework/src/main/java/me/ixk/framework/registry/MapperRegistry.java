@@ -21,15 +21,15 @@ public class MapperRegistry implements BeanBindRegistry {
 
     @Override
     public Binding register(
-        XkJava app,
-        AnnotatedElement element,
-        String scopeType,
-        MergedAnnotation annotation
+        final XkJava app,
+        final AnnotatedElement element,
+        final String scopeType,
+        final MergedAnnotation annotation
     ) {
         return app.bind(
             new FactoryBean<>() {
                 @Override
-                public Object getObject() throws Exception {
+                public Object getObject() {
                     return app
                         .make(SqlSessionManager.class)
                         .getMapper((Class<?>) element);

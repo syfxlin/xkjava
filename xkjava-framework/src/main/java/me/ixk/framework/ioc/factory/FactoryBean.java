@@ -15,9 +15,8 @@ public interface FactoryBean<T> {
      * 获取对象
      *
      * @return 对象
-     * @throws Exception 异常
      */
-    T getObject() throws Exception;
+    T getObject();
 
     /**
      * 获取对象类型

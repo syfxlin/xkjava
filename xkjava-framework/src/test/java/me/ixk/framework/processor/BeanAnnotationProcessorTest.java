@@ -4,7 +4,7 @@
 
 package me.ixk.framework.processor;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.ComponentScan;
@@ -34,6 +34,6 @@ class BeanAnnotationProcessorTest {
 
     @Test
     void processImport() {
-        assertTrue(app.has(ImportTarget.class));
+        assertFalse(app.has(ImportTarget.class));
     }
 }

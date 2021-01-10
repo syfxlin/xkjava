@@ -181,7 +181,6 @@ public class Container {
     public void removeContext(final Context context) {
         synchronized (this.contexts) {
             final Class<? extends Context> contextType = context.getClass();
-            this.contexts.remove(contextType);
             if (log.isDebugEnabled()) {
                 log.debug(
                     "Container remove context: {}",
@@ -195,6 +194,7 @@ public class Container {
                     }
                 }
             }
+            this.contexts.remove(contextType);
         }
     }
 
@@ -835,7 +835,7 @@ public class Container {
                     factoryBean =
                         new FactoryBean<>() {
                             @Override
-                            public Object getObject() throws Exception {
+                            public Object getObject() {
                                 return doBuild(finalBinding);
                             }
 

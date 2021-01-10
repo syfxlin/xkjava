@@ -11,7 +11,6 @@ import me.ixk.framework.http.Response;
 import me.ixk.framework.route.RouteInfo;
 import me.ixk.framework.utils.Json;
 import me.ixk.framework.web.MethodReturnValue;
-import me.ixk.framework.web.ResponseConvertResolver;
 import me.ixk.framework.web.WebContext;
 
 /**
@@ -26,20 +25,20 @@ public class ObjectResponseConvertResolver implements ResponseConvertResolver {
 
     @Override
     public boolean supportsConvert(
-        Object value,
-        MethodReturnValue returnValue,
-        WebContext context,
-        RouteInfo info
+        final Object value,
+        final MethodReturnValue returnValue,
+        final WebContext context,
+        final RouteInfo info
     ) {
         return Json.make().canSerialize(value.getClass());
     }
 
     @Override
     public Response resolveConvert(
-        Object value,
-        MethodReturnValue returnValue,
-        WebContext context,
-        RouteInfo info
+        final Object value,
+        final MethodReturnValue returnValue,
+        final WebContext context,
+        final RouteInfo info
     ) {
         return context
             .getResponse()

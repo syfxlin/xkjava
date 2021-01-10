@@ -2,7 +2,7 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.scheduling;
+package me.ixk.framework.task;
 
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -17,6 +17,7 @@ import me.ixk.framework.annotations.Scheduled;
 @Component
 @Slf4j
 public class ScheduledTasks {
+
     public static Random random = new Random();
 
     @Scheduled(initialDelay = 2000)

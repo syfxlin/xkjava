@@ -2,11 +2,15 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.scheduling;
+package me.ixk.framework.task;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
 import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.annotations.Bean;
+import me.ixk.framework.annotations.Enable;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 
@@ -16,9 +20,16 @@ import org.junit.jupiter.api.Test;
  */
 @XkJavaTest
 @Slf4j
+@Enable(name = "async")
 class AsyncTest {
+
     @Autowired
     AsyncTask asyncTask;
+
+    @Bean
+    public ExecutorService poolExecutor() {
+        return Executors.newCachedThreadPool();
+    }
 
     @Test
     void async() throws Exception {

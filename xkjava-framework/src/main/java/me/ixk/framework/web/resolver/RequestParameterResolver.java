@@ -2,7 +2,11 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.web;
+package me.ixk.framework.web.resolver;
+
+import me.ixk.framework.web.MethodParameter;
+import me.ixk.framework.web.WebContext;
+import me.ixk.framework.web.WebDataBinder;
 
 /**
  * RequestParameterResolver
@@ -18,7 +22,6 @@ public interface RequestParameterResolver {
      * @param parameter 参数信息
      * @param context   Web 上下文
      * @param binder    数据绑定器
-     *
      * @return 是否支持
      */
     boolean supportsParameter(
@@ -35,7 +38,6 @@ public interface RequestParameterResolver {
      * @param parameter 参数信息
      * @param context   Web 上下文
      * @param binder    数据绑定器
-     *
      * @return 参数值
      */
     Object resolveParameter(

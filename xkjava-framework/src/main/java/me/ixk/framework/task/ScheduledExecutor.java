@@ -2,7 +2,7 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.scheduling;
+package me.ixk.framework.task;
 
 import com.cronutils.model.CronType;
 import com.cronutils.model.definition.CronDefinitionBuilder;
@@ -15,6 +15,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ScheduledExecutor
     extends ScheduledThreadPoolExecutor
-    implements AsyncTaskExecutor, ScheduledTaskExecutor {
+    implements ScheduledTaskExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(
         ScheduledExecutor.class
@@ -78,7 +79,7 @@ public class ScheduledExecutor
     }
 
     @Override
-    public List<Runnable> shutdownNow() {
+    public @NotNull List<Runnable> shutdownNow() {
         if (log.isDebugEnabled()) {
             log.debug("ScheduledExecutor shutdown");
         }
@@ -125,7 +126,7 @@ public class ScheduledExecutor
         private final AtomicInteger atoInteger = new AtomicInteger(0);
 
         @Override
-        public Thread newThread(final Runnable command) {
+        public Thread newThread(final @NotNull Runnable command) {
             final Thread thread = new Thread(command);
             thread.setName("schedule-" + atoInteger.getAndIncrement());
             thread.setDaemon(true);

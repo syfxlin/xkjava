@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 实例提供者
@@ -23,7 +24,6 @@ public interface ObjectProvider<T> extends ObjectFactory<T>, Iterable<T> {
      * 获取对象实例，如果不存在则返回 Supplier 的返回值
      *
      * @param defaultSupplier 生产者
-     *
      * @return 对象实例
      */
     default T getIfAvailable(Supplier<T> defaultSupplier) {
@@ -43,7 +43,13 @@ public interface ObjectProvider<T> extends ObjectFactory<T>, Iterable<T> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return
+     */
     @Override
+    @NotNull
     default Iterator<T> iterator() {
         return getObjects().iterator();
     }

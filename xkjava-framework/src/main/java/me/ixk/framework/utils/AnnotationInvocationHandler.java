@@ -36,6 +36,7 @@ import java.util.stream.Stream;
  * @since 1.5
  */
 class AnnotationInvocationHandler implements InvocationHandler, Serializable {
+
     private static final long serialVersionUID = 6182022883658399397L;
     private final Class<? extends Annotation> type;
     private final Map<String, Object> memberValues;
@@ -60,8 +61,7 @@ class AnnotationInvocationHandler implements InvocationHandler, Serializable {
     }
 
     /**
-     * Translates a member value (in "dynamic proxy return form") into a
-     * string.
+     * Translates a member value (in "dynamic proxy return form") into a string.
      */
     private static String memberValueToString(final Object value) {
         final Class<?> type = value.getClass();
@@ -130,8 +130,8 @@ class AnnotationInvocationHandler implements InvocationHandler, Serializable {
     }
 
     /**
-     * Translates a Class value to a form suitable for use in the string
-     * representation of an annotation.
+     * Translates a Class value to a form suitable for use in the string representation of an
+     * annotation.
      */
     private static String toSourceString(final Class<?> clazz) {
         Class<?> finalComponent = clazz;
@@ -147,7 +147,7 @@ class AnnotationInvocationHandler implements InvocationHandler, Serializable {
 
     private static String toSourceString(final float f) {
         if (Float.isFinite(f)) {
-            return Float.toString(f) + "f";
+            return f + "f";
         } else {
             if (Float.isInfinite(f)) {
                 return (f < 0.0f) ? "-1.0f/0.0f" : "1.0f/0.0f";
@@ -170,15 +170,12 @@ class AnnotationInvocationHandler implements InvocationHandler, Serializable {
     }
 
     private static String toSourceString(final char c) {
-        final StringBuilder sb = new StringBuilder(4);
-        sb.append('\'');
-        sb.append(quote(c));
-        return sb.append('\'').toString();
+        return '\'' + quote(c) + '\'';
     }
 
     /**
-     * Escapes a character if it has an escape sequence or is non-printable
-     * ASCII.  Leaves non-ASCII characters alone.
+     * Escapes a character if it has an escape sequence or is non-printable ASCII.  Leaves non-ASCII
+     * characters alone.
      */
     private static String quote(final char ch) {
         switch (ch) {
@@ -217,12 +214,11 @@ class AnnotationInvocationHandler implements InvocationHandler, Serializable {
     }
 
     private static String toSourceString(final long ell) {
-        return String.valueOf(ell) + "L";
+        return ell + "L";
     }
 
     /**
-     * Return a string suitable for use in the string representation of an
-     * annotation.
+     * Return a string suitable for use in the string representation of an annotation.
      */
     private static String toSourceString(final String s) {
         final StringBuilder sb = new StringBuilder();
@@ -279,12 +275,11 @@ class AnnotationInvocationHandler implements InvocationHandler, Serializable {
     }
 
     /**
-     * Returns true iff the two member values in "dynamic proxy return form" are
-     * equal using the appropriate equality function depending on the member
-     * type.  The two values will be of the same type unless one of the
-     * containing annotations is ill-formed.  If one of the containing
-     * annotations is ill-formed, this method will return false unless the two
-     * members are identical object references.
+     * Returns true iff the two member values in "dynamic proxy return form" are equal using the
+     * appropriate equality function depending on the member type.  The two values will be of the
+     * same type unless one of the containing annotations is ill-formed.  If one of the containing
+     * annotations is ill-formed, this method will return false unless the two members are identical
+     * object references.
      */
     private static boolean memberValueEquals(final Object v1, final Object v2) {
         final Class<?> type = v1.getClass();
@@ -391,12 +386,13 @@ class AnnotationInvocationHandler implements InvocationHandler, Serializable {
             );
         }
 
-        if ("toString".equals(member)) {
-            return toStringImpl();
-        } else if ("hashCode".equals(member)) {
-            return hashCodeImpl();
-        } else if ("annotationType".equals(member)) {
-            return type;
+        switch (member) {
+            case "toString":
+                return toStringImpl();
+            case "hashCode":
+                return hashCodeImpl();
+            case "annotationType":
+                return type;
         }
 
         // Handle annotation member accessors
@@ -414,8 +410,8 @@ class AnnotationInvocationHandler implements InvocationHandler, Serializable {
     }
 
     /**
-     * This method, which clones its array argument, would not be necessary if
-     * Cloneable had a public clone method.
+     * This method, which clones its array argument, would not be necessary if Cloneable had a
+     * public clone method.
      */
     private Object cloneArray(final Object array) {
         final Class<?> type = array.getClass();
@@ -501,7 +497,7 @@ class AnnotationInvocationHandler implements InvocationHandler, Serializable {
         for (final Method memberMethod : getMemberMethods()) {
             final String member = memberMethod.getName();
             final Object ourValue = memberValues.get(member);
-            Object hisValue = null;
+            Object hisValue;
             final AnnotationInvocationHandler hisHandler = asOneOfUs(o);
             if (hisHandler != null) {
                 hisValue = hisHandler.memberValues.get(member);
@@ -522,9 +518,8 @@ class AnnotationInvocationHandler implements InvocationHandler, Serializable {
     }
 
     /**
-     * Returns an object's invocation handler if that object is a dynamic proxy
-     * with a handler of type AnnotationInvocationHandler. Returns null
-     * otherwise.
+     * Returns an object's invocation handler if that object is a dynamic proxy with a handler of
+     * type AnnotationInvocationHandler. Returns null otherwise.
      */
     private AnnotationInvocationHandler asOneOfUs(final Object o) {
         if (Proxy.isProxyClass(o.getClass())) {
@@ -537,9 +532,9 @@ class AnnotationInvocationHandler implements InvocationHandler, Serializable {
     }
 
     /**
-     * Returns the member methods for our annotation type.  These are obtained
-     * lazily and cached, as they're expensive to obtain and we only need them
-     * if our equals method is invoked (which should be rare).
+     * Returns the member methods for our annotation type.  These are obtained lazily and cached, as
+     * they're expensive to obtain and we only need them if our equals method is invoked (which
+     * should be rare).
      */
     private Method[] getMemberMethods() {
         Method[] value = memberMethods;
@@ -552,24 +547,19 @@ class AnnotationInvocationHandler implements InvocationHandler, Serializable {
 
     private Method[] computeMemberMethods() {
         return AccessController.doPrivileged(
-            new PrivilegedAction<Method[]>() {
-
-                @Override
-                public Method[] run() {
-                    final Method[] methods = type.getDeclaredMethods();
-                    validateAnnotationMethods(methods);
-                    AccessibleObject.setAccessible(methods, true);
-                    return methods;
-                }
+            (PrivilegedAction<Method[]>) () -> {
+                final Method[] methods = type.getDeclaredMethods();
+                validateAnnotationMethods(methods);
+                AccessibleObject.setAccessible(methods, true);
+                return methods;
             }
         );
     }
 
     /**
-     * Validates that a method is structurally appropriate for an annotation
-     * type. As of Java SE 8, annotation types cannot contain static methods and
-     * the declared methods of an annotation type must take zero arguments and
-     * there are restrictions on the return type.
+     * Validates that a method is structurally appropriate for an annotation type. As of Java SE 8,
+     * annotation types cannot contain static methods and the declared methods of an annotation type
+     * must take zero arguments and there are restrictions on the return type.
      */
     private void validateAnnotationMethods(final Method[] memberMethods) {
         /*

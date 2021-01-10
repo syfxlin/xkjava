@@ -14,7 +14,6 @@ import me.ixk.framework.utils.ValidGroup;
 import me.ixk.framework.utils.ValidResult;
 import me.ixk.framework.utils.Validation;
 import me.ixk.framework.web.MethodParameter;
-import me.ixk.framework.web.RequestParametersPostResolver;
 import me.ixk.framework.web.WebContext;
 import me.ixk.framework.web.WebDataBinder;
 

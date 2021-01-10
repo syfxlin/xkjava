@@ -4,7 +4,6 @@
 
 package me.ixk.framework.expression;
 
-import io.github.imsejin.expression.AccessException;
 import io.github.imsejin.expression.BeanResolver;
 import io.github.imsejin.expression.EvaluationContext;
 import me.ixk.framework.ioc.XkJava;
@@ -25,7 +24,7 @@ public class ContainerBeanResolver implements BeanResolver {
     public Object resolve(
         final EvaluationContext context,
         final String beanName
-    ) throws AccessException {
+    ) {
         return this.app.make(beanName, Object.class);
     }
 }

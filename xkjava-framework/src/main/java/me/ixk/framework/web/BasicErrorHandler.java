@@ -16,6 +16,7 @@ import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.registry.after.WebResolverRegistry;
 import me.ixk.framework.route.RouteInfo;
 import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.web.resolver.AfterHandlerExceptionResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <!--
   ~ Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
   -->
@@ -55,6 +55,12 @@
       <artifactId>hutool-http</artifactId>
       <groupId>cn.hutool</groupId>
       <version>5.5.2</version>
+    </dependency>
+    <dependency>
+      <scope>compile</scope>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations</artifactId>
+      <version>20.1.0</version>
     </dependency>
   </dependencies>
 

@@ -8,7 +8,6 @@ import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.http.Callable;
 import me.ixk.framework.web.MethodReturnValue;
-import me.ixk.framework.web.ResponseReturnValueResolver;
 import me.ixk.framework.web.WebContext;
 
 /**
@@ -24,18 +23,18 @@ public class CallableReturnValueResolver
 
     @Override
     public boolean supportsReturnType(
-        Object value,
-        MethodReturnValue returnValue,
-        WebContext context
+        final Object value,
+        final MethodReturnValue returnValue,
+        final WebContext context
     ) {
         return value instanceof Callable;
     }
 
     @Override
     public Object resolveReturnValue(
-        Object value,
-        MethodReturnValue returnValue,
-        WebContext context
+        final Object value,
+        final MethodReturnValue returnValue,
+        final WebContext context
     ) {
         return ((Callable) value).call();
     }

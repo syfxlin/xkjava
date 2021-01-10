@@ -101,6 +101,7 @@ public class Response extends HttpServletResponseWrapper {
         return this.status(status.getValue(), status.getReasonPhrase());
     }
 
+    @SuppressWarnings("deprecation")
     public Response status(final int status, final String reason) {
         this.setStatus(status, reason);
         return this;
@@ -406,14 +407,13 @@ public class Response extends HttpServletResponseWrapper {
         }
 
         @Override
-        public void sendError(final int sc, final String msg)
-            throws IOException {}
+        public void sendError(final int sc, final String msg) {}
 
         @Override
-        public void sendError(final int sc) throws IOException {}
+        public void sendError(final int sc) {}
 
         @Override
-        public void sendRedirect(final String location) throws IOException {}
+        public void sendRedirect(final String location) {}
 
         @Override
         public void setDateHeader(final String name, final long date) {}
@@ -450,7 +450,7 @@ public class Response extends HttpServletResponseWrapper {
         public void setStatus(final int sc, final String sm) {}
 
         @Override
-        public ServletOutputStream getOutputStream() throws IOException {
+        public ServletOutputStream getOutputStream() {
             return null;
         }
 
@@ -460,7 +460,7 @@ public class Response extends HttpServletResponseWrapper {
         }
 
         @Override
-        public PrintWriter getWriter() throws IOException {
+        public PrintWriter getWriter() {
             return null;
         }
 
@@ -500,7 +500,7 @@ public class Response extends HttpServletResponseWrapper {
         }
 
         @Override
-        public void flushBuffer() throws IOException {}
+        public void flushBuffer() {}
 
         @Override
         public void resetBuffer() {}

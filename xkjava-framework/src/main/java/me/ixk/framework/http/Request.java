@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -598,32 +597,28 @@ public class Request extends HttpServletRequestWrapper {
         }
 
         @Override
-        public boolean authenticate(HttpServletResponse response)
-            throws IOException, ServletException {
+        public boolean authenticate(HttpServletResponse response) {
             return false;
         }
 
         @Override
-        public void login(String username, String password)
-            throws ServletException {}
+        public void login(String username, String password) {}
 
         @Override
-        public void logout() throws ServletException {}
+        public void logout() {}
 
         @Override
-        public Collection<Part> getParts()
-            throws IOException, ServletException {
+        public Collection<Part> getParts() {
             return null;
         }
 
         @Override
-        public Part getPart(String name) throws IOException, ServletException {
+        public Part getPart(String name) {
             return null;
         }
 
         @Override
-        public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass)
-            throws IOException, ServletException {
+        public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) {
             return null;
         }
 
@@ -643,8 +638,7 @@ public class Request extends HttpServletRequestWrapper {
         }
 
         @Override
-        public void setCharacterEncoding(String env)
-            throws UnsupportedEncodingException {}
+        public void setCharacterEncoding(String env) {}
 
         @Override
         public int getContentLength() {
@@ -662,7 +656,7 @@ public class Request extends HttpServletRequestWrapper {
         }
 
         @Override
-        public ServletInputStream getInputStream() throws IOException {
+        public ServletInputStream getInputStream() {
             return null;
         }
 
@@ -707,7 +701,7 @@ public class Request extends HttpServletRequestWrapper {
         }
 
         @Override
-        public BufferedReader getReader() throws IOException {
+        public BufferedReader getReader() {
             return null;
         }
 
