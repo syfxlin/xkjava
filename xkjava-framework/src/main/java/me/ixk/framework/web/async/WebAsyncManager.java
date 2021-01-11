@@ -14,6 +14,7 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.ioc.context.ScopeType;
 import me.ixk.framework.task.AsyncTaskExecutor;
 import me.ixk.framework.task.SimpleAsyncTaskExecutor;
+import me.ixk.framework.utils.ReflectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,7 @@ public class WebAsyncManager {
     private AsyncTaskExecutor executor = DEFAULT_TASK_EXECUTOR;
     private volatile Object concurrentResult = RESULT_NONE;
     private final Map<Object, CallableInterceptor> callableInterceptors = new LinkedHashMap<>();
+    private final Map<Object, DeferredInterceptor> deferredInterceptors = new LinkedHashMap<>();
 
     @Deprecated
     public WebAsyncManager() {
@@ -45,14 +47,15 @@ public class WebAsyncManager {
 
     @Autowired
     public WebAsyncManager(final Request request) {
-        this.request = request;
+        // TODO: 寻找更优方案
+        this.request = (Request) ReflectUtils.getProxyTarget(request);
     }
 
     public WebAsyncManager(
         final Request request,
         final AsyncTaskExecutor executor
     ) {
-        this.request = request;
+        this.request = (Request) ReflectUtils.getProxyTarget(request);
         this.executor = executor;
     }
 
@@ -75,6 +78,27 @@ public class WebAsyncManager {
 
     public CallableInterceptor getCallableInterceptor(final Object key) {
         return this.callableInterceptors.get(key);
+    }
+
+    public void registerDeferredInterceptor(
+        final Object key,
+        final DeferredInterceptor interceptor
+    ) {
+        this.deferredInterceptors.put(key, interceptor);
+    }
+
+    public void registerDeferredInterceptors(
+        final DeferredInterceptor... interceptors
+    ) {
+        for (final DeferredInterceptor interceptor : interceptors) {
+            final String key =
+                interceptor.getClass().getName() + ":" + interceptor.hashCode();
+            this.deferredInterceptors.put(key, interceptor);
+        }
+    }
+
+    public DeferredInterceptor getDeferredInterceptor(final Object key) {
+        return this.deferredInterceptors.get(key);
     }
 
     public boolean hasConcurrentResult() {
@@ -176,7 +200,7 @@ public class WebAsyncManager {
                     )
             );
 
-        this.request.startAsync();
+        this.startAsyncProcessing();
         try {
             final Future<?> future =
                 this.executor.submit(
@@ -210,6 +234,86 @@ public class WebAsyncManager {
             );
             setConcurrentResultAndDispatch(result);
             throw ex;
+        }
+    }
+
+    public void startDeferred(final WebDeferredTask<?> webDeferredTask) {
+        final Long timeout = webDeferredTask.getTimeout();
+        if (timeout != null) {
+            this.request.setTimeout(timeout);
+        }
+
+        List<DeferredInterceptor> interceptors = new ArrayList<>();
+        interceptors.add(webDeferredTask.getInterceptor());
+        interceptors.addAll(this.deferredInterceptors.values());
+
+        final DeferredInterceptorChain interceptorChain = new DeferredInterceptorChain(
+            interceptors
+        );
+        this.request.addTimeoutHandler(
+                () -> {
+                    try {
+                        interceptorChain.triggerAfterTimeout(
+                            this.request,
+                            webDeferredTask
+                        );
+                    } catch (Throwable ex) {
+                        setConcurrentResultAndDispatch(ex);
+                    }
+                }
+            );
+        this.request.addErrorHandler(
+                ex -> {
+                    try {
+                        if (
+                            !interceptorChain.triggerAfterError(
+                                this.request,
+                                webDeferredTask,
+                                ex
+                            )
+                        ) {
+                            return;
+                        }
+                        webDeferredTask.setResultInternal(ex);
+                    } catch (Throwable interceptorEx) {
+                        setConcurrentResultAndDispatch(interceptorEx);
+                    }
+                }
+            );
+        this.request.addCompletionHandler(
+                () ->
+                    interceptorChain.triggerAfterCompletion(
+                        this.request,
+                        webDeferredTask
+                    )
+            );
+        this.startAsyncProcessing();
+        try {
+            interceptorChain.applyBeforeProcess(this.request, webDeferredTask);
+            webDeferredTask.setResultHandler(
+                result -> {
+                    result =
+                        interceptorChain.applyAfterProcess(
+                            this.request,
+                            webDeferredTask,
+                            result
+                        );
+                    setConcurrentResultAndDispatch(result);
+                }
+            );
+        } catch (Throwable ex) {
+            setConcurrentResultAndDispatch(ex);
+        }
+    }
+
+    private void startAsyncProcessing() {
+        synchronized (WebAsyncManager.this) {
+            this.concurrentResult = RESULT_NONE;
+        }
+        this.request.startAsync();
+
+        if (log.isDebugEnabled()) {
+            log.debug("Started async request");
         }
     }
 

@@ -68,6 +68,10 @@ public class WebAsyncTask<V> {
         return timeout;
     }
 
+    public void setTimeout(@Nullable final Long timeout) {
+        this.timeout = timeout;
+    }
+
     public AsyncTaskExecutor getExecutor() {
         if (executor != null) {
             return executor;
@@ -117,29 +121,33 @@ public class WebAsyncTask<V> {
     CallableInterceptor getInterceptor() {
         return new CallableInterceptor() {
             @Override
-            public <T> Object handleTimeout(Request request, Callable<T> task)
-                throws Exception {
-                return WebAsyncTask.this.timeoutCallback != null
-                    ? WebAsyncTask.this.timeoutCallback.call()
+            public <T> Object handleTimeout(
+                final Request request,
+                final Callable<T> task
+            ) throws Exception {
+                return timeoutCallback != null
+                    ? timeoutCallback.call()
                     : CallableInterceptor.RESULT_NONE;
             }
 
             @Override
             public <T> Object handleError(
-                Request request,
-                Callable<T> task,
-                Throwable t
+                final Request request,
+                final Callable<T> task,
+                final Throwable t
             ) throws Exception {
-                return WebAsyncTask.this.errorCallback != null
-                    ? WebAsyncTask.this.errorCallback.apply(t)
+                return errorCallback != null
+                    ? errorCallback.apply(t)
                     : CallableInterceptor.RESULT_NONE;
             }
 
             @Override
-            public <T> void afterCompletion(Request request, Callable<T> task)
-                throws Exception {
-                if (WebAsyncTask.this.completionCallback != null) {
-                    WebAsyncTask.this.completionCallback.run();
+            public <T> void afterCompletion(
+                final Request request,
+                final Callable<T> task
+            ) throws Exception {
+                if (completionCallback != null) {
+                    completionCallback.run();
                 }
             }
         };

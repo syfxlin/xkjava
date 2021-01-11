@@ -504,9 +504,7 @@ public class Request
     }
 
     public void dispatch() {
-        if (this.isAsyncStarted()) {
-            this.getAsyncContext().dispatch();
-        }
+        this.getAsyncContext().dispatch();
     }
 
     public void setTimeout(Long timeout) {

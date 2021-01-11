@@ -37,6 +37,7 @@ import me.ixk.framework.http.Model;
 import me.ixk.framework.http.result.AsyncResult;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.StreamResult;
+import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.binder.DataBinder.Converter;
 import me.ixk.framework.ioc.factory.ObjectProvider;
 import me.ixk.framework.ioc.type.TypeWrapper;
@@ -45,7 +46,9 @@ import me.ixk.framework.utils.ResourceUtils;
 import me.ixk.framework.utils.ValidGroup;
 import me.ixk.framework.utils.ValidResult;
 import me.ixk.framework.web.WebDataBinder;
+import me.ixk.framework.web.async.WebAsyncManager;
 import me.ixk.framework.web.async.WebAsyncTask;
+import me.ixk.framework.web.async.WebDeferredTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -243,6 +246,47 @@ public class TestController {
                 .toResponse(context.getRequest(), context.getResponse(), null);
             return null;
         };
+    }
+
+    @GetMapping("/deferred")
+    public void deferred() {
+        final WebDeferredTask<String> deferredTask = new WebDeferredTask<>();
+        XkJava.of().make(WebAsyncManager.class).startDeferred(deferredTask);
+        new Thread(
+            () -> {
+                try {
+                    Thread.sleep(1000L);
+                } catch (final InterruptedException e) {
+                    log.error("Deferred sleep error", e);
+                }
+                log.info("Deferred set result");
+                deferredTask.setResult("deferred");
+            }
+        )
+            .start();
+    }
+
+    @GetMapping("/async-timeout")
+    public WebAsyncTask<String> asyncTimeout() {
+        final WebAsyncTask<String> asyncTask = new WebAsyncTask<>(
+            () -> {
+                log.info("Async timeout sleep");
+                try {
+                    Thread.sleep(3000L);
+                } catch (final Exception e) {
+                    log.error("Async sleep error", e);
+                }
+                return "result";
+            }
+        );
+        asyncTask.setTimeout(1000L);
+        asyncTask.onTimeout(
+            () -> {
+                log.info("Timeout");
+                return "timeout";
+            }
+        );
+        return asyncTask;
     }
 
     @InitBinder
