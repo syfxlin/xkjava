@@ -21,9 +21,7 @@ import me.ixk.framework.http.StdErrorJson;
 import me.ixk.framework.property.Environment;
 import me.ixk.framework.utils.ByteArrayUtf8Writer;
 import me.ixk.framework.utils.Json;
-import me.ixk.framework.web.ExceptionInfo;
 import me.ixk.framework.web.WebContext;
-import me.ixk.framework.web.WebDataBinder;
 
 /**
  * 最终异常处理器
@@ -44,21 +42,19 @@ public class FinallyAfterHandlerExceptionResolver
     }
 
     @Override
-    public Response resolveException(
+    public boolean resolveException(
         final Throwable e,
-        final ExceptionInfo info,
-        final WebContext context,
-        final WebDataBinder binder
+        final WebContext context
     ) {
         try {
-            final Request request = info.getRequest();
-            final Response response = info.getResponse();
+            final Request request = context.getRequest();
+            final Response response = context.getResponse();
             if (request.ajax()) {
                 this.handleJson(e, request, response);
             } else {
                 this.handleHtml(e, request, response);
             }
-            return response;
+            return true;
         } catch (IOException ex) {
             throw new Exception(ex);
         }

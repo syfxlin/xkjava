@@ -20,11 +20,11 @@ public class StreamResult extends AbstractHttpResult {
     private String contentType;
     private InputStream stream;
 
-    public StreamResult(MimeType contentType, InputStream stream) {
+    public StreamResult(final MimeType contentType, final InputStream stream) {
         this(contentType.asString(), stream);
     }
 
-    public StreamResult(String contentType, InputStream stream) {
+    public StreamResult(final String contentType, final InputStream stream) {
         this.contentType = contentType;
         this.stream = stream;
     }
@@ -35,25 +35,25 @@ public class StreamResult extends AbstractHttpResult {
     }
 
     @Override
-    public Response toResponse(
-        Request request,
-        Response response,
-        Object result
+    public boolean toResponse(
+        final Request request,
+        final Response response,
+        final Object result
     ) {
         response.contentType(this.contentType).content(this.stream);
-        return response;
+        return true;
     }
 
-    public StreamResult contentType(MimeType contentType) {
+    public StreamResult contentType(final MimeType contentType) {
         return this.contentType(contentType.asString());
     }
 
-    public StreamResult contentType(String contentType) {
+    public StreamResult contentType(final String contentType) {
         this.contentType = contentType;
         return this;
     }
 
-    public StreamResult with(InputStream stream) {
+    public StreamResult with(final InputStream stream) {
         this.stream = stream;
         return this;
     }

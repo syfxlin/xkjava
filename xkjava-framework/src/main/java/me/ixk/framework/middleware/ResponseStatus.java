@@ -8,7 +8,6 @@ import me.ixk.framework.annotations.Order;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
-import me.ixk.framework.route.RouteInfo;
 
 /**
  * 响应码
@@ -23,9 +22,8 @@ public class ResponseStatus implements Middleware {
     public Object handle(
         Request request,
         Response response,
-        MiddlewareChain next,
-        RouteInfo info
-    ) {
+        HandlerMiddlewareChain next
+    ) throws Exception {
         final Object value = next.handle(request, response);
         me.ixk.framework.annotations.ResponseStatus responseStatus = (me.ixk.framework.annotations.ResponseStatus) request.getAttribute(
             "me.ixk.framework.annotations.ResponseStatus"

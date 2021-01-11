@@ -8,7 +8,6 @@ import java.io.InputStream;
 import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.route.RouteInfo;
-import me.ixk.framework.web.MethodReturnValue;
 import me.ixk.framework.web.WebContext;
 
 /**
@@ -23,7 +22,6 @@ public class StreamResponseConvertResolver implements ResponseConvertResolver {
     @Override
     public boolean supportsConvert(
         final Object value,
-        final MethodReturnValue returnValue,
         final WebContext context,
         final RouteInfo info
     ) {
@@ -31,14 +29,13 @@ public class StreamResponseConvertResolver implements ResponseConvertResolver {
     }
 
     @Override
-    public Response resolveConvert(
+    public boolean resolveConvert(
         final Object value,
-        final MethodReturnValue returnValue,
         final WebContext context,
         final RouteInfo info
     ) {
         final Response response = context.getResponse();
         response.content((InputStream) value);
-        return response;
+        return true;
     }
 }

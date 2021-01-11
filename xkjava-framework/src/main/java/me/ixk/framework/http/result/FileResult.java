@@ -100,7 +100,7 @@ public class FileResult extends AbstractHttpResult {
     }
 
     @Override
-    public Response toResponse(
+    public boolean toResponse(
         Request request,
         Response response,
         Object result
@@ -112,7 +112,7 @@ public class FileResult extends AbstractHttpResult {
 
         if (StrUtil.isEmpty(fileName)) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return response;
+            return true;
         }
         long lastModified = LocalDateTime
             .ofInstant(
@@ -137,7 +137,7 @@ public class FileResult extends AbstractHttpResult {
                 )
             ); // Required in 304.
             response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
-            return response;
+            return true;
         }
 
         // If-Modified-Since header should be greater than LastModified. If so, then return 304.
@@ -159,7 +159,7 @@ public class FileResult extends AbstractHttpResult {
                 )
             ); // Required in 304.
             response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
-            return response;
+            return true;
         }
 
         // Validate request headers for resume ----------------------------------------------------
@@ -168,7 +168,7 @@ public class FileResult extends AbstractHttpResult {
         String ifMatch = request.getHeader("If-Match");
         if (ifMatch != null && !HttpUtils.matches(ifMatch, fileName)) {
             response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED);
-            return response;
+            return true;
         }
 
         // If-Unmodified-Since header should be greater than LastModified. If not, then return 412.
@@ -177,7 +177,7 @@ public class FileResult extends AbstractHttpResult {
             ifUnmodifiedSince != -1 && ifUnmodifiedSince + 1000 <= lastModified
         ) {
             response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED);
-            return response;
+            return true;
         }
 
         // Validate and process range -------------------------------------------------------------
@@ -195,7 +195,7 @@ public class FileResult extends AbstractHttpResult {
                 response.sendError(
                     HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE
                 );
-                return response;
+                return true;
             }
 
             String ifRange = request.getHeader("If-Range");
@@ -238,7 +238,7 @@ public class FileResult extends AbstractHttpResult {
                         response.sendError(
                             HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE
                         );
-                        return response;
+                        return true;
                     }
 
                     // Add range.
@@ -370,7 +370,7 @@ public class FileResult extends AbstractHttpResult {
                 output.println("--" + MULTIPART_BOUNDARY + "--");
             }
         }
-        return response;
+        return true;
     }
 
     private static class Range {

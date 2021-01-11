@@ -25,14 +25,7 @@ public abstract class AbstractFrameworkServlet extends HttpServlet {
     protected abstract void dispatch(
         HttpServletRequest request,
         HttpServletResponse response
-    );
-
-    protected final void processRequest(
-        final HttpServletRequest request,
-        final HttpServletResponse response
-    ) {
-        this.dispatch(request, response);
-    }
+    ) throws ServletException;
 
     @Override
     protected void service(
@@ -43,7 +36,7 @@ public abstract class AbstractFrameworkServlet extends HttpServlet {
         if (
             httpMethod == null || HttpMethod.PATCH.asString().equals(httpMethod)
         ) {
-            processRequest(req, resp);
+            this.dispatch(req, resp);
         } else {
             super.service(req, resp);
         }
@@ -53,40 +46,40 @@ public abstract class AbstractFrameworkServlet extends HttpServlet {
     protected void doGet(
         final HttpServletRequest req,
         final HttpServletResponse resp
-    ) {
-        this.processRequest(req, resp);
+    ) throws ServletException {
+        this.dispatch(req, resp);
     }
 
     @Override
     protected void doHead(
         final HttpServletRequest req,
         final HttpServletResponse resp
-    ) {
-        this.processRequest(req, resp);
+    ) throws ServletException {
+        this.dispatch(req, resp);
     }
 
     @Override
     protected void doPost(
         final HttpServletRequest req,
         final HttpServletResponse resp
-    ) {
-        this.processRequest(req, resp);
+    ) throws ServletException {
+        this.dispatch(req, resp);
     }
 
     @Override
     protected void doPut(
         final HttpServletRequest req,
         final HttpServletResponse resp
-    ) {
-        this.processRequest(req, resp);
+    ) throws ServletException {
+        this.dispatch(req, resp);
     }
 
     @Override
     protected void doDelete(
         final HttpServletRequest req,
         final HttpServletResponse resp
-    ) {
-        this.processRequest(req, resp);
+    ) throws ServletException {
+        this.dispatch(req, resp);
     }
 
     @Override

@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.http.HttpMethod;
+import me.ixk.framework.servlet.HandlerMethod;
 
 /**
  * 路由调度器
@@ -27,7 +28,7 @@ public class RouteDispatcher {
     }
 
     public RouteInfo dispatch(String httpMethod, String url) {
-        final Map<String, Map<String, RouteHandler>> staticRoutes =
+        final Map<String, Map<String, HandlerMethod>> staticRoutes =
             this.collector.getStaticRoutes();
         final Map<String, MergeRouteData> variableRoutes =
             this.collector.getVariableRoutes();
@@ -52,7 +53,7 @@ public class RouteDispatcher {
             return this.dispatch(HttpMethod.GET.asString(), url);
         }
 
-        for (Map<String, RouteHandler> routeData : staticRoutes.values()) {
+        for (Map<String, HandlerMethod> routeData : staticRoutes.values()) {
             if (routeData.containsKey(url)) {
                 return new RouteInfo(RouteStatus.METHOD_NOT_ALLOWED);
             }

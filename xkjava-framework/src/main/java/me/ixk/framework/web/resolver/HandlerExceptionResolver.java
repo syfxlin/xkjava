@@ -15,7 +15,7 @@ import me.ixk.framework.web.WebDataBinder;
  * @date 2020/11/24 上午 8:53
  */
 public interface HandlerExceptionResolver {
-    String NO_RESOLVER = "NO_RESOLVER";
+    Object NO_RESOLVER = new Object();
 
     /**
      * 解决异常

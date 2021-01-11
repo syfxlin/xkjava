@@ -7,6 +7,7 @@ package me.ixk.framework.route;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import me.ixk.framework.http.HttpMethod;
+import me.ixk.framework.servlet.HandlerMethod;
 
 /**
  * 路由注解描述
@@ -15,16 +16,17 @@ import me.ixk.framework.http.HttpMethod;
  * @date 2020/10/14 下午 4:49
  */
 public class AnnotationRouteDefinition {
+
     protected final String[] method;
 
     protected final String route;
 
-    protected final Method handler;
+    protected final HandlerMethod handler;
 
     public AnnotationRouteDefinition(
-        HttpMethod[] methods,
-        String route,
-        Method handler
+        final HttpMethod[] methods,
+        final String route,
+        final Method handler
     ) {
         this.method =
             Arrays
@@ -32,7 +34,7 @@ public class AnnotationRouteDefinition {
                 .map(HttpMethod::asString)
                 .toArray(String[]::new);
         this.route = route;
-        this.handler = handler;
+        this.handler = new HandlerMethod(handler);
     }
 
     public String[] getMethod() {
@@ -43,7 +45,7 @@ public class AnnotationRouteDefinition {
         return route;
     }
 
-    public Method getHandler() {
+    public HandlerMethod getHandler() {
         return handler;
     }
 }

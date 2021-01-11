@@ -5,7 +5,6 @@
 package me.ixk.framework.route;
 
 import cn.hutool.core.util.ReflectUtil;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +17,8 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Middleware;
 import me.ixk.framework.registry.after.MiddlewareRegistry;
 import me.ixk.framework.registry.after.RouteRegistry;
+import me.ixk.framework.servlet.HandlerMethod;
 import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.web.ControllerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,7 @@ public class RouteCollector {
     );
 
     private final XkJava app;
-    private final Map<String, Map<String, RouteHandler>> staticRoutes;
+    private final Map<String, Map<String, HandlerMethod>> staticRoutes;
     private final Map<String, List<RouteData>> variableRoutes;
 
     private final RouteParser routeParser;
@@ -84,7 +83,7 @@ public class RouteCollector {
         }
     }
 
-    private RouteHandler getHandler(Method handler) {
+    private HandlerMethod getHandler(HandlerMethod handler) {
         this.registerAnnotationMiddleware(handler);
         List<Class<? extends Middleware>> middleware = this.middleware;
         this.middleware = new ArrayList<>();
@@ -94,17 +93,16 @@ public class RouteCollector {
         middleware.addAll(this.middlewareRegistry.getGlobalMiddleware());
         // 重新排序
         AnnotationUtils.sortByOrderAnnotation(middleware);
-        return new RouteHandler(
-            handler,
-            new ControllerHandler(handler),
+        handler.setMiddlewares(
             middleware.stream().map(this.app::make).collect(Collectors.toList())
         );
+        return handler;
     }
 
-    private void registerAnnotationMiddleware(Method handler) {
+    private void registerAnnotationMiddleware(HandlerMethod handler) {
         AnnotationMiddlewareDefinition definition =
             this.middlewareRegistry.getAnnotationMiddlewareDefinitions()
-                .get(handler);
+                .get(handler.getMethod());
         if (definition == null) {
             return;
         }
@@ -115,25 +113,37 @@ public class RouteCollector {
         }
     }
 
-    public void addRoute(HttpMethod httpMethod, String route, Method handler) {
+    public void addRoute(
+        HttpMethod httpMethod,
+        String route,
+        HandlerMethod handler
+    ) {
         this.addRoute(httpMethod.asString(), route, handler);
     }
 
     public void addRoute(
         HttpMethod[] httpMethods,
         String route,
-        Method handler
+        HandlerMethod handler
     ) {
         for (HttpMethod httpMethod : httpMethods) {
             this.addRoute(httpMethod.asString(), route, handler);
         }
     }
 
-    public void addRoute(String httpMethod, String route, Method handler) {
+    public void addRoute(
+        String httpMethod,
+        String route,
+        HandlerMethod handler
+    ) {
         this.addRoute(new String[] { httpMethod }, route, handler);
     }
 
-    public void addRoute(String[] httpMethods, String route, Method handler) {
+    public void addRoute(
+        String[] httpMethods,
+        String route,
+        HandlerMethod handler
+    ) {
         route = this.routeGroupPrefix + route;
         RouteData routeData = this.routeParser.parse(route);
         if (log.isDebugEnabled()) {
@@ -170,52 +180,60 @@ public class RouteCollector {
         return this;
     }
 
-    public void get(String route, Method handler) {
-        this.addRoute("GET", route, handler);
+    public void get(String route, HandlerMethod handler) {
+        this.addRoute(HttpMethod.GET, route, handler);
     }
 
-    public void post(String route, Method handler) {
-        this.addRoute("POST", route, handler);
+    public void post(String route, HandlerMethod handler) {
+        this.addRoute(HttpMethod.POST, route, handler);
     }
 
-    public void put(String route, Method handler) {
-        this.addRoute("PUT", route, handler);
+    public void put(String route, HandlerMethod handler) {
+        this.addRoute(HttpMethod.PUT, route, handler);
     }
 
-    public void delete(String route, Method handler) {
-        this.addRoute("DELETE", route, handler);
+    public void delete(String route, HandlerMethod handler) {
+        this.addRoute(HttpMethod.DELETE, route, handler);
     }
 
-    public void patch(String route, Method handler) {
-        this.addRoute("PATCH", route, handler);
+    public void patch(String route, HandlerMethod handler) {
+        this.addRoute(HttpMethod.PATCH, route, handler);
     }
 
-    public void head(String route, Method handler) {
-        this.addRoute("HEAD", route, handler);
+    public void head(String route, HandlerMethod handler) {
+        this.addRoute(HttpMethod.HEAD, route, handler);
     }
 
-    public void options(String route, Method handler) {
-        this.addRoute("OPTIONS", route, handler);
+    public void options(String route, HandlerMethod handler) {
+        this.addRoute(HttpMethod.OPTIONS, route, handler);
     }
 
-    public void match(String[] httpMethods, String route, Method handler) {
+    public void match(
+        String[] httpMethods,
+        String route,
+        HandlerMethod handler
+    ) {
         this.addRoute(httpMethods, route, handler);
     }
 
-    public void match(HttpMethod[] httpMethods, String route, Method handler) {
+    public void match(
+        HttpMethod[] httpMethods,
+        String route,
+        HandlerMethod handler
+    ) {
         this.addRoute(httpMethods, route, handler);
     }
 
-    public void any(String route, Method handler) {
+    public void any(String route, HandlerMethod handler) {
         this.addRoute(
-                new String[] {
-                    "GET",
-                    "POST",
-                    "PUT",
-                    "DELETE",
-                    "PATCH",
-                    "HEAD",
-                    "OPTIONS",
+                new HttpMethod[] {
+                    HttpMethod.GET,
+                    HttpMethod.POST,
+                    HttpMethod.PUT,
+                    HttpMethod.DELETE,
+                    HttpMethod.PATCH,
+                    HttpMethod.HEAD,
+                    HttpMethod.OPTIONS,
                 },
                 route,
                 handler
@@ -276,9 +294,9 @@ public class RouteCollector {
     private void addStaticRoute(
         String httpMethod,
         RouteData routeData,
-        RouteHandler handler
+        HandlerMethod handler
     ) {
-        Map<String, RouteHandler> methodMap =
+        Map<String, HandlerMethod> methodMap =
             this.staticRoutes.getOrDefault(
                     httpMethod,
                     new ConcurrentHashMap<>()
@@ -290,7 +308,7 @@ public class RouteCollector {
     private void addVariableRoute(
         String httpMethod,
         RouteData routeData,
-        RouteHandler handler
+        HandlerMethod handler
     ) {
         List<RouteData> routeList =
             this.variableRoutes.getOrDefault(httpMethod, new ArrayList<>());
@@ -310,7 +328,7 @@ public class RouteCollector {
         return map;
     }
 
-    public Map<String, Map<String, RouteHandler>> getStaticRoutes() {
+    public Map<String, Map<String, HandlerMethod>> getStaticRoutes() {
         return staticRoutes;
     }
 

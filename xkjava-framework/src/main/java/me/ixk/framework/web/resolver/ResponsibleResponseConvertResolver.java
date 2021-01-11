@@ -11,7 +11,6 @@ import me.ixk.framework.exceptions.ResponseException;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.Responsible;
 import me.ixk.framework.route.RouteInfo;
-import me.ixk.framework.web.MethodReturnValue;
 import me.ixk.framework.web.WebContext;
 
 /**
@@ -27,7 +26,6 @@ public class ResponsibleResponseConvertResolver
     @Override
     public boolean supportsConvert(
         Object value,
-        MethodReturnValue returnValue,
         WebContext context,
         RouteInfo info
     ) {
@@ -39,14 +37,13 @@ public class ResponsibleResponseConvertResolver
     }
 
     @Override
-    public Response resolveConvert(
+    public boolean resolveConvert(
         Object value,
-        MethodReturnValue returnValue,
         WebContext context,
         RouteInfo info
     ) {
         if (value == null) {
-            return context.getResponse();
+            return true;
         }
         if (value instanceof Responsible) {
             try {
@@ -60,12 +57,12 @@ public class ResponsibleResponseConvertResolver
             }
         }
         if (value instanceof Response) {
-            return (Response) value;
+            return true;
         }
         if (value instanceof HttpServletResponse) {
             final Response response = context.getResponse();
             response.setResponse((HttpServletResponse) value);
-            return response;
+            return true;
         }
         throw new ResponseException(
             "The return value cannot be converted into a response. [" +

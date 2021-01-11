@@ -15,23 +15,24 @@ import me.ixk.framework.http.Response;
  * @date 2020/10/14 上午 9:11
  */
 public class RedirectResult extends AbstractHttpResult {
+
     protected String url;
 
-    public RedirectResult(String url) {
+    public RedirectResult(final String url) {
         this(url, HttpStatus.FOUND);
     }
 
-    public RedirectResult(String url, int status) {
+    public RedirectResult(final String url, final int status) {
         this.url = url;
         this.status(status);
     }
 
-    public RedirectResult(String url, HttpStatus status) {
+    public RedirectResult(final String url, final HttpStatus status) {
         this.url = url;
         this.status(status);
     }
 
-    public RedirectResult with(String url) {
+    public RedirectResult with(final String url) {
         this.url = url;
         return this;
     }
@@ -50,11 +51,12 @@ public class RedirectResult extends AbstractHttpResult {
     }
 
     @Override
-    public Response toResponse(
-        Request request,
-        Response response,
-        Object result
+    public boolean toResponse(
+        final Request request,
+        final Response response,
+        final Object result
     ) {
-        return response.redirect(this.url, this.getResponse().getStatus());
+        response.redirect(this.url, this.getResponse().getStatus());
+        return true;
     }
 }

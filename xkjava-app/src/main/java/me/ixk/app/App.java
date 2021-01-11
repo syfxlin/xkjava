@@ -11,15 +11,14 @@ import me.ixk.framework.annotations.MapperScan;
 import me.ixk.framework.ioc.XkJava;
 
 /**
- * 启动流程：XkJava.create().boot() -> load() -> booting() -> Bootstrap -> Provider
- * -> booted() -> Start Jetty
+ * 启动流程：XkJava.create().boot() -> load() -> booting() -> Bootstrap -> Provider -> booted() -> Start
+ * Jetty
  * <p>
  * 请求流程：HttpServlet.service()[Jetty] -> AbstractFrameworkServlet.do* ->
  * AbstractFrameworkServlet.processRequest() -> DispatcherServlet.dispatch() ->
- * RouteManager.dispatch() -> RouteHandler.handle() -> MiddlewareChain.handle()
- * -> Before Middleware -> Handler.handle() -> ResponseProcessor.toResponse()[View
- * Render, Object wrap] -> After Middleware -> ResponseProcessor.dispatchResponse()
- * -> ***
+ * RouteManager.dispatch() -> RouteHandler.handle() -> HandlerMiddlewareChain.handle() -> Before
+ * Middleware -> Handler.handle() -> ResponseProcessor.toResponse()[View Render, Object wrap] ->
+ * After Middleware -> ResponseProcessor.dispatchResponse() -> ***
  * <p>
  * 错误处理：ErrorHandler.handle() 如果是浏览器请求，则返回 HTML 错误页，否则返回 JSON
  */

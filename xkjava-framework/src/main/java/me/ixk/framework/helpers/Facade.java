@@ -12,7 +12,6 @@ import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SessionManager;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.property.Environment;
-import me.ixk.framework.route.RouteManager;
 import me.ixk.framework.servlet.DispatcherServlet;
 import me.ixk.framework.utils.Crypt;
 import me.ixk.framework.utils.Hash;
@@ -27,7 +26,7 @@ import me.ixk.framework.web.WebContext;
  */
 public class Facade {
 
-    private static <T> T make(Class<T> clazz) {
+    private static <T> T make(final Class<T> clazz) {
         return XkJava.of().make(clazz);
     }
 
@@ -63,10 +62,6 @@ public class Facade {
         return make(Response.class);
     }
 
-    public static RouteManager route() {
-        return make(RouteManager.class);
-    }
-
     public static SessionManager session() {
         return make(SessionManager.class);
     }
@@ -82,11 +77,11 @@ public class Facade {
     /* ===================== */
 
     public static Object proxy(
-        Object target,
-        Class<?> targetType,
-        Class<?>[] interfaces,
-        Class<?>[] argsTypes,
-        Object[] args
+        final Object target,
+        final Class<?> targetType,
+        final Class<?>[] interfaces,
+        final Class<?>[] argsTypes,
+        final Object[] args
     ) {
         return ProxyCreator.createProxy(
             target,

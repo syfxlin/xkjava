@@ -37,16 +37,16 @@ public interface Renderable extends Responsible {
      * @param request  请求对象
      * @param response 响应对象
      * @param result   返回值
-     *
      * @return 响应对象
      * @throws IOException IO 异常
      */
     @Override
-    default Response toResponse(
+    default boolean toResponse(
         Request request,
         Response response,
         Object result
     ) throws IOException {
-        return response.contentType(this.contentType()).content(this.render());
+        response.contentType(this.contentType()).content(this.render());
+        return true;
     }
 }

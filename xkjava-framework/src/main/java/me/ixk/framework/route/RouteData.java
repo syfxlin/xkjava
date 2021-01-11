@@ -5,6 +5,7 @@
 package me.ixk.framework.route;
 
 import java.util.List;
+import me.ixk.framework.servlet.HandlerMethod;
 
 /**
  * 路由数据
@@ -13,11 +14,12 @@ import java.util.List;
  * @date 2020/10/14 下午 4:50
  */
 public class RouteData {
+
     protected final boolean isStatic;
     protected final String regex;
     protected final String route;
     protected final List<String> variableNames;
-    protected volatile RouteHandler handler;
+    protected volatile HandlerMethod handler;
 
     public RouteData(
         String route,
@@ -47,11 +49,11 @@ public class RouteData {
         return regex;
     }
 
-    public void setHandler(RouteHandler handler) {
+    public void setHandler(HandlerMethod handler) {
         this.handler = handler;
     }
 
-    public RouteHandler getHandler() {
+    public HandlerMethod getHandler() {
         return handler;
     }
 

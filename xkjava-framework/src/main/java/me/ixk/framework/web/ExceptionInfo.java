@@ -16,35 +16,35 @@ import me.ixk.framework.utils.MergedAnnotation;
  * @date 2020/11/24 上午 9:34
  */
 public class ExceptionInfo {
-    private final Object controller;
-    private final Class<?> controllerClass;
+
+    private final Object handler;
+    private final Class<?> handlerType;
     private final Method method;
     private final MergedAnnotation methodAnnotation;
     private final Request request;
     private final Response response;
 
     public ExceptionInfo(
-        Object controller,
-        Class<?> controllerClass,
-        Method method,
-        MergedAnnotation methodAnnotation,
-        Request request,
-        Response response
+        final Object handler,
+        final Class<?> handlerType,
+        final Method method,
+        final Request request,
+        final Response response
     ) {
-        this.controller = controller;
-        this.controllerClass = controllerClass;
+        this.handler = handler;
+        this.handlerType = handlerType;
         this.method = method;
-        this.methodAnnotation = methodAnnotation;
+        this.methodAnnotation = MergedAnnotation.from(method);
         this.request = request;
         this.response = response;
     }
 
-    public Object getController() {
-        return controller;
+    public Object getHandler() {
+        return handler;
     }
 
-    public Class<?> getControllerClass() {
-        return controllerClass;
+    public Class<?> getHandlerType() {
+        return handlerType;
     }
 
     public Method getMethod() {

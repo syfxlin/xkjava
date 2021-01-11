@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.utils.ParameterNameDiscoverer;
 
 /**
  * 方法参数
@@ -17,8 +18,7 @@ import me.ixk.framework.utils.MergedAnnotation;
  */
 public class MethodParameter {
 
-    private final Object controller;
-    private final Class<?> controllerClass;
+    private final Object handler;
     private final Method method;
     private final Parameter[] parameters;
     private final String[] parameterNames;
@@ -26,23 +26,15 @@ public class MethodParameter {
     private final MergedAnnotation[] parameterAnnotations;
     private volatile int parameterIndex;
 
-    public MethodParameter(
-        final Object controller,
-        final Class<?> controllerClass,
-        final Method method,
-        final Parameter[] parameter,
-        final String[] parameterName,
-        final MergedAnnotation methodAnnotation
-    ) {
-        this.controller = controller;
-        this.controllerClass = controllerClass;
+    public MethodParameter(final Object handler, final Method method) {
+        this.handler = handler;
         this.method = method;
-        this.parameters = parameter;
-        this.parameterNames = parameterName;
-        this.methodAnnotation = methodAnnotation;
+        this.parameters = method.getParameters();
+        this.parameterNames = ParameterNameDiscoverer.getParameterNames(method);
+        this.methodAnnotation = MergedAnnotation.from(method);
         this.parameterAnnotations =
             Arrays
-                .stream(parameter)
+                .stream(this.parameters)
                 .map(MergedAnnotation::from)
                 .toArray(MergedAnnotation[]::new);
     }
@@ -60,12 +52,8 @@ public class MethodParameter {
         this.parameterIndex = parameterIndex;
     }
 
-    public Object getController() {
-        return controller;
-    }
-
-    public Class<?> getControllerClass() {
-        return controllerClass;
+    public Object getHandler() {
+        return handler;
     }
 
     public Method getMethod() {

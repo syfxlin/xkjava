@@ -14,29 +14,25 @@ import me.ixk.framework.utils.MergedAnnotation;
  * @date 2020/10/14 下午 5:17
  */
 public class MethodReturnValue {
-    private final Object controller;
-    private final Class<?> controllerClass;
+
+    private final Object handler;
+    private final Class<?> handlerType;
     private final Method method;
     private final MergedAnnotation methodAnnotation;
 
     public MethodReturnValue(
-        Object controller,
-        Class<?> controllerClass,
-        Method method,
-        MergedAnnotation methodAnnotation
+        Object handler,
+        Class<?> handlerType,
+        Method method
     ) {
-        this.controller = controller;
-        this.controllerClass = controllerClass;
+        this.handler = handler;
+        this.handlerType = handlerType;
         this.method = method;
-        this.methodAnnotation = methodAnnotation;
+        this.methodAnnotation = MergedAnnotation.from(method);
     }
 
-    public Object getController() {
-        return controller;
-    }
-
-    public Class<?> getControllerClass() {
-        return controllerClass;
+    public Object getHandler() {
+        return handler;
     }
 
     public Method getMethod() {

@@ -20,10 +20,9 @@ public interface Responsible {
      * @param request  请求对象
      * @param response 响应对象
      * @param result   返回值
-     *
      * @return 响应对象
      * @throws IOException IO 异常
      */
-    Response toResponse(Request request, Response response, Object result)
+    boolean toResponse(Request request, Response response, Object result)
         throws IOException;
 }

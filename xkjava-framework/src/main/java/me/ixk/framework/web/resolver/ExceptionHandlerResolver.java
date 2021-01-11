@@ -54,20 +54,20 @@ public class ExceptionHandlerResolver implements HandlerExceptionResolver {
         WebDataBinder binder
     ) {
         Object result = NO_RESOLVER;
-        final Class<?> controllerClass = info.getControllerClass();
+        final Class<?> handlerType = info.getHandlerType();
         final Map<Class<? extends Throwable>, Method> resolver =
-            this.registry.getControllerResolver(controllerClass);
+            this.registry.getControllerResolver(handlerType);
         if (resolver != null) {
-            result = this.processException(e, controllerClass, resolver);
-            if (!result.equals(NO_RESOLVER)) {
+            result = this.processException(e, resolver);
+            if (result != NO_RESOLVER) {
                 return result;
             }
         }
         for (final Map.Entry<Class<?>, Map<Class<? extends Throwable>, Method>> entry : registry
             .getAdviceResolvers()
             .entrySet()) {
-            result = this.processException(e, entry.getKey(), entry.getValue());
-            if (!result.equals(NO_RESOLVER)) {
+            result = this.processException(e, entry.getValue());
+            if (result != NO_RESOLVER) {
                 return result;
             }
         }
@@ -77,7 +77,6 @@ public class ExceptionHandlerResolver implements HandlerExceptionResolver {
 
     private Object processException(
         final Throwable exception,
-        final Class<?> clazz,
         final Map<Class<? extends Throwable>, Method> resolver
     ) {
         try {
@@ -92,7 +91,6 @@ public class ExceptionHandlerResolver implements HandlerExceptionResolver {
                 args.put(Exception.class.getName(), exception);
                 // 获取返回值
                 return this.app.call(
-                        clazz,
                         method,
                         new DefaultDataBinder(this.app, args)
                     );

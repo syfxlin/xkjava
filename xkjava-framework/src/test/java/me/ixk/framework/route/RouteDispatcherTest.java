@@ -6,8 +6,8 @@ package me.ixk.framework.route;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.lang.reflect.Method;
 import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.servlet.HandlerMethod;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +24,9 @@ class RouteDispatcherTest {
     @Test
     void dispatch() throws NoSuchMethodException {
         assertEquals("", "");
-        final Method handler = this.getClass().getMethod("handler");
+        final HandlerMethod handler = new HandlerMethod(
+            this.getClass().getMethod("handler")
+        );
         final RouteCollector collector = dispatcher.getCollector();
         collector.get("/{id?:[0-9]+}", handler);
         collector.get("/user1/{id}", handler);

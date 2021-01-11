@@ -6,6 +6,7 @@ package me.ixk.framework.route;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ixk.framework.servlet.HandlerMethod;
 
 /**
  * 路由结果
@@ -19,7 +20,7 @@ public class RouteInfo {
 
     protected volatile String route = null;
 
-    protected volatile RouteHandler handler = null;
+    protected volatile HandlerMethod handler = null;
 
     protected Map<String, String> params = null;
 
@@ -29,13 +30,13 @@ public class RouteInfo {
         this.status = status;
     }
 
-    public RouteInfo(RouteStatus status, RouteHandler handler, String route) {
+    public RouteInfo(RouteStatus status, HandlerMethod handler, String route) {
         this(status, handler, new ConcurrentHashMap<>(), route);
     }
 
     public RouteInfo(
         RouteStatus status,
-        RouteHandler handler,
+        HandlerMethod handler,
         Map<String, String> params,
         String route
     ) {
@@ -53,11 +54,11 @@ public class RouteInfo {
         this.status = status;
     }
 
-    public RouteHandler getHandler() {
+    public HandlerMethod getHandler() {
         return handler;
     }
 
-    public void setHandler(RouteHandler handler) {
+    public void setHandler(HandlerMethod handler) {
         this.handler = handler;
     }
 

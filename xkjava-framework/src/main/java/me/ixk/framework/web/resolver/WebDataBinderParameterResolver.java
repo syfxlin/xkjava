@@ -65,7 +65,7 @@ public class WebDataBinderParameterResolver
         if (dependency == null && dataBind != null && dataBind.required()) {
             throw new NullPointerException(
                 "Target [" +
-                parameter.getControllerClass().getName() +
+                parameter.getMethod().getDeclaringClass().getName() +
                 "@" +
                 parameter.getMethod().getName() +
                 "(" +

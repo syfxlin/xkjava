@@ -7,10 +7,8 @@ package me.ixk.framework.web.resolver;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.http.MimeType;
-import me.ixk.framework.http.Response;
 import me.ixk.framework.route.RouteInfo;
 import me.ixk.framework.utils.Json;
-import me.ixk.framework.web.MethodReturnValue;
 import me.ixk.framework.web.WebContext;
 
 /**
@@ -26,7 +24,6 @@ public class ObjectResponseConvertResolver implements ResponseConvertResolver {
     @Override
     public boolean supportsConvert(
         final Object value,
-        final MethodReturnValue returnValue,
         final WebContext context,
         final RouteInfo info
     ) {
@@ -34,15 +31,15 @@ public class ObjectResponseConvertResolver implements ResponseConvertResolver {
     }
 
     @Override
-    public Response resolveConvert(
+    public boolean resolveConvert(
         final Object value,
-        final MethodReturnValue returnValue,
         final WebContext context,
         final RouteInfo info
     ) {
-        return context
+        context
             .getResponse()
             .contentType(MimeType.APPLICATION_JSON)
             .content(Json.stringify(value));
+        return true;
     }
 }

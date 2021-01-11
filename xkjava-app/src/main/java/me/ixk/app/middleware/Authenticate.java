@@ -12,9 +12,8 @@ import me.ixk.framework.annotations.RouteMiddleware;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.middleware.HandlerMiddlewareChain;
 import me.ixk.framework.middleware.Middleware;
-import me.ixk.framework.middleware.MiddlewareChain;
-import me.ixk.framework.route.RouteInfo;
 
 @RouteMiddleware(name = "auth")
 @Order(Order.MEDIUM_PRECEDENCE)
@@ -22,11 +21,10 @@ public class Authenticate implements Middleware {
 
     @Override
     public Object handle(
-        Request request,
-        Response response,
-        MiddlewareChain next,
-        RouteInfo info
-    ) {
+        final Request request,
+        final Response response,
+        final HandlerMiddlewareChain next
+    ) throws Exception {
         if (XkJava.of().make(Auth.class).guest()) {
             return response().redirect("/login");
         }

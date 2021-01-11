@@ -14,7 +14,6 @@ import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SetCookie;
-import me.ixk.framework.route.RouteInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +39,8 @@ public class VerifyCsrfToken implements Middleware {
     public Object handle(
         Request request,
         Response response,
-        MiddlewareChain next,
-        RouteInfo info
-    ) {
+        HandlerMiddlewareChain next
+    ) throws Exception {
         if (
             this.isReading(request) ||
             this.skipVerify(request) ||
