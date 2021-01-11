@@ -14,6 +14,7 @@ import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.context.ScopeType;
 import me.ixk.framework.property.Environment;
 import me.ixk.framework.servlet.DispatcherServlet;
+import me.ixk.framework.web.async.WebAsyncManager;
 
 /**
  * Web 上下文
@@ -32,6 +33,7 @@ public class WebContext {
     private final Response response;
     private final CookieManager cookieManager;
     private final SessionManager sessionManager;
+    private final WebAsyncManager asyncManager;
 
     @Deprecated
     public WebContext() {
@@ -43,6 +45,7 @@ public class WebContext {
         this.response = null;
         this.cookieManager = null;
         this.sessionManager = null;
+        this.asyncManager = null;
     }
 
     public WebContext(final XkJava application) {
@@ -53,6 +56,7 @@ public class WebContext {
         this.response = application.make(Response.class);
         this.cookieManager = application.make(CookieManager.class);
         this.sessionManager = application.make(SessionManager.class);
+        this.asyncManager = application.make(WebAsyncManager.class);
     }
 
     public XkJava getApplication() {
@@ -81,5 +85,9 @@ public class WebContext {
 
     public SessionManager getSessionManager() {
         return sessionManager;
+    }
+
+    public WebAsyncManager getAsyncManager() {
+        return asyncManager;
     }
 }

@@ -31,8 +31,8 @@ public class Result {
     public static final String VIEW_RETURN = "view:";
 
     public static <T extends AbstractHttpResult> T custom(
-        Class<T> resultHandler,
-        Object... parameters
+        final Class<T> resultHandler,
+        final Object... parameters
     ) {
         return ReflectUtil.newInstance(resultHandler, parameters);
     }
@@ -41,7 +41,7 @@ public class Result {
         return new EmptyResult();
     }
 
-    public static HtmlResult html(String html) {
+    public static HtmlResult html(final String html) {
         return new HtmlResult(html);
     }
 
@@ -49,106 +49,118 @@ public class Result {
         return new JsonResult();
     }
 
-    public static JsonResult json(Object object) {
+    public static JsonResult json(final Object object) {
         return new JsonResult(object);
     }
 
-    public static JsonResult json(JsonNode jsonNode) {
+    public static JsonResult json(final JsonNode jsonNode) {
         return new JsonResult(jsonNode);
     }
 
-    public static StringJsonResult stringJson(String json) {
+    public static StringJsonResult stringJson(final String json) {
         return new StringJsonResult(json);
     }
 
-    public static TextResult text(String text) {
+    public static TextResult text(final String text) {
         return new TextResult(text);
     }
 
-    public static RedirectResult redirect(String url) {
+    public static RedirectResult redirect(final String url) {
         return new RedirectResult(url);
     }
 
-    public static RedirectResult redirect(String url, int status) {
+    public static RedirectResult redirect(final String url, final int status) {
         return new RedirectResult(url, status);
     }
 
-    public static RedirectResult redirect(String url, HttpStatus status) {
+    public static RedirectResult redirect(
+        final String url,
+        final HttpStatus status
+    ) {
         return new RedirectResult(url, status);
     }
 
-    public static ViewResult view(String view) {
+    public static ViewResult view(final String view) {
         return new ViewResult(view);
     }
 
-    public static ViewResult view(String view, Map<String, Object> data) {
+    public static ViewResult view(
+        final String view,
+        final Map<String, Object> data
+    ) {
         return new ViewResult(view, data);
     }
 
     public static ViewResult view(
-        String view,
-        Map<String, Object> data,
-        FilterCallback callback
+        final String view,
+        final Map<String, Object> data,
+        final FilterCallback callback
     ) {
         return new ViewResult(view, data, callback);
     }
 
-    public static StreamResult stream(String contentType, InputStream stream) {
-        return new StreamResult(contentType, stream);
-    }
-
     public static StreamResult stream(
-        MimeType contentType,
-        InputStream stream
+        final String contentType,
+        final InputStream stream
     ) {
         return new StreamResult(contentType, stream);
     }
 
-    public static FileResult file(String contentType, String file) {
+    public static StreamResult stream(
+        final MimeType contentType,
+        final InputStream stream
+    ) {
+        return new StreamResult(stream, contentType);
+    }
+
+    public static FileResult file(final String contentType, final String file) {
         return new FileResult(file).contentType(contentType);
     }
 
-    public static FileResult file(MimeType contentType, String file) {
+    public static FileResult file(
+        final MimeType contentType,
+        final String file
+    ) {
         return new FileResult(file).contentType(contentType);
     }
 
-    public static FileResult file(String contentType, File file) {
+    public static FileResult file(final String contentType, final File file) {
         return new FileResult(file).contentType(contentType);
     }
 
-    public static FileResult file(MimeType contentType, File file) {
+    public static FileResult file(final MimeType contentType, final File file) {
         return new FileResult(file).contentType(contentType);
     }
 
-    public static FileResult file(String file) {
+    public static FileResult file(final String file) {
         return new FileResult(file);
     }
 
-    public static FileResult file(File file) {
+    public static FileResult file(final File file) {
         return new FileResult(file);
     }
 
-    public static void abort(HttpStatus status) {
+    public static void abort(final HttpStatus status) {
         abort(status, "");
     }
 
-    public static void abort(HttpStatus status, String message) {
+    public static void abort(final HttpStatus status, final String message) {
         abort(status, message, new ConcurrentHashMap<>());
     }
 
     public static void abort(
-        HttpStatus status,
-        String message,
-        Map<String, String> headers
+        final HttpStatus status,
+        final String message,
+        final Map<String, String> headers
     ) {
         abort(status, message, headers, null);
     }
 
     public static void abort(
-        HttpStatus status,
-        String message,
-        Map<String, String> headers,
-        Throwable e
+        final HttpStatus status,
+        final String message,
+        final Map<String, String> headers,
+        final Throwable e
     ) {
         throw new HttpException(status, message, headers, e);
     }

@@ -95,6 +95,21 @@ public class WebAsyncManager {
         }
     }
 
+    public void startAsync(final Callable<?> callable) {
+        this.startAsync(new WebAsyncTask<>(callable));
+    }
+
+    public void startAsync(final Runnable runnable) {
+        this.startAsync(
+                new WebAsyncTask<>(
+                    () -> {
+                        runnable.run();
+                        return null;
+                    }
+                )
+            );
+    }
+
     public void startAsync(final WebAsyncTask<?> webAsyncTask) {
         final Long timeout = webAsyncTask.getTimeout();
         if (timeout != null) {

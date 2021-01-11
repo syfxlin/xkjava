@@ -94,8 +94,7 @@ public class DispatcherServlet extends AbstractFrameworkServlet {
         request.setRoute(routeInfo);
 
         final WebContext webContext = this.app.make(WebContext.class);
-        final WebAsyncManager asyncManager =
-            this.app.make(WebAsyncManager.class);
+        final WebAsyncManager asyncManager = webContext.getAsyncManager();
         try {
             switch (routeInfo.getStatus()) {
                 case NOT_FOUND:

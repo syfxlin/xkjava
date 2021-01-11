@@ -4,10 +4,13 @@
 
 package me.ixk.app.controllers;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.concurrent.Callable;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import me.ixk.app.beans.SessionTest;
@@ -30,12 +33,10 @@ import me.ixk.framework.annotations.WebBind;
 import me.ixk.framework.annotations.WebBind.Type;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.http.HttpStatus;
-import me.ixk.framework.http.MimeType;
 import me.ixk.framework.http.Model;
-import me.ixk.framework.http.result.FileResult;
+import me.ixk.framework.http.result.AsyncResult;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.StreamResult;
-import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.binder.DataBinder.Converter;
 import me.ixk.framework.ioc.factory.ObjectProvider;
 import me.ixk.framework.ioc.type.TypeWrapper;
@@ -44,7 +45,6 @@ import me.ixk.framework.utils.ResourceUtils;
 import me.ixk.framework.utils.ValidGroup;
 import me.ixk.framework.utils.ValidResult;
 import me.ixk.framework.web.WebDataBinder;
-import me.ixk.framework.web.async.WebAsyncManager;
 import me.ixk.framework.web.async.WebAsyncTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -197,7 +197,7 @@ public class TestController {
     @GetMapping("/stream")
     public StreamResult stream() throws FileNotFoundException {
         return Result.stream(
-            MimeType.VIDEO_MPEG,
+            "video/mp4",
             IoUtil.toStream(
                 ResourceUtils.getFile(
                     "file:/E:/Data/Videos/天气之子/天气之子.mp4"
@@ -207,24 +207,42 @@ public class TestController {
     }
 
     @GetMapping("/file")
-    public FileResult file() {
-        return Result.file("file:/E:/Data/Videos/天气之子/天气之子.mp4");
+    public File file() {
+        return FileUtil.file("file:/E:/Data/Videos/天气之子/天气之子.mp4");
     }
 
     @GetMapping("/async")
-    public void async() {
-        XkJava
-            .of()
-            .make(WebAsyncManager.class)
-            .startAsync(
-                new WebAsyncTask<>(
-                    () -> {
-                        log.info("WebAsyncTask");
-                        Thread.sleep(500L);
-                        return "result";
-                    }
-                )
-            );
+    public Callable<String> async() {
+        return () -> {
+            log.info("Callable");
+            return "result";
+        };
+    }
+
+    @GetMapping("/async-task")
+    public WebAsyncTask<String> asyncTask() {
+        final WebAsyncTask<String> asyncTask = new WebAsyncTask<>(
+            () -> {
+                log.info("WebAsyncTask");
+                return "result";
+            }
+        );
+        asyncTask.onCompletion(
+            () -> {
+                log.info("WebAsyncTask completion");
+            }
+        );
+        return asyncTask;
+    }
+
+    @GetMapping("/async-result")
+    public AsyncResult<String> asyncResult() {
+        return context -> {
+            Result
+                .file("file:/E:/Data/Videos/天气之子/天气之子.mp4")
+                .toResponse(context.getRequest(), context.getResponse(), null);
+            return null;
+        };
     }
 
     @InitBinder

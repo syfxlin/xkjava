@@ -4,9 +4,9 @@
 
 package me.ixk.framework.web.resolver;
 
+import java.util.concurrent.Callable;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.WebResolver;
-import me.ixk.framework.http.Callable;
 import me.ixk.framework.web.MethodReturnValue;
 import me.ixk.framework.web.WebContext;
 
@@ -36,6 +36,7 @@ public class CallableReturnValueResolver
         final MethodReturnValue returnValue,
         final WebContext context
     ) {
-        return ((Callable) value).call();
+        context.getAsyncManager().startAsync((Callable<?>) value);
+        return null;
     }
 }
