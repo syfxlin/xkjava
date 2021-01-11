@@ -19,12 +19,11 @@ import me.ixk.framework.http.Response;
 public class ResponseStatus implements Middleware {
 
     @Override
-    public Object handle(
+    public Object afterHandle(
+        Object returnValue,
         Request request,
-        Response response,
-        HandlerMiddlewareChain next
+        Response response
     ) throws Exception {
-        final Object value = next.handle(request, response);
         me.ixk.framework.annotations.ResponseStatus responseStatus = (me.ixk.framework.annotations.ResponseStatus) request.getAttribute(
             "me.ixk.framework.annotations.ResponseStatus"
         );
@@ -33,6 +32,6 @@ public class ResponseStatus implements Middleware {
             response.status(status);
         }
         response.status(status.getValue(), responseStatus.reason());
-        return value;
+        return returnValue;
     }
 }

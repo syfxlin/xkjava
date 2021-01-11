@@ -27,6 +27,7 @@ import me.ixk.framework.route.RouteInfo;
 import me.ixk.framework.web.RequestAttributeRegistry;
 import me.ixk.framework.web.RequestAttributeRegistry.RequestAttributeDefinition;
 import me.ixk.framework.web.WebContext;
+import me.ixk.framework.web.async.WebAsyncManager;
 import me.ixk.framework.web.resolver.AfterHandlerExceptionResolver;
 import me.ixk.framework.web.resolver.ResponseConvertResolver;
 
@@ -93,6 +94,8 @@ public class DispatcherServlet extends AbstractFrameworkServlet {
         request.setRoute(routeInfo);
 
         final WebContext webContext = this.app.make(WebContext.class);
+        final WebAsyncManager asyncManager =
+            this.app.make(WebAsyncManager.class);
         try {
             switch (routeInfo.getStatus()) {
                 case NOT_FOUND:
@@ -103,20 +106,40 @@ public class DispatcherServlet extends AbstractFrameworkServlet {
             }
             // 设置 RequestAttribute 值
             this.setRequestAttributes(routeInfo, request);
-            final InvocableHandlerMethod handler = new InvocableHandlerMethod(
-                this.app,
-                routeInfo.getHandler()
-            );
+            final InvocableHandlerMethod handler;
+            if (asyncManager.hasConcurrentResult()) {
+                handler =
+                    new ConcurrentResultHandlerMethod(
+                        this.app,
+                        asyncManager.getConcurrentResult()
+                    );
+                handler.setMiddlewares(routeInfo.getHandler().getMiddlewares());
+            } else {
+                handler =
+                    new InvocableHandlerMethod(
+                        this.app,
+                        routeInfo.getHandler()
+                    );
+            }
             final HandlerMiddlewareChain handlerChain = new HandlerMiddlewareChain(
                 handler
             );
-            final Object returnValue = handlerChain.then(request, response);
+            if (!handlerChain.applyBeforeHandle(request, response)) {
+                return;
+            }
+            Object returnValue = handlerChain.handle(request, response);
+            if (asyncManager.isConcurrentHandlingStarted()) {
+                return;
+            }
+            returnValue =
+                handlerChain.applyAfterHandle(returnValue, request, response);
             this.processConvertResolver(
                     returnValue,
                     webContext,
                     routeInfo,
                     webResolverRegistry
                 );
+            handlerChain.triggerAfterCompletion(request, response);
         } catch (final Throwable e) {
             final boolean resolved =
                 this.processAfterException(e, webContext, webResolverRegistry);

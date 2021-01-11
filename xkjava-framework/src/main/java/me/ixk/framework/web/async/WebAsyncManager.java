@@ -33,7 +33,7 @@ public class WebAsyncManager {
         WebAsyncManager.class.getSimpleName()
     );
 
-    private final Request request;
+    private Request request;
     private AsyncTaskExecutor executor = DEFAULT_TASK_EXECUTOR;
     private volatile Object concurrentResult = RESULT_NONE;
     private final Map<Object, CallableInterceptor> callableInterceptors = new LinkedHashMap<>();
@@ -41,7 +41,6 @@ public class WebAsyncManager {
     @Deprecated
     public WebAsyncManager() {
         // only use cglib
-        this.request = null;
     }
 
     @Autowired
@@ -84,6 +83,10 @@ public class WebAsyncManager {
 
     public Object getConcurrentResult() {
         return this.concurrentResult;
+    }
+
+    public boolean isConcurrentHandlingStarted() {
+        return (this.request != null && this.request.isAsyncStarted());
     }
 
     public void clearConcurrentResult() {
@@ -165,7 +168,7 @@ public class WebAsyncManager {
                         () -> {
                             Object result = null;
                             try {
-                                interceptorChain.applyPreProcess(
+                                interceptorChain.applyBeforeProcess(
                                     this.request,
                                     callable
                                 );
@@ -174,7 +177,7 @@ public class WebAsyncManager {
                                 result = ex;
                             } finally {
                                 result =
-                                    interceptorChain.applyPostProcess(
+                                    interceptorChain.applyAfterProcess(
                                         this.request,
                                         callable,
                                         result
@@ -185,7 +188,7 @@ public class WebAsyncManager {
                     );
             interceptorChain.setTaskFuture(future);
         } catch (final RejectedExecutionException ex) {
-            final Object result = interceptorChain.applyPostProcess(
+            final Object result = interceptorChain.applyAfterProcess(
                 this.request,
                 callable,
                 ex

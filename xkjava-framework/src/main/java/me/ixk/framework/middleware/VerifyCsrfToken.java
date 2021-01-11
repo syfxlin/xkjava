@@ -36,25 +36,32 @@ public class VerifyCsrfToken implements Middleware {
     protected final String[] except = new String[] {};
 
     @Override
-    public Object handle(
-        Request request,
-        Response response,
-        HandlerMiddlewareChain next
-    ) throws Exception {
+    public boolean beforeHandle(Request request, Response response)
+        throws Exception {
         if (
-            this.isReading(request) ||
-            this.skipVerify(request) ||
-            this.verifyToken(request)
+            !(
+                this.isReading(request) ||
+                this.skipVerify(request) ||
+                this.verifyToken(request)
+            )
         ) {
-            final Object value = next.handle(request, response);
-            this.setToken(response);
-            return value;
+            log.error("CSRF Token needs to be updated");
+            throw new HttpException(
+                HttpStatus.REQUEST_EXPIRED,
+                "CSRF Token needs to be updated."
+            );
         }
-        log.error("CSRF Token needs to be updated");
-        throw new HttpException(
-            HttpStatus.REQUEST_EXPIRED,
-            "CSRF Token needs to be updated."
-        );
+        return true;
+    }
+
+    @Override
+    public Object afterHandle(
+        Object returnValue,
+        Request request,
+        Response response
+    ) throws Exception {
+        this.setToken(response);
+        return returnValue;
     }
 
     protected String getToken(Request request) {

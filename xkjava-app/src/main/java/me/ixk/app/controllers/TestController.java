@@ -220,6 +220,7 @@ public class TestController {
                 new WebAsyncTask<>(
                     () -> {
                         log.info("WebAsyncTask");
+                        Thread.sleep(500L);
                         return "result";
                     }
                 )

@@ -26,16 +26,15 @@ public class Cors implements Middleware {
     }
 
     @Override
-    public Object handle(
-        final Request request,
-        final Response response,
-        final HandlerMiddlewareChain next
+    public Object afterHandle(
+        Object returnValue,
+        Request request,
+        Response response
     ) throws Exception {
-        final Object value = next.handle(request, response);
         final CrossOrigin crossOrigin = (CrossOrigin) request.getAttribute(
             "me.ixk.framework.annotation.CrossOrigin"
         );
         this.corsProcessor.processRequest(crossOrigin, request, response);
-        return value;
+        return returnValue;
     }
 }

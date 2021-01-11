@@ -10,10 +10,10 @@ import me.ixk.framework.http.Request;
 public interface CallableInterceptor {
     Object RESULT_NONE = new Object();
 
-    default <T> void preProcess(Request request, Callable<T> task)
+    default <T> void beforeProcess(Request request, Callable<T> task)
         throws Exception {}
 
-    default <T> void postProcess(
+    default <T> void afterProcess(
         Request request,
         Callable<T> task,
         Object concurrentResult

@@ -34,35 +34,40 @@ public class CallableInterceptorChain {
         this.taskFuture = taskFuture;
     }
 
-    public void applyPreProcess(final Request request, final Callable<?> task)
-        throws Exception {
+    public void applyBeforeProcess(
+        final Request request,
+        final Callable<?> task
+    ) throws Exception {
         for (final CallableInterceptor interceptor : this.interceptors) {
-            interceptor.preProcess(request, task);
+            interceptor.beforeProcess(request, task);
         }
     }
 
-    public Object applyPostProcess(
+    public Object applyAfterProcess(
         final Request request,
         final Callable<?> task,
         final Object concurrentResult
     ) {
         Throwable exceptionResult = null;
-        for (int i = this.interceptors.size(); i >= 0; i--) {
+        for (int i = this.interceptors.size() - 1; i >= 0; i--) {
             try {
                 this.interceptors.get(i)
-                    .postProcess(request, task, concurrentResult);
+                    .afterProcess(request, task, concurrentResult);
             } catch (final Throwable ex) {
                 // Save the first exception but invoke all interceptors
                 if (exceptionResult != null) {
                     if (log.isTraceEnabled()) {
-                        log.trace("Ignoring failure in postProcess method", ex);
+                        log.trace(
+                            "Ignoring failure in afterProcess method",
+                            ex
+                        );
                     }
                 } else {
                     exceptionResult = ex;
                 }
             }
         }
-        return exceptionResult;
+        return (exceptionResult != null) ? exceptionResult : concurrentResult;
     }
 
     public Object triggerAfterTimeout(
