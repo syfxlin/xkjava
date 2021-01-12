@@ -37,7 +37,6 @@ import me.ixk.framework.http.Model;
 import me.ixk.framework.http.result.AsyncResult;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.StreamResult;
-import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.binder.DataBinder.Converter;
 import me.ixk.framework.ioc.factory.ObjectProvider;
 import me.ixk.framework.ioc.type.TypeWrapper;
@@ -46,7 +45,6 @@ import me.ixk.framework.utils.ResourceUtils;
 import me.ixk.framework.utils.ValidGroup;
 import me.ixk.framework.utils.ValidResult;
 import me.ixk.framework.web.WebDataBinder;
-import me.ixk.framework.web.async.WebAsyncManager;
 import me.ixk.framework.web.async.WebAsyncTask;
 import me.ixk.framework.web.async.WebDeferredTask;
 import org.slf4j.Logger;
@@ -249,9 +247,8 @@ public class TestController {
     }
 
     @GetMapping("/deferred")
-    public void deferred() {
+    public WebDeferredTask<String> deferred() {
         final WebDeferredTask<String> deferredTask = new WebDeferredTask<>();
-        XkJava.of().make(WebAsyncManager.class).startDeferred(deferredTask);
         new Thread(
             () -> {
                 try {
@@ -264,6 +261,7 @@ public class TestController {
             }
         )
             .start();
+        return deferredTask;
     }
 
     @GetMapping("/async-timeout")

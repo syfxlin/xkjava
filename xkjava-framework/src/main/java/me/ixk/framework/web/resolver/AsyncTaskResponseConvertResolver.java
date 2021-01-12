@@ -38,7 +38,9 @@ public class AsyncTaskResponseConvertResolver
             asyncTask = (WebAsyncTask<?>) value;
         } else if (value instanceof AsyncResult) {
             asyncTask =
-                new WebAsyncTask<>(() -> ((AsyncResult) value).handle(context));
+                new WebAsyncTask<>(
+                    () -> ((AsyncResult<?>) value).handle(context)
+                );
         } else {
             return false;
         }

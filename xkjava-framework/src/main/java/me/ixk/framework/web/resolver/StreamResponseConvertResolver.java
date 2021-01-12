@@ -53,6 +53,7 @@ public class StreamResponseConvertResolver implements ResponseConvertResolver {
                         context.getResponse(),
                         value
                     );
+                    return null;
                 }
             );
         return true;
