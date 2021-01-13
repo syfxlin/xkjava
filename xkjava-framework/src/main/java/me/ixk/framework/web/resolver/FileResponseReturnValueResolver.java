@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.http.result.FileResult;
-import me.ixk.framework.route.RouteInfo;
+import me.ixk.framework.web.MethodReturnValue;
 import me.ixk.framework.web.WebContext;
 
 /**
@@ -14,13 +14,14 @@ import me.ixk.framework.web.WebContext;
  */
 @WebResolver
 @Order(Order.HIGHEST_PRECEDENCE)
-public class FileResponseConvertResolver implements ResponseConvertResolver {
+public class FileResponseReturnValueResolver
+    implements ResponseReturnValueResolver {
 
     @Override
-    public boolean supportsConvert(
+    public boolean supportsReturnType(
         Object value,
-        WebContext context,
-        RouteInfo info
+        MethodReturnValue returnValue,
+        WebContext context
     ) {
         return (
             value instanceof FileResult ||
@@ -30,10 +31,10 @@ public class FileResponseConvertResolver implements ResponseConvertResolver {
     }
 
     @Override
-    public boolean resolveConvert(
+    public Object resolveReturnValue(
         Object value,
-        WebContext context,
-        RouteInfo info
+        MethodReturnValue returnValue,
+        WebContext context
     ) {
         final FileResult result;
         if (value instanceof FileResult) {
@@ -43,7 +44,10 @@ public class FileResponseConvertResolver implements ResponseConvertResolver {
         } else if (value instanceof File) {
             result = new FileResult((File) value);
         } else {
-            return false;
+            return value;
+        }
+        if (!result.async()) {
+            return result;
         }
         context
             .getAsyncManager()
@@ -55,6 +59,6 @@ public class FileResponseConvertResolver implements ResponseConvertResolver {
                         value
                     )
             );
-        return true;
+        return null;
     }
 }

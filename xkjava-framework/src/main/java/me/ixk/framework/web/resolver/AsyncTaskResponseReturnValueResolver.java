@@ -3,7 +3,7 @@ package me.ixk.framework.web.resolver;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.http.result.AsyncResult;
-import me.ixk.framework.route.RouteInfo;
+import me.ixk.framework.web.MethodReturnValue;
 import me.ixk.framework.web.WebContext;
 import me.ixk.framework.web.async.WebAsyncTask;
 
@@ -15,23 +15,23 @@ import me.ixk.framework.web.async.WebAsyncTask;
  */
 @WebResolver
 @Order(Order.HIGHEST_PRECEDENCE)
-public class AsyncTaskResponseConvertResolver
-    implements ResponseConvertResolver {
+public class AsyncTaskResponseReturnValueResolver
+    implements ResponseReturnValueResolver {
 
     @Override
-    public boolean supportsConvert(
+    public boolean supportsReturnType(
         final Object value,
-        final WebContext context,
-        final RouteInfo info
+        final MethodReturnValue returnValue,
+        final WebContext context
     ) {
         return value instanceof WebAsyncTask || value instanceof AsyncResult;
     }
 
     @Override
-    public boolean resolveConvert(
+    public Object resolveReturnValue(
         final Object value,
-        final WebContext context,
-        final RouteInfo info
+        final MethodReturnValue returnValue,
+        final WebContext context
     ) {
         final WebAsyncTask<?> asyncTask;
         if (value instanceof WebAsyncTask) {
@@ -42,9 +42,9 @@ public class AsyncTaskResponseConvertResolver
                     () -> ((AsyncResult<?>) value).handle(context)
                 );
         } else {
-            return false;
+            return value;
         }
         context.getAsyncManager().startAsync(asyncTask);
-        return true;
+        return null;
     }
 }

@@ -2,7 +2,7 @@ package me.ixk.framework.web.resolver;
 
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.WebResolver;
-import me.ixk.framework.route.RouteInfo;
+import me.ixk.framework.web.MethodReturnValue;
 import me.ixk.framework.web.WebContext;
 import me.ixk.framework.web.async.WebDeferredTask;
 
@@ -12,28 +12,28 @@ import me.ixk.framework.web.async.WebDeferredTask;
  */
 @WebResolver
 @Order(Order.HIGHEST_PRECEDENCE)
-public class DeferredTaskResponseConvertResolver
-    implements ResponseConvertResolver {
+public class DeferredTaskResponseReturnValueResolver
+    implements ResponseReturnValueResolver {
 
     @Override
-    public boolean supportsConvert(
+    public boolean supportsReturnType(
         final Object value,
-        final WebContext context,
-        final RouteInfo info
+        final MethodReturnValue returnValue,
+        final WebContext context
     ) {
         return value instanceof WebDeferredTask;
     }
 
     @Override
-    public boolean resolveConvert(
+    public Object resolveReturnValue(
         final Object value,
-        final WebContext context,
-        final RouteInfo info
+        final MethodReturnValue returnValue,
+        final WebContext context
     ) {
         if (value instanceof WebDeferredTask) {
             context.getAsyncManager().startDeferred((WebDeferredTask<?>) value);
-            return true;
+            return null;
         }
-        return false;
+        return value;
     }
 }

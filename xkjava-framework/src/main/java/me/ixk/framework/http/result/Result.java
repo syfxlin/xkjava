@@ -103,7 +103,7 @@ public class Result {
         final String contentType,
         final InputStream stream
     ) {
-        return new StreamResult(contentType, stream);
+        return new StreamResult(stream, contentType);
     }
 
     public static StreamResult stream(

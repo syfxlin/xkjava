@@ -8,7 +8,7 @@ import java.io.InputStream;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.http.result.StreamResult;
-import me.ixk.framework.route.RouteInfo;
+import me.ixk.framework.web.MethodReturnValue;
 import me.ixk.framework.web.WebContext;
 
 /**
@@ -19,22 +19,23 @@ import me.ixk.framework.web.WebContext;
  */
 @WebResolver
 @Order(Order.HIGHEST_PRECEDENCE)
-public class StreamResponseConvertResolver implements ResponseConvertResolver {
+public class StreamResponseReturnValueResolver
+    implements ResponseReturnValueResolver {
 
     @Override
-    public boolean supportsConvert(
+    public boolean supportsReturnType(
         final Object value,
-        final WebContext context,
-        final RouteInfo info
+        final MethodReturnValue returnValue,
+        final WebContext context
     ) {
         return value instanceof StreamResult || value instanceof InputStream;
     }
 
     @Override
-    public boolean resolveConvert(
+    public Object resolveReturnValue(
         final Object value,
-        final WebContext context,
-        final RouteInfo info
+        final MethodReturnValue returnValue,
+        final WebContext context
     ) {
         final StreamResult result;
         if (value instanceof StreamResult) {
@@ -42,7 +43,10 @@ public class StreamResponseConvertResolver implements ResponseConvertResolver {
         } else if (value instanceof InputStream) {
             result = new StreamResult((InputStream) value);
         } else {
-            return false;
+            return value;
+        }
+        if (!result.async()) {
+            return result;
         }
         context
             .getAsyncManager()
@@ -56,6 +60,6 @@ public class StreamResponseConvertResolver implements ResponseConvertResolver {
                     return null;
                 }
             );
-        return true;
+        return null;
     }
 }

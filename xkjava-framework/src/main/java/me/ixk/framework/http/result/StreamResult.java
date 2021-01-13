@@ -19,19 +19,36 @@ public class StreamResult extends AbstractHttpResult {
 
     private String contentType;
     private InputStream stream;
+    private boolean async;
 
     public StreamResult(final InputStream stream, final MimeType contentType) {
-        this(contentType.asString(), stream);
-    }
-
-    public StreamResult(final String contentType, final InputStream stream) {
-        this.contentType = contentType;
-        this.stream = stream;
+        this(stream, contentType.asString());
     }
 
     public StreamResult(final InputStream stream) {
-        this.contentType = null;
+        this(stream, (String) null);
+    }
+
+    public StreamResult(final InputStream stream, final String contentType) {
+        this(stream, contentType, true);
+    }
+
+    public StreamResult(
+        final InputStream stream,
+        final String contentType,
+        final boolean async
+    ) {
+        this.contentType = contentType;
         this.stream = stream;
+        this.async = async;
+    }
+
+    public boolean async() {
+        return async;
+    }
+
+    public void async(final boolean async) {
+        this.async = async;
     }
 
     @Override
