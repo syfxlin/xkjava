@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
-import me.ixk.framework.annotations.Autowired;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.http.Request;
@@ -45,17 +44,11 @@ public class WebAsyncManager {
         // only use cglib
     }
 
-    @Autowired
     public WebAsyncManager(final Request request) {
-        // TODO: 寻找更优方案
         this.request = (Request) ReflectUtils.getProxyTarget(request);
     }
 
-    public WebAsyncManager(
-        final Request request,
-        final AsyncTaskExecutor executor
-    ) {
-        this.request = (Request) ReflectUtils.getProxyTarget(request);
+    public void setAsyncTaskExecutor(AsyncTaskExecutor executor) {
         this.executor = executor;
     }
 
@@ -296,7 +289,7 @@ public class WebAsyncManager {
     }
 
     private void startAsyncProcessing() {
-        synchronized (WebAsyncManager.this) {
+        synchronized (this) {
             this.concurrentResult = RESULT_NONE;
         }
         this.request.startAsync();
@@ -316,6 +309,15 @@ public class WebAsyncManager {
                 return;
             }
             this.concurrentResult = result;
+        }
+        if (this.request.isAsyncComplete()) {
+            if (log.isDebugEnabled()) {
+                log.debug(
+                    "Async result set but request already complete: " +
+                    formatRequestUri()
+                );
+            }
+            return;
         }
         if (log.isDebugEnabled()) {
             final boolean isError = result instanceof Throwable;

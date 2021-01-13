@@ -30,7 +30,7 @@ public class MybatisPlus
     // 当全局 SqlSession 被设置的时候就认为是开启了事务
 
     public MybatisPlus(
-        org.apache.ibatis.session.SqlSessionManager sqlSessionManager
+        final org.apache.ibatis.session.SqlSessionManager sqlSessionManager
     ) {
         this.sqlSessionManager = sqlSessionManager;
     }
@@ -95,12 +95,14 @@ public class MybatisPlus
     }
 
     @Override
-    public <T> T getMapper(Class<T> type) {
+    public <T> T getMapper(final Class<T> type) {
         return this.sqlSessionManager.getMapper(type);
     }
 
     @Override
-    public SqlSession startTransactionSession(TransactionIsolationLevel level) {
+    public SqlSession startTransactionSession(
+        final TransactionIsolationLevel level
+    ) {
         if (log.isDebugEnabled()) {
             log.debug("Start transaction session: level {}", level);
         }

@@ -8,7 +8,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.ioc.context.ScopeType;
 import me.ixk.framework.registry.MapperRegistry;
 
 /**
@@ -19,7 +18,6 @@ import me.ixk.framework.registry.MapperRegistry;
  */
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Scope(ScopeType.PROTOTYPE)
 @Bean
 @BindRegistry(MapperRegistry.class)
 public @interface Mapper {

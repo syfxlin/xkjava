@@ -22,6 +22,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -518,6 +519,11 @@ public class Request
     @Override
     public void onComplete(AsyncEvent event) throws IOException {
         this.wrapperValue.getCompletionHandlers().forEach(Runnable::run);
+        this.wrapperValue.setAsyncCompleted(true);
+    }
+
+    public boolean isAsyncComplete() {
+        return this.wrapperValue.getAsyncCompleted();
     }
 
     @Override
@@ -556,6 +562,15 @@ public class Request
         private final List<Runnable> timeoutHandlers = new ArrayList<>();
         private final List<Consumer<Throwable>> exceptionHandlers = new ArrayList<>();
         private final List<Runnable> completionHandlers = new ArrayList<>();
+        private final AtomicBoolean asyncCompleted = new AtomicBoolean(false);
+
+        public boolean getAsyncCompleted() {
+            return asyncCompleted.get();
+        }
+
+        public void setAsyncCompleted(boolean asyncCompleted) {
+            this.asyncCompleted.set(asyncCompleted);
+        }
 
         public void setBody(String body) {
             this.body = body;

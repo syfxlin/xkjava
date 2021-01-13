@@ -23,6 +23,7 @@ import me.ixk.framework.http.result.ViewResult;
 
 @Controller
 public class CountController {
+
     @Autowired
     VisitorsServiceImpl visitorsService;
 
@@ -38,8 +39,8 @@ public class CountController {
         final Map<String, Object> objectMap = new ConcurrentHashMap<>();
         objectMap.put("countOnline", visitorsOnline.getCounts());
         objectMap.put("countHistory", visitorsHistory.getCounts());
-        String users = visitorsLogin.getUsers();
-        List<Users> usersList = users == null || users.isEmpty()
+        final String users = visitorsLogin.getUsers();
+        final List<Users> usersList = users == null || users.isEmpty()
             ? new ArrayList<>()
             : Arrays
                 .stream(users.split(","))

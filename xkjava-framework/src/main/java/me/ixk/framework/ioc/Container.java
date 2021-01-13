@@ -30,6 +30,7 @@ import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.ioc.binder.DataBinder;
 import me.ixk.framework.ioc.binder.DefaultDataBinder;
 import me.ixk.framework.ioc.context.Context;
+import me.ixk.framework.ioc.context.ContextHolder;
 import me.ixk.framework.ioc.context.ScopeType;
 import me.ixk.framework.ioc.entity.Binding;
 import me.ixk.framework.ioc.entity.ConstructorContext;
@@ -154,6 +155,14 @@ public class Container {
 
     public ConcurrentMap<String, String> getAliases() {
         return aliases;
+    }
+
+    public Map<Class<? extends Context>, Context> getContexts() {
+        return this.contexts;
+    }
+
+    public ContextHolder createContextHolder() {
+        return new ContextHolder(this);
     }
 
     /* ===================== Context ===================== */

@@ -18,7 +18,6 @@ import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -47,15 +46,11 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
 
     protected final Log log = LogFactory.getLog(getClass());
 
-    protected final Class<M> mapperClass = (Class<M>) (
-        (ParameterizedType) me.ixk.framework.utils.ClassUtils
-            .getUserClass(this)
-            .getGenericSuperclass()
-    ).getActualTypeArguments()[0];
-
-    protected final SqlSessionManager sqlSessionManager = XkJava
+    protected SqlSessionManager sqlSessionManager = XkJava
         .of()
         .make(SqlSessionManager.class);
+
+    protected final Class<M> mapperClass = currentMapperClass();
     protected final Class<?> entityClass = currentModelClass();
 
     /**
@@ -68,6 +63,10 @@ public class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
     @Deprecated
     protected boolean retBool(Integer result) {
         return SqlHelper.retBool(result);
+    }
+
+    protected Class<M> currentMapperClass() {
+        return (Class<M>) ReflectionKit.getSuperClassGenericType(getClass(), 0);
     }
 
     protected Class<T> currentModelClass() {
