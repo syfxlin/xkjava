@@ -21,9 +21,9 @@ public class MethodReturnValue {
     private final MergedAnnotation methodAnnotation;
 
     public MethodReturnValue(
-        Object handler,
-        Class<?> handlerType,
-        Method method
+        final Object handler,
+        final Class<?> handlerType,
+        final Method method
     ) {
         this.handler = handler;
         this.handlerType = handlerType;
@@ -37,6 +37,10 @@ public class MethodReturnValue {
 
     public Method getMethod() {
         return method;
+    }
+
+    public Class<?> getHandlerType() {
+        return handlerType;
     }
 
     public MergedAnnotation getMethodAnnotation() {

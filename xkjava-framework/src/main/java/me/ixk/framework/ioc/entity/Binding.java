@@ -112,26 +112,24 @@ public class Binding {
         return source;
     }
 
+    public Object getSource(final boolean proxy) {
+        if (proxy && this.useProxy() && this.isShared()) {
+            return ReflectUtils.proxyObjectFactory(
+                (ObjectFactory<Object>) this::getSource,
+                this.getType()
+            );
+        } else {
+            return this.getSource();
+        }
+    }
+
     private Object getSourceUnsafe() {
         return this.isCreated() ? this.context.get(name) : null;
     }
 
     public void setSource(final Object instance) {
         synchronized (this.getMutex()) {
-            if (this.useProxy()) {
-                final String sourceName = Context.PROXY_SOURCE_PREFIX + name;
-                this.context.set(sourceName, instance);
-                this.context.set(
-                        name,
-                        ReflectUtils.proxyObjectFactory(
-                            (ObjectFactory<Object>) () ->
-                                this.context.get(sourceName),
-                            this.getType()
-                        )
-                    );
-            } else {
-                this.context.set(name, instance);
-            }
+            this.context.set(name, instance);
         }
     }
 

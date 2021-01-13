@@ -13,7 +13,6 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.ioc.context.ScopeType;
 import me.ixk.framework.task.AsyncTaskExecutor;
 import me.ixk.framework.task.SimpleAsyncTaskExecutor;
-import me.ixk.framework.utils.ReflectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +44,7 @@ public class WebAsyncManager {
     }
 
     public WebAsyncManager(final Request request) {
-        this.request = (Request) ReflectUtils.getProxyTarget(request);
+        this.request = request;
     }
 
     public void setAsyncTaskExecutor(AsyncTaskExecutor executor) {

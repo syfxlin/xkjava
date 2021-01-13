@@ -27,6 +27,15 @@ public interface TypeProvider {
      */
     Object getSource();
 
+    /**
+     * 是否需要代理
+     *
+     * @return 是否需要
+     */
+    default boolean useProxy() {
+        return false;
+    }
+
     class FieldTypeProvider implements TypeProvider {
 
         private final Field field;
@@ -43,6 +52,11 @@ public interface TypeProvider {
         @Override
         public Object getSource() {
             return this.field;
+        }
+
+        @Override
+        public boolean useProxy() {
+            return true;
         }
     }
 

@@ -827,13 +827,14 @@ public class Container {
         if (binding == null) {
             binding = this.newBinding(name, returnType, ScopeType.PROTOTYPE);
         }
-        Object instance = binding.getSource();
+        boolean proxy = typeWrapper.useProxy();
+        Object instance = binding.getSource(proxy);
         if (instance != null) {
             return Convert.convert(returnType, instance);
         }
         // 加锁，双重检查，防止二次初始化
         synchronized (binding.getMutex()) {
-            instance = binding.getSource();
+            instance = binding.getSource(proxy);
             if (instance != null) {
                 return Convert.convert(returnType, instance);
             }

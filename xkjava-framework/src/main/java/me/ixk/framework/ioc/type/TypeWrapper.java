@@ -44,17 +44,25 @@ public class TypeWrapper<T> implements TypeProvider {
         return provider;
     }
 
+    @Override
+    public boolean useProxy() {
+        if (provider == null) {
+            return false;
+        }
+        return provider.useProxy();
+    }
+
     public boolean canGetGeneric() {
         return provider != null;
     }
 
-    public Class<?> getGeneric(int index) {
+    public Class<?> getGeneric(final int index) {
         final Type type = this.getType();
         if (type instanceof Class) {
             return (Class<?>) type;
         }
         if (type instanceof ParameterizedType) {
-            Type[] actualTypeArguments =
+            final Type[] actualTypeArguments =
                 ((ParameterizedType) type).getActualTypeArguments();
             final Type typeArgument = actualTypeArguments[index];
             if (typeArgument instanceof Class) {
@@ -64,25 +72,25 @@ public class TypeWrapper<T> implements TypeProvider {
         return null;
     }
 
-    public static TypeWrapper<?> forParameter(Parameter parameter) {
+    public static TypeWrapper<?> forParameter(final Parameter parameter) {
         return new TypeWrapper<>(
             parameter.getType(),
             new ParameterTypeProvider(parameter)
         );
     }
 
-    public static TypeWrapper<?> forField(Field field) {
+    public static TypeWrapper<?> forField(final Field field) {
         return new TypeWrapper<>(field.getType(), new FieldTypeProvider(field));
     }
 
-    public static TypeWrapper<?> forReturnValue(Method method) {
+    public static TypeWrapper<?> forReturnValue(final Method method) {
         return new TypeWrapper<>(
             method.getReturnType(),
             new ReturnValueTypeProvider(method)
         );
     }
 
-    public static <E> TypeWrapper<E> forClass(Class<E> clazz) {
+    public static <E> TypeWrapper<E> forClass(final Class<E> clazz) {
         if (clazz.isArray()) {
             return new TypeWrapper<>(clazz, new ArrayTypeProvider(clazz));
         }

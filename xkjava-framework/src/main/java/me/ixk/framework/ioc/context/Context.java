@@ -13,8 +13,6 @@ import java.util.concurrent.ConcurrentMap;
  * @date 2020/10/25 下午 9:27
  */
 public interface Context {
-    String PROXY_SOURCE_PREFIX = "$$";
-
     /**
      * 是否匹配作用域类型
      *
