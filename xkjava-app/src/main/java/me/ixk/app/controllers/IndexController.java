@@ -12,6 +12,7 @@ import me.ixk.app.beans.User3;
 import me.ixk.app.config.TestConfigurationProperties;
 import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.annotations.Autowired.ProxyType;
 import me.ixk.framework.annotations.Controller;
 import me.ixk.framework.annotations.ExceptionHandler;
 import me.ixk.framework.annotations.GetMapping;
@@ -30,15 +31,19 @@ import me.ixk.framework.ioc.XkJava;
 
 @Controller
 public class IndexController {
+
     @Autowired
     public Request request;
 
     @Autowired("request")
     private HttpServletRequest httpServletRequest;
 
+    @Autowired(proxyType = ProxyType.DIRECT)
+    private Request requestNoProxy;
+
     private final UsersServiceImpl usersService;
 
-    public IndexController(UsersServiceImpl usersService) {
+    public IndexController(final UsersServiceImpl usersService) {
         this.usersService = usersService;
     }
 
@@ -55,10 +60,10 @@ public class IndexController {
     @Log
     @GetMapping("/controller")
     @Transactional
-    public String index(Request request, User user, int age) {
+    public String index(final Request request, final User user, final int age) {
         try {
             Thread.sleep(5000);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             e.printStackTrace();
         }
         return this.request.query("age");
@@ -66,7 +71,7 @@ public class IndexController {
 
     @GetMapping("/index2")
     @Log
-    public String index2(Request request) {
+    public String index2(final Request request) {
         return this.request.query("age");
     }
 
@@ -92,7 +97,7 @@ public class IndexController {
     }
 
     @PostMapping("/upload")
-    public TextResult uploadPost(Request request) {
+    public TextResult uploadPost(final Request request) {
         return Result.text(request.partToString("file"));
     }
 
@@ -112,7 +117,7 @@ public class IndexController {
     }
 
     @Autowired
-    public void setRequestMethod(Request request) {
+    public void setRequestMethod(final Request request) {
         System.out.println(request);
     }
 

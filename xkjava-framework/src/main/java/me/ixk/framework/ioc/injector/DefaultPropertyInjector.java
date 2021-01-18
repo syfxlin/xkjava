@@ -52,15 +52,14 @@ public class DefaultPropertyInjector implements InstanceInjector {
             final Field field = entry.getElement();
             final MergedAnnotation annotation = entry.getAnnotation();
             Autowired autowired = annotation.getAnnotation(Autowired.class);
+            PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
+                context.getType(),
+                field.getName()
+            );
+            Method writeMethod = propertyDescriptor == null
+                ? null
+                : propertyDescriptor.getWriteMethod();
             if (autowired == null) {
-                PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(
-                    context.getType(),
-                    field.getName()
-                );
-                if (propertyDescriptor == null) {
-                    continue;
-                }
-                Method writeMethod = propertyDescriptor.getWriteMethod();
                 if (writeMethod == null) {
                     continue;
                 }
@@ -82,18 +81,20 @@ public class DefaultPropertyInjector implements InstanceInjector {
                 if (!"".equals(name)) {
                     dependency = container.make(name, field.getType());
                 } else {
-                    TypeWrapper<?> autowiredClass;
+                    TypeWrapper<?> typeWrapper;
                     if (type == Class.class) {
-                        autowiredClass = TypeWrapper.forField(field);
+                        typeWrapper =
+                            TypeWrapper.forField(field, autowired.proxyType());
                     } else {
-                        autowiredClass = TypeWrapper.forClass(type);
+                        typeWrapper =
+                            TypeWrapper.forClass(type, autowired.proxyType());
                     }
                     dependency =
                         context
                             .getBinder()
                             .getObject(
                                 field.getName(),
-                                autowiredClass,
+                                typeWrapper,
                                 annotation
                             );
                 }
@@ -116,7 +117,11 @@ public class DefaultPropertyInjector implements InstanceInjector {
                     );
                     throw exception;
                 }
-                ReflectUtil.setFieldValue(instance, field, dependency);
+                if (writeMethod == null) {
+                    ReflectUtil.setFieldValue(instance, field, dependency);
+                } else {
+                    ReflectUtil.invoke(instance, writeMethod, dependency);
+                }
             }
             entry.setChanged(true);
         }

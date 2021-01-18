@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import me.ixk.framework.annotations.Autowired.ProxyType;
 
 /**
  * Type 包装
@@ -15,6 +16,7 @@ import java.lang.reflect.Type;
 public class TypeWrapper<T> implements TypeProvider {
 
     private final Class<T> clazz;
+    private final ProxyType proxyType;
     private final TypeProvider provider;
 
     private TypeWrapper(final Class<T> clazz) {
@@ -22,8 +24,17 @@ public class TypeWrapper<T> implements TypeProvider {
     }
 
     private TypeWrapper(final Class<T> clazz, final TypeProvider provider) {
+        this(clazz, provider, ProxyType.UNSET);
+    }
+
+    private TypeWrapper(
+        final Class<T> clazz,
+        final TypeProvider provider,
+        final ProxyType proxyType
+    ) {
         this.clazz = clazz;
         this.provider = provider;
+        this.proxyType = proxyType;
     }
 
     @Override
@@ -46,14 +57,13 @@ public class TypeWrapper<T> implements TypeProvider {
 
     @Override
     public boolean useProxy() {
-        if (provider == null) {
-            return false;
+        if (proxyType == ProxyType.UNSET) {
+            if (provider == null) {
+                return false;
+            }
+            return provider.useProxy();
         }
-        return provider.useProxy();
-    }
-
-    public boolean canGetGeneric() {
-        return provider != null;
+        return proxyType == ProxyType.PROXY;
     }
 
     public Class<?> getGeneric(final int index) {
@@ -95,5 +105,52 @@ public class TypeWrapper<T> implements TypeProvider {
             return new TypeWrapper<>(clazz, new ArrayTypeProvider(clazz));
         }
         return new TypeWrapper<>(clazz);
+    }
+
+    public static TypeWrapper<?> forParameter(
+        final Parameter parameter,
+        final ProxyType proxyType
+    ) {
+        return new TypeWrapper<>(
+            parameter.getType(),
+            new ParameterTypeProvider(parameter),
+            proxyType
+        );
+    }
+
+    public static TypeWrapper<?> forField(
+        final Field field,
+        final ProxyType proxyType
+    ) {
+        return new TypeWrapper<>(
+            field.getType(),
+            new FieldTypeProvider(field),
+            proxyType
+        );
+    }
+
+    public static TypeWrapper<?> forReturnValue(
+        final Method method,
+        final ProxyType proxyType
+    ) {
+        return new TypeWrapper<>(
+            method.getReturnType(),
+            new ReturnValueTypeProvider(method),
+            proxyType
+        );
+    }
+
+    public static <E> TypeWrapper<E> forClass(
+        final Class<E> clazz,
+        final ProxyType proxyType
+    ) {
+        if (clazz.isArray()) {
+            return new TypeWrapper<>(
+                clazz,
+                new ArrayTypeProvider(clazz),
+                proxyType
+            );
+        }
+        return new TypeWrapper<>(clazz, null, proxyType);
     }
 }

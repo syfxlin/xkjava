@@ -16,8 +16,8 @@ import java.lang.annotation.Target;
  * <p>
  * 字段注入如果有 WriteMethod 则无需使用 @Autowired 注解，否则你需要在字段上添加 @Autowired 注解。
  * <p>
- * 方法注入分为两种，一种是类似于 Spring 的 Aware 接口，用于对象实例化后立即注入，此情形下你需要添加 @Autowired 注解；
- * 还有一种是普通的方法，普通的方法如果使用 XkJava.call 的方法调用则会自动注入，无需使用 @Autowired 注解。
+ * 方法注入分为两种，一种是类似于 Spring 的 Aware 接口，用于对象实例化后立即注入，此情形下你需要添加 @Autowired 注解； 还有一种是普通的方法，普通的方法如果使用
+ * XkJava.call 的方法调用则会自动注入，无需使用 @Autowired 注解。
  * <p>
  * 构造器无需使用 @Autowired 注解，不过你可以使用 Autowired 注解提高构造器的注入优先级
  *
@@ -43,4 +43,25 @@ public @interface Autowired {
     String name() default "";
 
     boolean required() default false;
+
+    ProxyType proxyType() default ProxyType.UNSET;
+
+    enum ProxyType {
+        /**
+         * 不设置
+         */
+        UNSET,
+        /**
+         * 代理
+         * <p>
+         * Field 默认使用代理
+         * <p>
+         * 需要注意，即使强制设置代理也有可能不会使用代理，这是因为部分 Context 或者非单例对象无须使用代理
+         */
+        PROXY,
+        /**
+         * 不代理
+         */
+        DIRECT,
+    }
 }
