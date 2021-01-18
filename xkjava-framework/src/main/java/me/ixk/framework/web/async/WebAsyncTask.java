@@ -87,6 +87,14 @@ public class WebAsyncTask<V> {
         return null;
     }
 
+    public void setExecutor(final AsyncTaskExecutor executor) {
+        this.executor = executor;
+    }
+
+    public void setExecutorName(final String executorName) {
+        this.executorName = executorName;
+    }
+
     public String getExecutorName() {
         return executorName;
     }

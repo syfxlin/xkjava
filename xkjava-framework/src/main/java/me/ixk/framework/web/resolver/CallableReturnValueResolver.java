@@ -6,9 +6,11 @@ package me.ixk.framework.web.resolver;
 
 import java.util.concurrent.Callable;
 import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotations.WebAsync;
 import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.web.MethodReturnValue;
 import me.ixk.framework.web.WebContext;
+import me.ixk.framework.web.async.WebAsyncTask;
 
 /**
  * 可调用返回值解析器
@@ -36,7 +38,16 @@ public class CallableReturnValueResolver
         final MethodReturnValue returnValue,
         final WebContext context
     ) {
-        context.getAsyncManager().startAsync((Callable<?>) value);
+        final WebAsyncTask<?> asyncTask = new WebAsyncTask<>(
+            (Callable<?>) value
+        );
+        final WebAsync webAsync = returnValue
+            .getMethodAnnotation()
+            .getAnnotation(WebAsync.class);
+        if (webAsync != null && !webAsync.value().isEmpty()) {
+            asyncTask.setExecutorName(webAsync.value());
+        }
+        context.getAsyncManager().startAsync(asyncTask);
         return null;
     }
 }

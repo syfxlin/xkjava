@@ -3,10 +3,12 @@ package me.ixk.framework.web.resolver;
 import java.io.File;
 import java.nio.file.Path;
 import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotations.WebAsync;
 import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.http.result.FileResult;
 import me.ixk.framework.web.MethodReturnValue;
 import me.ixk.framework.web.WebContext;
+import me.ixk.framework.web.async.WebAsyncTask;
 
 /**
  * @author Otstar Lin
@@ -19,9 +21,9 @@ public class FileResponseReturnValueResolver
 
     @Override
     public boolean supportsReturnType(
-        Object value,
-        MethodReturnValue returnValue,
-        WebContext context
+        final Object value,
+        final MethodReturnValue returnValue,
+        final WebContext context
     ) {
         return (
             value instanceof FileResult ||
@@ -32,9 +34,9 @@ public class FileResponseReturnValueResolver
 
     @Override
     public Object resolveReturnValue(
-        Object value,
-        MethodReturnValue returnValue,
-        WebContext context
+        final Object value,
+        final MethodReturnValue returnValue,
+        final WebContext context
     ) {
         final FileResult result;
         if (value instanceof FileResult) {
@@ -49,16 +51,21 @@ public class FileResponseReturnValueResolver
         if (!result.async()) {
             return result;
         }
-        context
-            .getAsyncManager()
-            .startAsync(
-                () ->
-                    result.toResponse(
-                        context.getRequest(),
-                        context.getResponse(),
-                        value
-                    )
-            );
+        final WebAsyncTask<Boolean> asyncTask = new WebAsyncTask<>(
+            () ->
+                result.toResponse(
+                    context.getRequest(),
+                    context.getResponse(),
+                    value
+                )
+        );
+        final WebAsync webAsync = returnValue
+            .getMethodAnnotation()
+            .getAnnotation(WebAsync.class);
+        if (webAsync != null && !webAsync.value().isEmpty()) {
+            asyncTask.setExecutorName(webAsync.value());
+        }
+        context.getAsyncManager().startAsync(asyncTask);
         return null;
     }
 }

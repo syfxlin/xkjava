@@ -6,17 +6,21 @@ package me.ixk.app.controllers;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import me.ixk.app.beans.SessionTest;
 import me.ixk.app.beans.User;
 import me.ixk.app.beans.User2;
 import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.annotations.Bean;
 import me.ixk.framework.annotations.BodyValue;
 import me.ixk.framework.annotations.Controller;
 import me.ixk.framework.annotations.CrossOrigin;
@@ -29,6 +33,7 @@ import me.ixk.framework.annotations.PreDestroy;
 import me.ixk.framework.annotations.QueryValue;
 import me.ixk.framework.annotations.RequestMapping;
 import me.ixk.framework.annotations.ResponseStatus;
+import me.ixk.framework.annotations.WebAsync;
 import me.ixk.framework.annotations.WebBind;
 import me.ixk.framework.annotations.WebBind.Type;
 import me.ixk.framework.aop.Advice;
@@ -40,6 +45,8 @@ import me.ixk.framework.http.result.StreamResult;
 import me.ixk.framework.ioc.binder.DataBinder.Converter;
 import me.ixk.framework.ioc.factory.ObjectProvider;
 import me.ixk.framework.ioc.type.TypeWrapper;
+import me.ixk.framework.task.AsyncTaskExecutor;
+import me.ixk.framework.task.AsyncTaskPoolExecutor;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ResourceUtils;
 import me.ixk.framework.utils.ValidGroup;
@@ -285,6 +292,27 @@ public class TestController {
             }
         );
         return asyncTask;
+    }
+
+    @GetMapping("/async-pool")
+    @WebAsync("testAsyncExecutor")
+    public Callable<String> asyncPool() {
+        return () -> {
+            log.info("Callable");
+            return "result";
+        };
+    }
+
+    @Bean
+    public static AsyncTaskExecutor testAsyncExecutor() {
+        return new AsyncTaskPoolExecutor(
+            3,
+            3,
+            0L,
+            TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(),
+            ThreadUtil.newNamedThreadFactory("testAsyncExecutor-", true)
+        );
     }
 
     @InitBinder

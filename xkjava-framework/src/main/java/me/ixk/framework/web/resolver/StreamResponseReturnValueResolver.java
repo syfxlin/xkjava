@@ -6,10 +6,12 @@ package me.ixk.framework.web.resolver;
 
 import java.io.InputStream;
 import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotations.WebAsync;
 import me.ixk.framework.annotations.WebResolver;
 import me.ixk.framework.http.result.StreamResult;
 import me.ixk.framework.web.MethodReturnValue;
 import me.ixk.framework.web.WebContext;
+import me.ixk.framework.web.async.WebAsyncTask;
 
 /**
  * Stream 响应解析器
@@ -48,18 +50,21 @@ public class StreamResponseReturnValueResolver
         if (!result.async()) {
             return result;
         }
-        context
-            .getAsyncManager()
-            .startAsync(
-                () -> {
-                    result.toResponse(
-                        context.getRequest(),
-                        context.getResponse(),
-                        value
-                    );
-                    return null;
-                }
-            );
+        final WebAsyncTask<Boolean> asyncTask = new WebAsyncTask<>(
+            () ->
+                result.toResponse(
+                    context.getRequest(),
+                    context.getResponse(),
+                    value
+                )
+        );
+        final WebAsync webAsync = returnValue
+            .getMethodAnnotation()
+            .getAnnotation(WebAsync.class);
+        if (webAsync != null && !webAsync.value().isEmpty()) {
+            asyncTask.setExecutorName(webAsync.value());
+        }
+        context.getAsyncManager().startAsync(asyncTask);
         return null;
     }
 }
