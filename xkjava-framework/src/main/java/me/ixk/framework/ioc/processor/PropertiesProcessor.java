@@ -12,7 +12,6 @@ import me.ixk.framework.annotations.BeanProcessor;
 import me.ixk.framework.annotations.ConfigurationProperties;
 import me.ixk.framework.annotations.Order;
 import me.ixk.framework.annotations.PropertySource;
-import me.ixk.framework.bootstrap.LoadEnvironmentVariables;
 import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.exceptions.ResourceException;
 import me.ixk.framework.ioc.Container;
@@ -60,9 +59,7 @@ public class PropertiesProcessor implements BeforeInjectProcessor {
 
     private boolean isSkip(Class<?> type) {
         // Disable some bootstrap
-        return (
-            type == LoadEnvironmentVariables.class || type == Environment.class
-        );
+        return (type == Environment.class);
     }
 
     private CompositePropertySource resolveProperties(

@@ -7,6 +7,7 @@ package me.ixk.framework.property;
 import cn.hutool.core.io.IoUtil;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Properties;
 import me.ixk.framework.exceptions.LoadEnvironmentFileException;
@@ -31,7 +32,14 @@ public class PropertiesPropertySource extends MapPropertySource<Object> {
     }
 
     public PropertiesPropertySource(final String name, final File file) {
-        super(name, parseProperties(file, null));
+        this(name, file, null);
+    }
+
+    public PropertiesPropertySource(
+        final String name,
+        final InputStream stream
+    ) {
+        this(name, stream, null);
     }
 
     public PropertiesPropertySource(
@@ -42,15 +50,30 @@ public class PropertiesPropertySource extends MapPropertySource<Object> {
         super(name, parseProperties(file, encoding));
     }
 
+    public PropertiesPropertySource(
+        final String name,
+        final InputStream stream,
+        final String encoding
+    ) {
+        super(name, parseProperties(stream, encoding));
+    }
+
     private static Properties parseProperties(
         final File file,
+        final String encoding
+    ) {
+        return parseProperties(IoUtil.toStream(file), encoding);
+    }
+
+    private static Properties parseProperties(
+        final InputStream stream,
         final String encoding
     ) {
         final Properties properties = new Properties();
         try {
             properties.load(
                 IoUtil.getReader(
-                    IoUtil.toStream(file),
+                    stream,
                     encoding == null || encoding.isEmpty()
                         ? Charset.defaultCharset()
                         : Charset.forName(encoding)

@@ -26,6 +26,7 @@
   <modules>
     <module>xkjava-framework</module>
     <module>xkjava-app</module>
+    <module>xkjava-ext</module>
   </modules>
 
   <dependencies>

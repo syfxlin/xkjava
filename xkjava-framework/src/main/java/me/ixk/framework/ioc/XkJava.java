@@ -16,7 +16,10 @@ import me.ixk.framework.kernel.BeanProcessorAnnotationProcessor;
 import me.ixk.framework.kernel.BootstrapAnnotationProcessor;
 import me.ixk.framework.kernel.ComponentScanAnnotationProcessor;
 import me.ixk.framework.kernel.InjectorAnnotationProcessor;
+import me.ixk.framework.kernel.LoadEnvironmentVariables;
+import me.ixk.framework.kernel.LoadMetadata;
 import me.ixk.framework.property.Environment;
+import me.ixk.framework.property.Metadata;
 import me.ixk.framework.server.JettyServer;
 import me.ixk.framework.server.Server;
 import me.ixk.framework.utils.Ansi;
@@ -66,6 +69,18 @@ public class XkJava extends Container {
      * Bean 扫描器
      */
     private final BeanScanner beanScanner = new BeanScanner(this);
+
+    /**
+     * 元数据读取
+     */
+    private final LoadMetadata loadMetadata = new LoadMetadata(this);
+
+    /**
+     * 配置读取
+     */
+    private final LoadEnvironmentVariables loadEnvironmentVariables = new LoadEnvironmentVariables(
+        this
+    );
 
     /**
      * 开启的功能
@@ -165,13 +180,6 @@ public class XkJava extends Container {
     }
 
     /**
-     * 配置要扫描的包
-     */
-    private void loadPackageScanAnnotation() {
-        this.componentScanAnnotationProcessor.process();
-    }
-
-    /**
      * 启动 XkJava 实例
      *
      * @param primarySource 传入类
@@ -206,8 +214,14 @@ public class XkJava extends Container {
         // 注册销毁钩子
         this.registerShutdownHook();
 
+        // 读取元配置
+        this.loadMetadata.load();
+
+        // 读取配置文件
+        this.loadEnvironmentVariables.load();
+
         // 读取需要扫描的包
-        this.loadPackageScanAnnotation();
+        this.componentScanAnnotationProcessor.process();
 
         // 导入 Injector 和 BeanProcessor
         this.injectorAnnotationProcessor.process();
@@ -255,6 +269,8 @@ public class XkJava extends Container {
         this.registerContext(sessionContext);
 
         this.instance("app", this);
+        this.instance("loadMetadata", loadMetadata);
+        this.instance("loadEnvironmentVariables", loadEnvironmentVariables);
         this.bind("aspectManager", AspectManager.class);
         this.instance("annotationProcessorManager", annotationProcessorManager);
         this.instance("beanScanner", this.beanScanner);
@@ -316,6 +332,10 @@ public class XkJava extends Container {
 
     public Environment env() {
         return this.make(Environment.class);
+    }
+
+    public Metadata metadata() {
+        return this.make(Metadata.class);
     }
 
     public AnnotationProcessorManager annotationProcessorManager() {

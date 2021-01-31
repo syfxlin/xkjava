@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!--
-  ~ Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
-  -->
 <project
     xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -14,8 +11,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>xkjava-app</artifactId>
-
+  <groupId>me.ixk.ext</groupId>
+  <artifactId>xkjava-ext</artifactId>
   <packaging>jar</packaging>
 
   <dependencies>
@@ -24,23 +21,5 @@
       <artifactId>xkjava-framework</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
-    <dependency>
-      <groupId>me.ixk.ext</groupId>
-      <artifactId>xkjava-ext</artifactId>
-      <version>${project.parent.version}</version>
-    </dependency>
   </dependencies>
-
-  <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-      </resource>
-      <!-- SPA 资源 -->
-      <resource>
-        <directory>../xkjava-front/dist</directory>
-        <targetPath>public</targetPath>
-      </resource>
-    </resources>
-  </build>
 </project>

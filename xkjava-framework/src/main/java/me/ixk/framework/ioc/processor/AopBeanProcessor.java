@@ -9,7 +9,6 @@ import me.ixk.framework.annotations.Order;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.ProxyCreator;
-import me.ixk.framework.bootstrap.LoadEnvironmentVariables;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.entity.ConstructorContext;
 import me.ixk.framework.ioc.entity.InjectContext;
@@ -27,10 +26,10 @@ public class AopBeanProcessor implements BeanAfterCreateProcessor {
 
     @Override
     public Object process(
-        Container container,
-        Object instance,
-        InjectContext context,
-        ConstructorContext constructor
+        final Container container,
+        final Object instance,
+        final InjectContext context,
+        final ConstructorContext constructor
     ) {
         final Class<?> instanceType = context.getType();
         if (this.aspectMatches(instanceType, container)) {
@@ -47,7 +46,10 @@ public class AopBeanProcessor implements BeanAfterCreateProcessor {
         }
     }
 
-    protected boolean aspectMatches(final Class<?> type, Container container) {
+    protected boolean aspectMatches(
+        final Class<?> type,
+        final Container container
+    ) {
         // Disable proxy Advice and AspectManager
         if (
             Advice.class.isAssignableFrom(type) || type == AspectManager.class
@@ -55,9 +57,6 @@ public class AopBeanProcessor implements BeanAfterCreateProcessor {
             return false;
         }
         // Disable some bootstrap
-        if (type == LoadEnvironmentVariables.class) {
-            return false;
-        }
         if (ClassUtils.isSkipBuildType(type)) {
             return false;
         }

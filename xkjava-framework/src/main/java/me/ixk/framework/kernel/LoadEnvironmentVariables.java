@@ -2,10 +2,8 @@
  * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
  */
 
-package me.ixk.framework.bootstrap;
+package me.ixk.framework.kernel;
 
-import me.ixk.framework.annotations.Bootstrap;
-import me.ixk.framework.annotations.Order;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.property.CommandLinePropertySource;
 import me.ixk.framework.property.Environment;
@@ -20,20 +18,19 @@ import org.slf4j.LoggerFactory;
  * @author Otstar Lin
  * @date 2020/10/14 上午 8:53
  */
-@Bootstrap
-@Order(Order.HIGHEST_PRECEDENCE + 1)
-public class LoadEnvironmentVariables extends AbstractBootstrap {
+public class LoadEnvironmentVariables {
 
     private static final Logger log = LoggerFactory.getLogger(
         LoadEnvironmentVariables.class
     );
 
+    private final XkJava app;
+
     public LoadEnvironmentVariables(final XkJava app) {
-        super(app);
+        this.app = app;
     }
 
-    @Override
-    public void boot() {
+    public void load() {
         final Environment environment = new Environment("environment");
         // 读取系统参数
         final SystemPropertySource systemPropertySource = new SystemPropertySource(
