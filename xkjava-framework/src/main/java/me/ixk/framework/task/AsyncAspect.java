@@ -4,12 +4,14 @@
 
 package me.ixk.framework.task;
 
+import com.alibaba.ttl.TtlCallable;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import me.ixk.framework.annotations.Aspect;
 import me.ixk.framework.annotations.Async;
@@ -33,7 +35,7 @@ public class AsyncAspect implements Advice {
     private static final Logger log = LoggerFactory.getLogger(
         AsyncAspect.class
     );
-    private static final AsyncTaskExecutor DEFAULT_TASK_EXECUTOR = new SimpleAsyncTaskExecutor(
+    private static final ExecutorService DEFAULT_TASK_EXECUTOR = new SimpleAsyncTaskExecutor(
         "async"
     );
     private final XkJava app;
@@ -48,33 +50,35 @@ public class AsyncAspect implements Advice {
             .getMethodAnnotation()
             .getAnnotation(Async.class);
 
-        AsyncTaskExecutor executor = null;
+        ExecutorService executor = null;
         if (async != null && !async.value().isEmpty()) {
-            executor = this.app.make(async.value(), AsyncTaskExecutor.class);
+            executor = this.app.make(async.value(), ExecutorService.class);
         }
         if (executor == null) {
             executor = DEFAULT_TASK_EXECUTOR;
         }
         final Method method = joinPoint.getMethod();
-        Callable<Object> task = () -> {
-            try {
-                Object result = joinPoint.proceed();
-                if (result instanceof Future) {
-                    return ((Future<?>) result).get();
+        Callable<Object> task = TtlCallable.get(
+            () -> {
+                try {
+                    Object result = joinPoint.proceed();
+                    if (result instanceof Future) {
+                        return ((Future<?>) result).get();
+                    }
+                } catch (ExecutionException ex) {
+                    handleError(ex.getCause(), method, joinPoint.getArgs());
+                } catch (Throwable ex) {
+                    handleError(ex, method, joinPoint.getArgs());
                 }
-            } catch (ExecutionException ex) {
-                handleError(ex.getCause(), method, joinPoint.getArgs());
-            } catch (Throwable ex) {
-                handleError(ex, method, joinPoint.getArgs());
+                return null;
             }
-            return null;
-        };
+        );
         return this.submit(task, executor, method.getReturnType());
     }
 
     private Object submit(
         Callable<Object> task,
-        AsyncTaskExecutor executor,
+        ExecutorService executor,
         Class<?> returnType
     ) {
         if (CompletableFuture.class.isAssignableFrom(returnType)) {

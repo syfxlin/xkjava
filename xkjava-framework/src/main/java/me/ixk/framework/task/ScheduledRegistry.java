@@ -4,6 +4,7 @@
 
 package me.ixk.framework.task;
 
+import com.alibaba.ttl.TtlRunnable;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.time.Duration;
@@ -71,7 +72,7 @@ public class ScheduledRegistry implements BeanBindRegistry {
         final XkJava app,
         final Method method
     ) {
-        final Runnable runnable = () -> app.call(method);
+        final Runnable runnable = TtlRunnable.get(() -> app.call(method));
 
         // Cron 定时任务
         final String cron = scheduled.cron();

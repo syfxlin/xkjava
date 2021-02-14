@@ -1,10 +1,10 @@
 package me.ixk.framework.web.async;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.task.AsyncTaskExecutor;
 import reactor.util.annotation.Nullable;
 
 /**
@@ -20,7 +20,7 @@ public class WebAsyncTask<V> {
     @Nullable
     private Long timeout;
 
-    private AsyncTaskExecutor executor;
+    private ExecutorService executor;
 
     private String executorName;
 
@@ -51,7 +51,7 @@ public class WebAsyncTask<V> {
 
     public WebAsyncTask(
         @Nullable final Long timeout,
-        final AsyncTaskExecutor executor,
+        final ExecutorService executor,
         final Callable<V> callable
     ) {
         this(callable);
@@ -72,13 +72,13 @@ public class WebAsyncTask<V> {
         this.timeout = timeout;
     }
 
-    public AsyncTaskExecutor getExecutor() {
+    public ExecutorService getExecutor() {
         if (executor != null) {
             return executor;
         } else if (executorName != null) {
-            final AsyncTaskExecutor taskExecutor = XkJava
+            final ExecutorService taskExecutor = XkJava
                 .of()
-                .make(executorName, AsyncTaskExecutor.class);
+                .make(executorName, ExecutorService.class);
             if (taskExecutor != null) {
                 executor = taskExecutor;
                 return executor;
@@ -87,7 +87,7 @@ public class WebAsyncTask<V> {
         return null;
     }
 
-    public void setExecutor(final AsyncTaskExecutor executor) {
+    public void setExecutor(final ExecutorService executor) {
         this.executor = executor;
     }
 

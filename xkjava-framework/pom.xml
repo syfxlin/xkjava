@@ -119,6 +119,12 @@
       <artifactId>cglib</artifactId>
       <version>3.3.0</version>
     </dependency>
+    <!-- TTL -->
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>transmittable-thread-local</artifactId>
+      <version>2.12.1</version>
+    </dependency>
   </dependencies>
 
   <build>

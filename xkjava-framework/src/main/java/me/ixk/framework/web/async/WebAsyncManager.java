@@ -1,17 +1,19 @@
 package me.ixk.framework.web.async;
 
+import com.alibaba.ttl.TtlRunnable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import me.ixk.framework.annotations.Component;
 import me.ixk.framework.annotations.Scope;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.ioc.context.ScopeType;
-import me.ixk.framework.task.AsyncTaskExecutor;
 import me.ixk.framework.task.SimpleAsyncTaskExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +30,12 @@ public class WebAsyncManager {
         WebAsyncManager.class
     );
     private static final Object RESULT_NONE = new Object();
-    private static final AsyncTaskExecutor DEFAULT_TASK_EXECUTOR = new SimpleAsyncTaskExecutor(
+    private static final ExecutorService DEFAULT_TASK_EXECUTOR = new SimpleAsyncTaskExecutor(
         WebAsyncManager.class.getSimpleName()
     );
 
     private Request request;
-    private AsyncTaskExecutor executor = DEFAULT_TASK_EXECUTOR;
+    private ExecutorService executor = DEFAULT_TASK_EXECUTOR;
     private volatile Object concurrentResult = RESULT_NONE;
     private final Map<Object, CallableInterceptor> callableInterceptors = new LinkedHashMap<>();
     private final Map<Object, DeferredInterceptor> deferredInterceptors = new LinkedHashMap<>();
@@ -47,7 +49,7 @@ public class WebAsyncManager {
         this.request = request;
     }
 
-    public void setAsyncTaskExecutor(AsyncTaskExecutor executor) {
+    public void setAsyncTaskExecutor(ExecutorService executor) {
         this.executor = executor;
     }
 
@@ -116,7 +118,7 @@ public class WebAsyncManager {
         if (timeout != null) {
             this.request.setTimeout(timeout);
         }
-        final AsyncTaskExecutor executor = webAsyncTask.getExecutor();
+        final ExecutorService executor = webAsyncTask.getExecutor();
         if (executor != null) {
             this.executor = executor;
         }
@@ -179,29 +181,30 @@ public class WebAsyncManager {
 
         this.startAsyncProcessing();
         try {
+            final TtlRunnable task = TtlRunnable.get(
+                () -> {
+                    Object result = null;
+                    try {
+                        interceptorChain.applyBeforeProcess(
+                            this.request,
+                            callable
+                        );
+                        result = callable.call();
+                    } catch (final Throwable ex) {
+                        result = ex;
+                    } finally {
+                        result =
+                            interceptorChain.applyAfterProcess(
+                                this.request,
+                                callable,
+                                result
+                            );
+                    }
+                    setConcurrentResultAndDispatch(result);
+                }
+            );
             final Future<?> future =
-                this.executor.submit(
-                        () -> {
-                            Object result = null;
-                            try {
-                                interceptorChain.applyBeforeProcess(
-                                    this.request,
-                                    callable
-                                );
-                                result = callable.call();
-                            } catch (final Throwable ex) {
-                                result = ex;
-                            } finally {
-                                result =
-                                    interceptorChain.applyAfterProcess(
-                                        this.request,
-                                        callable,
-                                        result
-                                    );
-                            }
-                            setConcurrentResultAndDispatch(result);
-                        }
-                    );
+                this.executor.submit(Objects.requireNonNull(task));
             interceptorChain.setTaskFuture(future);
         } catch (final RejectedExecutionException ex) {
             final Object result = interceptorChain.applyAfterProcess(

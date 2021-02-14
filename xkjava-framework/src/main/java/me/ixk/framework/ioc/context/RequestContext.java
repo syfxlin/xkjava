@@ -4,6 +4,7 @@
 
 package me.ixk.framework.ioc.context;
 
+import com.alibaba.ttl.TransmittableThreadLocal;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +26,7 @@ public class RequestContext implements ThreadLocalContext {
     );
     private static final String INSTANCE_ATTRIBUTE_NAME =
         RequestContext.class.getName() + ".INSTANCE_ATTRIBUTE_NAME";
-    private final ThreadLocal<HttpServletRequest> request = new InheritableThreadLocal<>();
+    private final TransmittableThreadLocal<HttpServletRequest> request = new TransmittableThreadLocal<>();
 
     @Override
     public void removeContext() {

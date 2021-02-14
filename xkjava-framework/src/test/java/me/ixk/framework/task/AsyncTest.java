@@ -4,6 +4,7 @@
 
 package me.ixk.framework.task;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +27,14 @@ class AsyncTest {
     AsyncTask asyncTask;
 
     @Bean
-    public AsyncTaskExecutor poolExecutor() {
-        return new AsyncWrapExecutor(Executors.newCachedThreadPool());
+    public ExecutorService poolExecutor() {
+        return Executors.newCachedThreadPool();
     }
 
     @Test
     void async() throws Exception {
+        // 设置 TTL
+        AsyncTask.TTL.set("ttlValue");
         log.info("Thread: {}", Thread.currentThread().getName());
         asyncTask.doTaskOne();
         asyncTask.doTaskTwo();

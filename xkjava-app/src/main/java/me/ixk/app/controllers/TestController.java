@@ -12,7 +12,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -45,8 +47,6 @@ import me.ixk.framework.http.result.StreamResult;
 import me.ixk.framework.ioc.binder.DataBinder.Converter;
 import me.ixk.framework.ioc.factory.ObjectProvider;
 import me.ixk.framework.ioc.type.TypeWrapper;
-import me.ixk.framework.task.AsyncTaskExecutor;
-import me.ixk.framework.task.AsyncTaskPoolExecutor;
 import me.ixk.framework.utils.MergedAnnotation;
 import me.ixk.framework.utils.ResourceUtils;
 import me.ixk.framework.utils.ValidGroup;
@@ -304,8 +304,8 @@ public class TestController {
     }
 
     @Bean
-    public static AsyncTaskExecutor testAsyncExecutor() {
-        return new AsyncTaskPoolExecutor(
+    public static ExecutorService testAsyncExecutor() {
+        return new ThreadPoolExecutor(
             3,
             3,
             0L,

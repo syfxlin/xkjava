@@ -41,7 +41,7 @@ public class ScheduledExecutor
 
     public ScheduledExecutor(final int corePoolSize) {
         super(corePoolSize);
-        this.execute(cronTimer);
+        this.executeTimer();
     }
 
     public ScheduledExecutor(
@@ -49,7 +49,7 @@ public class ScheduledExecutor
         final ThreadFactory threadFactory
     ) {
         super(corePoolSize, threadFactory);
-        this.execute(cronTimer);
+        this.executeTimer();
     }
 
     public ScheduledExecutor(
@@ -57,7 +57,7 @@ public class ScheduledExecutor
         final RejectedExecutionHandler handler
     ) {
         super(corePoolSize, handler);
-        this.execute(cronTimer);
+        this.executeTimer();
     }
 
     public ScheduledExecutor(
@@ -119,6 +119,10 @@ public class ScheduledExecutor
         } finally {
             cronTasksLock.readLock().unlock();
         }
+    }
+
+    private void executeTimer() {
+        this.execute(cronTimer);
     }
 
     public static final class DaemonThreadFactory implements ThreadFactory {

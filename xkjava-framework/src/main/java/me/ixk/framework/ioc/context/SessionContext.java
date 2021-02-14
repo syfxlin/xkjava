@@ -4,6 +4,7 @@
 
 package me.ixk.framework.ioc.context;
 
+import com.alibaba.ttl.TransmittableThreadLocal;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import javax.servlet.http.HttpSession;
@@ -24,7 +25,7 @@ public class SessionContext implements ThreadLocalContext {
     private static final String INSTANCE_ATTRIBUTE_NAME =
         SessionContext.class.getName() + ".INSTANCE_ATTRIBUTE_NAME";
 
-    private final ThreadLocal<HttpSession> session = new InheritableThreadLocal<>();
+    private final TransmittableThreadLocal<HttpSession> session = new TransmittableThreadLocal<>();
 
     @Override
     public void removeContext() {

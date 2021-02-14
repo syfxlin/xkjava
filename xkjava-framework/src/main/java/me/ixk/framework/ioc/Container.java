@@ -6,6 +6,7 @@ package me.ixk.framework.ioc;
 
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
+import com.alibaba.ttl.TransmittableThreadLocal;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -30,7 +31,6 @@ import me.ixk.framework.exceptions.ContainerException;
 import me.ixk.framework.ioc.binder.DataBinder;
 import me.ixk.framework.ioc.binder.DefaultDataBinder;
 import me.ixk.framework.ioc.context.Context;
-import me.ixk.framework.ioc.context.ContextHolder;
 import me.ixk.framework.ioc.context.ScopeType;
 import me.ixk.framework.ioc.entity.Binding;
 import me.ixk.framework.ioc.entity.ConstructorContext;
@@ -119,9 +119,9 @@ public class Container {
     /**
      * 注入的临时变量
      */
-    private final ThreadLocal<DataBinder> dataBinder = new InheritableThreadLocal<>();
+    private final TransmittableThreadLocal<DataBinder> dataBinder = new TransmittableThreadLocal<>();
 
-    private final ThreadLocal<Map<String, Object>> earlyBeans = new InheritableThreadLocal<>();
+    private final TransmittableThreadLocal<Map<String, Object>> earlyBeans = new TransmittableThreadLocal<>();
 
     public Container() {
         this.dataBinder.set(
@@ -159,10 +159,6 @@ public class Container {
 
     public Map<Class<? extends Context>, Context> getContexts() {
         return this.contexts;
-    }
-
-    public ContextHolder createContextHolder() {
-        return new ContextHolder(this);
     }
 
     /* ===================== Context ===================== */

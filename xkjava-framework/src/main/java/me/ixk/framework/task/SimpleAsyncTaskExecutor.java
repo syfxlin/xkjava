@@ -3,6 +3,7 @@ package me.ixk.framework.task;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class SimpleAsyncTaskExecutor
     extends AbstractExecutorService
-    implements AsyncTaskExecutor {
+    implements ExecutorService {
 
     private final ThreadFactory threadFactory;
     private final AtomicInteger threadCount = new AtomicInteger(0);
