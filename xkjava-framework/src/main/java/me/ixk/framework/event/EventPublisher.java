@@ -87,13 +87,25 @@ public class EventPublisher extends AbstractAnnotationProcessor {
             eventType,
             (type, list) -> {
                 if (list == null) {
-                    final ArrayList<ApplicationListener> events = new ArrayList<>();
-                    events.add(listener);
-                    return events;
-                } else {
-                    list.add(listener);
-                    return list;
+                    list = new ArrayList<>();
                 }
+                list.add(listener);
+                return list;
+            }
+        );
+    }
+
+    public void removeListener(
+        final Class<? extends ApplicationEvent> eventType,
+        ApplicationListener listener
+    ) {
+        listeners.compute(
+            eventType,
+            (type, list) -> {
+                if (list != null) {
+                    list.remove(listener);
+                }
+                return list;
             }
         );
     }
