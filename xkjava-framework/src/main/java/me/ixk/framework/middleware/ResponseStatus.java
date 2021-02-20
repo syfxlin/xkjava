@@ -25,7 +25,7 @@ public class ResponseStatus implements Middleware {
         Response response
     ) throws Exception {
         me.ixk.framework.annotation.ResponseStatus responseStatus = (me.ixk.framework.annotation.ResponseStatus) request.getAttribute(
-            "me.ixk.framework.annotations.ResponseStatus"
+            "me.ixk.framework.annotation.ResponseStatus"
         );
         final HttpStatus status = responseStatus.code();
         if (responseStatus.reason().isEmpty()) {

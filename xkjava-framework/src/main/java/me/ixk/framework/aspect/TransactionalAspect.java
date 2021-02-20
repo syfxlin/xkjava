@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * @author Otstar Lin
  * @date 2020/10/14 上午 8:40
  */
-@Aspect("@annotation(me.ixk.framework.annotations.Transactional)")
+@Aspect("@annotation(me.ixk.framework.annotation.Transactional)")
 public class TransactionalAspect implements Advice {
 
     private static final Logger log = LoggerFactory.getLogger(

@@ -8,6 +8,12 @@ import cn.hutool.core.collection.ConcurrentHashSet;
 import java.util.Set;
 import me.ixk.framework.annotation.Profile;
 import me.ixk.framework.aop.AspectManager;
+import me.ixk.framework.event.ApplicationBootedEvent;
+import me.ixk.framework.event.ApplicationBootingEvent;
+import me.ixk.framework.event.ApplicationDestroyedEvent;
+import me.ixk.framework.event.ApplicationDestroyingEvent;
+import me.ixk.framework.event.ApplicationListener;
+import me.ixk.framework.event.EventPublisher;
 import me.ixk.framework.ioc.context.ApplicationContext;
 import me.ixk.framework.ioc.context.RequestContext;
 import me.ixk.framework.ioc.context.SessionContext;
@@ -121,31 +127,16 @@ public class XkJava extends Container {
     );
 
     /**
+     * 事件发布器
+     */
+    private final EventPublisher eventPublisher = new EventPublisher(this);
+
+    /**
      * 注解处理器
      */
     private AnnotationProcessorManager annotationProcessorManager = new AnnotationProcessorManager(
         this
     );
-
-    /**
-     * 启动前回调
-     */
-    private Callback bootingCallback = null;
-
-    /**
-     * 启动后回调
-     */
-    private Callback bootedCallback = null;
-
-    /**
-     * 销毁前回调
-     */
-    private Callback destroyingCallback = null;
-
-    /**
-     * 销毁后回调
-     */
-    private Callback destroyedCallback = null;
 
     public static XkJava boot(
         final Class<?> primarySource,
@@ -227,13 +218,14 @@ public class XkJava extends Container {
         this.injectorAnnotationProcessor.process();
         this.beanProcessorAnnotationProcessor.process();
 
+        // 扫描事件
+        this.eventPublisher.process();
+
         // 启动前回调
-        if (this.bootingCallback != null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Application call booting");
-            }
-            this.bootedCallback.invoke(this);
+        if (log.isDebugEnabled()) {
+            log.debug("Application call booting");
         }
+        this.eventPublisher.publishEvent(new ApplicationBootingEvent(this));
 
         // 通过调用 Bootstrap 注解处理器处理 Bootstrap
         if (log.isDebugEnabled()) {
@@ -242,12 +234,10 @@ public class XkJava extends Container {
         this.bootstrapAnnotationProcessor.process();
 
         // 启动后回调
-        if (this.bootedCallback != null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Application call booted");
-            }
-            this.bootedCallback.invoke(this);
+        if (log.isDebugEnabled()) {
+            log.debug("Application call booted");
         }
+        this.eventPublisher.publishEvent(new ApplicationBootedEvent(this));
 
         this.booted = true;
         // 启动 Server 服务
@@ -286,13 +276,13 @@ public class XkJava extends Container {
                 new Thread(
                     () -> {
                         log.info("Run shutdown hook");
-                        if (this.destroyingCallback != null) {
-                            this.destroyingCallback.invoke(this);
-                        }
+                        this.eventPublisher.publishEvent(
+                                new ApplicationDestroyingEvent(this)
+                            );
                         this.destroy();
-                        if (this.destroyedCallback != null) {
-                            this.destroyedCallback.invoke(this);
-                        }
+                        this.eventPublisher.publishEvent(
+                                new ApplicationDestroyedEvent(this)
+                            );
                     },
                     "shutdown-hook"
                 )
@@ -358,23 +348,32 @@ public class XkJava extends Container {
         return this.booted;
     }
 
-    public XkJava booting(final Callback callback) {
-        this.bootingCallback = callback;
+    public XkJava booting(final ApplicationListener listener) {
+        this.eventPublisher.addListener(
+                ApplicationBootingEvent.class,
+                listener
+            );
         return this;
     }
 
-    public XkJava booted(final Callback callback) {
-        this.bootedCallback = callback;
+    public XkJava booted(final ApplicationListener listener) {
+        this.eventPublisher.addListener(ApplicationBootedEvent.class, listener);
         return this;
     }
 
-    public XkJava destroying(final Callback callback) {
-        this.destroyingCallback = callback;
+    public XkJava destroying(final ApplicationListener listener) {
+        this.eventPublisher.addListener(
+                ApplicationDestroyingEvent.class,
+                listener
+            );
         return this;
     }
 
-    public XkJava destroyed(final Callback callback) {
-        this.destroyedCallback = callback;
+    public XkJava destroyed(final ApplicationListener listener) {
+        this.eventPublisher.addListener(
+                ApplicationDestroyedEvent.class,
+                listener
+            );
         return this;
     }
 

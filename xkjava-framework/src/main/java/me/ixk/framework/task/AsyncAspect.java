@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * @author Otstar Lin
  * @date 2020/11/26 上午 10:34
  */
-@Aspect("@annotation(me.ixk.framework.annotations.Async)")
+@Aspect("@annotation(me.ixk.framework.annotation.Async)")
 @ConditionalOnEnable(name = "async")
 public class AsyncAspect implements Advice {
 

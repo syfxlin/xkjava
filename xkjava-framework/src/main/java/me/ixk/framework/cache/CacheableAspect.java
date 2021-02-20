@@ -22,7 +22,7 @@ import me.ixk.framework.util.MergedAnnotation;
  * @date 2020/11/27 下午 2:25
  */
 @Aspect(
-    "@annotation(me.ixk.framework.annotations.Cacheable) || @annotation(me.ixk.framework.annotations.CachePut)"
+    "@annotation(me.ixk.framework.annotation.Cacheable) || @annotation(me.ixk.framework.annotation.CachePut)"
 )
 @ConditionalOnEnable(name = "cache")
 public class CacheableAspect extends AbstractCacheAspect {

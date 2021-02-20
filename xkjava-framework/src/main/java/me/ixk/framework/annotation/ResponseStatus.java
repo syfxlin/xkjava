@@ -22,7 +22,7 @@ import me.ixk.framework.registry.request.ResponseStatusRegistry;
 @Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @RequestAttribute(
-    name = "me.ixk.framework.annotations.ResponseStatus",
+    name = "me.ixk.framework.annotation.ResponseStatus",
     registry = ResponseStatusRegistry.class
 )
 @Middleware(middleware = me.ixk.framework.middleware.ResponseStatus.class)

@@ -19,7 +19,7 @@ import me.ixk.framework.ioc.XkJava;
  * @author Otstar Lin
  * @date 2020/11/27 下午 4:32
  */
-@Aspect("@annotation(me.ixk.framework.annotations.CacheEvict)")
+@Aspect("@annotation(me.ixk.framework.annotation.CacheEvict)")
 @ConditionalOnEnable(name = "cache")
 public class CacheEvictAspect extends AbstractCacheAspect {
 
