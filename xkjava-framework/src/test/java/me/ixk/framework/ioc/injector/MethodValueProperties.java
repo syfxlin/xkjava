@@ -4,9 +4,9 @@
 
 package me.ixk.framework.ioc.injector;
 
-import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.annotations.Component;
-import me.ixk.framework.annotations.Value;
+import me.ixk.framework.annotation.Autowired;
+import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.Value;
 
 /**
  * @author Otstar Lin

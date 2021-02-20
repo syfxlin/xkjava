@@ -7,7 +7,7 @@ package me.ixk.app.service.impl;
 import me.ixk.app.entity.TbProviderCopy;
 import me.ixk.app.mapper.TbProviderCopyMapper;
 import me.ixk.app.service.ITbProviderCopyService;
-import me.ixk.framework.annotations.Service;
+import me.ixk.framework.annotation.Service;
 import me.ixk.framework.service.ServiceImpl;
 
 /**

@@ -4,7 +4,7 @@
 
 package me.ixk.app.config;
 
-import me.ixk.framework.annotations.Provider;
+import me.ixk.framework.annotation.Provider;
 import me.ixk.framework.view.TemplateProcessor;
 import me.ixk.framework.view.Thymeleaf;
 import org.thymeleaf.TemplateEngine;

@@ -9,8 +9,8 @@ import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import me.ixk.framework.ioc.binder.DataBinder;
 import me.ixk.framework.ioc.entity.AnnotatedEntry.ChangeableEntry;
-import me.ixk.framework.utils.MergedAnnotation;
-import me.ixk.framework.utils.ParameterNameDiscoverer;
+import me.ixk.framework.util.MergedAnnotation;
+import me.ixk.framework.util.ParameterNameDiscoverer;
 
 /**
  * 参数上下文

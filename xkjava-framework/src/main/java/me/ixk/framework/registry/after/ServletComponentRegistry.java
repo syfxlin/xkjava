@@ -16,12 +16,12 @@ import javax.servlet.ServletSecurityElement;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebInitParam;
-import me.ixk.framework.annotations.Filter;
-import me.ixk.framework.annotations.Listener;
-import me.ixk.framework.annotations.Servlet;
+import me.ixk.framework.annotation.Filter;
+import me.ixk.framework.annotation.Listener;
+import me.ixk.framework.annotation.Servlet;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.server.Server;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * Servlet 组件加载器

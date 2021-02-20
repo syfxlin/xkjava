@@ -5,8 +5,8 @@
 package me.ixk.framework.kernel;
 
 import cn.hutool.core.util.ReflectUtil;
-import me.ixk.framework.annotations.BeanProcessor;
-import me.ixk.framework.exceptions.AnnotationProcessorException;
+import me.ixk.framework.annotation.BeanProcessor;
+import me.ixk.framework.exception.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.processor.BeanAfterCreateProcessor;
 import me.ixk.framework.ioc.processor.BeanDestroyProcessor;

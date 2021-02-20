@@ -7,8 +7,8 @@ package me.ixk.framework.task;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
-import me.ixk.framework.annotations.Component;
-import me.ixk.framework.annotations.Scheduled;
+import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.Scheduled;
 
 /**
  * @author Otstar Lin

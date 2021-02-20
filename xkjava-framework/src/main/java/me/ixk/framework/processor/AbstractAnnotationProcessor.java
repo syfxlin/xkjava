@@ -10,12 +10,12 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-import me.ixk.framework.annotations.Scope;
+import me.ixk.framework.annotation.Scope;
 import me.ixk.framework.ioc.BeanScanner;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.context.ScopeType;
-import me.ixk.framework.utils.AnnotationUtils;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.AnnotationUtils;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * 注解处理器（抽象类）

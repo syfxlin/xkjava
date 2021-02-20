@@ -4,8 +4,8 @@
 
 package me.ixk.app.beans;
 
-import me.ixk.framework.annotations.Aspect;
-import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotation.Aspect;
+import me.ixk.framework.annotation.Order;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 

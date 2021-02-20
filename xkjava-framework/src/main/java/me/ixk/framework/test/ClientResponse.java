@@ -9,10 +9,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.annotations.AliasFor;
+import me.ixk.framework.annotation.AliasFor;
 import me.ixk.framework.http.HttpMethod;
 import me.ixk.framework.http.MimeType;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * HTTP 响应

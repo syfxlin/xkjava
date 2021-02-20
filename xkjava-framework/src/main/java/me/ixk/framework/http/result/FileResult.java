@@ -21,11 +21,11 @@ import java.util.Arrays;
 import java.util.List;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import me.ixk.framework.exceptions.ResponseException;
+import me.ixk.framework.exception.ResponseException;
 import me.ixk.framework.http.MimeType;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
-import me.ixk.framework.utils.ResourceUtils;
+import me.ixk.framework.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

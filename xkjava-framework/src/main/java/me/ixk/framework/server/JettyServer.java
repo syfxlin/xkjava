@@ -8,7 +8,7 @@ import java.util.EventListener;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.servlet.ServletContext;
-import me.ixk.framework.annotations.Component;
+import me.ixk.framework.annotation.Component;
 import me.ixk.framework.config.AppProperties;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;

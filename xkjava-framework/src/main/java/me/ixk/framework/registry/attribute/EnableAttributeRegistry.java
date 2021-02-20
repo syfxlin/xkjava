@@ -8,9 +8,9 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
-import me.ixk.framework.annotations.Enable;
+import me.ixk.framework.annotation.Enable;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * @author Otstar Lin

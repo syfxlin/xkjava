@@ -4,7 +4,7 @@
 
 package me.ixk.framework.expression;
 
-import static me.ixk.framework.utils.DataUtils.caseGet;
+import static me.ixk.framework.util.DataUtils.caseGet;
 
 import io.github.imsejin.expression.Expression;
 import io.github.imsejin.expression.ExpressionParser;
@@ -15,7 +15,7 @@ import io.github.imsejin.expression.spel.support.StandardEvaluationContext;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotations.Component;
+import me.ixk.framework.annotation.Component;
 import me.ixk.framework.expression.PropertyPlaceholderHelper.PlaceholderResolver;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.property.PropertySource;

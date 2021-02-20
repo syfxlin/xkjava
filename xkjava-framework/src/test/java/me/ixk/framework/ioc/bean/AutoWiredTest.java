@@ -4,7 +4,7 @@
 
 package me.ixk.framework.ioc.bean;
 
-import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.annotation.Autowired;
 
 /**
  * @author Otstar Lin

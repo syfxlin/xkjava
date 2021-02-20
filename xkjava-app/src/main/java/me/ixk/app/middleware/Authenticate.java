@@ -4,11 +4,11 @@
 
 package me.ixk.app.middleware;
 
-import static me.ixk.framework.helpers.Facade.response;
+import static me.ixk.framework.helper.Facade.response;
 
 import me.ixk.app.auth.Auth;
-import me.ixk.framework.annotations.Order;
-import me.ixk.framework.annotations.RouteMiddleware;
+import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.RouteMiddleware;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.ioc.XkJava;

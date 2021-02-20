@@ -4,8 +4,8 @@
 
 package me.ixk.framework.web;
 
-import me.ixk.framework.annotations.Component;
-import me.ixk.framework.annotations.Scope;
+import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.Scope;
 import me.ixk.framework.http.CookieManager;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;

@@ -11,7 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import me.ixk.framework.exceptions.AnnotationProcessorException;
+import me.ixk.framework.exception.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.processor.AnnotationProcessor;
 import org.slf4j.Logger;

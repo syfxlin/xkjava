@@ -5,7 +5,7 @@
 package me.ixk.framework.ioc;
 
 import java.lang.reflect.AnnotatedElement;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * 条件接口

@@ -8,7 +8,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.annotations.Component;
+import me.ixk.framework.annotation.Component;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**

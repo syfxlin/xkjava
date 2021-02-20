@@ -10,15 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import me.ixk.framework.annotations.Component;
-import me.ixk.framework.exceptions.RouteCollectorException;
+import me.ixk.framework.annotation.Component;
+import me.ixk.framework.exception.RouteCollectorException;
 import me.ixk.framework.http.HttpMethod;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Middleware;
 import me.ixk.framework.registry.after.MiddlewareRegistry;
 import me.ixk.framework.registry.after.RouteRegistry;
 import me.ixk.framework.servlet.HandlerMethod;
-import me.ixk.framework.utils.AnnotationUtils;
+import me.ixk.framework.util.AnnotationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -7,8 +7,8 @@ package me.ixk.framework.cache;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.annotations.Enable;
+import me.ixk.framework.annotation.Autowired;
+import me.ixk.framework.annotation.Enable;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 

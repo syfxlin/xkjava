@@ -8,20 +8,20 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import me.ixk.framework.annotations.BeanProcessor;
-import me.ixk.framework.annotations.ConfigurationProperties;
-import me.ixk.framework.annotations.Order;
-import me.ixk.framework.annotations.PropertySource;
-import me.ixk.framework.exceptions.ContainerException;
-import me.ixk.framework.exceptions.ResourceException;
+import me.ixk.framework.annotation.BeanProcessor;
+import me.ixk.framework.annotation.ConfigurationProperties;
+import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.PropertySource;
+import me.ixk.framework.exception.ContainerException;
+import me.ixk.framework.exception.ResourceException;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.entity.InjectContext;
 import me.ixk.framework.property.CompositePropertySource;
 import me.ixk.framework.property.Environment;
 import me.ixk.framework.property.MapPropertySource;
 import me.ixk.framework.property.PropertiesPropertySource;
-import me.ixk.framework.utils.MergedAnnotation;
-import me.ixk.framework.utils.ResourceUtils;
+import me.ixk.framework.util.MergedAnnotation;
+import me.ixk.framework.util.ResourceUtils;
 
 /**
  * Properties 处理

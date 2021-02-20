@@ -4,10 +4,10 @@
 
 package me.ixk.app;
 
-import me.ixk.framework.annotations.ComponentScan;
-import me.ixk.framework.annotations.ComponentScan.Filter;
-import me.ixk.framework.annotations.FilterType;
-import me.ixk.framework.annotations.MapperScan;
+import me.ixk.framework.annotation.ComponentScan;
+import me.ixk.framework.annotation.ComponentScan.Filter;
+import me.ixk.framework.annotation.FilterType;
+import me.ixk.framework.annotation.MapperScan;
 import me.ixk.framework.ioc.XkJava;
 
 /**

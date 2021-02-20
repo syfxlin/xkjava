@@ -8,11 +8,11 @@ import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.util.ClassUtil;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import me.ixk.framework.annotations.ConditionalOnClass;
-import me.ixk.framework.annotations.ConditionalOnMissingClass;
+import me.ixk.framework.annotation.ConditionalOnClass;
+import me.ixk.framework.annotation.ConditionalOnMissingClass;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

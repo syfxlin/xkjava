@@ -6,8 +6,8 @@ package me.ixk.framework.web.resolver;
 
 import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
-import me.ixk.framework.annotations.WebResolver;
-import me.ixk.framework.exceptions.ResponseException;
+import me.ixk.framework.annotation.WebResolver;
+import me.ixk.framework.exception.ResponseException;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.Responsible;
 import me.ixk.framework.route.RouteInfo;

@@ -4,8 +4,8 @@
 
 package me.ixk.framework.middleware;
 
-import me.ixk.framework.annotations.CrossOrigin;
-import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotation.CrossOrigin;
+import me.ixk.framework.annotation.Order;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.web.CorsProcessor;

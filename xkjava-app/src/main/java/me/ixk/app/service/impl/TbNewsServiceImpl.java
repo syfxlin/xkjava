@@ -7,7 +7,7 @@ package me.ixk.app.service.impl;
 import me.ixk.app.entity.TbNews;
 import me.ixk.app.mapper.TbNewsMapper;
 import me.ixk.app.service.ITbNewsService;
-import me.ixk.framework.annotations.Service;
+import me.ixk.framework.annotation.Service;
 import me.ixk.framework.service.ServiceImpl;
 
 /**

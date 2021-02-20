@@ -6,7 +6,7 @@ package me.ixk.framework.property;
 
 import java.util.HashMap;
 import java.util.Map;
-import me.ixk.framework.exceptions.LoadEnvironmentFileException;
+import me.ixk.framework.exception.LoadEnvironmentFileException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

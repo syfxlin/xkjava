@@ -4,9 +4,9 @@
 
 package me.ixk.app.auth;
 
-import static me.ixk.framework.helpers.Facade.cookie;
-import static me.ixk.framework.helpers.Facade.hash;
-import static me.ixk.framework.helpers.Facade.session;
+import static me.ixk.framework.helper.Facade.cookie;
+import static me.ixk.framework.helper.Facade.hash;
+import static me.ixk.framework.helper.Facade.session;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -16,13 +16,13 @@ import me.ixk.app.entity.LoginUser;
 import me.ixk.app.entity.RegisterUser;
 import me.ixk.app.entity.Users;
 import me.ixk.app.service.impl.UsersServiceImpl;
-import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.annotations.Component;
-import me.ixk.framework.annotations.Scope;
+import me.ixk.framework.annotation.Autowired;
+import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.Scope;
 import me.ixk.framework.http.SetCookie;
 import me.ixk.framework.ioc.context.ScopeType;
-import me.ixk.framework.utils.ValidResult;
-import me.ixk.framework.utils.Validation;
+import me.ixk.framework.util.ValidResult;
+import me.ixk.framework.util.Validation;
 
 @Component(name = "auth")
 @Scope(ScopeType.REQUEST)

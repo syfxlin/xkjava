@@ -4,8 +4,8 @@
 
 package me.ixk.framework.cache;
 
-import me.ixk.framework.utils.Convert;
-import me.ixk.framework.utils.WeakCache;
+import me.ixk.framework.util.Convert;
+import me.ixk.framework.util.WeakCache;
 
 /**
  * 弱引用缓存

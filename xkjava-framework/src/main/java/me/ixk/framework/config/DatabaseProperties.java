@@ -4,7 +4,7 @@
 
 package me.ixk.framework.config;
 
-import me.ixk.framework.annotations.ConfigurationProperties;
+import me.ixk.framework.annotation.ConfigurationProperties;
 
 /**
  * 数据库配置文件

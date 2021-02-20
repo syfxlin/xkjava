@@ -6,8 +6,8 @@ package me.ixk.framework.ioc.injector;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import me.ixk.framework.annotations.Injector;
-import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotation.Injector;
+import me.ixk.framework.annotation.Order;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.entity.InjectContext;
 

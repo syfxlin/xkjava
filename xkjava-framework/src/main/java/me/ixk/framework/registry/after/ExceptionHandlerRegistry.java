@@ -9,12 +9,12 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotations.Component;
-import me.ixk.framework.annotations.Controller;
-import me.ixk.framework.annotations.ControllerAdvice;
-import me.ixk.framework.annotations.ExceptionHandler;
+import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.Controller;
+import me.ixk.framework.annotation.ControllerAdvice;
+import me.ixk.framework.annotation.ExceptionHandler;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -5,9 +5,9 @@
 package me.ixk.framework.web.resolver;
 
 import java.util.concurrent.Callable;
-import me.ixk.framework.annotations.Order;
-import me.ixk.framework.annotations.WebAsync;
-import me.ixk.framework.annotations.WebResolver;
+import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.WebAsync;
+import me.ixk.framework.annotation.WebResolver;
 import me.ixk.framework.web.MethodReturnValue;
 import me.ixk.framework.web.WebContext;
 import me.ixk.framework.web.async.WebAsyncTask;

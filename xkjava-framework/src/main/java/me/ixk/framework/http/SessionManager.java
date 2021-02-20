@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.UUID;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
-import me.ixk.framework.annotations.Component;
-import me.ixk.framework.annotations.Scope;
+import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.Scope;
 import me.ixk.framework.ioc.context.ScopeType;
-import me.ixk.framework.utils.Convert;
+import me.ixk.framework.util.Convert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

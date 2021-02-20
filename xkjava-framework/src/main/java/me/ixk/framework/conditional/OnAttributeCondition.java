@@ -5,11 +5,11 @@
 package me.ixk.framework.conditional;
 
 import java.lang.reflect.AnnotatedElement;
-import me.ixk.framework.annotations.ConditionalOnAttribute;
-import me.ixk.framework.annotations.ConditionalOnMissingAttribute;
+import me.ixk.framework.annotation.ConditionalOnAttribute;
+import me.ixk.framework.annotation.ConditionalOnMissingAttribute;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

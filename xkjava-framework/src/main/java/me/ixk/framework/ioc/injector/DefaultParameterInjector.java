@@ -6,10 +6,10 @@ package me.ixk.framework.ioc.injector;
 
 import java.lang.reflect.Parameter;
 import java.util.Collections;
-import me.ixk.framework.annotations.DataBind;
-import me.ixk.framework.annotations.Injector;
-import me.ixk.framework.annotations.Order;
-import me.ixk.framework.annotations.Value;
+import me.ixk.framework.annotation.DataBind;
+import me.ixk.framework.annotation.Injector;
+import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.Value;
 import me.ixk.framework.expression.BeanExpressionResolver;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.entity.InjectContext;
@@ -18,7 +18,7 @@ import me.ixk.framework.ioc.entity.ParameterContext.ParameterEntry;
 import me.ixk.framework.ioc.processor.PropertiesProcessor;
 import me.ixk.framework.ioc.type.TypeWrapper;
 import me.ixk.framework.property.CompositePropertySource;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

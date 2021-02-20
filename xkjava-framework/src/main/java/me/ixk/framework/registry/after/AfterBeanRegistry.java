@@ -6,7 +6,7 @@ package me.ixk.framework.registry.after;
 
 import java.lang.reflect.AnnotatedElement;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * 后置 BindRegistry 注册记录

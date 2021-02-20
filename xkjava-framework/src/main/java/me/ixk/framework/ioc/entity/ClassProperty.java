@@ -5,7 +5,7 @@
 package me.ixk.framework.ioc.entity;
 
 import java.lang.reflect.Field;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * 类属性

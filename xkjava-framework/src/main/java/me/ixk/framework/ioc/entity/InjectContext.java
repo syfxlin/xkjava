@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.ioc.binder.DataBinder;
 import me.ixk.framework.ioc.entity.AnnotatedEntry.ChangeableEntry;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * 注入上下文

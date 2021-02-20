@@ -43,12 +43,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
-import me.ixk.framework.annotations.Component;
-import me.ixk.framework.annotations.Scope;
+import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.Scope;
 import me.ixk.framework.ioc.context.ScopeType;
 import me.ixk.framework.route.RouteInfo;
-import me.ixk.framework.utils.DataUtils;
-import me.ixk.framework.utils.Json;
+import me.ixk.framework.util.DataUtils;
+import me.ixk.framework.util.Json;
 
 /**
  * 请求对象

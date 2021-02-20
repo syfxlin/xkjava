@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.exceptions.HttpException;
+import me.ixk.framework.exception.HttpException;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.MimeType;
 import me.ixk.framework.view.FilterCallback;

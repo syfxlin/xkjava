@@ -5,8 +5,8 @@
 package me.ixk.framework.ioc.entity;
 
 import java.lang.reflect.AnnotatedElement;
-import me.ixk.framework.annotations.Skip;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.annotation.Skip;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * AnnotatedEntry

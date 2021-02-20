@@ -8,8 +8,8 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import java.io.IOException;
 import java.util.Map;
-import me.ixk.framework.exceptions.TemplateException;
-import me.ixk.framework.utils.ByteArrayUtf8Writer;
+import me.ixk.framework.exception.TemplateException;
+import me.ixk.framework.util.ByteArrayUtf8Writer;
 
 /**
  * FreeMarker

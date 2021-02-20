@@ -10,10 +10,10 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import me.ixk.framework.annotations.ComponentScan;
-import me.ixk.framework.annotations.FilterType;
+import me.ixk.framework.annotation.ComponentScan;
+import me.ixk.framework.annotation.FilterType;
 import me.ixk.framework.ioc.entity.AnnotatedEntry;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * Bean 扫描定义

@@ -5,7 +5,7 @@
 package me.ixk.framework.kernel;
 
 import me.ixk.framework.bootstrap.Bootstrap;
-import me.ixk.framework.exceptions.AnnotationProcessorException;
+import me.ixk.framework.exception.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.processor.AbstractAnnotationProcessor;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ public class BootstrapAnnotationProcessor extends AbstractAnnotationProcessor {
     @SuppressWarnings("unchecked")
     public void process() {
         for (Class<?> bootstrapType : this.getTypesAnnotated(
-                me.ixk.framework.annotations.Bootstrap.class
+                me.ixk.framework.annotation.Bootstrap.class
             )) {
             if (Bootstrap.class.isAssignableFrom(bootstrapType)) {
                 this.app.bind(bootstrapType);

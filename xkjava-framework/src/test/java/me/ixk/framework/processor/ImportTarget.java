@@ -4,7 +4,7 @@
 
 package me.ixk.framework.processor;
 
-import me.ixk.framework.annotations.Component;
+import me.ixk.framework.annotation.Component;
 
 /**
  * @author Otstar Lin

@@ -8,8 +8,8 @@ import com.alibaba.ttl.TransmittableThreadLocal;
 import java.util.Random;
 import java.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
-import me.ixk.framework.annotations.Async;
-import me.ixk.framework.annotations.Component;
+import me.ixk.framework.annotation.Async;
+import me.ixk.framework.annotation.Component;
 
 /**
  * @author Otstar Lin

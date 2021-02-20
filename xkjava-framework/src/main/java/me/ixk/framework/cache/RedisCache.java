@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
-import me.ixk.framework.utils.Convert;
+import me.ixk.framework.util.Convert;
 import org.jetbrains.annotations.Nullable;
 
 /**

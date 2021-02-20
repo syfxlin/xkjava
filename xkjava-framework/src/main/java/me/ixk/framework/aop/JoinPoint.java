@@ -7,7 +7,7 @@ package me.ixk.framework.aop;
 import java.lang.reflect.Method;
 import me.ixk.framework.aop.AspectHandler.TargetInfo;
 import me.ixk.framework.ioc.entity.ParameterContext.ParameterEntry;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * 连接点

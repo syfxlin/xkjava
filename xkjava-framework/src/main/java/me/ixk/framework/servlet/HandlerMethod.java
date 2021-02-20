@@ -8,7 +8,7 @@ import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.middleware.Middleware;
-import me.ixk.framework.utils.ClassUtils;
+import me.ixk.framework.util.ClassUtils;
 
 /**
  * @author Otstar Lin

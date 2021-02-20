@@ -9,7 +9,7 @@ import me.ixk.framework.database.SqlSessionManager;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.entity.Binding;
 import me.ixk.framework.ioc.factory.FactoryBean;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * MapperRegistry

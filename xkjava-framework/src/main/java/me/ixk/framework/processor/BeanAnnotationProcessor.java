@@ -12,13 +12,13 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import me.ixk.framework.annotations.AfterRegistry;
-import me.ixk.framework.annotations.AnnotationProcessor;
-import me.ixk.framework.annotations.Bean;
-import me.ixk.framework.annotations.BeforeRegistry;
-import me.ixk.framework.annotations.BindRegistry;
-import me.ixk.framework.annotations.Import;
-import me.ixk.framework.annotations.Lazy;
+import me.ixk.framework.annotation.AfterRegistry;
+import me.ixk.framework.annotation.AnnotationProcessor;
+import me.ixk.framework.annotation.Bean;
+import me.ixk.framework.annotation.BeforeRegistry;
+import me.ixk.framework.annotation.BindRegistry;
+import me.ixk.framework.annotation.Import;
+import me.ixk.framework.annotation.Lazy;
 import me.ixk.framework.ioc.ImportSelector;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.context.ScopeType;
@@ -28,7 +28,7 @@ import me.ixk.framework.ioc.factory.FactoryBean;
 import me.ixk.framework.registry.BeanBindRegistry;
 import me.ixk.framework.registry.after.AfterBeanRegistry;
 import me.ixk.framework.registry.before.BeforeBeanRegistry;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * Bean 注解处理器

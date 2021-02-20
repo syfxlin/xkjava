@@ -4,7 +4,7 @@
 
 package me.ixk.framework.ioc;
 
-import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.annotation.Autowired;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 

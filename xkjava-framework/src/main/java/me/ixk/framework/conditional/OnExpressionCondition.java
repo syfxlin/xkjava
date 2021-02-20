@@ -5,12 +5,12 @@
 package me.ixk.framework.conditional;
 
 import java.lang.reflect.AnnotatedElement;
-import me.ixk.framework.annotations.ConditionalOnExpression;
+import me.ixk.framework.annotation.ConditionalOnExpression;
 import me.ixk.framework.expression.BeanExpressionResolver;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.Convert;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.Convert;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * 条件（OnExpression）

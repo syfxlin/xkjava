@@ -5,8 +5,8 @@
 package me.ixk.framework.ioc.processor;
 
 import java.lang.reflect.Method;
-import me.ixk.framework.annotations.BeanProcessor;
-import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotation.BeanProcessor;
+import me.ixk.framework.annotation.Order;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.entity.ConstructorContext;
 import me.ixk.framework.ioc.entity.InjectContext;

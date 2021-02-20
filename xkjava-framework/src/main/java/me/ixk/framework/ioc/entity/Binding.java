@@ -9,16 +9,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.annotations.PostConstruct;
-import me.ixk.framework.annotations.PreDestroy;
-import me.ixk.framework.annotations.Primary;
+import me.ixk.framework.annotation.Autowired;
+import me.ixk.framework.annotation.PostConstruct;
+import me.ixk.framework.annotation.PreDestroy;
+import me.ixk.framework.annotation.Primary;
 import me.ixk.framework.ioc.context.Context;
 import me.ixk.framework.ioc.factory.FactoryBean;
 import me.ixk.framework.ioc.factory.ObjectFactory;
-import me.ixk.framework.utils.MergedAnnotation;
-import me.ixk.framework.utils.ReflectUtils;
-import me.ixk.framework.utils.SoftCache;
+import me.ixk.framework.util.MergedAnnotation;
+import me.ixk.framework.util.ReflectUtils;
+import me.ixk.framework.util.SoftCache;
 
 /**
  * Binding

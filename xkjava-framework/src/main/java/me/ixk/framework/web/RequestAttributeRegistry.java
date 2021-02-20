@@ -7,9 +7,9 @@ package me.ixk.framework.web;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotations.Component;
-import me.ixk.framework.annotations.RequestAttribute;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.RequestAttribute;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * RequestAttributeRegistry

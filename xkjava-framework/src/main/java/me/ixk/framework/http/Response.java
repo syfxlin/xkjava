@@ -19,11 +19,11 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-import me.ixk.framework.annotations.Component;
-import me.ixk.framework.annotations.Scope;
-import me.ixk.framework.exceptions.ResponseException;
+import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.Scope;
+import me.ixk.framework.exception.ResponseException;
 import me.ixk.framework.ioc.context.ScopeType;
-import me.ixk.framework.utils.Json;
+import me.ixk.framework.util.Json;
 
 /**
  * @author Otstar Lin

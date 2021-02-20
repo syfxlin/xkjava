@@ -6,11 +6,11 @@ package me.ixk.framework.processor;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import me.ixk.framework.annotations.Attribute;
-import me.ixk.framework.exceptions.AnnotationProcessorException;
+import me.ixk.framework.annotation.Attribute;
+import me.ixk.framework.exception.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.registry.attribute.AttributeRegistry;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

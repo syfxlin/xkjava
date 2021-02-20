@@ -6,9 +6,6 @@ package me.ixk.framework.annotation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.annotations.Bean;
-import me.ixk.framework.annotations.Primary;
 import me.ixk.framework.entity.User2;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.test.XkJavaTest;

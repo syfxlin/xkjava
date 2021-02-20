@@ -10,14 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotations.Component;
-import me.ixk.framework.annotations.GlobalMiddleware;
-import me.ixk.framework.annotations.RouteMiddleware;
-import me.ixk.framework.exceptions.AnnotationProcessorException;
+import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.GlobalMiddleware;
+import me.ixk.framework.annotation.RouteMiddleware;
+import me.ixk.framework.exception.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Middleware;
 import me.ixk.framework.route.AnnotationMiddlewareDefinition;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,11 +68,11 @@ public class MiddlewareRegistry implements AfterBeanRegistry {
         }
         if (
             annotation.hasAnnotation(
-                me.ixk.framework.annotations.Middleware.class
+                me.ixk.framework.annotation.Middleware.class
             )
         ) {
-            for (me.ixk.framework.annotations.Middleware middleware : annotation.getAnnotations(
-                me.ixk.framework.annotations.Middleware.class
+            for (me.ixk.framework.annotation.Middleware middleware : annotation.getAnnotations(
+                me.ixk.framework.annotation.Middleware.class
             )) {
                 try {
                     this.annotationMiddlewareDefinitions.put(

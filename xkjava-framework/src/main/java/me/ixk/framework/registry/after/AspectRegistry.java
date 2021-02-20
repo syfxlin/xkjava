@@ -5,13 +5,13 @@
 package me.ixk.framework.registry.after;
 
 import java.lang.reflect.AnnotatedElement;
-import me.ixk.framework.annotations.Aspect;
+import me.ixk.framework.annotation.Aspect;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.AspectPointcut;
-import me.ixk.framework.exceptions.AnnotationProcessorException;
+import me.ixk.framework.exception.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -5,7 +5,7 @@
 package me.ixk.framework.web;
 
 import java.lang.reflect.Method;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * 方法返回值

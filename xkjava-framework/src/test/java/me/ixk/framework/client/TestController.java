@@ -5,11 +5,11 @@
 package me.ixk.framework.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import me.ixk.framework.annotations.BodyValue;
-import me.ixk.framework.annotations.Controller;
-import me.ixk.framework.annotations.GetMapping;
-import me.ixk.framework.annotations.HeaderValue;
-import me.ixk.framework.annotations.PostMapping;
+import me.ixk.framework.annotation.BodyValue;
+import me.ixk.framework.annotation.Controller;
+import me.ixk.framework.annotation.GetMapping;
+import me.ixk.framework.annotation.HeaderValue;
+import me.ixk.framework.annotation.PostMapping;
 
 /**
  * 测试控制器

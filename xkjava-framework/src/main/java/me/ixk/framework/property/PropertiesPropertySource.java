@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Properties;
-import me.ixk.framework.exceptions.LoadEnvironmentFileException;
-import me.ixk.framework.utils.ResourceUtils;
+import me.ixk.framework.exception.LoadEnvironmentFileException;
+import me.ixk.framework.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

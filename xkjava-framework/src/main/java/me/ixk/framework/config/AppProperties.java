@@ -4,8 +4,8 @@
 
 package me.ixk.framework.config;
 
-import me.ixk.framework.annotations.ConfigurationProperties;
-import me.ixk.framework.annotations.PropertyValue;
+import me.ixk.framework.annotation.ConfigurationProperties;
+import me.ixk.framework.annotation.PropertyValue;
 
 /**
  * 框架主要的一些设置

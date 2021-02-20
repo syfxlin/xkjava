@@ -7,8 +7,8 @@ package me.ixk.framework.web.resolver;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import me.ixk.framework.annotations.InitBinder;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.annotation.InitBinder;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * 初始化绑定处理程序解析器

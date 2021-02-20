@@ -6,7 +6,7 @@ package me.ixk.framework.registry.attribute;
 
 import java.lang.reflect.AnnotatedElement;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * 属性注册记录

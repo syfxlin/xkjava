@@ -4,11 +4,11 @@
 
 package me.ixk.framework.web.resolver;
 
-import me.ixk.framework.annotations.Order;
-import me.ixk.framework.annotations.WebResolver;
+import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.WebResolver;
 import me.ixk.framework.http.MimeType;
 import me.ixk.framework.route.RouteInfo;
-import me.ixk.framework.utils.Json;
+import me.ixk.framework.util.Json;
 import me.ixk.framework.web.WebContext;
 
 /**

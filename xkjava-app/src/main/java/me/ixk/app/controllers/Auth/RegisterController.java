@@ -4,14 +4,14 @@
 
 package me.ixk.app.controllers.Auth;
 
-import static me.ixk.framework.helpers.Facade.response;
+import static me.ixk.framework.helper.Facade.response;
 
 import me.ixk.app.auth.Auth;
 import me.ixk.app.entity.RegisterUser;
-import me.ixk.framework.annotations.Controller;
-import me.ixk.framework.annotations.GetMapping;
-import me.ixk.framework.annotations.Middleware;
-import me.ixk.framework.annotations.PostMapping;
+import me.ixk.framework.annotation.Controller;
+import me.ixk.framework.annotation.GetMapping;
+import me.ixk.framework.annotation.Middleware;
+import me.ixk.framework.annotation.PostMapping;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.ViewResult;

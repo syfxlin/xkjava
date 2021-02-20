@@ -9,14 +9,14 @@ import cn.hutool.core.util.ReflectUtil;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.annotations.Injector;
-import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotation.Autowired;
+import me.ixk.framework.annotation.Injector;
+import me.ixk.framework.annotation.Order;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.entity.AnnotatedEntry.ChangeableEntry;
 import me.ixk.framework.ioc.entity.InjectContext;
 import me.ixk.framework.ioc.type.TypeWrapper;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

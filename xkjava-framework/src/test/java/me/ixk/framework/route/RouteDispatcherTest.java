@@ -6,7 +6,7 @@ package me.ixk.framework.route;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import me.ixk.framework.annotations.Autowired;
+import me.ixk.framework.annotation.Autowired;
 import me.ixk.framework.servlet.HandlerMethod;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;

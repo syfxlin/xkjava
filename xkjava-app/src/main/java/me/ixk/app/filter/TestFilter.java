@@ -11,8 +11,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotation.Autowired;
+import me.ixk.framework.annotation.Order;
 import me.ixk.framework.ioc.XkJava;
 
 /**

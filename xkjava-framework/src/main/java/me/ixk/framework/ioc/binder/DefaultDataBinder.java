@@ -6,10 +6,10 @@ package me.ixk.framework.ioc.binder;
 
 import cn.hutool.core.convert.Convert;
 import java.util.Map;
-import me.ixk.framework.annotations.DataBind;
+import me.ixk.framework.annotation.DataBind;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.type.TypeWrapper;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * 默认数据绑定器

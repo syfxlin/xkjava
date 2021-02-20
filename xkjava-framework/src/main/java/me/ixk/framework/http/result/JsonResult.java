@@ -6,7 +6,7 @@ package me.ixk.framework.http.result;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import me.ixk.framework.http.MimeType;
-import me.ixk.framework.utils.Json;
+import me.ixk.framework.util.Json;
 
 /**
  * JSON 响应

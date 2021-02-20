@@ -4,7 +4,7 @@
 
 package me.ixk.framework.aop;
 
-import me.ixk.framework.exceptions.AspectProcessException;
+import me.ixk.framework.exception.AspectProcessException;
 
 /**
  * 通知

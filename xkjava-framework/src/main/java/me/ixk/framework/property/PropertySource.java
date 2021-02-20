@@ -6,7 +6,7 @@ package me.ixk.framework.property;
 
 import io.github.imsejin.expression.util.ObjectUtils;
 import java.util.Set;
-import me.ixk.framework.utils.Convert;
+import me.ixk.framework.util.Convert;
 
 /**
  * 配置数据源

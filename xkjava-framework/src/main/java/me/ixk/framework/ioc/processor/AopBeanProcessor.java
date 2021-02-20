@@ -4,15 +4,15 @@
 
 package me.ixk.framework.ioc.processor;
 
-import me.ixk.framework.annotations.BeanProcessor;
-import me.ixk.framework.annotations.Order;
+import me.ixk.framework.annotation.BeanProcessor;
+import me.ixk.framework.annotation.Order;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.ProxyCreator;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.entity.ConstructorContext;
 import me.ixk.framework.ioc.entity.InjectContext;
-import me.ixk.framework.utils.ClassUtils;
+import me.ixk.framework.util.ClassUtils;
 
 /**
  * Aop 实例前置处理器

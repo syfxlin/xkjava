@@ -4,7 +4,7 @@
 
 package me.ixk.framework.property;
 
-import static me.ixk.framework.utils.DataUtils.caseGet;
+import static me.ixk.framework.util.DataUtils.caseGet;
 
 import java.util.Map;
 import java.util.Properties;

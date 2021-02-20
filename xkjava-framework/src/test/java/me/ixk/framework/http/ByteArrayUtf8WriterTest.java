@@ -5,7 +5,7 @@
 package me.ixk.framework.http;
 
 import java.io.IOException;
-import me.ixk.framework.utils.ByteArrayUtf8Writer;
+import me.ixk.framework.util.ByteArrayUtf8Writer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

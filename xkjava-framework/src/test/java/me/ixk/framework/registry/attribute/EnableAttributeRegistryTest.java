@@ -10,10 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Set;
-import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.annotations.Bean;
-import me.ixk.framework.annotations.ConditionalOnEnable;
-import me.ixk.framework.annotations.Enable;
+import me.ixk.framework.annotation.Autowired;
+import me.ixk.framework.annotation.Bean;
+import me.ixk.framework.annotation.ConditionalOnEnable;
+import me.ixk.framework.annotation.Enable;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;

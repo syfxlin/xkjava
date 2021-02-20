@@ -4,7 +4,7 @@
 
 package me.ixk.app.route;
 
-import me.ixk.framework.annotations.Route;
+import me.ixk.framework.annotation.Route;
 import me.ixk.framework.route.RouteCollector;
 import me.ixk.framework.route.RouteDefinition;
 

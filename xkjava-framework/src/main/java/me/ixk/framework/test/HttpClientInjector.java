@@ -20,8 +20,8 @@ import me.ixk.framework.ioc.entity.ParameterContext.ParameterEntry;
 import me.ixk.framework.ioc.injector.InstanceInjector;
 import me.ixk.framework.ioc.injector.ParameterInjector;
 import me.ixk.framework.test.ClientResponse.RequestProcessor;
-import me.ixk.framework.utils.MergedAnnotation;
-import me.ixk.framework.utils.ResourceUtils;
+import me.ixk.framework.util.MergedAnnotation;
+import me.ixk.framework.util.ResourceUtils;
 
 /**
  * 请求注入器

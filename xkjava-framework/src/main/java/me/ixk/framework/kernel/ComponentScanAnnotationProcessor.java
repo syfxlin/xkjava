@@ -6,11 +6,11 @@ package me.ixk.framework.kernel;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import me.ixk.framework.annotations.ComponentScan;
+import me.ixk.framework.annotation.ComponentScan;
 import me.ixk.framework.ioc.BeanScanner;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.processor.AbstractAnnotationProcessor;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

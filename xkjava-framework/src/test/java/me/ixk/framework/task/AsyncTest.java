@@ -8,9 +8,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
-import me.ixk.framework.annotations.Autowired;
-import me.ixk.framework.annotations.Bean;
-import me.ixk.framework.annotations.Enable;
+import me.ixk.framework.annotation.Autowired;
+import me.ixk.framework.annotation.Bean;
+import me.ixk.framework.annotation.Enable;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 

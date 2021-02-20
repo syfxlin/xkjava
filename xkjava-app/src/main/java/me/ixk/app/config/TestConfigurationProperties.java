@@ -5,8 +5,8 @@
 package me.ixk.app.config;
 
 import lombok.Data;
-import me.ixk.framework.annotations.ConfigurationProperties;
-import me.ixk.framework.annotations.Value;
+import me.ixk.framework.annotation.ConfigurationProperties;
+import me.ixk.framework.annotation.Value;
 
 @ConfigurationProperties(value = "test")
 @Data

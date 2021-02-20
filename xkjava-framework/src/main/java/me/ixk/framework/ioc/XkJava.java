@@ -6,7 +6,7 @@ package me.ixk.framework.ioc;
 
 import cn.hutool.core.collection.ConcurrentHashSet;
 import java.util.Set;
-import me.ixk.framework.annotations.Profile;
+import me.ixk.framework.annotation.Profile;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.ioc.context.ApplicationContext;
 import me.ixk.framework.ioc.context.RequestContext;
@@ -22,8 +22,8 @@ import me.ixk.framework.property.Environment;
 import me.ixk.framework.property.Metadata;
 import me.ixk.framework.server.JettyServer;
 import me.ixk.framework.server.Server;
-import me.ixk.framework.utils.Ansi;
-import me.ixk.framework.utils.Ansi.Color;
+import me.ixk.framework.util.Ansi;
+import me.ixk.framework.util.Ansi.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

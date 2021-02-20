@@ -7,9 +7,9 @@ package me.ixk.framework.http;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import me.ixk.framework.annotations.Component;
-import me.ixk.framework.annotations.Scope;
-import me.ixk.framework.annotations.Skip;
+import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.Scope;
+import me.ixk.framework.annotation.Skip;
 import me.ixk.framework.ioc.context.ScopeType;
 
 /**

@@ -12,14 +12,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import me.ixk.framework.annotations.WebBind;
-import me.ixk.framework.annotations.WebBind.Type;
+import me.ixk.framework.annotation.WebBind;
+import me.ixk.framework.annotation.WebBind.Type;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.binder.DataBinder;
 import me.ixk.framework.ioc.binder.ObjectWrapperDataBinder;
 import me.ixk.framework.ioc.type.TypeWrapper;
-import me.ixk.framework.utils.MergedAnnotation;
+import me.ixk.framework.util.MergedAnnotation;
 
 /**
  * Web 数据绑定器

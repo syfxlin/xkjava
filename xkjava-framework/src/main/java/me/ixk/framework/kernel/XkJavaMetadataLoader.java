@@ -6,9 +6,9 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import me.ixk.framework.utils.Convert;
-import me.ixk.framework.utils.LinkedMultiValueMap;
-import me.ixk.framework.utils.MultiValueMap;
+import me.ixk.framework.util.Convert;
+import me.ixk.framework.util.LinkedMultiValueMap;
+import me.ixk.framework.util.MultiValueMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

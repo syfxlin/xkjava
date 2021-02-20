@@ -5,8 +5,8 @@
 package me.ixk.framework.http;
 
 import javax.servlet.http.Cookie;
-import me.ixk.framework.annotations.Component;
-import me.ixk.framework.annotations.Scope;
+import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.Scope;
 import me.ixk.framework.ioc.context.ScopeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
