@@ -25,42 +25,36 @@ public class ObjectWrapperDataBinder implements DataBinder {
 
     public static final String DEFAULT_VALUE_PREFIX = "&";
 
-    protected final Container container;
     protected final List<Function<String, Object>> getters;
     protected final List<Converter> converters;
 
     protected volatile String prefix;
 
     public ObjectWrapperDataBinder(
-        final Container container,
         final List<Function<String, Object>> getters
     ) {
-        this(container, null, getters, new ArrayList<>());
+        this(null, getters, new ArrayList<>());
     }
 
     public ObjectWrapperDataBinder(
-        final Container container,
         final String prefix,
         final List<Function<String, Object>> getters
     ) {
-        this(container, prefix, getters, new ArrayList<>());
+        this(prefix, getters, new ArrayList<>());
     }
 
     public ObjectWrapperDataBinder(
-        final Container container,
         final List<Function<String, Object>> getters,
         final List<Converter> converters
     ) {
-        this(container, null, getters, converters);
+        this(null, getters, converters);
     }
 
     public ObjectWrapperDataBinder(
-        final Container container,
         final String prefix,
         final List<Function<String, Object>> getters,
         final List<Converter> converters
     ) {
-        this.container = container;
         this.prefix = prefix;
         this.getters = getters;
         this.converters = converters;
@@ -70,7 +64,8 @@ public class ObjectWrapperDataBinder implements DataBinder {
     public <T> T getObject(
         String name,
         final TypeWrapper<T> type,
-        final MergedAnnotation annotation
+        final MergedAnnotation annotation,
+        final Container container
     ) {
         DataBind dataBind = annotation.getAnnotation(DataBind.class);
         if (dataBind != null && dataBind.name().length() != 0) {
@@ -107,9 +102,9 @@ public class ObjectWrapperDataBinder implements DataBinder {
         if (object == null) {
             final String concatName = this.concatName(name);
             final DataBinder binder = this.copy(concatName);
-            object = this.container.make(concatName, type, binder);
+            object = container.make(concatName, type, binder);
             if (object == null) {
-                object = this.container.make(typeName, type, binder);
+                object = container.make(typeName, type, binder);
             }
         }
         if (
@@ -120,11 +115,25 @@ public class ObjectWrapperDataBinder implements DataBinder {
             object = dataBind.defaultValue();
         }
         for (Converter converter : this.converters) {
-            object = converter.before(object, currentName, type, annotation);
+            object =
+                converter.before(
+                    object,
+                    currentName,
+                    type,
+                    annotation,
+                    container
+                );
         }
         T result = Convert.convert(type.getType(), object);
         for (Converter converter : converters) {
-            result = converter.after(result, currentName, type, annotation);
+            result =
+                converter.after(
+                    result,
+                    currentName,
+                    type,
+                    annotation,
+                    container
+                );
         }
         return result;
     }
@@ -147,15 +156,7 @@ public class ObjectWrapperDataBinder implements DataBinder {
     }
 
     protected DataBinder copy(String prefix) {
-        return new ObjectWrapperDataBinder(
-            this.container,
-            prefix,
-            this.getters
-        );
-    }
-
-    public Container getContainer() {
-        return container;
+        return new ObjectWrapperDataBinder(prefix, this.getters);
     }
 
     public List<Function<String, Object>> getGetters() {

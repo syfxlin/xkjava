@@ -5,12 +5,9 @@ import cn.hutool.core.util.ReflectUtil;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.ioc.XkJava;
-import me.ixk.framework.ioc.binder.DataBinder;
 import me.ixk.framework.ioc.binder.DefaultDataBinder;
 import me.ixk.framework.registry.after.InitBinderRegistry;
 import me.ixk.framework.registry.after.WebResolverRegistry;
@@ -51,7 +48,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
         final Response response
     ) throws Exception {
         // 基础依赖
-        final WebDataBinder dataBinder = new WebDataBinder(this.app, request);
+        final WebDataBinder dataBinder = new WebDataBinder(request);
         final WebContext webContext = this.app.make(WebContext.class);
         // 获取真实的 Handler
         final Object handler = this.getRealHandler(dataBinder);
@@ -157,31 +154,19 @@ public class InvocableHandlerMethod extends HandlerMethod {
         final Object handler,
         final WebDataBinder dataBinder
     ) {
-        final Map<String, Object> args = new ConcurrentHashMap<>(10);
-        args.put("binder", dataBinder);
-        args.put("webDataBinder", dataBinder);
-        args.put("dataBinder", dataBinder);
-        args.put(WebDataBinder.class.getName(), dataBinder);
-        args.put(DataBinder.class.getName(), dataBinder);
+        final DefaultDataBinder binder = new DefaultDataBinder();
+        binder.add("dataBinder", dataBinder);
         final InitBinderHandlerResolver resolver = initBinderRegistry
             .getControllerResolvers()
             .get(this.getHandlerType());
         if (resolver != null) {
             for (final Method method : resolver.resolveMethods()) {
-                this.app.call(
-                        handler,
-                        method,
-                        new DefaultDataBinder(this.app, args)
-                    );
+                this.app.call(handler, method, binder);
             }
         }
         for (final InitBinderHandlerResolver handlerResolver : initBinderRegistry.getAdviceResolvers()) {
             for (final Method method : handlerResolver.resolveMethods()) {
-                this.app.call(
-                        handler,
-                        method,
-                        new DefaultDataBinder(this.app, args)
-                    );
+                this.app.call(handler, method, binder);
             }
         }
     }

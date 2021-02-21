@@ -189,7 +189,7 @@ public class XkJava extends Container {
      * @param primarySource 传入类
      * @param args          传入参数
      */
-    private XkJava bootInner(
+    public XkJava bootInner(
         final Class<?>[] primarySource,
         final String... args
     ) {
@@ -264,6 +264,7 @@ public class XkJava extends Container {
         this.bind("aspectManager", AspectManager.class);
         this.instance("annotationProcessorManager", annotationProcessorManager);
         this.instance("beanScanner", this.beanScanner);
+        this.instance("eventPublisher", this.eventPublisher);
     }
 
     /**
@@ -330,6 +331,10 @@ public class XkJava extends Container {
 
     public AnnotationProcessorManager annotationProcessorManager() {
         return annotationProcessorManager;
+    }
+
+    public EventPublisher event() {
+        return eventPublisher;
     }
 
     /**

@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import me.ixk.framework.annotation.Enable;
 import me.ixk.framework.test.XkJavaTest;
+import me.ixk.framework.test.event.BeforeTestAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -18,6 +19,11 @@ import org.junit.jupiter.api.Test;
 @Slf4j
 @Enable(name = "scheduled")
 class ScheduledTest {
+
+    @BeforeTestAll
+    void beforeAll() {
+        ScheduledTask.TTL.set("ttlValue");
+    }
 
     @Test
     void schedule() throws InterruptedException {

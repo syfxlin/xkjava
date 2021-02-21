@@ -80,7 +80,8 @@ public class DefaultParameterInjector implements ParameterInjector {
                         .getObject(
                             parameterName,
                             TypeWrapper.forParameter(parameter),
-                            annotation
+                            annotation,
+                            container
                         );
             }
             if (

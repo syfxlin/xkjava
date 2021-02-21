@@ -68,7 +68,8 @@ public class DefaultPropertyInjector implements InstanceInjector {
                     .getObject(
                         field.getName(),
                         TypeWrapper.forField(field),
-                        annotation
+                        annotation,
+                        container
                     );
                 if (dependency == null) {
                     dependency = ReflectUtil.getFieldValue(instance, field);
@@ -95,7 +96,8 @@ public class DefaultPropertyInjector implements InstanceInjector {
                             .getObject(
                                 field.getName(),
                                 typeWrapper,
-                                annotation
+                                annotation,
+                                container
                             );
                 }
                 if (dependency == null) {

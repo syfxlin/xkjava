@@ -141,7 +141,7 @@ class ContainerTest {
             container
                 .make(
                     DataBinderUser.class,
-                    new DefaultDataBinder(container, Map.of("name", "syfxlin"))
+                    new DefaultDataBinder(Map.of("name", "syfxlin"))
                 )
                 .getName()
         );

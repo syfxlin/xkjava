@@ -32,17 +32,16 @@ public class WebDataBinder extends ObjectWrapperDataBinder {
     private final Map<String, Object> data;
     private final Map<Type, Function<String, Object>> typeFunctions;
 
-    public WebDataBinder(final Container container, final Request request) {
-        this(container, null, new ArrayList<>(), request);
+    public WebDataBinder(final Request request) {
+        this(null, new ArrayList<>(), request);
     }
 
     public WebDataBinder(
-        final Container container,
         final String prefix,
         final List<Function<String, Object>> getters,
         final Request request
     ) {
-        super(container, prefix, getters);
+        super(prefix, getters);
         this.data = new ConcurrentHashMap<>();
         this.getters.add(data::get);
         this.typeFunctions = new ConcurrentHashMap<>();
@@ -59,13 +58,12 @@ public class WebDataBinder extends ObjectWrapperDataBinder {
     }
 
     private WebDataBinder(
-        final Container container,
         final String prefix,
         final Map<String, Object> data,
         final List<Function<String, Object>> getters,
         final Map<Type, Function<String, Object>> typeFunctions
     ) {
-        super(container, prefix, getters);
+        super(prefix, getters);
         this.typeFunctions = typeFunctions;
         this.data = data;
     }
@@ -74,7 +72,8 @@ public class WebDataBinder extends ObjectWrapperDataBinder {
     public <T> T getObject(
         final String name,
         final TypeWrapper<T> type,
-        final MergedAnnotation annotation
+        final MergedAnnotation annotation,
+        final Container container
     ) {
         final WebBind bind = annotation.getAnnotation(WebBind.class);
         final Function<String, Object> function =
@@ -83,12 +82,12 @@ public class WebDataBinder extends ObjectWrapperDataBinder {
             ? Collections.emptyList()
             : Arrays
                 .stream(bind.converter())
-                .map(this.container::make)
+                .map(container::make)
                 .collect(Collectors.toList());
-        int size = this.converters.size();
+        final int size = this.converters.size();
         this.converters.addAll(converters);
         this.getters.add(0, function);
-        final T result = super.getObject(name, type, annotation);
+        final T result = super.getObject(name, type, annotation, container);
         this.getters.remove(0);
         for (int i = 0; i < converters.size(); i++) {
             this.converters.remove(size + i);
@@ -103,7 +102,6 @@ public class WebDataBinder extends ObjectWrapperDataBinder {
     @Override
     protected DataBinder copy(final String prefix) {
         return new WebDataBinder(
-            this.container,
             prefix,
             this.data,
             this.getters,

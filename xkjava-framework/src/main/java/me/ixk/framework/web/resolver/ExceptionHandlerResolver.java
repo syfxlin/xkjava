@@ -9,10 +9,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import me.ixk.framework.annotation.WebResolver;
 import me.ixk.framework.exception.DispatchServletException;
-import me.ixk.framework.exception.Exception;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.binder.DefaultDataBinder;
 import me.ixk.framework.registry.after.ExceptionHandlerRegistry;
@@ -39,8 +37,8 @@ public class ExceptionHandlerResolver implements HandlerExceptionResolver {
     private final ExceptionHandlerRegistry registry;
 
     public ExceptionHandlerResolver(
-        XkJava app,
-        ExceptionHandlerRegistry registry
+        final XkJava app,
+        final ExceptionHandlerRegistry registry
     ) {
         this.app = app;
         this.registry = registry;
@@ -48,10 +46,10 @@ public class ExceptionHandlerResolver implements HandlerExceptionResolver {
 
     @Override
     public Object resolveException(
-        Throwable e,
-        ExceptionInfo info,
-        WebContext context,
-        WebDataBinder binder
+        final Throwable e,
+        final ExceptionInfo info,
+        final WebContext context,
+        final WebDataBinder binder
     ) {
         Object result = NO_RESOLVER;
         final Class<?> handlerType = info.getHandlerType();
@@ -83,17 +81,10 @@ public class ExceptionHandlerResolver implements HandlerExceptionResolver {
             final Method method = this.resolveMethod(exception, resolver);
             if (method != null) {
                 // 绑定可能注入的异常
-                final Map<String, Object> args = new ConcurrentHashMap<>(10);
-                args.put("exception", exception);
-                args.put(exception.getClass().getName(), exception);
-                args.put(Throwable.class.getName(), exception);
-                args.put(Exception.class.getName(), exception);
-                args.put(Exception.class.getName(), exception);
+                final DefaultDataBinder binder = new DefaultDataBinder();
+                binder.add("exception", exception);
                 // 获取返回值
-                return this.app.call(
-                        method,
-                        new DefaultDataBinder(this.app, args)
-                    );
+                return this.app.call(method, binder);
             }
         } catch (final Throwable e) {
             throw new DispatchServletException(
@@ -105,11 +96,11 @@ public class ExceptionHandlerResolver implements HandlerExceptionResolver {
     }
 
     private Method getResolverMethod(
-        Class<? extends Throwable> exceptionType,
-        Map<Class<? extends Throwable>, Method> resolver
+        final Class<? extends Throwable> exceptionType,
+        final Map<Class<? extends Throwable>, Method> resolver
     ) {
-        List<Class<? extends Throwable>> matches = new ArrayList<>();
-        for (Class<? extends Throwable> mappedException : resolver.keySet()) {
+        final List<Class<? extends Throwable>> matches = new ArrayList<>();
+        for (final Class<? extends Throwable> mappedException : resolver.keySet()) {
             if (mappedException.isAssignableFrom(exceptionType)) {
                 matches.add(mappedException);
             }
@@ -127,9 +118,9 @@ public class ExceptionHandlerResolver implements HandlerExceptionResolver {
     }
 
     private int exceptionDepth(
-        Class<?> declaredException,
-        Class<?> exceptionToMatch,
-        int depth
+        final Class<?> declaredException,
+        final Class<?> exceptionToMatch,
+        final int depth
     ) {
         if (exceptionToMatch.equals(declaredException)) {
             return depth;
@@ -146,7 +137,7 @@ public class ExceptionHandlerResolver implements HandlerExceptionResolver {
 
     private Method resolveMethod(
         Throwable e,
-        Map<Class<? extends Throwable>, Method> resolver
+        final Map<Class<? extends Throwable>, Method> resolver
     ) {
         Method method;
         do {

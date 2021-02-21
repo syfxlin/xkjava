@@ -44,6 +44,7 @@ import me.ixk.framework.http.Model;
 import me.ixk.framework.http.result.AsyncResult;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.StreamResult;
+import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.binder.DataBinder.Converter;
 import me.ixk.framework.ioc.factory.ObjectProvider;
 import me.ixk.framework.ioc.type.TypeWrapper;
@@ -336,7 +337,8 @@ public class TestController {
             final Object object,
             final String name,
             final TypeWrapper<?> type,
-            final MergedAnnotation annotation
+            final MergedAnnotation annotation,
+            final Container container
         ) {
             return "test-converter";
         }

@@ -13,5 +13,5 @@ public interface ApplicationListener {
      *
      * @param event 事件
      */
-    void onEvent(ApplicationEvent event);
+    void onEvent(ApplicationEvent<?> event);
 }

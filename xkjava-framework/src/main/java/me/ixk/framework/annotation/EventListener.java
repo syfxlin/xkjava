@@ -16,8 +16,8 @@ import me.ixk.framework.event.ApplicationEvent;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EventListener {
     @AliasFor("events")
-    Class<? extends ApplicationEvent>[] value() default {};
+    Class<? extends ApplicationEvent<?>>[] value() default {};
 
     @AliasFor("value")
-    Class<? extends ApplicationEvent>[] events() default {};
+    Class<? extends ApplicationEvent<?>>[] events() default {};
 }

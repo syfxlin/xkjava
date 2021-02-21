@@ -124,9 +124,7 @@ public class Container {
     private final TransmittableThreadLocal<Map<String, Object>> earlyBeans = new TransmittableThreadLocal<>();
 
     public Container() {
-        this.dataBinder.set(
-                new DefaultDataBinder(this, new ConcurrentHashMap<>())
-            );
+        this.dataBinder.set(new DefaultDataBinder(new ConcurrentHashMap<>()));
 
         log.info("Container created");
     }
@@ -1060,7 +1058,7 @@ public class Container {
         final Class<T> returnType,
         final Map<String, Object> args
     ) {
-        return this.make(returnType, new DefaultDataBinder(this, args));
+        return this.make(returnType, new DefaultDataBinder(args));
     }
 
     public <T> T make(final Class<T> returnType, final DataBinder dataBinder) {
@@ -1072,7 +1070,7 @@ public class Container {
         final Class<T> returnType,
         final Map<String, Object> args
     ) {
-        return this.make(name, returnType, new DefaultDataBinder(this, args));
+        return this.make(name, returnType, new DefaultDataBinder(args));
     }
 
     public <T> T make(
@@ -1098,7 +1096,7 @@ public class Container {
         final TypeWrapper<T> returnType,
         final Map<String, Object> args
     ) {
-        return this.make(returnType, new DefaultDataBinder(this, args));
+        return this.make(returnType, new DefaultDataBinder(args));
     }
 
     public <T> T make(
@@ -1113,7 +1111,7 @@ public class Container {
         final TypeWrapper<T> returnType,
         final Map<String, Object> args
     ) {
-        return this.make(name, returnType, new DefaultDataBinder(this, args));
+        return this.make(name, returnType, new DefaultDataBinder(args));
     }
 
     public <T> T make(
@@ -1240,18 +1238,12 @@ public class Container {
     }
 
     public Container with(final Map<String, Object> args) {
-        return this.with(null, args);
-    }
-
-    public Container with(final String prefix, final Map<String, Object> args) {
-        this.dataBinder.set(new DefaultDataBinder(this, args));
+        this.dataBinder.set(new DefaultDataBinder(args));
         return this;
     }
 
     public Container resetWith() {
-        this.dataBinder.set(
-                new DefaultDataBinder(this, new ConcurrentHashMap<>(256))
-            );
+        this.dataBinder.set(new DefaultDataBinder(new ConcurrentHashMap<>()));
         return this;
     }
 

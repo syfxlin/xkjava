@@ -60,7 +60,8 @@ public class WebDataBinderParameterResolver
         final Object dependency = binder.getObject(
             parameter.getParameterName(),
             TypeWrapper.forParameter(parameter.getParameter()),
-            annotation
+            annotation,
+            context.getApplication()
         );
         if (dependency == null && dataBind != null && dataBind.required()) {
             throw new NullPointerException(

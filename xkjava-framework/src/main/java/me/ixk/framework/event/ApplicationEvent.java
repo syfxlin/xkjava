@@ -6,12 +6,12 @@ package me.ixk.framework.event;
  * @author Otstar Lin
  * @date 2021/2/20 下午 8:33
  */
-public abstract class ApplicationEvent {
+public abstract class ApplicationEvent<T> {
 
-    protected Object source;
+    protected T source;
     private final long timestamp;
 
-    public ApplicationEvent(final Object source) {
+    public ApplicationEvent(final T source) {
         if (source == null) {
             throw new IllegalArgumentException("source is null");
         }
@@ -19,7 +19,7 @@ public abstract class ApplicationEvent {
         this.timestamp = System.currentTimeMillis();
     }
 
-    public Object getSource() {
+    public T getSource() {
         return source;
     }
 

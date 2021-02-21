@@ -4,6 +4,7 @@
 
 package me.ixk.framework.ioc.binder;
 
+import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.type.TypeWrapper;
 import me.ixk.framework.util.MergedAnnotation;
 
@@ -23,13 +24,14 @@ public interface DataBinder {
      * @param type       实例类型
      * @param annotation 注解
      * @param <T>        实例类型
-     *
+     * @param container  容器
      * @return 实例
      */
     <T> T getObject(
         String name,
         TypeWrapper<T> type,
-        MergedAnnotation annotation
+        MergedAnnotation annotation,
+        Container container
     );
 
     interface Converter {
@@ -40,14 +42,15 @@ public interface DataBinder {
          * @param name       名称
          * @param type       类型
          * @param annotation 注解
-         *
+         * @param container  容器
          * @return 实例
          */
         default Object before(
             Object object,
             String name,
             TypeWrapper<?> type,
-            MergedAnnotation annotation
+            MergedAnnotation annotation,
+            Container container
         ) {
             return object;
         }
@@ -59,14 +62,15 @@ public interface DataBinder {
          * @param name       名称
          * @param type       类型
          * @param annotation 注解
-         *
+         * @param container  容器
          * @return 实例
          */
         default <T> T after(
             T object,
             String name,
             TypeWrapper<T> type,
-            MergedAnnotation annotation
+            MergedAnnotation annotation,
+            Container container
         ) {
             return object;
         }

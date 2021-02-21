@@ -4,7 +4,7 @@
 
 package me.ixk.framework.web;
 
-import java.lang.annotation.Annotation;
+import cn.hutool.core.util.ReflectUtil;
 import java.util.List;
 import java.util.Map;
 import me.ixk.framework.annotation.DataBind;
@@ -36,40 +36,18 @@ class ObjectWrapperDataBinderTest {
             "22"
         );
         final ObjectWrapperDataBinder dataBinder = new ObjectWrapperDataBinder(
-            XkJava.of(),
             List.of(map::get)
         );
-        final DataBind dataBind = new DataBind() {
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return DataBind.class;
-            }
-
-            @Override
-            public String value() {
-                return "user";
-            }
-
-            @Override
-            public String name() {
-                return "user";
-            }
-
-            @Override
-            public boolean required() {
-                return false;
-            }
-
-            @Override
-            public String defaultValue() {
-                return EMPTY;
-            }
-        };
         final User user = dataBinder.getObject(
             "user",
             TypeWrapper.forClass(User.class),
-            MergedAnnotation.wrap(dataBind)
+            MergedAnnotation.from(
+                ReflectUtil.getMethod(this.getClass(), "method", String.class)
+            ),
+            XkJava.of()
         );
         System.out.println(user);
     }
+
+    void method(@DataBind(name = "user") String name) {}
 }
