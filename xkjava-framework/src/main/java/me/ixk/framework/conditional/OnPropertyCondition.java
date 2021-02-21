@@ -6,7 +6,6 @@ package me.ixk.framework.conditional;
 
 import java.lang.reflect.AnnotatedElement;
 import java.util.Objects;
-import javax.el.PropertyNotFoundException;
 import me.ixk.framework.annotation.ConditionalOnProperty;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
@@ -41,7 +40,7 @@ public class OnPropertyCondition implements Condition {
         for (String name : conditional.name()) {
             if (!app.env().has(prefix + name) && !matchIfMissing) {
                 log.error("Missing property: {}", prefix + name);
-                throw new PropertyNotFoundException(
+                throw new IllegalArgumentException(
                     "Missing property: " + prefix + name
                 );
             }
