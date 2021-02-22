@@ -5,12 +5,7 @@
 package me.ixk.framework.server;
 
 import java.util.EventListener;
-import java.util.List;
-import javax.servlet.Filter;
-import javax.servlet.FilterRegistration;
-import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletRegistration;
 
 /**
  * 服务器接口
@@ -34,48 +29,21 @@ public interface Server {
     /**
      * 添加过滤器
      *
-     * @param name   过滤器名称
-     * @param filter 过滤器
-     * @return Dynamic
+     * @param spec 过滤器信息
      */
-    default FilterRegistration.Dynamic addFilter(String name, Filter filter) {
-        return this.getServletContext().addFilter(name, filter);
-    }
+    void addFilter(FilterSpec spec);
 
     /**
      * 添加监听器
      *
      * @param listener 监听器
      */
-    default void addListener(EventListener listener) {
-        this.getServletContext().addListener(listener);
-    }
-
-    /**
-     * 添加监听器（未启动服务器前）
-     *
-     * @param listener 监听器
-     */
-    void addListenerNotStart(EventListener listener);
-
-    /**
-     * 获取暂存的监听器列表
-     *
-     * @return 暂存的监听器列表
-     */
-    List<EventListener> getNotStartListenerList();
+    void addListener(EventListener listener);
 
     /**
      * 添加 Servlet
      *
-     * @param name    Servlet 名称
-     * @param servlet Servlet
-     * @return Dynamic
+     * @param spec Servlet 信息
      */
-    default ServletRegistration.Dynamic addServlet(
-        String name,
-        Servlet servlet
-    ) {
-        return this.getServletContext().addServlet(name, servlet);
-    }
+    void addServlet(ServletSpec spec);
 }

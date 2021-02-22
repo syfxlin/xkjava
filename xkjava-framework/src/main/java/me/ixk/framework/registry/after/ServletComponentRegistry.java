@@ -6,12 +6,9 @@ package me.ixk.framework.registry.after;
 
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.EventListener;
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration.Dynamic;
+import java.util.stream.Collectors;
 import javax.servlet.MultipartConfigElement;
-import javax.servlet.ServletRegistration;
 import javax.servlet.ServletSecurityElement;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.ServletSecurity;
@@ -20,7 +17,9 @@ import me.ixk.framework.annotation.Filter;
 import me.ixk.framework.annotation.Listener;
 import me.ixk.framework.annotation.Servlet;
 import me.ixk.framework.ioc.XkJava;
+import me.ixk.framework.server.FilterSpec;
 import me.ixk.framework.server.Server;
+import me.ixk.framework.server.ServletSpec;
 import me.ixk.framework.util.MergedAnnotation;
 
 /**
@@ -44,62 +43,64 @@ public class ServletComponentRegistry implements AfterBeanRegistry {
             javax.servlet.Filter.class.isAssignableFrom(clazz)
         ) {
             final Filter filter = annotation.getAnnotation(Filter.class);
-            final Dynamic registration = server.addFilter(
-                clazz.getName(),
-                (javax.servlet.Filter) app.make(clazz)
+            server.addFilter(
+                new FilterSpec(
+                    clazz.getName(),
+                    filter.url(),
+                    (javax.servlet.Filter) app.make(clazz),
+                    filter.dispatcherTypes(),
+                    Arrays
+                        .stream(filter.initParams())
+                        .collect(
+                            Collectors.toMap(
+                                WebInitParam::name,
+                                WebInitParam::value
+                            )
+                        ),
+                    filter.asyncSupported()
+                )
             );
-            final EnumSet<DispatcherType> dispatcherSet = EnumSet.noneOf(
-                DispatcherType.class
-            );
-            dispatcherSet.addAll(Arrays.asList(filter.dispatcherTypes()));
-            registration.addMappingForUrlPatterns(
-                dispatcherSet,
-                true,
-                filter.url()
-            );
-            registration.setAsyncSupported(filter.asyncSupported());
-            for (final WebInitParam param : filter.initParams()) {
-                registration.setInitParameter(param.name(), param.value());
-            }
         }
         if (
             annotation.hasAnnotation(Listener.class) &&
             EventListener.class.isAssignableFrom(clazz)
         ) {
-            // 在 ServletContext 未启动之前无法添加监听器，所以要先缓存下来，然后通过监听 ServletContext 启动，把监听器注入进去
-            server.addListenerNotStart((EventListener) app.make(clazz));
+            server.addListener((EventListener) app.make(clazz));
         }
         if (
             annotation.hasAnnotation(Servlet.class) &&
             javax.servlet.Servlet.class.isAssignableFrom(clazz)
         ) {
             final Servlet servlet = annotation.getAnnotation(Servlet.class);
-            final ServletRegistration.Dynamic registration = server.addServlet(
-                clazz.getName(),
-                (javax.servlet.Servlet) app.make(clazz)
-            );
-            registration.addMapping(servlet.url());
-            registration.setAsyncSupported(servlet.asyncSupported());
-            registration.setLoadOnStartup(servlet.loadOnStartup());
-            for (final WebInitParam param : servlet.initParams()) {
-                registration.setInitParameter(param.name(), param.value());
-            }
             final MultipartConfig multipartConfig = annotation.getAnnotation(
                 MultipartConfig.class
             );
-            if (multipartConfig != null) {
-                registration.setMultipartConfig(
-                    new MultipartConfigElement(multipartConfig)
-                );
-            }
             final ServletSecurity servletSecurity = annotation.getAnnotation(
                 ServletSecurity.class
             );
-            if (servletSecurity != null) {
-                registration.setServletSecurity(
-                    new ServletSecurityElement(servletSecurity)
-                );
-            }
+            server.addServlet(
+                new ServletSpec(
+                    clazz.getName(),
+                    servlet.url(),
+                    (javax.servlet.Servlet) app.make(clazz),
+                    servlet.loadOnStartup(),
+                    Arrays
+                        .stream(servlet.initParams())
+                        .collect(
+                            Collectors.toMap(
+                                WebInitParam::name,
+                                WebInitParam::value
+                            )
+                        ),
+                    servlet.asyncSupported(),
+                    multipartConfig != null
+                        ? new MultipartConfigElement(multipartConfig)
+                        : null,
+                    servletSecurity != null
+                        ? new ServletSecurityElement(servletSecurity)
+                        : null
+                )
+            );
         }
     }
 }

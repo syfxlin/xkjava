@@ -233,17 +233,17 @@ public class XkJava extends Container {
         }
         this.bootstrapAnnotationProcessor.process();
 
-        // 启动后回调
-        if (log.isDebugEnabled()) {
-            log.debug("Application call booted");
-        }
-        this.eventPublisher.publishEvent(new ApplicationBootedEvent(this));
-
         this.booted = true;
         // 启动 Server 服务
         this.call(Server.class, "start", Void.class);
 
         log.info("Application booted");
+
+        // 启动后回调
+        if (log.isDebugEnabled()) {
+            log.debug("Application call booted");
+        }
+        this.eventPublisher.publishEvent(new ApplicationBootedEvent(this));
         return this;
     }
 

@@ -7,12 +7,13 @@ package me.ixk.app.listener;
 import javax.servlet.ServletRequestEvent;
 import javax.servlet.ServletRequestListener;
 import lombok.extern.slf4j.Slf4j;
+import me.ixk.framework.annotation.Listener;
 
 /**
  * @author Otstar Lin
  * @date 2020/10/30 下午 9:50
  */
-// @Listener
+@Listener
 @Slf4j
 public class TestListener implements ServletRequestListener {
 

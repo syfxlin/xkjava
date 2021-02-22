@@ -4,10 +4,12 @@
 
 package me.ixk.framework.server;
 
+import cn.hutool.core.thread.ThreadUtil;
 import java.util.EventListener;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletRegistration.Dynamic;
+import javax.servlet.ServletSecurityElement;
 import me.ixk.framework.annotation.Component;
 import me.ixk.framework.config.AppProperties;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
@@ -17,6 +19,12 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.FilterMapping;
+import org.eclipse.jetty.servlet.ListenerHolder;
+import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.servlet.Source;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.FragmentConfiguration;
@@ -25,6 +33,8 @@ import org.eclipse.jetty.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Jetty 服务器
@@ -38,12 +48,14 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
 )
 public class JettyServer implements me.ixk.framework.server.Server {
 
+    private static final Logger log = LoggerFactory.getLogger(
+        JettyServer.class
+    );
     private Server server;
     private WebAppContext context;
-    private final List<EventListener> listeners = new CopyOnWriteArrayList<>();
 
-    public JettyServer(AppProperties properties) {
-        Resource resource = Resource.newClassPathResource("/public");
+    public JettyServer(final AppProperties properties) {
+        final Resource resource = Resource.newClassPathResource("/public");
         this.buildServer(properties.getPort(), resource);
     }
 
@@ -58,13 +70,54 @@ public class JettyServer implements me.ixk.framework.server.Server {
     }
 
     @Override
-    public void addListenerNotStart(EventListener listener) {
-        this.listeners.add(listener);
+    public void addFilter(final FilterSpec spec) {
+        final ServletHandler servletHandler = this.context.getServletHandler();
+        final FilterHolder holder = servletHandler.newFilterHolder(
+            Source.EMBEDDED
+        );
+        holder.setName(spec.getName());
+        holder.setFilter(spec.getFilter());
+        holder.setInitParameters(spec.getInitParams());
+        holder.setAsyncSupported(spec.isAsyncSupported());
+        final FilterMapping mapping = new FilterMapping();
+        mapping.setDispatcherTypes(spec.getDispatcherTypes());
+        mapping.setFilterName(spec.getName());
+        mapping.setPathSpecs(spec.getUrl());
+        servletHandler.addFilter(holder, mapping);
     }
 
     @Override
-    public List<EventListener> getNotStartListenerList() {
-        return this.listeners;
+    public void addListener(final EventListener listener) {
+        final ServletHandler servletHandler = this.context.getServletHandler();
+        final ListenerHolder holder = servletHandler.newListenerHolder(
+            Source.EMBEDDED
+        );
+        holder.setListener(listener);
+        servletHandler.addListener(holder);
+    }
+
+    @Override
+    public void addServlet(final ServletSpec spec) {
+        final ServletHandler servletHandler = this.context.getServletHandler();
+        final ServletHolder holder = servletHandler.newServletHolder(
+            Source.EMBEDDED
+        );
+        holder.setName(spec.getName());
+        holder.setServlet(spec.getServlet());
+        holder.setInitParameters(spec.getInitParams());
+        holder.setAsyncSupported(spec.isAsyncSupported());
+        final Dynamic registration = holder.getRegistration();
+        registration.setLoadOnStartup(spec.getLoadOnStartup());
+        final MultipartConfigElement multipartConfig = spec.getMultipartConfig();
+        if (multipartConfig != null) {
+            registration.setMultipartConfig(multipartConfig);
+        }
+        final ServletSecurityElement servletSecurity = spec.getServletSecurity();
+        if (servletSecurity != null) {
+            registration.setServletSecurity(servletSecurity);
+        }
+        servletHandler.addServlet(holder);
+        registration.addMapping(spec.getUrl());
     }
 
     public Server server() {
@@ -72,27 +125,28 @@ public class JettyServer implements me.ixk.framework.server.Server {
     }
 
     private void startServer() {
-        Thread thread = new Thread(
-            () -> {
-                try {
-                    this.server.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                try {
-                    this.server.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        );
-        thread.setName("jetty");
-        thread.start();
+        ThreadUtil
+            .newThread(
+                () -> {
+                    try {
+                        this.server.start();
+                    } catch (final Exception e) {
+                        log.error("Jetty start failed", e);
+                    }
+                    try {
+                        this.server.join();
+                    } catch (final InterruptedException e) {
+                        log.error("Jetty join failed", e);
+                    }
+                },
+                "jetty"
+            )
+            .start();
     }
 
-    private void buildServer(int port, Resource resource) {
+    private void buildServer(final int port, final Resource resource) {
         this.server = new Server();
-        ServerConnector connector = new ServerConnector(this.server);
+        final ServerConnector connector = new ServerConnector(this.server);
         connector.setPort(port);
         this.server.addConnector(connector);
 
@@ -119,10 +173,10 @@ public class JettyServer implements me.ixk.framework.server.Server {
                 ".*/classes/.*"
             );
 
-        ResourceHandler resourceHandler = new ResourceHandler();
+        final ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setBaseResource(resource);
 
-        HandlerList handlerList = new HandlerList(
+        final HandlerList handlerList = new HandlerList(
             resourceHandler,
             this.context
         );
