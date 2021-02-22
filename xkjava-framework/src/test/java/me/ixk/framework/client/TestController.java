@@ -5,11 +5,11 @@
 package me.ixk.framework.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import me.ixk.framework.annotation.BodyValue;
-import me.ixk.framework.annotation.Controller;
-import me.ixk.framework.annotation.GetMapping;
-import me.ixk.framework.annotation.HeaderValue;
-import me.ixk.framework.annotation.PostMapping;
+import me.ixk.framework.annotation.web.BodyValue;
+import me.ixk.framework.annotation.web.Controller;
+import me.ixk.framework.annotation.web.GetMapping;
+import me.ixk.framework.annotation.web.HeaderValue;
+import me.ixk.framework.annotation.web.PostMapping;
 
 /**
  * 测试控制器
@@ -28,12 +28,12 @@ class TestController {
     }
 
     @PostMapping("/post")
-    public JsonNode post(@BodyValue JsonNode node) {
+    public JsonNode post(@BodyValue final JsonNode node) {
         return node;
     }
 
     @GetMapping("/get")
-    public String get(String key) {
+    public String get(final String key) {
         return key;
     }
 }

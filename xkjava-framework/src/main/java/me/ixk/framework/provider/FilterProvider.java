@@ -4,9 +4,9 @@
 
 package me.ixk.framework.provider;
 
-import me.ixk.framework.annotation.Bean;
-import me.ixk.framework.annotation.ConditionalOnMissingBean;
-import me.ixk.framework.annotation.Provider;
+import me.ixk.framework.annotation.condition.ConditionalOnMissingBean;
+import me.ixk.framework.annotation.core.Bean;
+import me.ixk.framework.annotation.core.Provider;
 import me.ixk.framework.filter.CorsFilter;
 import me.ixk.framework.filter.EncodingFilter;
 import me.ixk.framework.web.CorsProcessor;
@@ -31,7 +31,7 @@ public class FilterProvider {
 
     @Bean(name = "corsFilter")
     @ConditionalOnMissingBean(name = "corsFilter", value = CorsFilter.class)
-    public CorsFilter corsFilter(CorsProcessor processor) {
+    public CorsFilter corsFilter(final CorsProcessor processor) {
         return new CorsFilter(processor);
     }
 }

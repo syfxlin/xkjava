@@ -5,11 +5,11 @@
 package me.ixk.framework.cache;
 
 import java.util.Map;
-import me.ixk.framework.annotation.Aspect;
-import me.ixk.framework.annotation.CacheConfig;
-import me.ixk.framework.annotation.CachePut;
-import me.ixk.framework.annotation.Cacheable;
-import me.ixk.framework.annotation.ConditionalOnEnable;
+import me.ixk.framework.annotation.cache.CacheConfig;
+import me.ixk.framework.annotation.cache.CachePut;
+import me.ixk.framework.annotation.cache.Cacheable;
+import me.ixk.framework.annotation.condition.ConditionalOnEnable;
+import me.ixk.framework.annotation.core.Aspect;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 import me.ixk.framework.expression.BeanExpressionResolver;
 import me.ixk.framework.ioc.XkJava;
@@ -22,7 +22,7 @@ import me.ixk.framework.util.MergedAnnotation;
  * @date 2020/11/27 下午 2:25
  */
 @Aspect(
-    "@annotation(me.ixk.framework.annotation.Cacheable) || @annotation(me.ixk.framework.annotation.CachePut)"
+    "@annotation(me.ixk.framework.annotation.cache.Cacheable) || @annotation(me.ixk.framework.annotation.cache.CachePut)"
 )
 @ConditionalOnEnable(name = "cache")
 public class CacheableAspect extends AbstractCacheAspect {

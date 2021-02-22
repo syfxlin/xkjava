@@ -4,7 +4,7 @@
 
 package me.ixk.framework.util.entity;
 
-import me.ixk.framework.annotation.Conditional;
+import me.ixk.framework.annotation.core.Conditional;
 import me.ixk.framework.util.annotation.Parent;
 import me.ixk.framework.util.conditional.TrueCondition;
 

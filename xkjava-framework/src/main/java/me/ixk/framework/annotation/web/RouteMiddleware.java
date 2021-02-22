@@ -1,0 +1,30 @@
+/*
+ * Copyright (c) 2020, Otstar Lin (syfxlin@gmail.com). All Rights Reserved.
+ */
+
+package me.ixk.framework.annotation.web;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import me.ixk.framework.annotation.core.AfterRegistry;
+import me.ixk.framework.annotation.core.AliasFor;
+import me.ixk.framework.registry.after.MiddlewareRegistry;
+
+/**
+ * 路由中间件
+ *
+ * @author Otstar Lin
+ * @date 2020/10/13 下午 5:47
+ */
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@AfterRegistry(MiddlewareRegistry.class)
+public @interface RouteMiddleware {
+    @AliasFor("name")
+    String value() default "";
+
+    @AliasFor("value")
+    String name() default "";
+}

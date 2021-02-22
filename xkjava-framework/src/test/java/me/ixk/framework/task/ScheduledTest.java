@@ -6,7 +6,7 @@ package me.ixk.framework.task;
 
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
-import me.ixk.framework.annotation.Enable;
+import me.ixk.framework.annotation.core.Enable;
 import me.ixk.framework.test.XkJavaTest;
 import me.ixk.framework.test.event.BeforeTestAll;
 import org.junit.jupiter.api.Test;

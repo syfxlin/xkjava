@@ -9,7 +9,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import me.ixk.framework.annotation.AliasFor;
+import me.ixk.framework.annotation.core.AliasFor;
 import me.ixk.framework.http.HttpMethod;
 import me.ixk.framework.http.MimeType;
 import me.ixk.framework.util.MergedAnnotation;

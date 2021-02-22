@@ -17,11 +17,11 @@ import me.ixk.app.entity.Visitors;
 import me.ixk.app.service.impl.BooksServiceImpl;
 import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.app.service.impl.VisitorsServiceImpl;
-import me.ixk.framework.annotation.Autowired;
-import me.ixk.framework.annotation.Controller;
-import me.ixk.framework.annotation.GetMapping;
-import me.ixk.framework.annotation.PostMapping;
-import me.ixk.framework.annotation.RequestMapping;
+import me.ixk.framework.annotation.core.Autowired;
+import me.ixk.framework.annotation.web.Controller;
+import me.ixk.framework.annotation.web.GetMapping;
+import me.ixk.framework.annotation.web.PostMapping;
+import me.ixk.framework.annotation.web.RequestMapping;
 import me.ixk.framework.http.result.RedirectResult;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.ViewResult;
@@ -33,6 +33,7 @@ import me.ixk.framework.http.result.ViewResult;
 @Controller
 @RequestMapping("/books")
 public class HomeworkBooksController {
+
     @Autowired
     VisitorsServiceImpl visitorsService;
 
@@ -68,7 +69,7 @@ public class HomeworkBooksController {
     }
 
     @GetMapping("/list")
-    public ViewResult list(Integer page) {
+    public ViewResult list(final Integer page) {
         final IPage<Books> books = booksService.page(
             new Page<>(page == null ? 1 : page, 5)
         );
@@ -76,25 +77,25 @@ public class HomeworkBooksController {
     }
 
     @GetMapping("/delete/{id}")
-    public RedirectResult delete(Long id) {
+    public RedirectResult delete(final Long id) {
         booksService.removeById(id);
         return Result.redirect("/books/list");
     }
 
     @GetMapping("/update/{id}")
-    public ViewResult updateView(Long id) {
+    public ViewResult updateView(final Long id) {
         final Books book = booksService.getById(id);
         return Result.view("books/update", Map.of("book", book));
     }
 
     @PostMapping("/update")
-    public RedirectResult update(Books books) {
+    public RedirectResult update(final Books books) {
         booksService.updateById(books);
         return Result.redirect("/books/list");
     }
 
     @GetMapping("/view/{id}")
-    public ViewResult view(Long id) {
+    public ViewResult view(final Long id) {
         final Books book = booksService.getById(id);
         return Result.view("books/view", Map.of("book", book));
     }

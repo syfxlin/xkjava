@@ -5,10 +5,10 @@
 package me.ixk.framework.cache;
 
 import java.util.Map;
-import me.ixk.framework.annotation.Aspect;
-import me.ixk.framework.annotation.CacheConfig;
-import me.ixk.framework.annotation.CacheEvict;
-import me.ixk.framework.annotation.ConditionalOnEnable;
+import me.ixk.framework.annotation.cache.CacheConfig;
+import me.ixk.framework.annotation.cache.CacheEvict;
+import me.ixk.framework.annotation.condition.ConditionalOnEnable;
+import me.ixk.framework.annotation.core.Aspect;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 import me.ixk.framework.expression.BeanExpressionResolver;
 import me.ixk.framework.ioc.XkJava;
@@ -19,7 +19,7 @@ import me.ixk.framework.ioc.XkJava;
  * @author Otstar Lin
  * @date 2020/11/27 下午 4:32
  */
-@Aspect("@annotation(me.ixk.framework.annotation.CacheEvict)")
+@Aspect("@annotation(me.ixk.framework.annotation.cache.CacheEvict)")
 @ConditionalOnEnable(name = "cache")
 public class CacheEvictAspect extends AbstractCacheAspect {
 

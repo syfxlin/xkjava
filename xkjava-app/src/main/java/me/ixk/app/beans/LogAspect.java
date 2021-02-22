@@ -4,7 +4,7 @@
 
 package me.ixk.app.beans;
 
-import me.ixk.framework.annotation.Aspect;
+import me.ixk.framework.annotation.core.Aspect;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 

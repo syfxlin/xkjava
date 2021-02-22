@@ -5,9 +5,9 @@
 package me.ixk.framework.processor;
 
 import java.lang.reflect.AnnotatedElement;
-import me.ixk.framework.annotation.AnnotationProcessor;
-import me.ixk.framework.annotation.Attribute;
-import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.core.AnnotationProcessor;
+import me.ixk.framework.annotation.core.Attribute;
+import me.ixk.framework.annotation.core.Order;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.util.MergedAnnotation;
 
@@ -28,8 +28,8 @@ public class BeforeAttributeAnnotationProcessor
 
     @Override
     protected void processAttributeItem(
-        AnnotatedElement element,
-        MergedAnnotation attributeAnnotation
+        final AnnotatedElement element,
+        final MergedAnnotation attributeAnnotation
     ) {
         final Boolean after = attributeAnnotation.get(
             Attribute.class,

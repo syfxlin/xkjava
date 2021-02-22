@@ -7,7 +7,7 @@ package me.ixk.app.service.impl;
 import me.ixk.app.entity.TbOrder;
 import me.ixk.app.mapper.TbOrderMapper;
 import me.ixk.app.service.ITbOrderService;
-import me.ixk.framework.annotation.Service;
+import me.ixk.framework.annotation.database.Service;
 import me.ixk.framework.service.ServiceImpl;
 
 /**

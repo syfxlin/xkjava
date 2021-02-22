@@ -7,9 +7,9 @@ package me.ixk.framework.provider;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.TemplateExceptionHandler;
-import me.ixk.framework.annotation.Bean;
-import me.ixk.framework.annotation.ConditionalOnMissingBean;
-import me.ixk.framework.annotation.Provider;
+import me.ixk.framework.annotation.condition.ConditionalOnMissingBean;
+import me.ixk.framework.annotation.core.Bean;
+import me.ixk.framework.annotation.core.Provider;
 import me.ixk.framework.view.FreeMarker;
 import me.ixk.framework.view.TemplateProcessor;
 

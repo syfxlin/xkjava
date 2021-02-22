@@ -13,9 +13,9 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import me.ixk.framework.annotation.Aspect;
-import me.ixk.framework.annotation.Async;
-import me.ixk.framework.annotation.ConditionalOnEnable;
+import me.ixk.framework.annotation.condition.ConditionalOnEnable;
+import me.ixk.framework.annotation.core.Aspect;
+import me.ixk.framework.annotation.task.Async;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 import me.ixk.framework.ioc.XkJava;
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * @author Otstar Lin
  * @date 2020/11/26 上午 10:34
  */
-@Aspect("@annotation(me.ixk.framework.annotation.Async)")
+@Aspect("@annotation(me.ixk.framework.annotation.task.Async)")
 @ConditionalOnEnable(name = "async")
 public class AsyncAspect implements Advice {
 

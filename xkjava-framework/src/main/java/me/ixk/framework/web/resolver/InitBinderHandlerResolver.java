@@ -7,7 +7,7 @@ package me.ixk.framework.web.resolver;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import me.ixk.framework.annotation.InitBinder;
+import me.ixk.framework.annotation.web.InitBinder;
 import me.ixk.framework.util.MergedAnnotation;
 
 /**

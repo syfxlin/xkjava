@@ -6,8 +6,8 @@ package me.ixk.framework.config;
 
 import cn.hutool.core.codec.Base64;
 import java.util.Map;
-import me.ixk.framework.annotation.ConfigurationProperties;
-import me.ixk.framework.annotation.PropertyValue;
+import me.ixk.framework.annotation.core.ConfigurationProperties;
+import me.ixk.framework.annotation.core.PropertyValue;
 import me.ixk.framework.ioc.PropertyResolver.StringMapResolver;
 
 /**

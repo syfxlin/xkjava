@@ -7,7 +7,7 @@ package me.ixk.framework.util;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import me.ixk.framework.annotation.Autowired;
+import me.ixk.framework.annotation.core.Autowired;
 import org.junit.jupiter.api.Test;
 
 class ReflectUtilsTest {

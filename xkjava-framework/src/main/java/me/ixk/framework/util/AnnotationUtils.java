@@ -30,9 +30,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
-import me.ixk.framework.annotation.AliasFor;
-import me.ixk.framework.annotation.Order;
-import me.ixk.framework.annotation.RepeatItem;
+import me.ixk.framework.annotation.core.AliasFor;
+import me.ixk.framework.annotation.core.Order;
+import me.ixk.framework.annotation.core.RepeatItem;
 
 /**
  * 注解工具类

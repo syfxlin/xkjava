@@ -7,7 +7,7 @@ package me.ixk.app.service.impl;
 import me.ixk.app.entity.TbProductCategory;
 import me.ixk.app.mapper.TbProductCategoryMapper;
 import me.ixk.app.service.ITbProductCategoryService;
-import me.ixk.framework.annotation.Service;
+import me.ixk.framework.annotation.database.Service;
 import me.ixk.framework.service.ServiceImpl;
 
 /**

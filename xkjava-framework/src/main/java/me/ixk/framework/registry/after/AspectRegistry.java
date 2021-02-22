@@ -5,7 +5,7 @@
 package me.ixk.framework.registry.after;
 
 import java.lang.reflect.AnnotatedElement;
-import me.ixk.framework.annotation.Aspect;
+import me.ixk.framework.annotation.core.Aspect;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.AspectPointcut;

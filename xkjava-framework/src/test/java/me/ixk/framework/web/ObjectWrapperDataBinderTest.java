@@ -7,7 +7,7 @@ package me.ixk.framework.web;
 import cn.hutool.core.util.ReflectUtil;
 import java.util.List;
 import java.util.Map;
-import me.ixk.framework.annotation.DataBind;
+import me.ixk.framework.annotation.core.DataBind;
 import me.ixk.framework.entity.User;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.binder.ObjectWrapperDataBinder;

@@ -7,7 +7,7 @@ package me.ixk.framework.route;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.core.Component;
 
 /**
  * 路由生成器

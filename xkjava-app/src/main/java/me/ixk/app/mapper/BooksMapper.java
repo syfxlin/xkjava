@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import me.ixk.app.entity.Books;
-import me.ixk.framework.annotation.Mapper;
+import me.ixk.framework.annotation.core.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 /**

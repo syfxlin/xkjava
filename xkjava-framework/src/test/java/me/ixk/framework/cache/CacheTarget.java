@@ -6,11 +6,11 @@ package me.ixk.framework.cache;
 
 import java.lang.reflect.Method;
 import lombok.extern.slf4j.Slf4j;
-import me.ixk.framework.annotation.CacheConfig;
-import me.ixk.framework.annotation.CacheEvict;
-import me.ixk.framework.annotation.CachePut;
-import me.ixk.framework.annotation.Cacheable;
-import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.cache.CacheConfig;
+import me.ixk.framework.annotation.cache.CacheEvict;
+import me.ixk.framework.annotation.cache.CachePut;
+import me.ixk.framework.annotation.cache.Cacheable;
+import me.ixk.framework.annotation.core.Component;
 
 /**
  * @author Otstar Lin

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotation.EventListener;
+import me.ixk.framework.annotation.listener.EventListener;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.binder.DefaultDataBinder;
 import me.ixk.framework.processor.AbstractAnnotationProcessor;

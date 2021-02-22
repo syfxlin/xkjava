@@ -6,7 +6,7 @@ package me.ixk.framework.ioc;
 
 import cn.hutool.core.collection.ConcurrentHashSet;
 import java.util.Set;
-import me.ixk.framework.annotation.Profile;
+import me.ixk.framework.annotation.core.Profile;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.event.ApplicationBootedEvent;
 import me.ixk.framework.event.ApplicationBootingEvent;

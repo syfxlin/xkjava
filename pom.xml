@@ -66,6 +66,11 @@
         <artifactId>jetty-annotations</artifactId>
         <version>${jetty.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty.websocket</groupId>
+        <artifactId>websocket-server</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
       <!-- View -->
       <dependency>
         <groupId>org.thymeleaf</groupId>

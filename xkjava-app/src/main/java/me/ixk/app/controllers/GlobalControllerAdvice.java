@@ -4,8 +4,8 @@
 
 package me.ixk.app.controllers;
 
-import me.ixk.framework.annotation.ExceptionHandler;
-import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.core.Order;
+import me.ixk.framework.annotation.web.ExceptionHandler;
 import me.ixk.framework.exception.Exception;
 
 //@ControllerAdvice

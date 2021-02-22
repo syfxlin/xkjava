@@ -1,7 +1,7 @@
 package me.ixk.ext;
 
-import me.ixk.framework.annotation.Bean;
-import me.ixk.framework.annotation.Configuration;
+import me.ixk.framework.annotation.core.Bean;
+import me.ixk.framework.annotation.core.Configuration;
 
 /**
  * 自动配置测试类

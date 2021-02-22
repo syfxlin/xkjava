@@ -6,7 +6,6 @@ package me.ixk.framework.middleware;
 
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
-import me.ixk.framework.route.RouteInfo;
 
 /**
  * 处理器
@@ -21,10 +20,8 @@ public interface Handler {
      *
      * @param request  请求对象
      * @param response 响应对象
-     * @param info     路由信息
      * @return 返回值
      * @throws Exception 异常
      */
-    Object handle(Request request, Response response, RouteInfo info)
-        throws Exception;
+    Object handle(Request request, Response response) throws Exception;
 }

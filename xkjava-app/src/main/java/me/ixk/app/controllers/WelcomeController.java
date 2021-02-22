@@ -4,8 +4,8 @@
 
 package me.ixk.app.controllers;
 
-import me.ixk.framework.annotation.Controller;
-import me.ixk.framework.annotation.GetMapping;
+import me.ixk.framework.annotation.web.Controller;
+import me.ixk.framework.annotation.web.GetMapping;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.TextResult;
 

@@ -6,9 +6,9 @@ package me.ixk.app.beans;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import me.ixk.framework.annotation.Bean;
-import me.ixk.framework.annotation.ConfigurationProperties;
-import me.ixk.framework.annotation.Value;
+import me.ixk.framework.annotation.core.Bean;
+import me.ixk.framework.annotation.core.ConfigurationProperties;
+import me.ixk.framework.annotation.core.Value;
 
 @Data
 @NoArgsConstructor

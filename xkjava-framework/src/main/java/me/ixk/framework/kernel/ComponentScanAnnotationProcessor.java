@@ -6,7 +6,7 @@ package me.ixk.framework.kernel;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import me.ixk.framework.annotation.ComponentScan;
+import me.ixk.framework.annotation.core.ComponentScan;
 import me.ixk.framework.ioc.BeanScanner;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.processor.AbstractAnnotationProcessor;

@@ -6,7 +6,7 @@ package me.ixk.app.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import me.ixk.app.entity.Visitors;
-import me.ixk.framework.annotation.Mapper;
+import me.ixk.framework.annotation.core.Mapper;
 
 @Mapper
 public interface VisitorsMapper extends BaseMapper<Visitors> {}

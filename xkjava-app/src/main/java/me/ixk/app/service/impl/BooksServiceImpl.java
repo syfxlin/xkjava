@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import me.ixk.app.entity.Books;
 import me.ixk.app.mapper.BooksMapper;
 import me.ixk.app.service.IBooksService;
-import me.ixk.framework.annotation.Service;
+import me.ixk.framework.annotation.database.Service;
 import me.ixk.framework.service.ServiceImpl;
 
 /**

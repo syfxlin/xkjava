@@ -5,9 +5,9 @@
 package me.ixk.framework.processor;
 
 import java.lang.reflect.Method;
-import me.ixk.framework.annotation.AnnotationProcessor;
-import me.ixk.framework.annotation.Order;
-import me.ixk.framework.annotation.RequestAttribute;
+import me.ixk.framework.annotation.core.AnnotationProcessor;
+import me.ixk.framework.annotation.core.Order;
+import me.ixk.framework.annotation.web.RequestAttribute;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.registry.request.RequestAttributeRegistry;
 import me.ixk.framework.util.MergedAnnotation;

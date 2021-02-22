@@ -4,8 +4,8 @@
 
 package me.ixk.framework.web.resolver;
 
-import me.ixk.framework.annotation.Order;
-import me.ixk.framework.annotation.WebResolver;
+import me.ixk.framework.annotation.core.Order;
+import me.ixk.framework.annotation.web.WebResolver;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Model;
 import me.ixk.framework.http.result.Result;

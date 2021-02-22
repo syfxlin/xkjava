@@ -6,7 +6,7 @@ package me.ixk.framework.conditional;
 
 import java.lang.reflect.AnnotatedElement;
 import java.util.Objects;
-import me.ixk.framework.annotation.ConditionalOnProperty;
+import me.ixk.framework.annotation.condition.ConditionalOnProperty;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.util.MergedAnnotation;

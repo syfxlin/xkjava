@@ -7,7 +7,7 @@ package me.ixk.app.service.impl;
 import me.ixk.app.entity.TbBill;
 import me.ixk.app.mapper.TbBillMapper;
 import me.ixk.app.service.ITbBillService;
-import me.ixk.framework.annotation.Service;
+import me.ixk.framework.annotation.database.Service;
 import me.ixk.framework.service.ServiceImpl;
 
 /**

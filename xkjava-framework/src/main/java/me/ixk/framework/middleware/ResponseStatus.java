@@ -4,7 +4,7 @@
 
 package me.ixk.framework.middleware;
 
-import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.core.Order;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
@@ -24,7 +24,7 @@ public class ResponseStatus implements Middleware {
         Request request,
         Response response
     ) throws Exception {
-        me.ixk.framework.annotation.ResponseStatus responseStatus = (me.ixk.framework.annotation.ResponseStatus) request.getAttribute(
+        me.ixk.framework.annotation.web.ResponseStatus responseStatus = (me.ixk.framework.annotation.web.ResponseStatus) request.getAttribute(
             "me.ixk.framework.annotation.ResponseStatus"
         );
         final HttpStatus status = responseStatus.code();

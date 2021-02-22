@@ -6,9 +6,9 @@ package me.ixk.framework.provider;
 
 import java.security.NoSuchAlgorithmException;
 import javax.crypto.NoSuchPaddingException;
-import me.ixk.framework.annotation.Bean;
-import me.ixk.framework.annotation.ConditionalOnMissingBean;
-import me.ixk.framework.annotation.Provider;
+import me.ixk.framework.annotation.condition.ConditionalOnMissingBean;
+import me.ixk.framework.annotation.core.Bean;
+import me.ixk.framework.annotation.core.Provider;
 import me.ixk.framework.config.CryptProperties;
 import me.ixk.framework.util.Crypt;
 import me.ixk.framework.util.Hash;
@@ -25,7 +25,7 @@ public class UtilsProvider {
 
     @Bean(name = "jwt")
     @ConditionalOnMissingBean(value = Jwt.class, name = "jwt")
-    public Jwt jwt(CryptProperties properties) {
+    public Jwt jwt(final CryptProperties properties) {
         return new Jwt(
             properties.getDecodeKey(),
             properties.getHashAlgo(),
@@ -35,7 +35,7 @@ public class UtilsProvider {
 
     @Bean(name = "crypt")
     @ConditionalOnMissingBean(value = Crypt.class, name = "crypt")
-    public Crypt crypt(CryptProperties properties)
+    public Crypt crypt(final CryptProperties properties)
         throws NoSuchAlgorithmException, NoSuchPaddingException {
         return new Crypt(properties.getDecodeKey(), properties.getCryptAlgo());
     }

@@ -9,7 +9,7 @@ import static me.ixk.framework.util.DataUtils.caseGet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import me.ixk.framework.annotation.DataBind;
+import me.ixk.framework.annotation.core.DataBind;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.type.TypeWrapper;
 import me.ixk.framework.util.Convert;

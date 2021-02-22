@@ -6,7 +6,7 @@ package me.ixk.framework.processor;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import me.ixk.framework.annotation.Attribute;
+import me.ixk.framework.annotation.core.Attribute;
 import me.ixk.framework.exception.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.registry.attribute.AttributeRegistry;

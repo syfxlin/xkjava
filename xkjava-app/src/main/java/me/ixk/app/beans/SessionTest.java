@@ -4,8 +4,8 @@
 
 package me.ixk.app.beans;
 
-import me.ixk.framework.annotation.Bean;
-import me.ixk.framework.annotation.Scope;
+import me.ixk.framework.annotation.core.Bean;
+import me.ixk.framework.annotation.core.Scope;
 import me.ixk.framework.ioc.context.ScopeType;
 
 /**

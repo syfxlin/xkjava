@@ -4,9 +4,9 @@
 
 package me.ixk.framework.ioc.injector;
 
-import me.ixk.framework.annotation.Autowired;
-import me.ixk.framework.annotation.Component;
-import me.ixk.framework.annotation.Value;
+import me.ixk.framework.annotation.core.Autowired;
+import me.ixk.framework.annotation.core.Component;
+import me.ixk.framework.annotation.core.Value;
 
 /**
  * @author Otstar Lin
@@ -23,7 +23,7 @@ public class MethodValueProperties {
 
     @Autowired
     public void setValueWithValue(
-        @Value("${xkjava.database.url}") String value
+        @Value("${xkjava.database.url}") final String value
     ) {
         this.value = value;
     }

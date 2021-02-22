@@ -4,8 +4,8 @@
 
 package me.ixk.framework.ioc.processor;
 
-import me.ixk.framework.annotation.BeanProcessor;
-import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.core.BeanProcessor;
+import me.ixk.framework.annotation.core.Order;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.AspectManager;
 import me.ixk.framework.aop.ProxyCreator;

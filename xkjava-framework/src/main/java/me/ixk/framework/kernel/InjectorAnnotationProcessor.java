@@ -5,7 +5,7 @@
 package me.ixk.framework.kernel;
 
 import cn.hutool.core.util.ReflectUtil;
-import me.ixk.framework.annotation.Injector;
+import me.ixk.framework.annotation.core.Injector;
 import me.ixk.framework.exception.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.injector.InstanceInjector;

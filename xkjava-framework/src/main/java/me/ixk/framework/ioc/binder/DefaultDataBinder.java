@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import me.ixk.framework.annotation.DataBind;
+import me.ixk.framework.annotation.core.DataBind;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.type.TypeWrapper;
 import me.ixk.framework.util.ClassUtils;

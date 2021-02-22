@@ -7,10 +7,10 @@ package me.ixk.framework.ioc;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import me.ixk.framework.annotation.Autowired;
-import me.ixk.framework.annotation.ComponentScan;
-import me.ixk.framework.annotation.ComponentScan.Filter;
-import me.ixk.framework.annotation.FilterType;
+import me.ixk.framework.annotation.core.Autowired;
+import me.ixk.framework.annotation.core.ComponentScan;
+import me.ixk.framework.annotation.core.ComponentScan.Filter;
+import me.ixk.framework.annotation.core.FilterType;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 

@@ -9,7 +9,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
-import me.ixk.framework.annotation.Scheduled;
+import me.ixk.framework.annotation.task.Scheduled;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.entity.Binding;
 import me.ixk.framework.ioc.factory.FactoryBean;

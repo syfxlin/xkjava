@@ -5,8 +5,8 @@
 package me.ixk.framework.ioc.processor;
 
 import java.lang.reflect.Method;
-import me.ixk.framework.annotation.BeanProcessor;
-import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.core.BeanProcessor;
+import me.ixk.framework.annotation.core.Order;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.entity.ConstructorContext;
 import me.ixk.framework.ioc.entity.InjectContext;
@@ -23,12 +23,12 @@ public class PostConstructProcessor implements BeanAfterCreateProcessor {
 
     @Override
     public Object process(
-        Container container,
-        Object instance,
-        InjectContext context,
-        ConstructorContext constructor
+        final Container container,
+        final Object instance,
+        final InjectContext context,
+        final ConstructorContext constructor
     ) {
-        for (Method initMethod : context.getBinding().getInitMethods()) {
+        for (final Method initMethod : context.getBinding().getInitMethods()) {
             container.call(instance, initMethod, Object.class);
         }
         return instance;

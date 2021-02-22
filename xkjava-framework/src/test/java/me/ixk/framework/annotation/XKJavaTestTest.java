@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import lombok.extern.slf4j.Slf4j;
+import me.ixk.framework.annotation.core.Autowired;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.test.XkJavaTest;
 import me.ixk.framework.test.event.AfterTestAll;

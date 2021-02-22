@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
-import me.ixk.framework.annotation.Autowired;
+import me.ixk.framework.annotation.core.Autowired;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 

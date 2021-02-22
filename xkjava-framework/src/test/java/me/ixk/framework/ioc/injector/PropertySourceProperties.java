@@ -4,11 +4,11 @@
 
 package me.ixk.framework.ioc.injector;
 
-import me.ixk.framework.annotation.ConfigurationProperties;
-import me.ixk.framework.annotation.PropertySource;
-import me.ixk.framework.annotation.PropertySources;
-import me.ixk.framework.annotation.PropertyValue;
-import me.ixk.framework.annotation.Value;
+import me.ixk.framework.annotation.core.ConfigurationProperties;
+import me.ixk.framework.annotation.core.PropertySource;
+import me.ixk.framework.annotation.core.PropertySources;
+import me.ixk.framework.annotation.core.PropertyValue;
+import me.ixk.framework.annotation.core.Value;
 import me.ixk.framework.ioc.PropertyResolver;
 import me.ixk.framework.ioc.entity.ClassProperty;
 

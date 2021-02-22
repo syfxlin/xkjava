@@ -10,7 +10,7 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.ServletSecurityElement;
-import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.core.Component;
 import me.ixk.framework.config.AppProperties;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;

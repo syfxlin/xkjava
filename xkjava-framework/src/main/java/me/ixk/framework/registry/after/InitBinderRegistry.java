@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotation.Component;
-import me.ixk.framework.annotation.Controller;
-import me.ixk.framework.annotation.ControllerAdvice;
+import me.ixk.framework.annotation.core.Component;
+import me.ixk.framework.annotation.web.Controller;
+import me.ixk.framework.annotation.web.ControllerAdvice;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.util.MergedAnnotation;
 import me.ixk.framework.web.resolver.InitBinderHandlerResolver;
@@ -30,12 +30,12 @@ public class InitBinderRegistry implements AfterBeanRegistry {
 
     @Override
     public void register(
-        XkJava app,
-        AnnotatedElement element,
-        MergedAnnotation annotation
+        final XkJava app,
+        final AnnotatedElement element,
+        final MergedAnnotation annotation
     ) {
         if (annotation.hasAnnotation(ControllerAdvice.class)) {
-            InitBinderHandlerResolver resolver = new InitBinderHandlerResolver(
+            final InitBinderHandlerResolver resolver = new InitBinderHandlerResolver(
                 (Class<?>) element
             );
             if (resolver.hasInitBinderList()) {
@@ -43,7 +43,7 @@ public class InitBinderRegistry implements AfterBeanRegistry {
             }
         }
         if (annotation.hasAnnotation(Controller.class)) {
-            InitBinderHandlerResolver resolver = new InitBinderHandlerResolver(
+            final InitBinderHandlerResolver resolver = new InitBinderHandlerResolver(
                 (Class<?>) element
             );
             if (resolver.hasInitBinderList()) {

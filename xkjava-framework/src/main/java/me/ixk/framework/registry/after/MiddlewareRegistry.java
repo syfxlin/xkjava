@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotation.Component;
-import me.ixk.framework.annotation.GlobalMiddleware;
-import me.ixk.framework.annotation.RouteMiddleware;
+import me.ixk.framework.annotation.core.Component;
+import me.ixk.framework.annotation.web.GlobalMiddleware;
+import me.ixk.framework.annotation.web.RouteMiddleware;
 import me.ixk.framework.exception.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.middleware.Middleware;
@@ -68,11 +68,11 @@ public class MiddlewareRegistry implements AfterBeanRegistry {
         }
         if (
             annotation.hasAnnotation(
-                me.ixk.framework.annotation.Middleware.class
+                me.ixk.framework.annotation.web.Middleware.class
             )
         ) {
-            for (me.ixk.framework.annotation.Middleware middleware : annotation.getAnnotations(
-                me.ixk.framework.annotation.Middleware.class
+            for (me.ixk.framework.annotation.web.Middleware middleware : annotation.getAnnotations(
+                me.ixk.framework.annotation.web.Middleware.class
             )) {
                 try {
                     this.annotationMiddlewareDefinitions.put(

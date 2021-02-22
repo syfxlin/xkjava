@@ -6,7 +6,7 @@ package me.ixk.framework.conditional;
 
 import cn.hutool.core.io.resource.ResourceUtil;
 import java.lang.reflect.AnnotatedElement;
-import me.ixk.framework.annotation.ConditionalOnResource;
+import me.ixk.framework.annotation.condition.ConditionalOnResource;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.util.MergedAnnotation;
@@ -27,11 +27,11 @@ public class OnResourceCondition implements Condition {
 
     @Override
     public boolean matches(
-        XkJava app,
-        AnnotatedElement element,
-        MergedAnnotation annotation
+        final XkJava app,
+        final AnnotatedElement element,
+        final MergedAnnotation annotation
     ) {
-        for (String resource : (String[]) annotation.get(
+        for (final String resource : (String[]) annotation.get(
             ConditionalOnResource.class,
             "resources"
         )) {

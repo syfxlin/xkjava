@@ -6,8 +6,8 @@ package me.ixk.framework.ioc.injector;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import me.ixk.framework.annotation.Injector;
-import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.core.Injector;
+import me.ixk.framework.annotation.core.Order;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.entity.InjectContext;
 
@@ -24,15 +24,18 @@ import me.ixk.framework.ioc.entity.InjectContext;
 public class DefaultMethodInjector implements InstanceInjector {
 
     @Override
-    public boolean supportsInstance(InjectContext context, Object instance) {
+    public boolean supportsInstance(
+        final InjectContext context,
+        final Object instance
+    ) {
         return !context.getBinding().getAutowiredMethods().isEmpty();
     }
 
     @Override
     public Object inject(
-        Container container,
-        Object instance,
-        InjectContext context
+        final Container container,
+        final Object instance,
+        final InjectContext context
     ) {
         final List<Method> methods = context.getBinding().getAutowiredMethods();
         for (final Method method : methods) {

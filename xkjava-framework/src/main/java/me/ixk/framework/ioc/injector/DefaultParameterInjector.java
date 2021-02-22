@@ -6,10 +6,10 @@ package me.ixk.framework.ioc.injector;
 
 import java.lang.reflect.Parameter;
 import java.util.Collections;
-import me.ixk.framework.annotation.DataBind;
-import me.ixk.framework.annotation.Injector;
-import me.ixk.framework.annotation.Order;
-import me.ixk.framework.annotation.Value;
+import me.ixk.framework.annotation.core.DataBind;
+import me.ixk.framework.annotation.core.Injector;
+import me.ixk.framework.annotation.core.Order;
+import me.ixk.framework.annotation.core.Value;
 import me.ixk.framework.expression.BeanExpressionResolver;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.entity.InjectContext;

@@ -7,7 +7,7 @@ package me.ixk.app.listener;
 import javax.servlet.ServletRequestEvent;
 import javax.servlet.ServletRequestListener;
 import lombok.extern.slf4j.Slf4j;
-import me.ixk.framework.annotation.Listener;
+import me.ixk.framework.annotation.web.Listener;
 
 /**
  * @author Otstar Lin

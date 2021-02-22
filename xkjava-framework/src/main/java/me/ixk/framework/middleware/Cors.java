@@ -4,8 +4,8 @@
 
 package me.ixk.framework.middleware;
 
-import me.ixk.framework.annotation.CrossOrigin;
-import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.core.Order;
+import me.ixk.framework.annotation.web.CrossOrigin;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.web.CorsProcessor;
@@ -27,9 +27,9 @@ public class Cors implements Middleware {
 
     @Override
     public Object afterHandle(
-        Object returnValue,
-        Request request,
-        Response response
+        final Object returnValue,
+        final Request request,
+        final Response response
     ) throws Exception {
         final CrossOrigin crossOrigin = (CrossOrigin) request.getAttribute(
             "me.ixk.framework.annotation.CrossOrigin"

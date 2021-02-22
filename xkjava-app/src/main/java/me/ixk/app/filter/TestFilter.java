@@ -11,8 +11,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import me.ixk.framework.annotation.Autowired;
-import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.core.Autowired;
+import me.ixk.framework.annotation.core.Order;
 import me.ixk.framework.ioc.XkJava;
 
 /**
@@ -23,6 +23,7 @@ import me.ixk.framework.ioc.XkJava;
 @Order(Order.LOWEST_PRECEDENCE)
 @Slf4j
 public class TestFilter implements javax.servlet.Filter {
+
     @Autowired
     public XkJava xkJava;
 
@@ -36,8 +37,7 @@ public class TestFilter implements javax.servlet.Filter {
         ServletRequest request,
         ServletResponse response,
         FilterChain chain
-    )
-        throws IOException, ServletException {
+    ) throws IOException, ServletException {
         log.info("TestFilter doFilter");
         chain.doFilter(request, response);
     }

@@ -5,8 +5,8 @@
 package me.ixk.framework.bootstrap;
 
 import java.util.Set;
-import me.ixk.framework.annotation.Bootstrap;
-import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.core.Bootstrap;
+import me.ixk.framework.annotation.core.Order;
 import me.ixk.framework.exception.AnnotationProcessorException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
@@ -37,7 +37,7 @@ public class ProcessAnnotation extends AbstractBootstrap {
         // 扫描注解处理器
         Set<Class<?>> processors =
             this.scanner.getTypesAnnotated(
-                    me.ixk.framework.annotation.AnnotationProcessor.class
+                    me.ixk.framework.annotation.core.AnnotationProcessor.class
                 );
         if (
             processors

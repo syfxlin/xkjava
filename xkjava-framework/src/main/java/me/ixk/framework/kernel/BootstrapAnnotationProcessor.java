@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 下午 1:50
  */
 public class BootstrapAnnotationProcessor extends AbstractAnnotationProcessor {
+
     private static final Logger log = LoggerFactory.getLogger(
         BootstrapAnnotationProcessor.class
     );
@@ -30,7 +31,7 @@ public class BootstrapAnnotationProcessor extends AbstractAnnotationProcessor {
     @SuppressWarnings("unchecked")
     public void process() {
         for (Class<?> bootstrapType : this.getTypesAnnotated(
-                me.ixk.framework.annotation.Bootstrap.class
+                me.ixk.framework.annotation.core.Bootstrap.class
             )) {
             if (Bootstrap.class.isAssignableFrom(bootstrapType)) {
                 this.app.bind(bootstrapType);

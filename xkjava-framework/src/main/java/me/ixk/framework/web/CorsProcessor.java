@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import me.ixk.framework.annotation.Component;
-import me.ixk.framework.annotation.CrossOrigin;
+import me.ixk.framework.annotation.core.Component;
+import me.ixk.framework.annotation.web.CrossOrigin;
 import me.ixk.framework.http.HttpHeader;
 import me.ixk.framework.http.HttpMethod;
 

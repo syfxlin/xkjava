@@ -13,11 +13,11 @@ import me.ixk.app.entity.TbBill;
 import me.ixk.app.entity.TbProvider;
 import me.ixk.app.service.impl.TbBillServiceImpl;
 import me.ixk.app.service.impl.TbProviderServiceImpl;
-import me.ixk.framework.annotation.Autowired;
-import me.ixk.framework.annotation.Controller;
-import me.ixk.framework.annotation.GetMapping;
-import me.ixk.framework.annotation.PostMapping;
-import me.ixk.framework.annotation.RequestMapping;
+import me.ixk.framework.annotation.core.Autowired;
+import me.ixk.framework.annotation.web.Controller;
+import me.ixk.framework.annotation.web.GetMapping;
+import me.ixk.framework.annotation.web.PostMapping;
+import me.ixk.framework.annotation.web.RequestMapping;
 import me.ixk.framework.http.result.RedirectResult;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.ViewResult;
@@ -25,6 +25,7 @@ import me.ixk.framework.http.result.ViewResult;
 @Controller
 @RequestMapping("/homework/mybatis")
 public class HomeworkMybatisController {
+
     @Autowired
     TbBillServiceImpl tbBillService;
 
@@ -33,12 +34,12 @@ public class HomeworkMybatisController {
 
     @GetMapping("/search")
     public ViewResult search(
-        Integer providerId,
-        Integer isPayment,
-        String productName
+        final Integer providerId,
+        final Integer isPayment,
+        final String productName
     ) {
         List<TbBill> bills = new ArrayList<>();
-        Map<String, TbProvider> providers = new HashMap<>();
+        final Map<String, TbProvider> providers = new HashMap<>();
         if (providerId != null && isPayment != null && productName != null) {
             bills =
                 tbBillService
@@ -47,7 +48,7 @@ public class HomeworkMybatisController {
                     .eq("isPayment", isPayment)
                     .like(true, "productName", productName)
                     .list();
-            for (TbProvider provider : tbProviderService.list()) {
+            for (final TbProvider provider : tbProviderService.list()) {
                 providers.put(provider.getId().toString(), provider);
             }
         }
@@ -66,7 +67,7 @@ public class HomeworkMybatisController {
     }
 
     @PostMapping("/add")
-    public RedirectResult add(TbProvider provider) {
+    public RedirectResult add(final TbProvider provider) {
         provider.setCreatedBy(1L);
         provider.setCreationDate(LocalDateTime.now());
         tbProviderService.save(provider);
@@ -74,13 +75,13 @@ public class HomeworkMybatisController {
     }
 
     @PostMapping("/delete")
-    public RedirectResult delete(Integer id) {
+    public RedirectResult delete(final Integer id) {
         tbProviderService.removeById(id);
         return Result.redirect("/homework/mybatis/add");
     }
 
     @PostMapping("/edit")
-    public RedirectResult edit(TbProvider provider) {
+    public RedirectResult edit(final TbProvider provider) {
         provider.setModifyBy(1L);
         provider.setModifyDate(LocalDateTime.now());
         tbProviderService.updateById(provider);

@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-import me.ixk.framework.annotation.Scope;
+import me.ixk.framework.annotation.core.Scope;
 import me.ixk.framework.ioc.BeanScanner;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.context.ScopeType;

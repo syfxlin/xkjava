@@ -125,12 +125,12 @@ Controller 中进行错误处理。
 -   自动配置（部分支持，目前已支持模块自动配置）
 -   延迟响应
 -   事件（初步支持）
+-   WebSocket（初步支持）
 
 ## TODO
 
 -   添加完整的 Test Case
 -   多级缓存
--   WebSocket 支持
 
 ## 文档 Doc
 

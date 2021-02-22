@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import me.ixk.framework.annotation.Autowired;
+import me.ixk.framework.annotation.core.Autowired;
 import me.ixk.framework.config.AppProperties;
 import me.ixk.framework.config.DatabaseProperties;
 import me.ixk.framework.test.XkJavaTest;

@@ -7,8 +7,8 @@ package me.ixk.framework.web;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotation.Component;
-import me.ixk.framework.annotation.RequestAttribute;
+import me.ixk.framework.annotation.core.Component;
+import me.ixk.framework.annotation.web.RequestAttribute;
 import me.ixk.framework.util.MergedAnnotation;
 
 /**
@@ -19,6 +19,7 @@ import me.ixk.framework.util.MergedAnnotation;
  */
 @Component(name = "requestAttributeRegistry")
 public class RequestAttributeRegistry {
+
     private final Map<Method, Map<String, RequestAttributeDefinition>> registries = new ConcurrentHashMap<>();
 
     public void addRegistry(
@@ -39,11 +40,14 @@ public class RequestAttributeRegistry {
         this.registries.put(method, definitionMap);
     }
 
-    public Map<String, RequestAttributeDefinition> getRegistry(Method method) {
+    public Map<String, RequestAttributeDefinition> getRegistry(
+        final Method method
+    ) {
         return this.registries.get(method);
     }
 
     public static class RequestAttributeDefinition {
+
         private final me.ixk.framework.registry.request.RequestAttributeRegistry registry;
         private final MergedAnnotation annotation;
         private final Method method;

@@ -5,7 +5,7 @@
 package me.ixk.framework.conditional;
 
 import java.lang.reflect.AnnotatedElement;
-import me.ixk.framework.annotation.ConditionalOnExpression;
+import me.ixk.framework.annotation.condition.ConditionalOnExpression;
 import me.ixk.framework.expression.BeanExpressionResolver;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;

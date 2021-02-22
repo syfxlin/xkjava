@@ -4,7 +4,7 @@
 
 package me.ixk.app.route;
 
-import me.ixk.framework.annotation.Route;
+import me.ixk.framework.annotation.web.Route;
 import me.ixk.framework.route.RouteCollector;
 import me.ixk.framework.route.RouteDefinition;
 
@@ -12,7 +12,7 @@ import me.ixk.framework.route.RouteDefinition;
 public class WebRoute implements RouteDefinition {
 
     @Override
-    public void routes(RouteCollector r) {
+    public void routes(final RouteCollector r) {
         //
     }
 }

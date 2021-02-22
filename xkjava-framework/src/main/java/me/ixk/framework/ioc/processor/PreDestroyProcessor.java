@@ -5,8 +5,8 @@
 package me.ixk.framework.ioc.processor;
 
 import java.lang.reflect.Method;
-import me.ixk.framework.annotation.BeanProcessor;
-import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.core.BeanProcessor;
+import me.ixk.framework.annotation.core.Order;
 import me.ixk.framework.ioc.Container;
 import me.ixk.framework.ioc.entity.InjectContext;
 
@@ -22,11 +22,13 @@ public class PreDestroyProcessor implements BeanDestroyProcessor {
 
     @Override
     public void process(
-        Container container,
-        Object instance,
-        InjectContext context
+        final Container container,
+        final Object instance,
+        final InjectContext context
     ) {
-        for (Method destroyMethod : context.getBinding().getDestroyMethods()) {
+        for (final Method destroyMethod : context
+            .getBinding()
+            .getDestroyMethods()) {
             container.call(instance, destroyMethod, Object.class);
         }
     }

@@ -4,7 +4,7 @@
 
 package me.ixk.framework.config;
 
-import me.ixk.framework.annotation.ConfigurationProperties;
+import me.ixk.framework.annotation.core.ConfigurationProperties;
 
 /**
  * 数据库配置文件
@@ -14,6 +14,7 @@ import me.ixk.framework.annotation.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = "xkjava.database")
 public class DatabaseProperties {
+
     private String driver;
     private String url;
     private String username;
@@ -23,7 +24,7 @@ public class DatabaseProperties {
         return driver;
     }
 
-    public void setDriver(String driver) {
+    public void setDriver(final String driver) {
         this.driver = driver;
     }
 
@@ -31,7 +32,7 @@ public class DatabaseProperties {
         return url;
     }
 
-    public void setUrl(String url) {
+    public void setUrl(final String url) {
         this.url = url;
     }
 
@@ -39,7 +40,7 @@ public class DatabaseProperties {
         return username;
     }
 
-    public void setUsername(String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
@@ -47,7 +48,7 @@ public class DatabaseProperties {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
 }

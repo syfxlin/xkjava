@@ -9,9 +9,9 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import me.ixk.framework.annotation.Autowired;
-import me.ixk.framework.annotation.Filter;
-import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.core.Autowired;
+import me.ixk.framework.annotation.core.Order;
+import me.ixk.framework.annotation.web.Filter;
 
 /**
  * 编码过滤器

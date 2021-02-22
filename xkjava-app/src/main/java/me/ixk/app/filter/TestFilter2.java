@@ -11,7 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.core.Order;
 
 /**
  * @author Otstar Lin
@@ -32,8 +32,7 @@ public class TestFilter2 implements javax.servlet.Filter {
         ServletRequest request,
         ServletResponse response,
         FilterChain chain
-    )
-        throws IOException, ServletException {
+    ) throws IOException, ServletException {
         log.info("TestFilter2 doFilter");
         chain.doFilter(request, response);
     }

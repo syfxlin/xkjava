@@ -1,7 +1,7 @@
 package me.ixk.framework.event;
 
 import lombok.extern.slf4j.Slf4j;
-import me.ixk.framework.annotation.EventListener;
+import me.ixk.framework.annotation.listener.EventListener;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 

@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import me.ixk.framework.annotation.Autowired.ProxyType;
+import me.ixk.framework.annotation.core.Autowired.ProxyType;
 
 /**
  * Type 包装

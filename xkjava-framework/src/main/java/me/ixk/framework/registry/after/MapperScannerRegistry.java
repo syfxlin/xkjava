@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import me.ixk.framework.annotation.Component;
-import me.ixk.framework.annotation.MapperScan;
+import me.ixk.framework.annotation.core.Component;
+import me.ixk.framework.annotation.database.MapperScan;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.util.MergedAnnotation;
 

@@ -15,7 +15,7 @@ import io.github.imsejin.expression.spel.support.StandardEvaluationContext;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.core.Component;
 import me.ixk.framework.expression.PropertyPlaceholderHelper.PlaceholderResolver;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.property.PropertySource;

@@ -9,7 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import me.ixk.framework.annotation.Servlet;
+import me.ixk.framework.annotation.web.Servlet;
 
 /**
  * @author Otstar Lin
@@ -18,9 +18,13 @@ import me.ixk.framework.annotation.Servlet;
 @Servlet(url = "/test-servlet")
 public class TestServlet extends HttpServlet {
 
+    private static final long serialVersionUID = -4363999008958068889L;
+
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
+    protected void doGet(
+        final HttpServletRequest req,
+        final HttpServletResponse resp
+    ) throws ServletException, IOException {
         resp.getWriter().write("TestServlet");
     }
 }

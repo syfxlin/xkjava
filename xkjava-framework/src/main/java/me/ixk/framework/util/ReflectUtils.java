@@ -15,7 +15,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
-import me.ixk.framework.annotation.Autowired;
+import me.ixk.framework.annotation.core.Autowired;
 import me.ixk.framework.aop.CanGetTarget;
 import me.ixk.framework.ioc.factory.ObjectFactory;
 import net.sf.cglib.proxy.Callback;

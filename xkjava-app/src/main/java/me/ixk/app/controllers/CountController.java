@@ -14,10 +14,10 @@ import me.ixk.app.entity.Users;
 import me.ixk.app.entity.Visitors;
 import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.app.service.impl.VisitorsServiceImpl;
-import me.ixk.framework.annotation.Autowired;
-import me.ixk.framework.annotation.Controller;
-import me.ixk.framework.annotation.GetMapping;
-import me.ixk.framework.annotation.Transactional;
+import me.ixk.framework.annotation.core.Autowired;
+import me.ixk.framework.annotation.database.Transactional;
+import me.ixk.framework.annotation.web.Controller;
+import me.ixk.framework.annotation.web.GetMapping;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.ViewResult;
 

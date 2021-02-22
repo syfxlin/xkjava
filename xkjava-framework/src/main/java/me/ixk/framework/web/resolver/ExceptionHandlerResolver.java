@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import me.ixk.framework.annotation.WebResolver;
+import me.ixk.framework.annotation.web.WebResolver;
 import me.ixk.framework.exception.DispatchServletException;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.binder.DefaultDataBinder;

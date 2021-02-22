@@ -4,10 +4,10 @@
 
 package me.ixk.framework.provider;
 
-import me.ixk.framework.annotation.Bean;
-import me.ixk.framework.annotation.ConditionalOnEnable;
-import me.ixk.framework.annotation.ConditionalOnMissingBean;
-import me.ixk.framework.annotation.Provider;
+import me.ixk.framework.annotation.condition.ConditionalOnEnable;
+import me.ixk.framework.annotation.condition.ConditionalOnMissingBean;
+import me.ixk.framework.annotation.core.Bean;
+import me.ixk.framework.annotation.core.Provider;
 import me.ixk.framework.cache.CacheManager;
 import me.ixk.framework.cache.MapCacheManager;
 

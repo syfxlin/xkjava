@@ -5,7 +5,7 @@
 package me.ixk.framework.conditional;
 
 import java.lang.reflect.AnnotatedElement;
-import me.ixk.framework.annotation.Profile;
+import me.ixk.framework.annotation.core.Profile;
 import me.ixk.framework.ioc.Condition;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.util.MergedAnnotation;

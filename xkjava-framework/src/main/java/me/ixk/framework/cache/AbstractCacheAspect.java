@@ -6,7 +6,7 @@ package me.ixk.framework.cache;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.ixk.framework.annotation.CacheConfig;
+import me.ixk.framework.annotation.cache.CacheConfig;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.aop.ProceedingJoinPoint;
 import me.ixk.framework.expression.BeanExpressionResolver;

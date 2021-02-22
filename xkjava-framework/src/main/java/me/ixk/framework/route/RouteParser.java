@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.core.Component;
 
 /**
  * 路由解析器
@@ -18,6 +18,7 @@ import me.ixk.framework.annotation.Component;
  */
 @Component(name = "routeParser")
 public class RouteParser {
+
     protected static final Pattern PATH_VARIABLE_PATTERN = Pattern.compile(
         "\\{([a-zA-Z$_][a-zA-Z0-9$_]*)(\\?)?(:[^/}]+)?}"
     );

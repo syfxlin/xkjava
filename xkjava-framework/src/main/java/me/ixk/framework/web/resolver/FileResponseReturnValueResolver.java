@@ -2,9 +2,9 @@ package me.ixk.framework.web.resolver;
 
 import java.io.File;
 import java.nio.file.Path;
-import me.ixk.framework.annotation.Order;
-import me.ixk.framework.annotation.WebAsync;
-import me.ixk.framework.annotation.WebResolver;
+import me.ixk.framework.annotation.core.Order;
+import me.ixk.framework.annotation.web.WebAsync;
+import me.ixk.framework.annotation.web.WebResolver;
 import me.ixk.framework.http.result.FileResult;
 import me.ixk.framework.web.MethodReturnValue;
 import me.ixk.framework.web.WebContext;

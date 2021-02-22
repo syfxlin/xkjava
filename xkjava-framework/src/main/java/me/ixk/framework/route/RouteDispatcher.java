@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.core.Component;
 import me.ixk.framework.http.HttpMethod;
 import me.ixk.framework.servlet.HandlerMethod;
 

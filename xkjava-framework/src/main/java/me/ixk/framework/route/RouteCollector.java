@@ -5,12 +5,13 @@
 package me.ixk.framework.route;
 
 import cn.hutool.core.util.ReflectUtil;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import me.ixk.framework.annotation.Component;
+import me.ixk.framework.annotation.core.Component;
 import me.ixk.framework.exception.RouteCollectorException;
 import me.ixk.framework.http.HttpMethod;
 import me.ixk.framework.ioc.XkJava;
@@ -60,7 +61,7 @@ public class RouteCollector {
         this.variableRoutes = new ConcurrentHashMap<>();
         this.routeParser = routeParser;
         this.routeGenerator = routeGenerator;
-        for (Class<? extends RouteDefinition> clazz : routeRegistry.getRouteDefinition()) {
+        for (Class<? extends RouteDefinition> clazz : routeRegistry.getRouteDefinitions()) {
             try {
                 ReflectUtil.newInstance(clazz).routes(this);
             } catch (Exception e) {
@@ -81,6 +82,7 @@ public class RouteCollector {
                     definition.getHandler()
                 );
         }
+        routeRegistry.getWebSocketDefinitions().forEach(this::get);
     }
 
     private HandlerMethod getHandler(HandlerMethod handler) {
@@ -100,9 +102,13 @@ public class RouteCollector {
     }
 
     private void registerAnnotationMiddleware(HandlerMethod handler) {
+        final Method method = handler.getMethod();
+        if (method == null) {
+            return;
+        }
         AnnotationMiddlewareDefinition definition =
             this.middlewareRegistry.getAnnotationMiddlewareDefinitions()
-                .get(handler.getMethod());
+                .get(method);
         if (definition == null) {
             return;
         }

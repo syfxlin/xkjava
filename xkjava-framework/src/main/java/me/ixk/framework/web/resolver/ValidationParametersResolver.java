@@ -6,8 +6,8 @@ package me.ixk.framework.web.resolver;
 
 import java.lang.reflect.Parameter;
 import javax.validation.Valid;
-import me.ixk.framework.annotation.Order;
-import me.ixk.framework.annotation.WebResolver;
+import me.ixk.framework.annotation.core.Order;
+import me.ixk.framework.annotation.web.WebResolver;
 import me.ixk.framework.exception.ValidException;
 import me.ixk.framework.util.MergedAnnotation;
 import me.ixk.framework.util.ValidGroup;

@@ -11,9 +11,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import me.ixk.framework.annotation.Autowired;
-import me.ixk.framework.annotation.Filter;
-import me.ixk.framework.annotation.Order;
+import me.ixk.framework.annotation.core.Autowired;
+import me.ixk.framework.annotation.core.Order;
+import me.ixk.framework.annotation.web.Filter;
 import me.ixk.framework.web.CorsProcessor;
 import me.ixk.framework.web.CorsProcessor.Configuration;
 
