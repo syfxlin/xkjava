@@ -41,17 +41,17 @@ public class WebDeferredTask<V> {
         return (this.result != RESULT_NONE);
     }
 
-    public Object getResult() {
+    public Object result() {
         Object resultToCheck = this.result;
         return (resultToCheck != RESULT_NONE ? resultToCheck : null);
     }
 
     @Nullable
-    public Long getTimeout() {
+    public Long timeout() {
         return timeout;
     }
 
-    public void setTimeout(@Nullable Long timeout) {
+    public void timeout(@Nullable Long timeout) {
         this.timeout = timeout;
     }
 
@@ -70,11 +70,11 @@ public class WebDeferredTask<V> {
         return this;
     }
 
-    public boolean setResult(V result) {
-        return setResultInternal(result);
+    public boolean result(V result) {
+        return resultInner(result);
     }
 
-    public boolean setResultInternal(Object result) {
+    public boolean resultInner(Object result) {
         WebDeferredHandler deferredHandler;
         synchronized (this) {
             this.result = result;
@@ -88,7 +88,7 @@ public class WebDeferredTask<V> {
         return true;
     }
 
-    public final void setResultHandler(WebDeferredHandler deferredHandler) {
+    public final void handler(WebDeferredHandler deferredHandler) {
         Object resultToHandle;
         synchronized (this) {
             resultToHandle = this.result;
@@ -115,7 +115,7 @@ public class WebDeferredTask<V> {
                     final Object value = timeoutCallback.call();
                     if (value != RESULT_NONE) {
                         try {
-                            setResultInternal(value);
+                            resultInner(value);
                         } catch (Throwable ex) {
                             log.debug("Failed to handle timeout result", ex);
                         }
@@ -137,7 +137,7 @@ public class WebDeferredTask<V> {
                     }
                 } finally {
                     try {
-                        setResultInternal(t);
+                        resultInner(t);
                     } catch (Throwable ex) {
                         log.debug("Failed to handle error result", ex);
                     }

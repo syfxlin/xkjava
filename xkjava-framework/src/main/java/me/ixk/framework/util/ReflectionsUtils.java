@@ -27,32 +27,35 @@ import org.reflections.util.ConfigurationBuilder;
  */
 public class ReflectionsUtils {
 
-    public static Reflections make(Class<?> clazz) {
+    public static Reflections make(final Class<?> clazz) {
         return make(ClasspathHelper.forClass(clazz));
     }
 
-    public static Reflections make(String packageName) {
+    public static Reflections make(final String packageName) {
         return make(ClasspathHelper.forPackage(packageName));
     }
 
-    public static Reflections make(String prefix, Scanner... scanners) {
+    public static Reflections make(
+        final String prefix,
+        final Scanner... scanners
+    ) {
         return new Reflections(prefix, scanners);
     }
 
     public static Reflections make(
-        String[] packages,
-        Predicate<String> filter
+        final String[] packages,
+        final Predicate<String> filter
     ) {
-        List<URL> urls = new ArrayList<>(packages.length);
-        for (String item : packages) {
+        final List<URL> urls = new ArrayList<>(packages.length);
+        for (final String item : packages) {
             urls.addAll(ClasspathHelper.forPackage(item));
         }
         return make(urls, filter);
     }
 
     public static Reflections make(
-        Collection<URL> urls,
-        Predicate<String> filter
+        final Collection<URL> urls,
+        final Predicate<String> filter
     ) {
         final ConfigurationBuilder builder = new ConfigurationBuilder();
         builder.addUrls(urls);
@@ -66,7 +69,7 @@ public class ReflectionsUtils {
         return new Reflections(builder);
     }
 
-    public static Reflections make(Collection<URL> urls) {
+    public static Reflections make(final Collection<URL> urls) {
         return new Reflections(
             new ConfigurationBuilder()
                 .setUrls(urls)
@@ -79,15 +82,15 @@ public class ReflectionsUtils {
         );
     }
 
-    public static Reflections make(String... packages) {
-        List<URL> urls = new ArrayList<>(packages.length);
-        for (String item : packages) {
+    public static Reflections make(final String... packages) {
+        final List<URL> urls = new ArrayList<>(packages.length);
+        for (final String item : packages) {
             urls.addAll(ClasspathHelper.forPackage(item));
         }
         return make(urls);
     }
 
-    public static Reflections make(URL... urls) {
+    public static Reflections make(final URL... urls) {
         return make(Arrays.asList(urls));
     }
 }

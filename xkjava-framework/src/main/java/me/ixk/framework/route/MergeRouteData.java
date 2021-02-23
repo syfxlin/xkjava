@@ -13,11 +13,15 @@ import java.util.Map;
  * @date 2020/10/14 下午 4:49
  */
 public class MergeRouteData {
+
     protected final String regex;
 
     protected final Map<Integer, RouteData> routeMap;
 
-    public MergeRouteData(String regex, Map<Integer, RouteData> routeMap) {
+    public MergeRouteData(
+        final String regex,
+        final Map<Integer, RouteData> routeMap
+    ) {
         this.regex = regex;
         this.routeMap = routeMap;
     }

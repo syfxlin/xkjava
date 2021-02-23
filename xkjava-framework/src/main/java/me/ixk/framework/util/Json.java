@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class Json extends ObjectMapper {
 
+    private static final long serialVersionUID = 1578171389537035381L;
+
     private Json() {
         super();
     }
@@ -31,50 +33,51 @@ public class Json extends ObjectMapper {
     }
 
     private static class Inner {
+
         private static final Json INSTANCE = new Json();
     }
 
-    public static ObjectNode parseObject(String json) {
+    public static ObjectNode parseObject(final String json) {
         try {
             return make().readValue(json, ObjectNode.class);
-        } catch (JsonProcessingException e) {
+        } catch (final JsonProcessingException e) {
             return null;
         }
     }
 
-    public static ArrayNode parseArray(String json) {
+    public static ArrayNode parseArray(final String json) {
         try {
             return make().readValue(json, ArrayNode.class);
-        } catch (JsonProcessingException e) {
+        } catch (final JsonProcessingException e) {
             return null;
         }
     }
 
-    public static JsonNode parse(String json) {
+    public static JsonNode parse(final String json) {
         try {
             return make().readTree(json);
-        } catch (JsonProcessingException e) {
+        } catch (final JsonProcessingException e) {
             return null;
         }
     }
 
-    public static <T> T parse(String json, Class<T> clazz) {
+    public static <T> T parse(final String json, final Class<T> clazz) {
         try {
             return make().readValue(json, clazz);
-        } catch (JsonProcessingException e) {
+        } catch (final JsonProcessingException e) {
             return null;
         }
     }
 
-    public static String stringify(Object object) {
+    public static String stringify(final Object object) {
         try {
             return make().writeValueAsString(object);
-        } catch (JsonProcessingException e) {
+        } catch (final JsonProcessingException e) {
             return null;
         }
     }
 
-    public static String stringify(JsonNode node) {
+    public static String stringify(final JsonNode node) {
         return node.toString();
     }
 
@@ -86,14 +89,17 @@ public class Json extends ObjectMapper {
         return make().createArrayNode();
     }
 
-    public static JsonNode convertToNode(Object object) {
+    public static JsonNode convertToNode(final Object object) {
         return make().valueToTree(object);
     }
 
-    public static <T> T convertToObject(JsonNode node, Class<T> type) {
+    public static <T> T convertToObject(
+        final JsonNode node,
+        final Class<T> type
+    ) {
         try {
             return make().treeToValue(node, type);
-        } catch (JsonProcessingException e) {
+        } catch (final JsonProcessingException e) {
             return null;
         }
     }

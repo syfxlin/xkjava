@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * @author Otstar Lin
  * @date 2021/2/22 下午 9:29
  */
-class JettyWebSocketHandler
+public class JettyWebSocketHandler
     implements WebSocketListener, WebSocketPingPongListener {
 
     private static final Logger log = LoggerFactory.getLogger(

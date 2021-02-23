@@ -7,6 +7,7 @@ package me.ixk.framework.web;
 import me.ixk.framework.annotation.core.Component;
 import me.ixk.framework.annotation.core.Scope;
 import me.ixk.framework.http.CookieManager;
+import me.ixk.framework.http.Model;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.http.SessionManager;
@@ -26,7 +27,7 @@ import me.ixk.framework.web.async.WebAsyncManager;
 @Scope(ScopeType.REQUEST)
 public class WebContext {
 
-    private final XkJava application;
+    private final XkJava app;
     private final Environment environment;
     private final DispatcherServlet servlet;
     private final Request request;
@@ -34,11 +35,12 @@ public class WebContext {
     private final CookieManager cookieManager;
     private final SessionManager sessionManager;
     private final WebAsyncManager asyncManager;
+    private final Model model;
 
     @Deprecated
     public WebContext() {
         // only cglib
-        this.application = null;
+        this.app = null;
         this.environment = null;
         this.servlet = null;
         this.request = null;
@@ -46,48 +48,54 @@ public class WebContext {
         this.cookieManager = null;
         this.sessionManager = null;
         this.asyncManager = null;
+        this.model = null;
     }
 
-    public WebContext(final XkJava application) {
-        this.application = application;
-        this.environment = application.make(Environment.class);
-        this.servlet = application.make(DispatcherServlet.class);
-        this.request = application.make(Request.class);
-        this.response = application.make(Response.class);
-        this.cookieManager = application.make(CookieManager.class);
-        this.sessionManager = application.make(SessionManager.class);
-        this.asyncManager = application.make(WebAsyncManager.class);
+    public WebContext(final XkJava app) {
+        this.app = app;
+        this.environment = app.make(Environment.class);
+        this.servlet = app.make(DispatcherServlet.class);
+        this.request = app.make(Request.class);
+        this.response = app.make(Response.class);
+        this.cookieManager = app.make(CookieManager.class);
+        this.sessionManager = app.make(SessionManager.class);
+        this.asyncManager = app.make(WebAsyncManager.class);
+        this.model = app.make(Model.class);
     }
 
-    public XkJava getApplication() {
-        return application;
+    public XkJava app() {
+        return app;
     }
 
-    public Environment getEnvironment() {
+    public Environment env() {
         return environment;
     }
 
-    public DispatcherServlet getServlet() {
+    public DispatcherServlet servlet() {
         return servlet;
     }
 
-    public Request getRequest() {
+    public Request request() {
         return request;
     }
 
-    public Response getResponse() {
+    public Response response() {
         return response;
     }
 
-    public CookieManager getCookieManager() {
+    public CookieManager cookie() {
         return cookieManager;
     }
 
-    public SessionManager getSessionManager() {
+    public SessionManager session() {
         return sessionManager;
     }
 
-    public WebAsyncManager getAsyncManager() {
+    public WebAsyncManager async() {
         return asyncManager;
+    }
+
+    public Model model() {
+        return model;
     }
 }

@@ -4,6 +4,7 @@
 
 package me.ixk.app.controllers;
 
+import java.io.IOException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import me.ixk.app.annotations.Log;
@@ -97,8 +98,8 @@ public class IndexController {
     }
 
     @PostMapping("/upload")
-    public TextResult uploadPost(final Request request) {
-        return Result.text(request.partToString("file"));
+    public TextResult uploadPost(final Request request) throws IOException {
+        return Result.text(request.file("file").string());
     }
 
     @GetMapping("/exce")

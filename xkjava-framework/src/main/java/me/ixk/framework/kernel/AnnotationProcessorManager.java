@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
  * @date 2020/10/14 下午 1:11
  */
 public class AnnotationProcessorManager {
+
     private static final Logger log = LoggerFactory.getLogger(
         AnnotationProcessorManager.class
     );
@@ -32,37 +33,42 @@ public class AnnotationProcessorManager {
 
     protected final Map<String, AnnotationProcessor> processors;
 
-    public AnnotationProcessorManager(XkJava app) {
+    public AnnotationProcessorManager(final XkJava app) {
         this.app = app;
         this.processors = new LinkedHashMap<>();
     }
 
-    public AnnotationProcessor getProcessor(String name) {
+    public AnnotationProcessor getProcessor(final String name) {
         return this.processors.get(name);
     }
 
-    public AnnotationProcessor getProcessor(AnnotationProcessor processor) {
+    public AnnotationProcessor getProcessor(
+        final AnnotationProcessor processor
+    ) {
         return processor;
     }
 
-    public boolean hasProcessor(String name) {
+    public boolean hasProcessor(final String name) {
         return this.processors.containsKey(name);
     }
 
-    public void setProcessor(String name, AnnotationProcessor processor) {
+    public void setProcessor(
+        final String name,
+        final AnnotationProcessor processor
+    ) {
         this.processors.put(name, processor);
     }
 
-    protected AnnotationProcessor getProcessorInstance(String name) {
+    protected AnnotationProcessor getProcessorInstance(final String name) {
         try {
             final Class<AnnotationProcessor> processorClass = ClassUtil.loadClass(
                 name
             );
             this.app.bind(processorClass);
-            AnnotationProcessor processor = this.app.make(processorClass);
+            final AnnotationProcessor processor = this.app.make(processorClass);
             this.setProcessor(name, processor);
             return processor;
-        } catch (UtilException e) {
+        } catch (final UtilException e) {
             log.error("Instantiating annotation processor failed");
             throw new AnnotationProcessorException(
                 "Instantiating annotation processor failed",
@@ -71,11 +77,14 @@ public class AnnotationProcessorManager {
         }
     }
 
-    public AnnotationProcessor register(String processor) {
+    public AnnotationProcessor register(final String processor) {
         return this.register(processor, false);
     }
 
-    public AnnotationProcessor register(String processor, boolean force) {
+    public AnnotationProcessor register(
+        final String processor,
+        final boolean force
+    ) {
         AnnotationProcessor result;
         if (!force && (result = this.getProcessor(processor)) != null) {
             return result;
@@ -84,15 +93,18 @@ public class AnnotationProcessorManager {
         return result;
     }
 
-    public AnnotationProcessor register(Class<?> clazz) {
+    public AnnotationProcessor register(final Class<?> clazz) {
         return this.register(clazz.getName());
     }
 
-    public AnnotationProcessor register(Class<?> clazz, boolean force) {
+    public AnnotationProcessor register(
+        final Class<?> clazz,
+        final boolean force
+    ) {
         return this.register(clazz.getName(), force);
     }
 
-    public Set<AnnotationProcessor> registers(Set<Class<?>> processors) {
+    public Set<AnnotationProcessor> registers(final Set<Class<?>> processors) {
         return processors
             .stream()
             .map(this::register)

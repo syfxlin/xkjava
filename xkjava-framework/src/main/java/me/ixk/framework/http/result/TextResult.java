@@ -20,12 +20,12 @@ public class TextResult extends AbstractHttpResult {
         this.text = text;
     }
 
-    public TextResult with(final String text) {
+    public TextResult text(final String text) {
         this.text = text;
         return this;
     }
 
-    public String getText() {
+    public String text() {
         return text;
     }
 

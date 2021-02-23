@@ -192,7 +192,7 @@ public class TestController {
 
     @GetMapping("/result-status")
     public String resultStatus(final Model model) {
-        model.setStatus(HttpStatus.BAD_REQUEST);
+        model.status(HttpStatus.BAD_REQUEST);
         return "text:Status Result";
     }
 
@@ -249,7 +249,7 @@ public class TestController {
         return context -> {
             Result
                 .file("file:/E:/Data/Videos/天气之子/天气之子.mp4")
-                .toResponse(context.getRequest(), context.getResponse(), null);
+                .toResponse(context.request(), context.response(), null);
             return null;
         };
     }
@@ -265,7 +265,7 @@ public class TestController {
                     log.error("Deferred sleep error", e);
                 }
                 log.info("Deferred set result");
-                deferredTask.setResult("deferred");
+                deferredTask.result("deferred");
             }
         )
             .start();
@@ -285,7 +285,7 @@ public class TestController {
                 return "result";
             }
         );
-        asyncTask.setTimeout(1000L);
+        asyncTask.timeout(1000L);
         asyncTask.onTimeout(
             () -> {
                 log.info("Timeout");

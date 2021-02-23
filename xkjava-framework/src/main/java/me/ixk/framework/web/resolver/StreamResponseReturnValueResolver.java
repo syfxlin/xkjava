@@ -52,11 +52,7 @@ public class StreamResponseReturnValueResolver
         }
         final WebAsyncTask<Boolean> asyncTask = new WebAsyncTask<>(
             () ->
-                result.toResponse(
-                    context.getRequest(),
-                    context.getResponse(),
-                    value
-                )
+                result.toResponse(context.request(), context.response(), value)
         );
         final WebAsync webAsync = returnValue
             .getMethodAnnotation()
@@ -64,7 +60,7 @@ public class StreamResponseReturnValueResolver
         if (webAsync != null && !webAsync.value().isEmpty()) {
             asyncTask.setExecutorName(webAsync.value());
         }
-        context.getAsyncManager().startAsync(asyncTask);
+        context.async().startAsync(asyncTask);
         return null;
     }
 }

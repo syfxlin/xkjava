@@ -4,10 +4,6 @@
 
 package me.ixk.app.auth;
 
-import static me.ixk.framework.helper.Facade.cookie;
-import static me.ixk.framework.helper.Facade.hash;
-import static me.ixk.framework.helper.Facade.session;
-
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
@@ -19,8 +15,11 @@ import me.ixk.app.service.impl.UsersServiceImpl;
 import me.ixk.framework.annotation.core.Autowired;
 import me.ixk.framework.annotation.core.Component;
 import me.ixk.framework.annotation.core.Scope;
+import me.ixk.framework.http.CookieManager;
+import me.ixk.framework.http.SessionManager;
 import me.ixk.framework.http.SetCookie;
 import me.ixk.framework.ioc.context.ScopeType;
+import me.ixk.framework.util.Hash;
 import me.ixk.framework.util.ValidResult;
 import me.ixk.framework.util.Validation;
 
@@ -35,6 +34,15 @@ public class Auth {
     @Autowired
     protected UsersServiceImpl usersService;
 
+    @Autowired
+    protected CookieManager cookie;
+
+    @Autowired
+    protected SessionManager session;
+
+    @Autowired
+    protected Hash hash;
+
     public Result register(RegisterUser user) {
         ValidResult<RegisterUser> result = Validation.validate(user);
         if (result.isFail()) {
@@ -45,7 +53,7 @@ public class Auth {
             .username(user.getUsername())
             .nickname(user.getNickname())
             .email(user.getEmail())
-            .password(hash().make(user.getPassword()))
+            .password(this.hash.make(user.getPassword()))
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
             .status(0)
@@ -73,7 +81,7 @@ public class Auth {
             );
             return new Result(errors);
         }
-        if (!hash().check(user.getPassword(), dbUser.getPassword())) {
+        if (!this.hash.check(user.getPassword(), dbUser.getPassword())) {
             errors.put("password", "Account does not match the password.");
             return new Result(errors);
         }
@@ -94,13 +102,13 @@ public class Auth {
         if (this.user != null) {
             return this.user;
         }
-        Long id = session().get(getName(), Long.class);
+        Long id = this.session.get(getName(), Long.class);
         if (id != null) {
             this.user = this.usersService.getById(id);
         }
         if (this.user == null) {
-            javax.servlet.http.Cookie tokenCookie = cookie()
-                .get(getRememberName());
+            javax.servlet.http.Cookie tokenCookie =
+                this.cookie.get(getRememberName());
             if (tokenCookie != null) {
                 String[] tokens = tokenCookie.getValue().split("\\|");
                 if (tokens.length == 3) {
@@ -130,7 +138,7 @@ public class Auth {
     }
 
     protected void updateSession(long id) {
-        session().put(getName(), id);
+        this.session.put(getName(), id);
     }
 
     protected void updateRememberToken(Users user) {
@@ -152,13 +160,13 @@ public class Auth {
             user.getPassword()
         );
         cookie.setHttpOnly(true);
-        cookie().forever(cookie);
+        this.cookie.forever(cookie);
     }
 
     protected void clearUserDataFromStorage() {
-        session().forget(getName());
-        if (cookie().get(getRememberName()) != null) {
-            cookie().forget(getRememberName());
+        this.session.forget(getName());
+        if (this.cookie.get(getRememberName()) != null) {
+            this.cookie.forget(getRememberName());
         }
     }
 

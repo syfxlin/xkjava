@@ -24,7 +24,7 @@ public abstract class AbstractHttpResult implements Renderable {
 
     protected final Response response = XkJava.of().make(Response.class);
 
-    public final Response getResponse() {
+    public Response response() {
         return response;
     }
 

@@ -19,77 +19,78 @@ import me.ixk.framework.web.WebContext;
  * @date 2020/10/14 上午 9:12
  */
 public class ViewResult extends AbstractHttpResult {
+
     protected String view;
 
     protected Map<String, Object> data = new ConcurrentHashMap<>();
 
     protected FilterCallback filterCallback = null;
 
-    public ViewResult(String view) {
+    public ViewResult(final String view) {
         this.view = view;
     }
 
-    public ViewResult(String view, Map<String, Object> data) {
+    public ViewResult(final String view, final Map<String, Object> data) {
         this(view, data, null);
     }
 
     public ViewResult(
-        String view,
-        Map<String, Object> data,
-        FilterCallback callback
+        final String view,
+        final Map<String, Object> data,
+        final FilterCallback callback
     ) {
         this.view = view;
         this.assign(data);
         this.filterCallback = callback;
     }
 
-    public ViewResult with(Map<String, Object> data) {
+    public ViewResult data(final Map<String, Object> data) {
         this.data = data;
         return this;
     }
 
-    public ViewResult assign(Map<String, Object> data) {
+    public ViewResult assign(final Map<String, Object> data) {
         this.data.putAll(data);
         return this;
     }
 
-    public ViewResult add(String key, Object value) {
+    public ViewResult add(final String key, final Object value) {
         this.data.put(key, value);
         return this;
     }
 
-    public ViewResult filter(FilterCallback callback) {
+    public ViewResult filter(final FilterCallback callback) {
         this.filterCallback = callback;
         return this;
     }
 
-    public void view(String view) {
+    public void view(final String view) {
         this.view = view;
     }
 
-    public String getView() {
+    public String view() {
         return view;
     }
 
-    public Map<String, Object> getData() {
+    public Map<String, Object> data() {
         return data;
     }
 
-    public FilterCallback getFilter() {
+    public FilterCallback filter() {
         return filterCallback;
     }
 
     private void injectModel() {
-        WebContext context = XkJava.of().make(WebContext.class);
+        final WebContext context = XkJava.of().make(WebContext.class);
         // 注入
         this.data.put("$context", context);
-        this.data.put("$application", context.getApplication());
-        this.data.put("$environment", context.getEnvironment());
-        this.data.put("$servlet", context.getServlet());
-        this.data.put("$request", context.getRequest());
-        this.data.put("$response", context.getResponse());
-        this.data.put("$cookie", context.getCookieManager());
-        this.data.put("$session", context.getSessionManager());
+        this.data.put("$application", context.app());
+        this.data.put("$environment", context.env());
+        this.data.put("$servlet", context.servlet());
+        this.data.put("$request", context.request());
+        this.data.put("$response", context.response());
+        this.data.put("$cookie", context.cookie());
+        this.data.put("$session", context.session());
     }
 
     @Override

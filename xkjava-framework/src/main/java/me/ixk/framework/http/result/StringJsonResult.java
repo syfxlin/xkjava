@@ -22,11 +22,11 @@ public class StringJsonResult extends AbstractHttpResult {
         this.json = json;
     }
 
-    public String getJson() {
+    public String json() {
         return json;
     }
 
-    public StringJsonResult with(final String json) {
+    public StringJsonResult json(final String json) {
         this.json = json;
         return this;
     }

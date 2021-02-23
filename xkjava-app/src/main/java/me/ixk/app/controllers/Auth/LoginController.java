@@ -4,8 +4,6 @@
 
 package me.ixk.app.controllers.Auth;
 
-import static me.ixk.framework.helper.Facade.response;
-
 import me.ixk.app.auth.Auth;
 import me.ixk.app.entity.LoginUser;
 import me.ixk.framework.annotation.web.Controller;
@@ -29,12 +27,12 @@ public class LoginController {
 
     @PostMapping("/login")
     @Middleware(name = "guest")
-    public Response login(final LoginUser user) {
+    public Response login(final LoginUser user, final Response response) {
         final Auth.Result result = XkJava.of().make(Auth.class).login(user);
         if (result.isOk()) {
-            return response().redirect("/home");
+            return response.redirect("/home");
         }
-        return response().text(result.getErrors().toString());
+        return response.text(result.getErrors().toString());
     }
 
     @GetMapping("/logout")

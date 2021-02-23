@@ -47,7 +47,7 @@ public class CallableReturnValueResolver
         if (webAsync != null && !webAsync.value().isEmpty()) {
             asyncTask.setExecutorName(webAsync.value());
         }
-        context.getAsyncManager().startAsync(asyncTask);
+        context.async().startAsync(asyncTask);
         return null;
     }
 }

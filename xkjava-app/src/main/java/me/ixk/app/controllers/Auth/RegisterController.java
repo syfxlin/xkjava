@@ -4,8 +4,6 @@
 
 package me.ixk.app.controllers.Auth;
 
-import static me.ixk.framework.helper.Facade.response;
-
 import me.ixk.app.auth.Auth;
 import me.ixk.app.entity.RegisterUser;
 import me.ixk.framework.annotation.web.Controller;
@@ -28,11 +26,11 @@ public class RegisterController {
 
     @PostMapping("/register")
     @Middleware(name = "guest")
-    public Response register(final RegisterUser user) {
+    public Response register(final RegisterUser user, final Response response) {
         final Auth.Result result = XkJava.of().make(Auth.class).register(user);
         if (result.isOk()) {
-            return response().redirect("/login");
+            return response.redirect("/login");
         }
-        return response().text(result.getErrors().toString());
+        return response.text(result.getErrors().toString());
     }
 }

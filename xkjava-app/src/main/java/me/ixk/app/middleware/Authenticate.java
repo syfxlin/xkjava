@@ -4,8 +4,6 @@
 
 package me.ixk.app.middleware;
 
-import static me.ixk.framework.helper.Facade.response;
-
 import me.ixk.app.auth.Auth;
 import me.ixk.framework.annotation.core.Order;
 import me.ixk.framework.annotation.web.RouteMiddleware;
@@ -22,7 +20,7 @@ public class Authenticate implements Middleware {
     public boolean beforeHandle(final Request request, final Response response)
         throws Exception {
         if (XkJava.of().make(Auth.class).guest()) {
-            response().redirect("/login");
+            response.redirect("/login");
             return false;
         }
         return true;

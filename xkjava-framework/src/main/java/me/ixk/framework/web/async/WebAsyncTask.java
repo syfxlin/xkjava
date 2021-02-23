@@ -59,16 +59,16 @@ public class WebAsyncTask<V> {
         this.timeout = timeout;
     }
 
-    public Callable<V> getCallable() {
+    public Callable<V> callable() {
         return callable;
     }
 
     @Nullable
-    public Long getTimeout() {
+    public Long timeout() {
         return timeout;
     }
 
-    public void setTimeout(@Nullable final Long timeout) {
+    public void timeout(@Nullable final Long timeout) {
         this.timeout = timeout;
     }
 
@@ -99,15 +99,15 @@ public class WebAsyncTask<V> {
         return executorName;
     }
 
-    public Callable<V> getTimeoutCallback() {
+    public Callable<V> timeoutCallback() {
         return timeoutCallback;
     }
 
-    public Function<Throwable, V> getErrorCallback() {
+    public Function<Throwable, V> errorCallback() {
         return errorCallback;
     }
 
-    public Runnable getCompletionCallback() {
+    public Runnable completionCallback() {
         return completionCallback;
     }
 

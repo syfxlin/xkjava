@@ -37,7 +37,7 @@ public class ObjectResponseConvertResolver implements ResponseConvertResolver {
         final RouteInfo info
     ) {
         context
-            .getResponse()
+            .response()
             .contentType(MimeType.APPLICATION_JSON)
             .content(Json.stringify(value));
         return true;

@@ -114,9 +114,9 @@ public class WebAsyncManager {
     }
 
     public void startAsync(final WebAsyncTask<?> webAsyncTask) {
-        final Long timeout = webAsyncTask.getTimeout();
+        final Long timeout = webAsyncTask.timeout();
         if (timeout != null) {
-            this.request.setTimeout(timeout);
+            this.request.timeout(timeout);
         }
         final ExecutorService executor = webAsyncTask.getExecutor();
         if (executor != null) {
@@ -127,7 +127,7 @@ public class WebAsyncManager {
         interceptors.add(webAsyncTask.getInterceptor());
         interceptors.addAll(this.callableInterceptors.values());
 
-        final Callable<?> callable = webAsyncTask.getCallable();
+        final Callable<?> callable = webAsyncTask.callable();
         final CallableInterceptorChain interceptorChain = new CallableInterceptorChain(
             interceptors
         );
@@ -218,9 +218,9 @@ public class WebAsyncManager {
     }
 
     public void startDeferred(final WebDeferredTask<?> webDeferredTask) {
-        final Long timeout = webDeferredTask.getTimeout();
+        final Long timeout = webDeferredTask.timeout();
         if (timeout != null) {
-            this.request.setTimeout(timeout);
+            this.request.timeout(timeout);
         }
 
         List<DeferredInterceptor> interceptors = new ArrayList<>();
@@ -254,7 +254,7 @@ public class WebAsyncManager {
                         ) {
                             return;
                         }
-                        webDeferredTask.setResultInternal(ex);
+                        webDeferredTask.resultInner(ex);
                     } catch (Throwable interceptorEx) {
                         setConcurrentResultAndDispatch(interceptorEx);
                     }
@@ -270,7 +270,7 @@ public class WebAsyncManager {
         this.startAsyncProcessing();
         try {
             interceptorChain.applyBeforeProcess(this.request, webDeferredTask);
-            webDeferredTask.setResultHandler(
+            webDeferredTask.handler(
                 result -> {
                     result =
                         interceptorChain.applyAfterProcess(

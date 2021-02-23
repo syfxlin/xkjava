@@ -48,8 +48,8 @@ public class ResponsibleResponseConvertResolver
         if (value instanceof Responsible) {
             try {
                 return ((Responsible) value).toResponse(
-                        context.getRequest(),
-                        context.getResponse(),
+                        context.request(),
+                        context.response(),
                         value
                     );
             } catch (IOException e) {
@@ -60,7 +60,7 @@ public class ResponsibleResponseConvertResolver
             return true;
         }
         if (value instanceof HttpServletResponse) {
-            final Response response = context.getResponse();
+            final Response response = context.response();
             response.setResponse((HttpServletResponse) value);
             return true;
         }

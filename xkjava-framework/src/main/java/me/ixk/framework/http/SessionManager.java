@@ -42,7 +42,7 @@ public class SessionManager {
         this.session = request.getSession();
     }
 
-    public HttpSession getSession() {
+    public HttpSession session() {
         return session;
     }
 
@@ -120,27 +120,27 @@ public class SessionManager {
         return token;
     }
 
-    public long getCreationTime() {
+    public long creationTime() {
         return this.session.getCreationTime();
     }
 
-    public String getId() {
+    public String id() {
         return this.session.getId();
     }
 
-    public long getLastAccessedTime() {
+    public long lastAccessedTime() {
         return this.session.getLastAccessedTime();
     }
 
-    public ServletContext getServletContext() {
+    public ServletContext servletContext() {
         return this.session.getServletContext();
     }
 
-    public int getMaxInactiveInterval() {
+    public int maxInactiveInterval() {
         return this.session.getMaxInactiveInterval();
     }
 
-    public SessionManager setMaxInactiveInterval(int interval) {
+    public SessionManager maxInactiveInterval(int interval) {
         this.session.setMaxInactiveInterval(interval);
         return this;
     }

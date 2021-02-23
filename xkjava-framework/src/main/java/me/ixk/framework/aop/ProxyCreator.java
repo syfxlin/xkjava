@@ -24,15 +24,14 @@ public class ProxyCreator {
      * @param interfaces 实现的接口
      * @param argsTypes  参数类型
      * @param args       参数
-     *
      * @return 代理后的对象
      */
     public static Object createProxy(
-        Object target,
-        Class<?> targetType,
-        Class<?>[] interfaces,
-        Class<?>[] argsTypes,
-        Object[] args
+        final Object target,
+        final Class<?> targetType,
+        final Class<?>[] interfaces,
+        final Class<?>[] argsTypes,
+        final Object[] args
     ) {
         return createAop(null, target, targetType, interfaces, argsTypes, args);
     }
@@ -46,24 +45,23 @@ public class ProxyCreator {
      * @param interfaces    实现的接口
      * @param argsTypes     参数类型
      * @param args          参数
-     *
      * @return 代理后的对象
      */
     public static Object createAop(
-        AspectManager aspectManager,
-        Object target,
-        Class<?> targetType,
-        Class<?>[] interfaces,
-        Class<?>[] argsTypes,
-        Object[] args
+        final AspectManager aspectManager,
+        final Object target,
+        final Class<?> targetType,
+        final Class<?>[] interfaces,
+        final Class<?>[] argsTypes,
+        final Object[] args
     ) {
-        TargetSource targetSource = new TargetSource(
+        final TargetSource targetSource = new TargetSource(
             aspectManager,
             target,
             targetType,
             interfaces
         );
-        Enhancer enhancer = new Enhancer();
+        final Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(targetSource.getTargetType());
         enhancer.setInterfaces(targetSource.getInterfaces());
         enhancer.setCallback(new DynamicInterceptor(targetSource));

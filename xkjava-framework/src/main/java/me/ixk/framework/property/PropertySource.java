@@ -40,7 +40,6 @@ public abstract class PropertySource<T> {
      * 获取属性值
      *
      * @param name 属性名
-     *
      * @return 属性值
      */
     public abstract Object getProperty(String name);

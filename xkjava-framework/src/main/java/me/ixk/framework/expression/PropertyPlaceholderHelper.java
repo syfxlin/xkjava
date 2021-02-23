@@ -220,7 +220,6 @@ public class PropertyPlaceholderHelper {
          * 处理占位符
          *
          * @param placeholderName 占位符
-         *
          * @return 结果
          */
         String resolvePlaceholder(String placeholderName);

@@ -27,11 +27,11 @@ public class Model extends LinkedHashMap<String, Object> {
     @Skip
     private HttpStatus status = HttpStatus.OK;
 
-    public HttpStatus getStatus() {
+    public HttpStatus status() {
         return status;
     }
 
-    public void setStatus(final HttpStatus status) {
+    public void status(final HttpStatus status) {
         this.status = status;
     }
 

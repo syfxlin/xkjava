@@ -57,16 +57,16 @@ public class FileResult extends AbstractHttpResult {
     }
 
     public FileResult(String path, boolean async) {
-        this.with(path);
+        this.path(path);
         this.async = async;
     }
 
     public FileResult(File file, boolean async) {
-        this.with(file);
+        this.file(file);
         this.async = async;
     }
 
-    public FileResult with(String path) {
+    public FileResult path(String path) {
         try {
             this.file = ResourceUtils.getFile(path);
             if (this.contentType == null) {
@@ -81,7 +81,7 @@ public class FileResult extends AbstractHttpResult {
         return this;
     }
 
-    public FileResult with(File file) {
+    public FileResult file(File file) {
         try {
             this.file = file;
             if (this.contentType == null) {

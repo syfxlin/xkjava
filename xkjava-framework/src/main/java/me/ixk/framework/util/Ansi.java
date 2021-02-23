@@ -15,6 +15,7 @@ import java.util.List;
  * @date 2020/10/14 下午 4:57
  */
 public class Ansi {
+
     public static final String SANE = "\u001B[0m";
 
     public static final String HIGH_INTENSITY = "\u001B[1m";
@@ -85,11 +86,11 @@ public class Ansi {
         /**
          * 背景白色
          */
-        BACKGROUND_WHITE("\u001B[47m"),;
+        BACKGROUND_WHITE("\u001B[47m");
 
         private final String ansi;
 
-        Color(String ansi) {
+        Color(final String ansi) {
             this.ansi = ansi;
         }
 
@@ -127,11 +128,11 @@ public class Ansi {
         /**
          * 隐藏
          */
-        INVISIBLE_TEXT("\u001B[8m"),;
+        INVISIBLE_TEXT("\u001B[8m");
 
         private final String ansi;
 
-        Style(String ansi) {
+        Style(final String ansi) {
             this.ansi = ansi;
         }
 
@@ -147,23 +148,23 @@ public class Ansi {
 
     private final List<String> ansi;
 
-    public Ansi(String... ansi) {
+    public Ansi(final String... ansi) {
         this.ansi = new LinkedList<>(Arrays.asList(ansi));
     }
 
-    public Ansi and(Color color) {
+    public Ansi and(final Color color) {
         this.ansi.add(color.getAnsi());
         return this;
     }
 
-    public Ansi and(Style style) {
+    public Ansi and(final Style style) {
         this.ansi.add(style.getAnsi());
         return this;
     }
 
-    public String format(String text, Object... args) {
-        StringBuilder builder = new StringBuilder();
-        for (String s : ansi) {
+    public String format(final String text, final Object... args) {
+        final StringBuilder builder = new StringBuilder();
+        for (final String s : ansi) {
             builder.append(s);
         }
         builder.append(text);
@@ -171,11 +172,11 @@ public class Ansi {
         return String.format(builder.toString(), args);
     }
 
-    public static Ansi make(Color color) {
+    public static Ansi make(final Color color) {
         return new Ansi(color.getAnsi());
     }
 
-    public static Ansi make(Style style) {
+    public static Ansi make(final Style style) {
         return new Ansi(style.getAnsi());
     }
 

@@ -53,8 +53,8 @@ public class StringReturnValueResolver implements ResponseReturnValueResolver {
     ) {
         String result = (String) value;
         final int index = result.indexOf(":");
-        final Model model = context.getApplication().make(Model.class);
-        final HttpStatus status = model.getStatus();
+        final Model model = context.app().make(Model.class);
+        final HttpStatus status = model.status();
         if (index != -1 && index != 0) {
             if (result.startsWith(Result.EMPTY_RETURN)) {
                 return Result

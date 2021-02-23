@@ -32,17 +32,17 @@ public class RedirectResult extends AbstractHttpResult {
         this.status(status);
     }
 
-    public RedirectResult with(final String url) {
+    public RedirectResult url(final String url) {
         this.url = url;
         return this;
     }
 
-    public String getUrl() {
+    public String url() {
         return url;
     }
 
-    public int getStatus() {
-        return this.getResponse().getStatus();
+    public int status() {
+        return this.response().getStatus();
     }
 
     @Override
@@ -56,7 +56,7 @@ public class RedirectResult extends AbstractHttpResult {
         final Response response,
         final Object result
     ) {
-        response.redirect(this.url, this.getResponse().getStatus());
+        response.redirect(this.url, this.response().getStatus());
         return true;
     }
 }

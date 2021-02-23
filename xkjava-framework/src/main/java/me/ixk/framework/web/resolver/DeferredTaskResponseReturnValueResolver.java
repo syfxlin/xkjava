@@ -31,7 +31,7 @@ public class DeferredTaskResponseReturnValueResolver
         final WebContext context
     ) {
         if (value instanceof WebDeferredTask) {
-            context.getAsyncManager().startDeferred((WebDeferredTask<?>) value);
+            context.async().startDeferred((WebDeferredTask<?>) value);
             return null;
         }
         return value;

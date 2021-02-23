@@ -84,7 +84,7 @@ public class Response extends HttpServletResponseWrapper {
         return this;
     }
 
-    public String getContent() {
+    public String content() {
         try {
             return this.getWriter().toString();
         } catch (final IOException e) {

@@ -29,12 +29,12 @@ public class Crypt {
 
     private final Cipher cipher;
 
-    public Crypt(byte[] key)
+    public Crypt(final byte[] key)
         throws NoSuchAlgorithmException, NoSuchPaddingException {
         this(key, "AES/CBC/PKCS5PADDING");
     }
 
-    public Crypt(byte[] key, String cipher)
+    public Crypt(final byte[] key, final String cipher)
         throws NoSuchPaddingException, NoSuchAlgorithmException {
         this.key = key;
         this.cipher = Cipher.getInstance(cipher);
@@ -48,57 +48,57 @@ public class Crypt {
         return generateRandom(128);
     }
 
-    public static byte[] generateRandom(int length) {
-        KeyGenerator generator;
+    public static byte[] generateRandom(final int length) {
+        final KeyGenerator generator;
         try {
             generator = KeyGenerator.getInstance("AES");
             generator.init(length);
-            SecretKey key = generator.generateKey();
+            final SecretKey key = generator.generateKey();
             return key.getEncoded();
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             return null;
         }
     }
 
-    public String encrypt(String value) {
+    public String encrypt(final String value) {
         try {
-            IvParameterSpec iv = new IvParameterSpec(generateIv());
-            SecretKeySpec aesKeySpec = new SecretKeySpec(key, "AES");
+            final IvParameterSpec iv = new IvParameterSpec(generateIv());
+            final SecretKeySpec aesKeySpec = new SecretKeySpec(key, "AES");
 
             cipher.init(Cipher.ENCRYPT_MODE, aesKeySpec, iv);
 
-            String encrypted = new String(
+            final String encrypted = new String(
                 cipher.doFinal(value.getBytes(StandardCharsets.ISO_8859_1)),
                 StandardCharsets.ISO_8859_1
             );
-            String ivEncoded = Base64.encode(iv.getIV());
-            String macEncoded = Mac.make(
+            final String ivEncoded = Base64.encode(iv.getIV());
+            final String macEncoded = Mac.make(
                 "HmacSHA256",
                 ivEncoded + encrypted,
                 key
             );
-            ObjectNode json = Json.createObject();
+            final ObjectNode json = Json.createObject();
             json.put("iv", ivEncoded);
             json.put("value", encrypted);
             json.put("mac", macEncoded);
             return Base64.encode(json.toString());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return null;
         }
     }
 
-    public String decrypt(String encrypted) {
+    public String decrypt(final String encrypted) {
         try {
-            ObjectNode payload = Json.parseObject(
+            final ObjectNode payload = Json.parseObject(
                 StrUtil.str(Base64.decode(encrypted), StandardCharsets.UTF_8)
             );
             if (!this.vaild(Objects.requireNonNull(payload))) {
                 return null;
             }
-            IvParameterSpec iv = new IvParameterSpec(
+            final IvParameterSpec iv = new IvParameterSpec(
                 Base64.decode(payload.get("iv").asText())
             );
-            SecretKeySpec aesKeySpec = new SecretKeySpec(key, "AES");
+            final SecretKeySpec aesKeySpec = new SecretKeySpec(key, "AES");
             cipher.init(Cipher.DECRYPT_MODE, aesKeySpec, iv);
             return new String(
                 cipher.doFinal(
@@ -109,12 +109,12 @@ public class Crypt {
                 ),
                 StandardCharsets.ISO_8859_1
             );
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return null;
         }
     }
 
-    public boolean vaild(ObjectNode payload) {
+    public boolean vaild(final ObjectNode payload) {
         if (
             !payload.has("iv") || !payload.has("mac") || !payload.has("value")
         ) {

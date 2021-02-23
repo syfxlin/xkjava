@@ -47,8 +47,8 @@ public class FinallyAfterHandlerExceptionResolver
         final WebContext context
     ) {
         try {
-            final Request request = context.getRequest();
-            final Response response = context.getResponse();
+            final Request request = context.request();
+            final Response response = context.response();
             if (request.ajax()) {
                 this.handleJson(e, request, response);
             } else {
@@ -113,7 +113,7 @@ public class FinallyAfterHandlerExceptionResolver
             e != null ? e.getMessage() : status.getMessage()
         );
         if (this.showStack) {
-            errorJson.setThrowable(e);
+            errorJson.throwable(e);
         }
         String json = Json.stringify(errorJson);
         writer.write(

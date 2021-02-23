@@ -78,16 +78,12 @@ public class StreamResult extends AbstractHttpResult {
         return this;
     }
 
-    public StreamResult with(final InputStream stream) {
+    public StreamResult stream(final InputStream stream) {
         this.stream = stream;
         return this;
     }
 
-    public String getContentType() {
-        return contentType;
-    }
-
-    public InputStream getStream() {
+    public InputStream stream() {
         return stream;
     }
 }

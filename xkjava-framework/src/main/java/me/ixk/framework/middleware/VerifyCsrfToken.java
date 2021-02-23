@@ -4,16 +4,15 @@
 
 package me.ixk.framework.middleware;
 
-import static me.ixk.framework.helper.Facade.crypt;
-import static me.ixk.framework.helper.Facade.session;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import me.ixk.framework.annotation.core.Order;
 import me.ixk.framework.exception.HttpException;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
+import me.ixk.framework.http.SessionManager;
 import me.ixk.framework.http.SetCookie;
+import me.ixk.framework.util.Crypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +33,13 @@ public class VerifyCsrfToken implements Middleware {
      * 排除使用 CSRF 的 URL（正则）
      */
     protected final String[] except = new String[] {};
+    protected final SessionManager session;
+    protected final Crypt crypt;
+
+    public VerifyCsrfToken(SessionManager session, Crypt crypt) {
+        this.session = session;
+        this.crypt = crypt;
+    }
 
     @Override
     public boolean beforeHandle(Request request, Response response)
@@ -65,14 +71,14 @@ public class VerifyCsrfToken implements Middleware {
     }
 
     protected String getToken(Request request) {
-        JsonNode tokenNode = request.input("_token");
+        JsonNode tokenNode = request.body("_token");
         String token;
         if (tokenNode != null && !tokenNode.isNull()) {
             token = tokenNode.asText();
         } else {
             token = request.header("X-CSRF-TOKEN");
             if (token != null) {
-                token = crypt().decrypt(token);
+                token = this.crypt.decrypt(token);
             }
         }
         return token;
@@ -80,7 +86,7 @@ public class VerifyCsrfToken implements Middleware {
 
     protected boolean verifyToken(Request request) {
         String token = this.getToken(request);
-        String sToken = session().token();
+        String sToken = this.session.token();
         return sToken != null && sToken.equals(token);
     }
 
@@ -107,7 +113,7 @@ public class VerifyCsrfToken implements Middleware {
     protected void setToken(Response response) {
         SetCookie cookie = new SetCookie(
             "XSRF-TOKEN",
-            session().token(),
+            this.session.token(),
             2628000
         );
         response.cookie(cookie);

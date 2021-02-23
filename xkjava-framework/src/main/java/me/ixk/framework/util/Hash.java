@@ -14,11 +14,11 @@ import at.favre.lib.crypto.bcrypt.BCrypt;
  */
 public class Hash {
 
-    public String make(String value) {
+    public String make(final String value) {
         return BCrypt.withDefaults().hashToString(10, value.toCharArray());
     }
 
-    public boolean check(String value, String hashedValue) {
+    public boolean check(final String value, final String hashedValue) {
         return BCrypt
             .verifyer()
             .verify(value.toCharArray(), hashedValue.toCharArray())

@@ -115,13 +115,13 @@ public class DispatcherServlet extends AbstractFrameworkServlet {
         // 查询路由
         final RouteInfo routeInfo = dispatcher.dispatch(
             request.method(),
-            request.path()
+            request.uri()
         );
         // 将 Route 信息设置到 Request
-        request.setRoute(routeInfo);
+        request.route(routeInfo);
         // 初始化 WebContext 和 WebAsyncManager
         final WebContext webContext = this.app.make(WebContext.class);
-        final WebAsyncManager asyncManager = webContext.getAsyncManager();
+        final WebAsyncManager asyncManager = webContext.async();
         try {
             // 404 或 405 错误
             switch (routeInfo.getStatus()) {

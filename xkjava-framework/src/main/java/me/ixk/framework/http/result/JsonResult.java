@@ -15,26 +15,32 @@ import me.ixk.framework.util.Json;
  * @date 2020/10/14 上午 9:10
  */
 public class JsonResult extends AbstractHttpResult {
+
     protected JsonNode jsonNode;
 
     public JsonResult() {
         this.jsonNode = Json.make().nullNode();
     }
 
-    public JsonResult(Object object) {
+    public JsonResult(final Object object) {
         this.jsonNode = Json.convertToNode(object);
     }
 
-    public JsonResult(JsonNode jsonNode) {
+    public JsonResult(final JsonNode jsonNode) {
         this.jsonNode = jsonNode;
     }
 
-    public JsonResult with(JsonNode node) {
+    public JsonResult json(final JsonNode node) {
         this.jsonNode = node;
         return this;
     }
 
-    public JsonNode getJsonNode() {
+    public JsonResult json(final Object object) {
+        this.jsonNode = Json.convertToNode(object);
+        return this;
+    }
+
+    public JsonNode jsonNode() {
         return this.jsonNode;
     }
 

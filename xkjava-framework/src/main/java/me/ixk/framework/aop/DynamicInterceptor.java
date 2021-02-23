@@ -20,25 +20,25 @@ import net.sf.cglib.proxy.MethodProxy;
  * @date 2020/10/14 上午 8:31
  */
 public class DynamicInterceptor implements MethodInterceptor, CanGetTarget {
+
     protected final TargetSource targetSource;
 
-    public DynamicInterceptor(TargetSource targetSource) {
+    public DynamicInterceptor(final TargetSource targetSource) {
         this.targetSource = targetSource;
     }
 
     @Override
     public Object intercept(
-        Object object,
-        Method method,
-        Object[] args,
-        MethodProxy methodProxy
-    )
-        throws Throwable {
+        final Object object,
+        final Method method,
+        final Object[] args,
+        final MethodProxy methodProxy
+    ) throws Throwable {
         // 匹配切面
-        List<Advice> advices = this.targetSource.getAdvices(method);
-        Object target = this.targetSource.getTarget();
+        final List<Advice> advices = this.targetSource.getAdvices(method);
+        final Object target = this.targetSource.getTarget();
         if (advices != null && !advices.isEmpty()) {
-            AspectHandler handler = new AspectHandler(
+            final AspectHandler handler = new AspectHandler(
                 new TargetInfo(
                     target,
                     this.targetSource.getTargetType(),

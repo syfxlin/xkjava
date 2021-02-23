@@ -18,6 +18,7 @@ import java.util.List;
  * @date 2020/10/14 上午 10:29
  */
 public class StdErrorJson {
+
     protected final int status;
 
     protected final String message;
@@ -28,17 +29,21 @@ public class StdErrorJson {
     @JsonProperty("@stacks")
     protected Throwable throwable;
 
-    public StdErrorJson(int status, String message, String errors) {
+    public StdErrorJson(
+        final int status,
+        final String message,
+        final String errors
+    ) {
         this.status = status;
         this.message = message;
         this.errors = errors;
     }
 
     public StdErrorJson(
-        int status,
-        String message,
-        String errors,
-        Throwable throwable
+        final int status,
+        final String message,
+        final String errors,
+        final Throwable throwable
     ) {
         this.status = status;
         this.message = message;
@@ -46,38 +51,38 @@ public class StdErrorJson {
         this.throwable = throwable;
     }
 
-    public StdErrorJson(int status, Throwable throwable) {
+    public StdErrorJson(final int status, final Throwable throwable) {
         this.status = status;
         this.message = HttpStatus.valueOf(status).getReasonPhrase();
         this.errors = throwable.getMessage();
         this.throwable = throwable;
     }
 
-    public StdErrorJson(Throwable throwable) {
+    public StdErrorJson(final Throwable throwable) {
         this.status = 500;
         this.message = HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase();
         this.errors = throwable.getMessage();
         this.throwable = throwable;
     }
 
-    public int getStatus() {
+    public int status() {
         return status;
     }
 
-    public String getMessage() {
+    public String message() {
         return message;
     }
 
-    public String getErrors() {
+    public String errors() {
         return errors;
     }
 
-    public List<String> getThrowable() {
+    public List<String> throwable() {
         Throwable th = throwable;
-        List<String> list = new ArrayList<>();
+        final List<String> list = new ArrayList<>();
         while (th != null) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
+            final StringWriter sw = new StringWriter();
+            final PrintWriter pw = new PrintWriter(sw);
             th.printStackTrace(pw);
             pw.flush();
             list.add(sw.getBuffer().toString());
@@ -86,7 +91,7 @@ public class StdErrorJson {
         return list;
     }
 
-    public void setThrowable(Throwable throwable) {
+    public void throwable(final Throwable throwable) {
         this.throwable = throwable;
     }
 }

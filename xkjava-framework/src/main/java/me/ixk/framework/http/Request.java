@@ -7,12 +7,7 @@ package me.ixk.framework.http;
 import cn.hutool.core.io.IoUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -131,20 +126,20 @@ public class Request
         );
     }
 
-    public RouteInfo getRoute() {
+    public RouteInfo route() {
         return this.wrapperValue.getRoute();
     }
 
-    public Request setRoute(final RouteInfo route) {
+    public Request route(final RouteInfo route) {
         this.wrapperValue.setRoute(route);
         return this;
     }
 
-    public String getBody() {
+    public String rawBody() {
         return this.wrapperValue.getBody();
     }
 
-    public JsonNode getParseBody() {
+    public JsonNode jsonBody() {
         return this.wrapperValue.getParseBody();
     }
 
@@ -221,15 +216,15 @@ public class Request
         return this.getOrDefault(this.getParameterValues(name), defaultValue);
     }
 
-    /* ================ input ============== */
+    /* ================ body ============== */
 
     public boolean hasInput(final String name) {
-        return this.input(name) != null;
+        return this.body(name) != null;
     }
 
     public JsonNode json() {
         final JsonNode node;
-        JsonNode parseBody = this.getParseBody();
+        JsonNode parseBody = this.jsonBody();
         if (parseBody == null) {
             node =
                 Json.convertToNode(
@@ -252,15 +247,15 @@ public class Request
         return node == null || node.isNull() ? null : node;
     }
 
-    public JsonNode input() {
+    public JsonNode body() {
         return this.json();
     }
 
-    public JsonNode input(final String name) {
-        return this.input(name, null);
+    public JsonNode body(final String name) {
+        return this.body(name, null);
     }
 
-    public JsonNode input(final String name, final JsonNode defaultValue) {
+    public JsonNode body(final String name, final JsonNode defaultValue) {
         JsonNode node = this.json();
         if (REQUEST_BODY.equals(name)) {
             return node;
@@ -269,18 +264,18 @@ public class Request
         return node == null || node.isNull() ? defaultValue : node;
     }
 
-    /* ================ route ============== */
+    /* ================ path ============== */
 
-    public boolean hasRoute(final String name) {
-        return this.route(name) != null;
+    public boolean hasPath(final String name) {
+        return this.path(name) != null;
     }
 
-    public String route(final String name) {
-        return this.route(name, null);
+    public String path(final String name) {
+        return this.path(name, null);
     }
 
-    public String route(final String name, final String defaultValue) {
-        return this.getRoute().getParams().getOrDefault(name, defaultValue);
+    public String path(final String name, final String defaultValue) {
+        return this.route().getParams().getOrDefault(name, defaultValue);
     }
 
     /* ================ cookie ============== */
@@ -329,50 +324,17 @@ public class Request
         }
     }
 
-    public String partToString(final String name) {
-        return this.partToString(name, StandardCharsets.UTF_8);
-    }
-
-    public String partToString(final String name, final Charset charset) {
-        final Part file = this.part(name);
-        if (file == null) {
+    public MultipartFile file(final String name) {
+        final Part part = this.part(name);
+        if (part == null) {
             return null;
         }
-        try {
-            return IoUtil.read(file.getInputStream(), charset);
-        } catch (final IOException e) {
-            return null;
-        }
+        return new MultipartFile(part);
     }
 
     public boolean hasPart(final String name) {
         final Part file = this.part(name);
         return file != null && file.getSubmittedFileName() != null;
-    }
-
-    public boolean movePartTo(final String name, final String path) {
-        try {
-            final Part part = this.part(name);
-            if (part == null) {
-                return false;
-            }
-            final File file = new File(path);
-            if (!file.exists()) {
-                if (!file.createNewFile()) {
-                    return false;
-                }
-            }
-            return (
-                Files.copy(
-                    part.getInputStream(),
-                    file.toPath(),
-                    StandardCopyOption.REPLACE_EXISTING
-                ) !=
-                0
-            );
-        } catch (final IOException e) {
-            return false;
-        }
     }
 
     /* ================ attribute ============== */
@@ -401,10 +363,10 @@ public class Request
             result = ((String[]) result)[0];
         }
         if (result == null) {
-            result = this.input(name);
+            result = this.body(name);
         }
         if (result == null) {
-            result = this.route(name);
+            result = this.path(name);
         }
         if (result == null) {
             result = this.cookie(name);
@@ -430,7 +392,7 @@ public class Request
 
     /* ================ other ============== */
 
-    public String path() {
+    public String uri() {
         return this.getRequestURI();
     }
 
@@ -454,14 +416,14 @@ public class Request
     }
 
     public boolean pattern(final String regex) {
-        return Pattern.matches(regex, this.path());
+        return Pattern.matches(regex, this.uri());
     }
 
     public boolean pattern(final Pattern pattern) {
         if (pattern == null) {
             return false;
         }
-        return pattern.matcher(this.path()).matches();
+        return pattern.matcher(this.uri()).matches();
     }
 
     public boolean ajax() {
@@ -508,11 +470,11 @@ public class Request
         this.getAsyncContext().dispatch();
     }
 
-    public void setTimeout(Long timeout) {
+    public void timeout(Long timeout) {
         this.wrapperValue.setTimeout(timeout);
     }
 
-    public Long getTimeout() {
+    public Long timeout() {
         return this.wrapperValue.getTimeout();
     }
 
