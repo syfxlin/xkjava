@@ -16,7 +16,7 @@ public class CronTimer implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(CronTimer.class);
     private final ScheduledExecutor executor;
-    private boolean isStop = false;
+    private volatile boolean stop = false;
 
     public CronTimer(ScheduledExecutor executor) {
         this.executor = executor;
@@ -27,7 +27,7 @@ public class CronTimer implements Runnable {
         long thisTime = System.currentTimeMillis();
         long nextTime;
         long sleep;
-        while (!isStop) {
+        while (!stop) {
             // 推送到调度线程池判断，防止影响 CronTimer
             this.executor.execute(
                     () -> {
@@ -50,7 +50,7 @@ public class CronTimer implements Runnable {
     }
 
     public void stop() {
-        isStop = false;
+        stop = false;
         if (log.isDebugEnabled()) {
             log.debug("CronTimer stop");
         }

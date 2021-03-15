@@ -6,6 +6,7 @@ package me.ixk.framework.task;
 
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
+import me.ixk.framework.annotation.core.Autowired;
 import me.ixk.framework.annotation.core.Enable;
 import me.ixk.framework.test.XkJavaTest;
 import me.ixk.framework.test.event.BeforeTestAll;
@@ -25,6 +26,9 @@ class ScheduledTest {
         ScheduledTask.TTL.set("ttlValue");
     }
 
+    @Autowired
+    ScheduledExecutor scheduledExecutor;
+
     @Test
     void schedule() throws InterruptedException {
         log.info(
@@ -32,6 +36,7 @@ class ScheduledTest {
             Thread.currentThread().getName(),
             LocalDateTime.now()
         );
-        Thread.sleep(20000);
+        Thread.sleep(10000);
+        scheduledExecutor.shutdown();
     }
 }

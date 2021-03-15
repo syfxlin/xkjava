@@ -6,6 +6,7 @@ package me.ixk.app;
 
 import me.ixk.framework.annotation.core.ComponentScan;
 import me.ixk.framework.annotation.core.ComponentScan.Filter;
+import me.ixk.framework.annotation.core.Enable;
 import me.ixk.framework.annotation.core.FilterType;
 import me.ixk.framework.annotation.database.MapperScan;
 import me.ixk.framework.ioc.XkJava;
@@ -28,6 +29,7 @@ import me.ixk.framework.ioc.XkJava;
         @Filter(type = FilterType.REGEX, pattern = "me.ixk.app.beans.User"),
     }
 )
+@Enable("scheduled")
 public class App {
 
     public static void main(final String[] args) {

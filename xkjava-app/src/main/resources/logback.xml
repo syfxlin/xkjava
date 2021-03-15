@@ -79,7 +79,7 @@
   </appender>
 
   <!-- 记录器 name : 包名或类名， level : 要记录的日志的起始级别， additivity : 是否追加父类的 appender -->
-  <logger additivity="false" level="info" name="me.ixk">
+  <logger additivity="false" level="debug" name="me.ixk">
     <appender-ref ref="STDOUT_DEBUG" />
     <appender-ref ref="STDOUT_INFO" />
     <appender-ref ref="STDOUT_WARN" />
