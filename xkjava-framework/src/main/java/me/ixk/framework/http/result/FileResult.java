@@ -209,7 +209,7 @@ public class FileResult extends AbstractHttpResult {
         String range = request.getHeader("Range");
         if (range != null) {
             // Range header should match format "bytes=n-n,n-n,n-n...". If not, then return 416.
-            if (!range.matches("^bytes=\\d*-\\d*(,\\d*-\\d*)*$")) {
+            if (!range.matches("^bytes=\\d*-\\d*(\\s?,\\s?\\d*-\\d*)*+$")) {
                 response.setHeader("Content-Range", "bytes */" + length); // Required in 416.
                 response.sendError(
                     HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE

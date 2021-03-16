@@ -23,7 +23,6 @@ class RouteDispatcherTest {
 
     @Test
     void dispatch() throws NoSuchMethodException {
-        assertEquals("", "");
         final HandlerMethod handler = new HandlerMethod(
             this.getClass().getMethod("handler")
         );

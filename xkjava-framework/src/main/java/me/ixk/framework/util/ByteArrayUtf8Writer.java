@@ -107,11 +107,6 @@ public class ByteArrayUtf8Writer extends Writer {
 
     @Override
     public void write(@NotNull String s) throws IOException {
-        if (s == null) {
-            write("null", 0, 4);
-            return;
-        }
-
         int length = s.length();
         ensureSpareCapacity(length);
         for (int i = 0; i < length; i++) {

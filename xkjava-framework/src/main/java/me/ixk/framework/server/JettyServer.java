@@ -136,6 +136,7 @@ public class JettyServer implements me.ixk.framework.server.Server {
                     try {
                         this.server.join();
                     } catch (final InterruptedException e) {
+                        Thread.currentThread().interrupt();
                         log.error("Jetty join failed", e);
                     }
                 },

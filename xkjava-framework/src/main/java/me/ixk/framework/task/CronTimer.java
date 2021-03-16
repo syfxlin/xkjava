@@ -43,6 +43,7 @@ public class CronTimer implements Runnable {
             try {
                 TimeUnit.MILLISECONDS.sleep(sleep);
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 throw new IllegalStateException(e);
             }
             thisTime = System.currentTimeMillis();

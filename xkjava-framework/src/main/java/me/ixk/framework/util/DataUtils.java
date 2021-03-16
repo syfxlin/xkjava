@@ -399,9 +399,6 @@ public class DataUtils {
     }
 
     public static String toCamelCase(CharSequence name) {
-        if (null == name) {
-            return null;
-        }
         String name2 = name.toString();
         if (name2.contains(UNDERLINE) || name2.contains(DASHED)) {
             // case-case, case_case, CASE_CASE

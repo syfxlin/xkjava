@@ -84,7 +84,6 @@ public class SessionManager {
         }
         for (String name : names) {
             this.session.removeAttribute(name);
-            return this;
         }
         return this;
     }

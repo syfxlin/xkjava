@@ -37,7 +37,7 @@ public class Binding {
     private final boolean primary;
     private final BindingInfos bindingInfos;
 
-    private volatile FactoryBean<?> factoryBean;
+    private final FactoryBean<?> factoryBean;
     /**
      * 用于锁住当前 Binding 的代理锁
      */
@@ -49,6 +49,16 @@ public class Binding {
         final Class<?> instanceType,
         final String scopeType
     ) {
+        this(context, name, instanceType, scopeType, null);
+    }
+
+    public Binding(
+        final Context context,
+        final String name,
+        final Class<?> instanceType,
+        final String scopeType,
+        final FactoryBean<?> factoryBean
+    ) {
         this.context = context;
         this.scope = scopeType;
         this.name = name;
@@ -56,6 +66,7 @@ public class Binding {
         this.primary = this.getAnnotation().hasAnnotation(Primary.class);
         this.bindingInfos =
             CACHE.computeIfAbsent(instanceType, BindingInfos::new);
+        this.factoryBean = factoryBean;
     }
 
     public Binding(
@@ -74,8 +85,13 @@ public class Binding {
         final FactoryBean<?> factoryBean,
         final String scopeType
     ) {
-        this(context, name, factoryBean.getObjectType(), scopeType);
-        this.setFactoryBean(factoryBean);
+        this(
+            context,
+            name,
+            factoryBean.getObjectType(),
+            scopeType,
+            factoryBean
+        );
     }
 
     public String getScope() {
@@ -135,10 +151,6 @@ public class Binding {
 
     public FactoryBean<?> getFactoryBean() {
         return factoryBean;
-    }
-
-    public void setFactoryBean(final FactoryBean<?> factoryBean) {
-        this.factoryBean = factoryBean;
     }
 
     public boolean isCreated() {

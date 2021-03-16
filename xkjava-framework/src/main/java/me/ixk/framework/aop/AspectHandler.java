@@ -7,7 +7,6 @@ package me.ixk.framework.aop;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import me.ixk.framework.ioc.entity.AnnotatedEntry;
 import me.ixk.framework.ioc.entity.ParameterContext.ParameterEntry;
 import me.ixk.framework.util.MergedAnnotation;
@@ -41,35 +40,33 @@ public class AspectHandler {
     /**
      * 当前执行到的切面索引
      */
-    private final AtomicInteger currAspectIndex;
+    private final int currAspectIndex;
     /**
      * 用于临时存储当前切面
      */
-    private volatile Advice aspect = null;
+    private final Advice aspect;
     /**
      * 切面中抛出的异常
      */
-    private volatile Throwable error = null;
+    private Throwable error = null;
 
     public AspectHandler(
         TargetInfo info,
-        AtomicInteger currAspectIndex,
+        int currAspectIndex,
         List<Advice> aspects
     ) {
         this.info = info;
         this.currAspectIndex = currAspectIndex;
         this.aspects = aspects;
         if (this.hasNextAspect()) {
-            this.aspect = this.getNextAspect();
+            this.aspect = this.aspects.get(currAspectIndex);
+        } else {
+            this.aspect = null;
         }
     }
 
     private boolean hasNextAspect() {
-        return this.aspects.size() > currAspectIndex.get();
-    }
-
-    private Advice getNextAspect() {
-        return this.aspects.get(currAspectIndex.getAndIncrement());
+        return this.aspects.size() > currAspectIndex;
     }
 
     public Object invokeAspect() throws Throwable {
@@ -119,7 +116,7 @@ public class AspectHandler {
     public Object invokeNext() throws Throwable {
         AspectHandler handler = new AspectHandler(
             this.info,
-            currAspectIndex,
+            currAspectIndex + 1,
             this.aspects
         );
         return handler.invokeAspect();

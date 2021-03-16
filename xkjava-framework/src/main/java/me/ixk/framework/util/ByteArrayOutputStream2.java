@@ -47,7 +47,7 @@ public class ByteArrayOutputStream2 extends ByteArrayOutputStream {
     }
 
     @Override
-    public String toString(final Charset charset) {
+    public synchronized String toString(final Charset charset) {
         return new String(buf, 0, count, charset);
     }
 }

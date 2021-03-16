@@ -20,7 +20,7 @@ public class RouteInfo {
 
     protected volatile String route = null;
 
-    protected volatile HandlerMethod handler = null;
+    protected HandlerMethod handler = null;
 
     protected Map<String, String> params = null;
 

@@ -6,7 +6,6 @@ package me.ixk.framework.aop;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import me.ixk.framework.aop.AspectHandler.TargetInfo;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -46,7 +45,7 @@ public class DynamicInterceptor implements MethodInterceptor, CanGetTarget {
                     methodProxy,
                     args
                 ),
-                new AtomicInteger(0),
+                0,
                 advices
             );
             return handler.invokeAspect();

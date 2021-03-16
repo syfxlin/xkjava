@@ -21,6 +21,11 @@
     <project.java.version>11</project.java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <!-- SonarQube -->
+    <sonar.projectKey>syfxlin_xkjava</sonar.projectKey>
+    <sonar.organization>syfxlin</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
     <!-- Version -->
     <jetty.version>9.4.35.v20201120</jetty.version>
     <thymeleaf.version>3.0.11.RELEASE</thymeleaf.version>
@@ -246,6 +251,10 @@
         <configuration>
           <encoding>${project.build.sourceEncoding}</encoding>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.sonarsource.scanner.maven</groupId>
+        <artifactId>sonar-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

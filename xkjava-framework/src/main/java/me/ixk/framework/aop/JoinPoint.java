@@ -26,12 +26,12 @@ public class JoinPoint {
     /**
      * 返回值
      */
-    protected volatile Object returnValue;
+    protected Object returnValue;
 
     /**
      * 抛出的异常
      */
-    protected volatile Throwable error;
+    protected Throwable error;
 
     public JoinPoint(final AspectHandler handler, final TargetInfo info) {
         this.handler = handler;

@@ -19,7 +19,7 @@ public class RouteData {
     protected final String regex;
     protected final String route;
     protected final List<String> variableNames;
-    protected volatile HandlerMethod handler;
+    protected HandlerMethod handler;
 
     public RouteData(
         String route,

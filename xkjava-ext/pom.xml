@@ -15,6 +15,10 @@
   <artifactId>xkjava-ext</artifactId>
   <packaging>jar</packaging>
 
+  <properties>
+    <sonar.skip>true</sonar.skip>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>me.ixk</groupId>
