@@ -19,7 +19,7 @@ import me.ixk.framework.web.async.WebAsyncTask;
  * @date 2020/11/1 下午 9:41
  */
 @WebResolver
-@Order(Order.HIGHEST_PRECEDENCE)
+@Order(Order.HIGHEST_PRECEDENCE + 1)
 public class CallableReturnValueResolver
     implements ResponseReturnValueResolver {
 

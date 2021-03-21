@@ -47,6 +47,15 @@ public class Response extends HttpServletResponseWrapper {
         super(response);
     }
 
+    public Response flush() {
+        try {
+            this.flushBuffer();
+        } catch (IOException e) {
+            throw new ResponseException("Flush error", e);
+        }
+        return this;
+    }
+
     public Response characterEncoding(final String charset) {
         this.setCharacterEncoding(charset);
         return this;

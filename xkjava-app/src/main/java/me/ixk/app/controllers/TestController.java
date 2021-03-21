@@ -10,6 +10,7 @@ import cn.hutool.core.thread.ThreadUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -41,6 +42,7 @@ import me.ixk.framework.annotation.web.WebBind.Type;
 import me.ixk.framework.aop.Advice;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Model;
+import me.ixk.framework.http.Response;
 import me.ixk.framework.http.result.AsyncResult;
 import me.ixk.framework.http.result.Result;
 import me.ixk.framework.http.result.StreamResult;
@@ -57,6 +59,8 @@ import me.ixk.framework.web.async.WebAsyncTask;
 import me.ixk.framework.web.async.WebDeferredTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Controller
 @RequestMapping("/test")
@@ -302,6 +306,23 @@ public class TestController {
             log.info("Callable");
             return "result";
         };
+    }
+
+    @GetMapping("/reactive-mono")
+    public Mono<String> reactiveMono() {
+        return Mono.just("mono");
+    }
+
+    @GetMapping("/reactive-flux")
+    public Flux<String> reactiveFlux(final Response response) {
+        response.contentType("text/event-stream");
+        response.header("Cache-Control", "no-cache");
+        return Flux
+            .interval(Duration.ofSeconds(1))
+            .map(
+                seq ->
+                    String.format("id:%d\nevent:random\ndata:%d\n\n", seq, seq)
+            );
     }
 
     @Bean

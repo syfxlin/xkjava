@@ -11,7 +11,8 @@ public class ConcurrentResultHandlerMethod extends InvocableHandlerMethod {
 
     public ConcurrentResultHandlerMethod(
         final XkJava app,
-        final Object result
+        final Object result,
+        final HandlerProcessor handlerProcessor
     ) {
         super(
             app,
@@ -27,7 +28,8 @@ public class ConcurrentResultHandlerMethod extends InvocableHandlerMethod {
                     }
                     return result;
                 }
-            )
+            ),
+            handlerProcessor
         );
     }
 }

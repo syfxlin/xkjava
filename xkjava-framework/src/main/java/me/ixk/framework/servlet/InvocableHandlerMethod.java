@@ -4,14 +4,11 @@ import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
 import me.ixk.framework.ioc.XkJava;
 import me.ixk.framework.ioc.binder.DefaultDataBinder;
 import me.ixk.framework.registry.after.InitBinderRegistry;
-import me.ixk.framework.registry.after.WebResolverRegistry;
-import me.ixk.framework.util.Convert;
 import me.ixk.framework.web.ExceptionInfo;
 import me.ixk.framework.web.MethodParameter;
 import me.ixk.framework.web.MethodReturnValue;
@@ -19,9 +16,6 @@ import me.ixk.framework.web.WebContext;
 import me.ixk.framework.web.WebDataBinder;
 import me.ixk.framework.web.resolver.HandlerExceptionResolver;
 import me.ixk.framework.web.resolver.InitBinderHandlerResolver;
-import me.ixk.framework.web.resolver.RequestParameterResolver;
-import me.ixk.framework.web.resolver.RequestParametersPostResolver;
-import me.ixk.framework.web.resolver.ResponseReturnValueResolver;
 
 /**
  * @author Otstar Lin
@@ -30,17 +24,18 @@ import me.ixk.framework.web.resolver.ResponseReturnValueResolver;
 public class InvocableHandlerMethod extends HandlerMethod {
 
     private final XkJava app;
-    private final WebResolverRegistry webResolverRegistry;
     private final InitBinderRegistry initBinderRegistry;
+    private final HandlerProcessor handlerProcessor;
 
     public InvocableHandlerMethod(
         final XkJava app,
-        final HandlerMethod handler
+        final HandlerMethod handler,
+        final HandlerProcessor handlerProcessor
     ) {
         super(handler);
         this.app = app;
-        this.webResolverRegistry = this.app.make(WebResolverRegistry.class);
         this.initBinderRegistry = this.app.make(InitBinderRegistry.class);
+        this.handlerProcessor = handlerProcessor;
     }
 
     public Object invokeForRequest(
@@ -55,35 +50,33 @@ public class InvocableHandlerMethod extends HandlerMethod {
         // 处理 InitBinder 方法
         try {
             this.processInitBinder(handler, dataBinder);
-            final Object[] dependencies =
-                this.processParameterResolver(
-                        this.createMethodParameter(handler),
-                        webContext,
-                        dataBinder
-                    );
+            final Object[] dependencies = handlerProcessor.processParameterResolver(
+                this.createMethodParameter(handler),
+                webContext,
+                dataBinder
+            );
             final Object returnValue = this.doInvoke(handler, dependencies);
-            return this.processReturnValueResolver(
-                    returnValue,
-                    this.createMethodReturnValue(handler),
-                    webContext
-                );
+            return handlerProcessor.processReturnValueResolver(
+                returnValue,
+                this.createMethodReturnValue(handler),
+                webContext
+            );
         } catch (Throwable th) {
-            final Object result =
-                this.processException(
-                        th,
-                        this.createExceptionInfo(handler, request, response),
-                        webContext,
-                        dataBinder
-                    );
+            final Object result = handlerProcessor.processException(
+                th,
+                this.createExceptionInfo(handler, request, response),
+                webContext,
+                dataBinder
+            );
             if (HandlerExceptionResolver.NO_RESOLVER == result) {
                 // 若错误未能解决，或者产生了新的错误则向上抛出
                 throw th;
             }
-            return this.processReturnValueResolver(
-                    result,
-                    this.createMethodReturnValue(handler),
-                    webContext
-                );
+            return handlerProcessor.processReturnValueResolver(
+                result,
+                this.createMethodReturnValue(handler),
+                webContext
+            );
         }
     }
 
@@ -169,117 +162,5 @@ public class InvocableHandlerMethod extends HandlerMethod {
                 this.app.call(handler, method, binder);
             }
         }
-    }
-
-    private Object[] processParameterResolver(
-        final MethodParameter methodParameter,
-        final WebContext context,
-        final WebDataBinder binder
-    ) {
-        final Parameter[] parameters = methodParameter.getParameters();
-        Object[] dependencies = new Object[parameters.length];
-        final Class<?>[] parameterTypes = methodParameter
-            .getMethod()
-            .getParameterTypes();
-        for (final RequestParameterResolver resolver : webResolverRegistry.getRequestParameterResolvers()) {
-            for (int i = 0; i < parameters.length; i++) {
-                methodParameter.setParameterIndex(i);
-                if (
-                    resolver.supportsParameter(
-                        dependencies[i],
-                        methodParameter,
-                        context,
-                        binder
-                    )
-                ) {
-                    dependencies[i] =
-                        resolver.resolveParameter(
-                            dependencies[i],
-                            methodParameter,
-                            context,
-                            binder
-                        );
-                }
-            }
-        }
-        methodParameter.setParameterIndex(-1);
-        for (final RequestParametersPostResolver resolver : webResolverRegistry.getRequestParametersPostResolvers()) {
-            if (
-                resolver.supportsParameters(
-                    dependencies,
-                    methodParameter,
-                    context,
-                    binder
-                )
-            ) {
-                dependencies =
-                    resolver.resolveParameters(
-                        dependencies,
-                        methodParameter,
-                        context,
-                        binder
-                    );
-            }
-        }
-        for (int i = 0; i < parameters.length; i++) {
-            if (null == dependencies[i]) {
-                dependencies[i] = ClassUtil.getDefaultValue(parameterTypes[i]);
-            } else if (
-                !parameterTypes[i].isAssignableFrom(dependencies[i].getClass())
-            ) {
-                final Object targetValue = Convert.convert(
-                    parameterTypes[i],
-                    dependencies[i]
-                );
-                if (null != targetValue) {
-                    dependencies[i] = targetValue;
-                }
-            }
-        }
-        return dependencies;
-    }
-
-    private Object processReturnValueResolver(
-        Object returnValue,
-        final MethodReturnValue methodReturnValue,
-        final WebContext context
-    ) {
-        for (final ResponseReturnValueResolver resolver : webResolverRegistry.getResponseReturnValueResolvers()) {
-            if (
-                resolver.supportsReturnType(
-                    returnValue,
-                    methodReturnValue,
-                    context
-                )
-            ) {
-                returnValue =
-                    resolver.resolveReturnValue(
-                        returnValue,
-                        methodReturnValue,
-                        context
-                    );
-            }
-        }
-        return returnValue;
-    }
-
-    private Object processException(
-        final Throwable exception,
-        final ExceptionInfo exceptionInfo,
-        final WebContext context,
-        final WebDataBinder dataBinder
-    ) {
-        for (final HandlerExceptionResolver resolver : webResolverRegistry.getHandlerExceptionResolvers()) {
-            final Object result = resolver.resolveException(
-                exception,
-                exceptionInfo,
-                context,
-                dataBinder
-            );
-            if (HandlerExceptionResolver.NO_RESOLVER != result) {
-                return result;
-            }
-        }
-        return HandlerExceptionResolver.NO_RESOLVER;
     }
 }

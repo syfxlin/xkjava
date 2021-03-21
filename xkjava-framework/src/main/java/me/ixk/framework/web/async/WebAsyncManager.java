@@ -1,5 +1,6 @@
 package me.ixk.framework.web.async;
 
+import cn.hutool.core.util.ReflectUtil;
 import com.alibaba.ttl.TtlRunnable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -14,7 +15,10 @@ import me.ixk.framework.annotation.core.Component;
 import me.ixk.framework.annotation.core.Scope;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.ioc.context.ScopeType;
+import me.ixk.framework.servlet.HandlerProcessor;
 import me.ixk.framework.task.SimpleAsyncTaskExecutor;
+import me.ixk.framework.web.MethodReturnValue;
+import me.ixk.framework.web.WebContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +39,7 @@ public class WebAsyncManager {
     );
 
     private Request request;
+    private HandlerProcessor handlerProcessor;
     private ExecutorService executor = DEFAULT_TASK_EXECUTOR;
     private volatile Object concurrentResult = RESULT_NONE;
     private final Map<Object, CallableInterceptor> callableInterceptors = new LinkedHashMap<>();
@@ -45,8 +50,12 @@ public class WebAsyncManager {
         // only use cglib
     }
 
-    public WebAsyncManager(final Request request) {
+    public WebAsyncManager(
+        final Request request,
+        final HandlerProcessor handlerProcessor
+    ) {
         this.request = request;
+        this.handlerProcessor = handlerProcessor;
     }
 
     public void setAsyncTaskExecutor(ExecutorService executor) {
@@ -327,5 +336,33 @@ public class WebAsyncManager {
             );
         }
         this.request.dispatch();
+    }
+
+    public void pushConcurrentResult(final Object result, WebContext context) {
+        if (result instanceof Throwable) {
+            setConcurrentResultAndDispatch(result);
+            return;
+        }
+        final Object returnValue =
+            this.handlerProcessor.processReturnValueResolver(
+                    result,
+                    new MethodReturnValue(
+                        this,
+                        WebAsyncManager.class,
+                        ReflectUtil.getMethod(
+                            WebAsyncManager.class,
+                            "pushConcurrentResult",
+                            Object.class,
+                            WebContext.class
+                        )
+                    ),
+                    context
+                );
+        this.handlerProcessor.processConvertResolver(
+                returnValue,
+                context,
+                this.request.route()
+            );
+        context.response().flush();
     }
 }

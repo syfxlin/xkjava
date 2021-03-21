@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
-import me.ixk.framework.middleware.Handler;
 import me.ixk.framework.middleware.Middleware;
 import me.ixk.framework.util.ClassUtils;
+import me.ixk.framework.web.Handler;
 
 /**
  * @author Otstar Lin

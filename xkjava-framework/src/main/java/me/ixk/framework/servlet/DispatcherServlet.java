@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import me.ixk.framework.annotation.web.Servlet;
 import me.ixk.framework.exception.HttpException;
-import me.ixk.framework.exception.ResponseException;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
@@ -22,15 +21,12 @@ import me.ixk.framework.ioc.context.RequestContext;
 import me.ixk.framework.ioc.context.ScopeType;
 import me.ixk.framework.ioc.context.SessionContext;
 import me.ixk.framework.middleware.HandlerMiddlewareChain;
-import me.ixk.framework.registry.after.WebResolverRegistry;
 import me.ixk.framework.route.RouteDispatcher;
 import me.ixk.framework.route.RouteInfo;
 import me.ixk.framework.web.RequestAttributeRegistry;
 import me.ixk.framework.web.RequestAttributeRegistry.RequestAttributeDefinition;
 import me.ixk.framework.web.WebContext;
 import me.ixk.framework.web.async.WebAsyncManager;
-import me.ixk.framework.web.resolver.AfterHandlerExceptionResolver;
-import me.ixk.framework.web.resolver.ResponseConvertResolver;
 import me.ixk.framework.websocket.WebSocketFactory;
 import me.ixk.framework.websocket.WebSocketHandler;
 import org.slf4j.Logger;
@@ -109,19 +105,25 @@ public class DispatcherServlet extends AbstractFrameworkServlet {
     @SuppressWarnings("unchecked")
     private void doDispatch(final Request request, final Response response)
         throws ServletException {
-        final RouteDispatcher dispatcher = this.app.make(RouteDispatcher.class);
-        final WebResolverRegistry webResolverRegistry =
-            this.app.make(WebResolverRegistry.class);
-        // 查询路由
-        final RouteInfo routeInfo = dispatcher.dispatch(
-            request.method(),
-            request.uri()
-        );
-        // 将 Route 信息设置到 Request
-        request.route(routeInfo);
         // 初始化 WebContext 和 WebAsyncManager
         final WebContext webContext = this.app.make(WebContext.class);
         final WebAsyncManager asyncManager = webContext.async();
+        HandlerProcessor handlerProcessor =
+            this.app.make(HandlerProcessor.class);
+        final boolean hasConcurrentResult = asyncManager.hasConcurrentResult();
+        final RouteInfo routeInfo;
+        if (!hasConcurrentResult) {
+            // 未存在异步返回值，说明不是异步响应或者是异步响应的第一阶段，此时需要匹配路由信息
+            final RouteDispatcher dispatcher =
+                this.app.make(RouteDispatcher.class);
+            // 查询路由
+            routeInfo = dispatcher.dispatch(request.method(), request.uri());
+            // 将 Route 信息设置到 Request
+            request.route(routeInfo);
+        } else {
+            // 如果存在异步响应，那么就是已经设置过路由信息了，无需重新匹配路由，直接取出即可
+            routeInfo = request.route();
+        }
         try {
             // 404 或 405 错误
             switch (routeInfo.getStatus()) {
@@ -142,23 +144,32 @@ public class DispatcherServlet extends AbstractFrameworkServlet {
             // 4. Servlet 转发（相当于在内部再请求一次）
             // 5. 此时 asyncManager.hasConcurrentResult 就为 true
             final HandlerMethod handlerMethod = routeInfo.getHandler();
-            if (asyncManager.hasConcurrentResult()) {
+            if (hasConcurrentResult) {
                 // 如果存在异步结果，那么就使用异步响应的处理器
                 handler =
                     new ConcurrentResultHandlerMethod(
                         this.app,
-                        asyncManager.getConcurrentResult()
+                        asyncManager.getConcurrentResult(),
+                        handlerProcessor
                     );
                 handler.setMiddlewares(handlerMethod.getMiddlewares());
             } else {
                 // 否则就取出请求处理器
-                handler = new InvocableHandlerMethod(this.app, handlerMethod);
+                handler =
+                    new InvocableHandlerMethod(
+                        this.app,
+                        handlerMethod,
+                        handlerProcessor
+                    );
             }
             final HandlerMiddlewareChain handlerChain = new HandlerMiddlewareChain(
                 handler
             );
-            // 前置中间件
-            if (!handlerChain.applyBeforeHandle(request, response)) {
+            // 前置中间件，如果是异步请求第二阶段就不需要执行前置的中间件了
+            if (
+                !hasConcurrentResult &&
+                !handlerChain.applyBeforeHandle(request, response)
+            ) {
                 return;
             }
             // 处理请求
@@ -191,18 +202,19 @@ public class DispatcherServlet extends AbstractFrameworkServlet {
             returnValue =
                 handlerChain.applyAfterHandle(returnValue, request, response);
             // 返回值解析
-            this.processConvertResolver(
-                    returnValue,
-                    webContext,
-                    routeInfo,
-                    webResolverRegistry
-                );
+            handlerProcessor.processConvertResolver(
+                returnValue,
+                webContext,
+                routeInfo
+            );
             // 完成中间件
             handlerChain.triggerAfterCompletion(request, response);
         } catch (final Throwable e) {
             // 异常处理
-            final boolean resolved =
-                this.processAfterException(e, webContext, webResolverRegistry);
+            final boolean resolved = handlerProcessor.processAfterException(
+                e,
+                webContext
+            );
             if (!resolved) {
                 throw new ServletException(e);
             }
@@ -251,42 +263,5 @@ public class DispatcherServlet extends AbstractFrameworkServlet {
                 );
             }
         }
-    }
-
-    private void processConvertResolver(
-        final Object returnValue,
-        final WebContext context,
-        final RouteInfo info,
-        final WebResolverRegistry webResolverRegistry
-    ) {
-        for (final ResponseConvertResolver converter : webResolverRegistry.getResponseConverters()) {
-            if (converter.supportsConvert(returnValue, context, info)) {
-                if (converter.resolveConvert(returnValue, context, info)) {
-                    return;
-                }
-            }
-        }
-        throw new ResponseException(
-            "The return value cannot be converted into a response. [" +
-            returnValue.getClass() +
-            "]"
-        );
-    }
-
-    private boolean processAfterException(
-        final Throwable exception,
-        final WebContext context,
-        final WebResolverRegistry webResolverRegistry
-    ) {
-        for (final AfterHandlerExceptionResolver resolver : webResolverRegistry.getAfterHandlerExceptionResolvers()) {
-            final boolean resolved = resolver.resolveException(
-                exception,
-                context
-            );
-            if (resolved) {
-                return true;
-            }
-        }
-        return false;
     }
 }

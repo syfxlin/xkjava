@@ -74,6 +74,10 @@ public class WebDeferredTask<V> {
         return resultInner(result);
     }
 
+    public boolean complete() {
+        return resultInner(null);
+    }
+
     public boolean resultInner(Object result) {
         WebDeferredHandler deferredHandler;
         synchronized (this) {
