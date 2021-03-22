@@ -322,7 +322,8 @@ public class TestController {
             .map(
                 seq ->
                     String.format("id:%d\nevent:random\ndata:%d\n\n", seq, seq)
-            );
+            )
+            .doOnNext(System.out::println);
     }
 
     @Bean

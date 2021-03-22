@@ -43,7 +43,12 @@ public class ReactiveReturnValueResolver
         flux.subscribe(
             result -> asyncManager.pushConcurrentResult(result, context),
             task::result,
-            task::complete
+            task::complete,
+            subscription -> {
+                subscription.request(Long.MAX_VALUE);
+                task.onTimeout(subscription::cancel);
+                task.onError(error -> subscription.cancel());
+            }
         );
         return null;
     }

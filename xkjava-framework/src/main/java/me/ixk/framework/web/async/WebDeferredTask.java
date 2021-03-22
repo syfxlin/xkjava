@@ -1,6 +1,5 @@
 package me.ixk.framework.web.async;
 
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import me.ixk.framework.http.Request;
 import org.slf4j.Logger;
@@ -21,7 +20,7 @@ public class WebDeferredTask<V> {
     @Nullable
     private Long timeout;
 
-    private Callable<?> timeoutCallback;
+    private Runnable timeoutRunable;
 
     private Consumer<Throwable> errorCallback;
 
@@ -55,8 +54,8 @@ public class WebDeferredTask<V> {
         this.timeout = timeout;
     }
 
-    public WebDeferredTask<V> onTimeout(Callable<?> callback) {
-        this.timeoutCallback = callback;
+    public WebDeferredTask<V> onTimeout(Runnable runnable) {
+        this.timeoutRunable = runnable;
         return this;
     }
 
@@ -115,15 +114,10 @@ public class WebDeferredTask<V> {
                 Request request,
                 WebDeferredTask<S> deferredResult
             ) throws Exception {
-                if (timeoutCallback != null) {
-                    final Object value = timeoutCallback.call();
-                    if (value != RESULT_NONE) {
-                        try {
-                            resultInner(value);
-                        } catch (Throwable ex) {
-                            log.debug("Failed to handle timeout result", ex);
-                        }
-                        return true;
+                if (timeoutRunable != null) {
+                    timeoutRunable.run();
+                    if (log.isDebugEnabled()) {
+                        log.debug("Failed to handle timeout result");
                     }
                 }
                 return false;
