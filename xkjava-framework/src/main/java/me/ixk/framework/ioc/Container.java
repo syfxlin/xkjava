@@ -89,9 +89,7 @@ public class Container {
     /**
      * Contexts，存储实例的空间
      */
-    private final Map<Class<? extends Context>, Context> contexts = new LinkedHashMap<>(
-        5
-    );
+    private final Map<String, Context> contexts = new LinkedHashMap<>(5);
 
     /**
      * Bindings key：Bean 名称
@@ -134,10 +132,8 @@ public class Container {
      */
     public void destroy() {
         synchronized (this.contexts) {
-            while (this.contexts.values().iterator().hasNext()) {
-                final Context context =
-                    this.contexts.values().iterator().next();
-                this.removeContext(context);
+            for (String scopeType : new ArrayList<>(this.contexts.keySet())) {
+                this.removeContext(scopeType);
             }
             log.info("Container destroyed");
         }
@@ -155,72 +151,37 @@ public class Container {
         return aliases;
     }
 
-    public Map<Class<? extends Context>, Context> getContexts() {
-        return this.contexts;
-    }
-
     /* ===================== Context ===================== */
 
-    public void registerContext(final Context context) {
-        final Class<? extends Context> contextType = context.getClass();
+    public void registerContext(String scopeType, final Context context) {
         if (log.isDebugEnabled()) {
-            log.debug(
-                "Container registered context: {}",
-                contextType.getName()
-            );
+            log.debug("Container registered context: {}", scopeType);
         }
         synchronized (this.contexts) {
-            this.contexts.put(contextType, context);
+            this.contexts.put(scopeType, context);
         }
     }
 
-    public void removeContext(final Class<? extends Context> contextType) {
+    public void removeContext(final String scopeType) {
         synchronized (this.contexts) {
-            final Context context = this.contexts.get(contextType);
-            this.removeContext(context);
-        }
-    }
-
-    public void removeContext(final Context context) {
-        synchronized (this.contexts) {
-            final Class<? extends Context> contextType = context.getClass();
             if (log.isDebugEnabled()) {
-                log.debug(
-                    "Container remove context: {}",
-                    contextType.getName()
-                );
+                log.debug("Container remove context: {}", scopeType);
             }
+            final Context context = this.contexts.get(scopeType);
             if (context.isCreated()) {
                 for (final Entry<String, Binding> entry : this.bindings.entrySet()) {
-                    if (context.matchesScope(entry.getValue().getScope())) {
+                    if (entry.getValue().getScope().equals(scopeType)) {
                         this.doRemove(entry.getKey());
                     }
                 }
             }
-            this.contexts.remove(contextType);
-        }
-    }
-
-    public void registerContexts(final List<Context> contexts) {
-        for (final Context context : contexts) {
-            this.registerContext(context);
+            this.contexts.remove(scopeType);
         }
     }
 
     public Context getContextByScope(final String scopeType) {
         synchronized (this.contexts) {
-            for (final Context context : this.contexts.values()) {
-                if (context.matchesScope(scopeType)) {
-                    return context;
-                }
-            }
-            return null;
-        }
-    }
-
-    public Context getContext(final Class<? extends Context> contextType) {
-        synchronized (this.contexts) {
-            return this.contexts.get(contextType);
+            return this.contexts.get(scopeType);
         }
     }
 

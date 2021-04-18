@@ -145,7 +145,9 @@ public class Binding {
 
     public void setSource(final Object instance) {
         synchronized (this.getMutex()) {
-            this.context.set(name, instance);
+            if (this.context.isShared()) {
+                this.context.set(name, instance);
+            }
         }
     }
 
@@ -164,7 +166,7 @@ public class Binding {
     }
 
     public boolean isShared() {
-        return this.context.isShared(scope);
+        return this.context.isShared();
     }
 
     public boolean useProxy() {

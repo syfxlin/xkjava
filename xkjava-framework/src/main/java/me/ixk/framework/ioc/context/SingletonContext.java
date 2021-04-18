@@ -8,24 +8,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * ApplicationContext
+ * SingletonContext
  * <p>
  * 保存 App 全局共享的 Bean
  *
  * @author Otstar Lin
  * @date 2020/10/14 上午 10:39
  */
-public class ApplicationContext implements Context {
+public class SingletonContext implements Context {
 
     private final ConcurrentMap<String, Object> instances = new ConcurrentHashMap<>();
-
-    @Override
-    public boolean matchesScope(final String scopeType) {
-        return (
-            ScopeType.SINGLETON.equalsIgnoreCase(scopeType) ||
-            ScopeType.PROTOTYPE.equalsIgnoreCase(scopeType)
-        );
-    }
 
     @Override
     public ConcurrentMap<String, Object> getInstances() {
@@ -33,7 +25,7 @@ public class ApplicationContext implements Context {
     }
 
     @Override
-    public boolean isShared(String scopeType) {
-        return !ScopeType.PROTOTYPE.equalsIgnoreCase(scopeType);
+    public boolean isShared() {
+        return true;
     }
 }

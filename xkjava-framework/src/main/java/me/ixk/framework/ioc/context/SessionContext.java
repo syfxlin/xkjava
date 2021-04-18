@@ -75,9 +75,4 @@ public class SessionContext implements ThreadLocalContext {
         }
         return instances;
     }
-
-    @Override
-    public boolean matchesScope(final String scopeType) {
-        return ScopeType.SESSION.equalsIgnoreCase(scopeType);
-    }
 }

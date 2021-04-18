@@ -14,9 +14,11 @@ import me.ixk.framework.event.ApplicationDestroyedEvent;
 import me.ixk.framework.event.ApplicationDestroyingEvent;
 import me.ixk.framework.event.ApplicationListener;
 import me.ixk.framework.event.EventPublisher;
-import me.ixk.framework.ioc.context.ApplicationContext;
+import me.ixk.framework.ioc.context.PrototypeContext;
 import me.ixk.framework.ioc.context.RequestContext;
+import me.ixk.framework.ioc.context.ScopeType;
 import me.ixk.framework.ioc.context.SessionContext;
+import me.ixk.framework.ioc.context.SingletonContext;
 import me.ixk.framework.kernel.AnnotationProcessorManager;
 import me.ixk.framework.kernel.BeanProcessorAnnotationProcessor;
 import me.ixk.framework.kernel.BootstrapAnnotationProcessor;
@@ -251,12 +253,14 @@ public class XkJava extends Container {
      * 注册实例
      */
     private void registerInstance() {
-        final ApplicationContext applicationContext = new ApplicationContext();
-        this.registerContext(applicationContext);
+        final SingletonContext singletonContext = new SingletonContext();
+        this.registerContext(ScopeType.SINGLETON, singletonContext);
+        final PrototypeContext prototypeContext = new PrototypeContext();
+        this.registerContext(ScopeType.PROTOTYPE, prototypeContext);
         final RequestContext requestContext = new RequestContext();
-        this.registerContext(requestContext);
+        this.registerContext(ScopeType.REQUEST, requestContext);
         final SessionContext sessionContext = new SessionContext();
-        this.registerContext(sessionContext);
+        this.registerContext(ScopeType.SESSION, sessionContext);
 
         this.instance("app", this);
         this.instance("loadMetadata", loadMetadata);

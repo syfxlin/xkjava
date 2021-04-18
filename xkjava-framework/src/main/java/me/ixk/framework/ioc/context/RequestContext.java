@@ -76,9 +76,4 @@ public class RequestContext implements ThreadLocalContext {
         }
         return instances;
     }
-
-    @Override
-    public boolean matchesScope(final String scopeType) {
-        return ScopeType.REQUEST.equalsIgnoreCase(scopeType);
-    }
 }
