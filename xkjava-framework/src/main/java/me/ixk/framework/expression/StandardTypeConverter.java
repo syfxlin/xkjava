@@ -5,7 +5,6 @@
 package me.ixk.framework.expression;
 
 import cn.hutool.core.convert.ConvertException;
-import cn.hutool.core.io.IoUtil;
 import io.github.imsejin.expression.TypeConverter;
 import io.github.imsejin.expression.core.convert.TypeDescriptor;
 import io.github.imsejin.expression.spel.SpelEvaluationException;
@@ -15,8 +14,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
+import me.ixk.framework.resource.Resource;
 import me.ixk.framework.util.Convert;
-import me.ixk.framework.util.ResourceUtils;
 
 /**
  * @author Otstar Lin
@@ -40,7 +39,11 @@ public class StandardTypeConverter implements TypeConverter {
     ) {
         final Class<?> sourceClazz = sourceType.getType();
         final Class<?> targetClazz = targetType.getType();
-        if (File.class == targetClazz || InputStream.class == targetClazz) {
+        if (
+            File.class == targetClazz ||
+            InputStream.class == targetClazz ||
+            Resource.class == targetClazz
+        ) {
             if (
                 String.class == sourceClazz ||
                 URL.class == sourceClazz ||
@@ -66,27 +69,30 @@ public class StandardTypeConverter implements TypeConverter {
     }
 
     private Object convertFile(final Object value, final Class<?> type) {
-        File file = null;
+        Resource resource = null;
         if (value instanceof URL) {
-            file = ResourceUtils.getFile((URL) value);
+            resource = Resource.create((URL) value);
         }
         if (value instanceof URI) {
-            file = ResourceUtils.getFile((URI) value);
+            resource = Resource.create((URI) value);
         }
         if (value instanceof String) {
-            file = ResourceUtils.getFile((String) value);
+            resource = Resource.create((String) value);
         }
         if (value instanceof Path) {
-            file = ResourceUtils.getFile(((Path) value).toUri());
+            resource = Resource.create(((Path) value).toUri());
         }
-        if (file == null) {
+        if (resource == null) {
             return null;
         }
         if (File.class == type) {
-            return file;
+            return resource.getFile();
         }
         if (InputStream.class == type) {
-            return IoUtil.toStream(file);
+            return resource.getStream();
+        }
+        if (Resource.class == type) {
+            return resource;
         }
         return null;
     }

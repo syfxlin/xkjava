@@ -21,11 +21,12 @@ import java.util.Arrays;
 import java.util.List;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import me.ixk.framework.exception.ResourceException;
 import me.ixk.framework.exception.ResponseException;
 import me.ixk.framework.http.MimeType;
 import me.ixk.framework.http.Request;
 import me.ixk.framework.http.Response;
-import me.ixk.framework.util.ResourceUtils;
+import me.ixk.framework.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +69,12 @@ public class FileResult extends AbstractHttpResult {
 
     public FileResult path(String path) {
         try {
-            this.file = ResourceUtils.getFile(path);
+            this.file = Resource.create(path).getFile();
+            if (this.file == null) {
+                throw new ResourceException(
+                    "Resource [" + path + "] is not file"
+                );
+            }
             if (this.contentType == null) {
                 this.contentType = Files.probeContentType(this.file.toPath());
             }

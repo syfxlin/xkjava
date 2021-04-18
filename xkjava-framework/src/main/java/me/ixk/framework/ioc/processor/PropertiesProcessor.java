@@ -4,7 +4,6 @@
 
 package me.ixk.framework.ioc.processor;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +19,8 @@ import me.ixk.framework.property.CompositePropertySource;
 import me.ixk.framework.property.Environment;
 import me.ixk.framework.property.MapPropertySource;
 import me.ixk.framework.property.PropertiesPropertySource;
+import me.ixk.framework.resource.Resource;
 import me.ixk.framework.util.MergedAnnotation;
-import me.ixk.framework.util.ResourceUtils;
 
 /**
  * Properties 处理
@@ -94,12 +93,11 @@ public class PropertiesProcessor implements BeforeInjectProcessor {
         final String name = propertySource.location();
         if (!name.isEmpty()) {
             try {
-                final File file = ResourceUtils.getFile(name);
                 final String encoding = propertySource.encoding();
                 compositePropertySource.setPropertySource(
                     new PropertiesPropertySource(
                         compositePropertySource.getName() + ":" + name,
-                        file,
+                        Resource.create(name).getStream(),
                         encoding
                     )
                 );

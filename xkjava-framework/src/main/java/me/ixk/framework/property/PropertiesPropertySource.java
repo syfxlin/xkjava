@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Properties;
 import me.ixk.framework.exception.LoadEnvironmentFileException;
-import me.ixk.framework.util.ResourceUtils;
+import me.ixk.framework.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +28,7 @@ public class PropertiesPropertySource extends MapPropertySource<Object> {
     );
 
     public PropertiesPropertySource(final String name, final String path) {
-        this(name, ResourceUtils.getFile(path));
+        this(name, Resource.create(path).getStream());
     }
 
     public PropertiesPropertySource(final String name, final File file) {

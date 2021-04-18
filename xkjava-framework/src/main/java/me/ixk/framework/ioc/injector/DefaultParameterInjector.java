@@ -65,6 +65,7 @@ public class DefaultParameterInjector implements ParameterInjector {
                 dependencies[i] =
                     this.resolveExpression(
                             value,
+                            injectContext.getType(),
                             injectContext.getData(
                                 PropertiesProcessor.PROPERTIES
                             ),
@@ -113,6 +114,7 @@ public class DefaultParameterInjector implements ParameterInjector {
 
     private Object resolveExpression(
         final Value value,
+        final Class<?> type,
         final CompositePropertySource properties,
         final String prefix,
         final Container container
@@ -122,7 +124,7 @@ public class DefaultParameterInjector implements ParameterInjector {
         );
         return resolver.evaluateResolver(
             value.expression(),
-            Object.class,
+            type,
             properties,
             Collections.emptyMap(),
             name ->

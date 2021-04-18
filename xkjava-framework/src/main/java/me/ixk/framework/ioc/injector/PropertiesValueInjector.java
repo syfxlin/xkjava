@@ -180,7 +180,13 @@ public class PropertiesValueInjector implements InstanceInjector {
         // 有 @Value 就优先使用
         final Value value = propertyAnnotation.getAnnotation(Value.class);
         if (value != null) {
-            return this.resolveExpression(value, properties, prefix, container);
+            return this.resolveExpression(
+                    value,
+                    property.getPropertyType(),
+                    properties,
+                    prefix,
+                    container
+                );
         }
         final PropertyValue propertyValue = propertyAnnotation.getAnnotation(
             PropertyValue.class
@@ -204,6 +210,7 @@ public class PropertiesValueInjector implements InstanceInjector {
 
     private Object resolveExpression(
         final Value value,
+        final Class<?> type,
         final me.ixk.framework.property.PropertySource<?> properties,
         final String prefix,
         final Container container
@@ -213,7 +220,7 @@ public class PropertiesValueInjector implements InstanceInjector {
         );
         return resolver.evaluateResolver(
             value.expression(),
-            Object.class,
+            type,
             properties,
             Collections.emptyMap(),
             name ->

@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import me.ixk.framework.annotation.core.Autowired;
 import me.ixk.framework.annotation.core.Value;
+import me.ixk.framework.resource.Resource;
 import me.ixk.framework.test.XkJavaTest;
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +31,9 @@ class BeanExpressionResolverTest {
 
     @Value("${url:https://ixk.me}")
     private String url;
+
+    @Value("https://ixk.me")
+    private Resource resource;
 
     @Test
     void evaluate() {
