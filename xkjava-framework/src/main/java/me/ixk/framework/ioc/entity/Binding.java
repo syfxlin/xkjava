@@ -29,11 +29,13 @@ import me.ixk.framework.util.SoftCache;
 public class Binding {
 
     private static final SoftCache<Class<?>, BindingInfos> CACHE = new SoftCache<>();
+    private static final BindingInfos NULL_BINDING_INFO = new BindingInfos(
+        NullBindingInfos.class
+    );
 
     private final Context context;
     private final String scope;
     private final String name;
-    private final AnnotatedEntry<Class<?>> instanceTypeEntry;
     private final boolean primary;
     private final BindingInfos bindingInfos;
 
@@ -62,10 +64,11 @@ public class Binding {
         this.context = context;
         this.scope = scopeType;
         this.name = name;
-        this.instanceTypeEntry = new AnnotatedEntry<>(instanceType);
-        this.primary = this.getAnnotation().hasAnnotation(Primary.class);
         this.bindingInfos =
-            CACHE.computeIfAbsent(instanceType, BindingInfos::new);
+            instanceType == null
+                ? NULL_BINDING_INFO
+                : CACHE.computeIfAbsent(instanceType, BindingInfos::new);
+        this.primary = this.getAnnotation().hasAnnotation(Primary.class);
         this.factoryBean = factoryBean;
     }
 
@@ -75,7 +78,12 @@ public class Binding {
         final Object instance,
         final String scopeType
     ) {
-        this(context, name, instance.getClass(), scopeType);
+        this(
+            context,
+            name,
+            instance == null ? null : instance.getClass(),
+            scopeType
+        );
         this.setSource(instance);
     }
 
@@ -103,15 +111,15 @@ public class Binding {
     }
 
     public Class<?> getType() {
-        return this.instanceTypeEntry.getElement();
+        return this.getInstanceTypeEntry().getElement();
     }
 
     public MergedAnnotation getAnnotation() {
-        return this.instanceTypeEntry.getAnnotation();
+        return this.getInstanceTypeEntry().getAnnotation();
     }
 
     public AnnotatedEntry<Class<?>> getInstanceTypeEntry() {
-        return instanceTypeEntry;
+        return this.bindingInfos.getInstanceEntry();
     }
 
     public boolean isPrimary() {
@@ -220,11 +228,14 @@ public class Binding {
         private final List<Method> destroyMethods = new ArrayList<>();
         private final List<Method> autowiredMethods = new ArrayList<>();
 
+        private final AnnotatedEntry<Class<?>> instanceEntry;
         private final AnnotatedEntry<Field>[] fieldEntries;
         private final AnnotatedEntry<Method>[] methodEntries;
 
         @SuppressWarnings("unchecked")
         public BindingInfos(final Class<?> instanceType) {
+            // Instance
+            this.instanceEntry = new AnnotatedEntry<>(instanceType);
             // Fields
             this.fieldEntries =
                 Arrays
@@ -272,5 +283,11 @@ public class Binding {
         public AnnotatedEntry<Method>[] getMethodEntries() {
             return methodEntries;
         }
+
+        public AnnotatedEntry<Class<?>> getInstanceEntry() {
+            return instanceEntry;
+        }
     }
+
+    private static class NullBindingInfos {}
 }

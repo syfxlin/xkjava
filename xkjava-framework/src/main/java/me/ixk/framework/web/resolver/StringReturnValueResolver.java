@@ -6,6 +6,7 @@ package me.ixk.framework.web.resolver;
 
 import me.ixk.framework.annotation.core.Order;
 import me.ixk.framework.annotation.web.WebResolver;
+import me.ixk.framework.expression.PropertyPlaceholderHelper;
 import me.ixk.framework.http.HttpStatus;
 import me.ixk.framework.http.Model;
 import me.ixk.framework.http.result.Result;
@@ -36,6 +37,11 @@ import me.ixk.framework.web.WebContext;
 @Order(Order.HIGHEST_PRECEDENCE + 1)
 public class StringReturnValueResolver implements ResponseReturnValueResolver {
 
+    private final PropertyPlaceholderHelper placeholderHelper = new PropertyPlaceholderHelper(
+        "{",
+        "}"
+    );
+
     @Override
     public boolean supportsReturnType(
         final Object value,
@@ -63,24 +69,44 @@ public class StringReturnValueResolver implements ResponseReturnValueResolver {
             }
             if (result.startsWith(Result.HTML_RETURN)) {
                 return Result
-                    .html(result.substring(Result.HTML_RETURN.length()))
+                    .html(
+                        placeholderHelper.replace(
+                            result.substring(Result.HTML_RETURN.length()),
+                            model
+                        )
+                    )
                     .status(status == null ? HttpStatus.OK : status);
             }
             if (result.startsWith(Result.JSON_RETURN)) {
                 return Result
-                    .stringJson(result.substring(Result.JSON_RETURN.length()))
+                    .stringJson(
+                        placeholderHelper.replace(
+                            result.substring(Result.JSON_RETURN.length()),
+                            model
+                        )
+                    )
                     .status(status == null ? HttpStatus.OK : status);
             }
             if (result.startsWith(Result.REDIRECT_RETURN)) {
                 return Result
-                    .redirect(result.substring(Result.REDIRECT_RETURN.length()))
+                    .redirect(
+                        placeholderHelper.replace(
+                            result.substring(Result.REDIRECT_RETURN.length()),
+                            model
+                        )
+                    )
                     .status(
                         status == null ? HttpStatus.MOVED_PERMANENTLY : status
                     );
             }
             if (result.startsWith(Result.TEXT_RETURN)) {
                 return Result
-                    .text(result.substring(Result.TEXT_RETURN.length()))
+                    .text(
+                        placeholderHelper.replace(
+                            result.substring(Result.TEXT_RETURN.length()),
+                            model
+                        )
+                    )
                     .status(status == null ? HttpStatus.OK : status);
             }
             if (result.startsWith(Result.VIEW_RETURN)) {
@@ -96,7 +122,7 @@ public class StringReturnValueResolver implements ResponseReturnValueResolver {
             }
         }
         return Result
-            .text(result)
+            .text(placeholderHelper.replace(result, model))
             .status(status == null ? HttpStatus.OK : status);
     }
 }

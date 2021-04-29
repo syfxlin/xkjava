@@ -45,18 +45,18 @@ class BeanExpressionResolverTest {
                 "#{#e['xkjava.database.username']}",
                 String.class
             ),
-            "syfxlin"
+            "root"
         );
         assertEquals(
             resolver.evaluate("${xkjava.database.username}", String.class),
-            "syfxlin"
+            "root"
         );
         assertEquals(
             resolver.evaluate(
                 "${xkjava.database.username} #{'${xkjava.database.username}'}",
                 String.class
             ),
-            "syfxlin syfxlin"
+            "root root"
         );
         assertEquals(
             resolver.evaluate("${#{'xkjava.database.username'}}", String.class),

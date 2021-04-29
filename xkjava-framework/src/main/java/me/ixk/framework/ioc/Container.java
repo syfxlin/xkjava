@@ -11,8 +11,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -840,14 +840,16 @@ public class Container {
     /* ===================== doCall =============== */
 
     protected <T> T doCall(
-        final Object instance,
+        Object instance,
         final Method method,
         final Class<T> returnType
     ) {
         if (log.isDebugEnabled()) {
             log.debug("Container call method: {} - {}", method, returnType);
         }
-        final String name = this.typeToBeanName(instance.getClass());
+        final String name = instance == null
+            ? "null"
+            : this.typeToBeanName(instance.getClass());
         final InjectContext context =
             this.processBeforeInject(
                     this.newBinding(name, instance, ScopeType.PROTOTYPE)
@@ -858,47 +860,6 @@ public class Container {
             returnType,
             ReflectUtil.invoke(instance, method, dependencies)
         );
-    }
-
-    protected <T> T doCall(
-        final Object instance,
-        final String methodName,
-        final Class<T> returnType
-    ) {
-        final Method[] methods = Arrays
-            .stream(instance.getClass().getMethods())
-            .filter(m -> m.getName().equals(methodName))
-            .toArray(Method[]::new);
-        if (methods.length == 0) {
-            throw new NullPointerException(
-                "The specified method was not found"
-            );
-        } else if (methods.length > 1) {
-            throw new IllegalCallerException(
-                "The called method cannot be overloaded"
-            );
-        }
-        return this.doCall(instance, methods[0], returnType);
-    }
-
-    protected <T> T doCall(
-        final String name,
-        final String methodName,
-        final Class<T> returnType
-    ) {
-        return this.doCall(
-                this.make(name, Object.class),
-                methodName,
-                returnType
-            );
-    }
-
-    protected <T> T doCall(
-        final Class<?> type,
-        final String methodName,
-        final Class<T> returnType
-    ) {
-        return this.doCall(this.make(type), methodName, returnType);
     }
 
     /* ===================== bind ===================== */
@@ -1109,7 +1070,14 @@ public class Container {
         final String methodName,
         final Class<T> returnType
     ) {
-        return this.doCall(instance, methodName, returnType);
+        if (instance == null) {
+            throw new NullPointerException("instance must not be null");
+        }
+        return this.doCall(
+                instance,
+                ReflectUtil.getMethodByName(instance.getClass(), methodName),
+                returnType
+            );
     }
 
     public <T> T call(
@@ -1117,7 +1085,8 @@ public class Container {
         final String methodName,
         final Class<T> returnType
     ) {
-        return this.doCall(name, methodName, returnType);
+        final Object instance = this.make(name, Object.class);
+        return this.call(instance, methodName, returnType);
     }
 
     public <T> T call(
@@ -1125,11 +1094,14 @@ public class Container {
         final String methodName,
         final Class<T> returnType
     ) {
-        return this.doCall(type, methodName, returnType);
+        return this.call(this.make(type), methodName, returnType);
     }
 
     public <T> T call(final Method method) {
-        return this.call(this.make(method.getDeclaringClass()), method);
+        Object instance = Modifier.isStatic(method.getModifiers())
+            ? null
+            : this.make(method.getDeclaringClass());
+        return this.call(instance, method);
     }
 
     public <T> T call(

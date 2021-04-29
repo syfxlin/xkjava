@@ -20,6 +20,7 @@ import me.ixk.framework.ioc.bean.Early3;
 import me.ixk.framework.ioc.bean.TypeUser;
 import me.ixk.framework.ioc.bean.User;
 import me.ixk.framework.ioc.binder.DefaultDataBinder;
+import me.ixk.framework.ioc.context.PrototypeContext;
 import me.ixk.framework.ioc.context.ScopeType;
 import me.ixk.framework.ioc.context.SingletonContext;
 import me.ixk.framework.ioc.factory.FactoryBean;
@@ -39,6 +40,7 @@ class ContainerTest {
 
     static {
         container.registerContext(ScopeType.SINGLETON, new SingletonContext());
+        container.registerContext(ScopeType.PROTOTYPE, new PrototypeContext());
         container.addParameterInjector(new DefaultParameterInjector());
         container.addInstanceInjector(new PropertiesValueInjector());
         container.addInstanceInjector(new DefaultPropertyInjector());

@@ -4,12 +4,10 @@
 
 package me.ixk.framework.registry.attribute;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.Set;
 import me.ixk.framework.annotation.condition.ConditionalOnEnable;
 import me.ixk.framework.annotation.core.Autowired;
 import me.ixk.framework.annotation.core.Bean;
@@ -31,14 +29,11 @@ class EnableAttributeRegistryTest {
 
     @Test
     void registry() {
-        assertEquals(
-            Set.of(
-                "cache",
-                "task",
-                "testEnable",
-                EnableAttributeRegistryTest.class.getName()
-            ),
-            app.enableFunctions()
+        assertTrue(
+            app.enableFunctions().contains("testEnable") &&
+            app
+                .enableFunctions()
+                .contains(EnableAttributeRegistryTest.class.getName())
         );
         assertTrue(app.has("enable"));
         assertFalse(app.has("disable"));

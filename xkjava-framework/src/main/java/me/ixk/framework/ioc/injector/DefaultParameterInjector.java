@@ -65,7 +65,7 @@ public class DefaultParameterInjector implements ParameterInjector {
                 dependencies[i] =
                     this.resolveExpression(
                             value,
-                            injectContext.getType(),
+                            parameter.getType(),
                             injectContext.getData(
                                 PropertiesProcessor.PROPERTIES
                             ),

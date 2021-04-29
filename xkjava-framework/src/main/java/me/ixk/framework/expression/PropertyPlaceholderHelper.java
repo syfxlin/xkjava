@@ -67,14 +67,15 @@ public class PropertyPlaceholderHelper {
         this.ignoreUnresolvablePlaceholders = ignoreUnresolvablePlaceholders;
     }
 
-    public String replacePlaceholders(
-        final String value,
-        final Properties properties
-    ) {
-        return replacePlaceholders(value, properties::getProperty);
+    public String replace(final String value, final Properties properties) {
+        return replace(value, properties::getProperty);
     }
 
-    public String replacePlaceholders(
+    public String replace(final String value, Map<String, Object> map) {
+        return replace(value, v -> map.get(v).toString());
+    }
+
+    public String replace(
         final String value,
         final PlaceholderResolver placeholderResolver
     ) {

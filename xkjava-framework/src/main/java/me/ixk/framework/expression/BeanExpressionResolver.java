@@ -109,8 +109,7 @@ public class BeanExpressionResolver {
         final Map<String, Object> variables,
         final PlaceholderResolver resolver
     ) {
-        expression =
-            placeholderHelper.replacePlaceholders(expression, resolver);
+        expression = placeholderHelper.replace(expression, resolver);
         String finalExpression = expression;
         final Expression expr =
             this.expressionCache.computeIfAbsent(
