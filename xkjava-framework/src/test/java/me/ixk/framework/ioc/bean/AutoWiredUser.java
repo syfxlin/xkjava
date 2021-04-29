@@ -10,7 +10,7 @@ import me.ixk.framework.annotation.core.Autowired;
  * @author Otstar Lin
  * @date 2020/12/24 上午 1:02
  */
-public class AutoWiredTest {
+public class AutoWiredUser {
 
     @Autowired
     private User user;

@@ -281,17 +281,18 @@ public class XkJava extends Container {
                 new Thread(
                     () -> {
                         log.info("Run shutdown hook");
-                        this.eventPublisher.publishEvent(
-                                new ApplicationDestroyingEvent(this)
-                            );
                         this.destroy();
-                        this.eventPublisher.publishEvent(
-                                new ApplicationDestroyedEvent(this)
-                            );
                     },
                     "shutdown-hook"
                 )
             );
+    }
+
+    @Override
+    public void destroy() {
+        this.eventPublisher.publishEvent(new ApplicationDestroyingEvent(this));
+        super.destroy();
+        this.eventPublisher.publishEvent(new ApplicationDestroyedEvent(this));
     }
 
     private void printBanner() {

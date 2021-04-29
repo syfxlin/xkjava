@@ -4,6 +4,7 @@
 
 package me.ixk.framework.ioc.processor;
 
+import cn.hutool.core.util.ReflectUtil;
 import java.lang.reflect.Method;
 import me.ixk.framework.annotation.core.BeanProcessor;
 import me.ixk.framework.annotation.core.Order;
@@ -29,7 +30,7 @@ public class PreDestroyProcessor implements BeanDestroyProcessor {
         for (final Method destroyMethod : context
             .getBinding()
             .getDestroyMethods()) {
-            container.call(instance, destroyMethod, Object.class);
+            ReflectUtil.invoke(instance, destroyMethod);
         }
     }
 }

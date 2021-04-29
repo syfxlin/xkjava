@@ -25,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import me.ixk.framework.exception.ContainerException;
 import me.ixk.framework.ioc.binder.DataBinder;
@@ -63,6 +62,10 @@ public class Container {
 
     private static final String FACTORY_BEAN_PREFIX = "&_";
     private static final String ATTRIBUTE_PREFIX = "$_";
+    private static final DataBinder DEFAULT_DATA_BINDER = new DefaultDataBinder(
+        Collections.emptyMap()
+    );
+
     /**
      * 参数注入器
      */
@@ -114,16 +117,9 @@ public class Container {
         256
     );
 
-    /**
-     * 注入的临时变量
-     */
-    private final TransmittableThreadLocal<DataBinder> dataBinder = new TransmittableThreadLocal<>();
-
     private final TransmittableThreadLocal<Map<String, Object>> earlyBeans = new TransmittableThreadLocal<>();
 
     public Container() {
-        this.dataBinder.set(new DefaultDataBinder(new ConcurrentHashMap<>()));
-
         log.info("Container created");
     }
 
@@ -132,7 +128,9 @@ public class Container {
      */
     public void destroy() {
         synchronized (this.contexts) {
-            for (String scopeType : new ArrayList<>(this.contexts.keySet())) {
+            for (final String scopeType : new ArrayList<>(
+                this.contexts.keySet()
+            )) {
                 this.removeContext(scopeType);
             }
             log.info("Container destroyed");
@@ -153,7 +151,7 @@ public class Container {
 
     /* ===================== Context ===================== */
 
-    public void registerContext(String scopeType, final Context context) {
+    public void registerContext(final String scopeType, final Context context) {
         if (log.isDebugEnabled()) {
             log.debug("Container registered context: {}", scopeType);
         }
@@ -167,15 +165,17 @@ public class Container {
             if (log.isDebugEnabled()) {
                 log.debug("Container remove context: {}", scopeType);
             }
-            final Context context = this.contexts.get(scopeType);
-            if (context.isCreated()) {
-                for (final Entry<String, Binding> entry : this.bindings.entrySet()) {
-                    if (entry.getValue().getScope().equals(scopeType)) {
-                        this.doRemove(entry.getKey());
-                    }
+            for (final Entry<String, Binding> entry : this.bindings.entrySet()) {
+                if (entry.getValue().getScope().equals(scopeType)) {
+                    this.doRemove(entry.getKey(), DEFAULT_DATA_BINDER);
                 }
             }
             this.contexts.remove(scopeType);
+            for (Entry<String, String> entry : this.aliases.entrySet()) {
+                if (!this.bindings.containsKey(entry.getValue())) {
+                    this.aliases.remove(entry.getKey());
+                }
+            }
         }
     }
 
@@ -238,7 +238,7 @@ public class Container {
         return this.getBinding(this.getBeanNameByType(type));
     }
 
-    public Binding getBinding(String name) {
+    public Binding getBinding(final String name) {
         return this.bindings.get(this.getCanonicalName(name));
     }
 
@@ -268,26 +268,26 @@ public class Container {
         }
     }
 
-    public void removeBinding(String name) {
+    public void removeBinding(final String name) {
         if (log.isDebugEnabled()) {
             log.debug("Container remove binding: {}", name);
         }
         synchronized (this.bindings) {
-            name = this.getCanonicalName(name);
-            final Binding binding = this.bindings.get(name);
+            String realName = this.getCanonicalName(name);
+            final Binding binding = this.bindings.get(realName);
             if (binding == null) {
                 return;
             }
             Class<?> clazz = binding.getType();
             while (clazz != null && !ClassUtils.isSkipBuildType(clazz)) {
-                this.removeType(name, clazz);
+                this.removeType(realName, clazz);
                 for (final Class<?> in : clazz.getInterfaces()) {
-                    this.removeType(name, in);
+                    this.removeType(realName, in);
                 }
                 clazz = clazz.getSuperclass();
             }
             this.removeAlias(name);
-            this.bindings.remove(name);
+            this.bindings.remove(realName);
         }
     }
 
@@ -326,7 +326,7 @@ public class Container {
     }
 
     public String getBeanNameByType(final Class<?> type) {
-        List<String> list = this.bindingNamesByType.get(type);
+        final List<String> list = this.bindingNamesByType.get(type);
         if (list == null || list.isEmpty()) {
             // 未找到或空则使用短类名作为名称
             return this.typeToBeanName(type);
@@ -359,6 +359,13 @@ public class Container {
     }
 
     public <T> Map<String, T> getBeanOfType(final Class<T> type) {
+        return this.getBeanOfType(type, DEFAULT_DATA_BINDER);
+    }
+
+    public <T> Map<String, T> getBeanOfType(
+        final Class<T> type,
+        final DataBinder dataBinder
+    ) {
         final List<String> list = this.getBeanNamesForType(type);
         if (list == null || list.isEmpty()) {
             return Collections.emptyMap();
@@ -366,7 +373,10 @@ public class Container {
         return list
             .stream()
             .collect(
-                Collectors.toMap(name -> name, name -> this.make(name, type))
+                Collectors.toMap(
+                    name -> name,
+                    name -> this.make(name, type, dataBinder)
+                )
             );
     }
 
@@ -394,6 +404,13 @@ public class Container {
     public Map<String, Object> getBeansWithAnnotation(
         final Class<? extends Annotation> annotationType
     ) {
+        return this.getBeansWithAnnotation(annotationType, DEFAULT_DATA_BINDER);
+    }
+
+    public Map<String, Object> getBeansWithAnnotation(
+        final Class<? extends Annotation> annotationType,
+        final DataBinder dataBinder
+    ) {
         final List<String> list =
             this.getBeanNamesForAnnotation(annotationType);
         if (list.isEmpty()) {
@@ -401,7 +418,7 @@ public class Container {
         }
         final Map<String, Object> beans = new HashMap<>(list.size());
         for (final String name : list) {
-            beans.put(name, this.make(name, Object.class));
+            beans.put(name, this.make(name, Object.class, dataBinder));
         }
         return beans;
     }
@@ -498,11 +515,11 @@ public class Container {
 
     /* ===================== Process ===================== */
 
-    protected InjectContext processBeforeInject(final Binding binding) {
-        final InjectContext context = new InjectContext(
-            binding,
-            this.dataBinder.get()
-        );
+    protected InjectContext processBeforeInject(
+        final Binding binding,
+        final DataBinder dataBinder
+    ) {
+        final InjectContext context = new InjectContext(binding, dataBinder);
         for (final BeforeInjectProcessor processor : this.beforeInjectProcessors) {
             processor.process(this, context);
         }
@@ -555,12 +572,10 @@ public class Container {
 
     protected void processBeanDestroy(
         final Binding binding,
-        final Object instance
+        final Object instance,
+        final DataBinder dataBinder
     ) {
-        final InjectContext context = new InjectContext(
-            binding,
-            this.dataBinder.get()
-        );
+        final InjectContext context = new InjectContext(binding, dataBinder);
         for (final BeanDestroyProcessor processor : this.beanDestroyProcessors) {
             processor.process(this, instance, context);
         }
@@ -616,7 +631,10 @@ public class Container {
 
     /* ===================== doBuild ===================== */
 
-    protected Object doBuild(final Binding binding) {
+    protected Object doBuild(
+        final Binding binding,
+        final DataBinder dataBinder
+    ) {
         final Class<?> instanceType = binding.getType();
         if (instanceType == null) {
             return null;
@@ -635,7 +653,8 @@ public class Container {
         final List<Exception> errors = new ArrayList<>();
         for (final Constructor<?> constructor : constructors) {
             constructor.setAccessible(true);
-            final InjectContext context = this.processBeforeInject(binding);
+            final InjectContext context =
+                this.processBeforeInject(binding, dataBinder);
             final Object[] dependencies =
                 this.processParameterInjector(context, constructor);
             try {
@@ -683,15 +702,17 @@ public class Container {
     /* ===================== doMake ===================== */
 
     protected <T> T doResolveType(
-        String name,
-        Class<T> returnType,
-        TypeWrapper<T> typeWrapper
+        final String name,
+        final Class<T> returnType,
+        final TypeWrapper<T> typeWrapper,
+        final DataBinder dataBinder
     ) {
         if (returnType.isArray()) {
             // 注入类型为数组
             return Convert.convert(
                 returnType,
-                this.getBeanOfType(returnType.getComponentType()).values()
+                this.getBeanOfType(returnType.getComponentType(), dataBinder)
+                    .values()
             );
         } else if (
             Collection.class.isAssignableFrom(returnType) &&
@@ -704,20 +725,20 @@ public class Container {
             }
             return Convert.convert(
                 returnType,
-                this.getBeanOfType(componentType).values()
+                this.getBeanOfType(componentType, dataBinder).values()
             );
         } else if (Map.class == returnType) {
-            Class<?> keyType = typeWrapper.getGeneric(0);
+            final Class<?> keyType = typeWrapper.getGeneric(0);
             if (String.class != keyType) {
                 return null;
             }
-            Class<?> valueType = typeWrapper.getGeneric(1);
+            final Class<?> valueType = typeWrapper.getGeneric(1);
             if (valueType == null) {
                 return null;
             }
             return Convert.convert(
                 returnType,
-                this.getBeanOfType(valueType).values()
+                this.getBeanOfType(valueType, dataBinder).values()
             );
         } else if (ObjectFactory.class == returnType) {
             final Class<?> componentType = typeWrapper.getGeneric(0);
@@ -726,7 +747,8 @@ public class Container {
             }
             return Convert.convert(
                 returnType,
-                (ObjectFactory<Object>) () -> make(name, componentType)
+                (ObjectFactory<Object>) () ->
+                    make(name, componentType, dataBinder)
             );
         } else if (ObjectProvider.class == returnType) {
             final Class<?> componentType = typeWrapper.getGeneric(0);
@@ -739,13 +761,16 @@ public class Container {
                     @Override
                     @SuppressWarnings("unchecked")
                     public Collection<Object> getObjects() {
-                        return (Collection<Object>) getBeanOfType(componentType)
+                        return (Collection<Object>) getBeanOfType(
+                            componentType,
+                            dataBinder
+                        )
                             .values();
                     }
 
                     @Override
                     public Object getObject() {
-                        return make(name, componentType);
+                        return make(name, componentType, dataBinder);
                     }
                 }
             );
@@ -753,23 +778,28 @@ public class Container {
         return null;
     }
 
-    protected <T> T doMake(final String name, final Class<T> returnType) {
-        return this.doMake(name, TypeWrapper.forClass(returnType));
+    protected <T> T doMake(
+        final String name,
+        final Class<T> returnType,
+        final DataBinder dataBinder
+    ) {
+        return this.doMake(name, TypeWrapper.forClass(returnType), dataBinder);
     }
 
     @SuppressWarnings("unchecked")
     protected <T> T doMake(
         final String name,
-        final TypeWrapper<T> typeWrapper
+        final TypeWrapper<T> typeWrapper,
+        final DataBinder dataBinder
     ) {
-        Class<T> returnType = typeWrapper.getClazz();
+        final Class<T> returnType = typeWrapper.getClazz();
         if (log.isDebugEnabled()) {
             log.debug("Container make: {} - {}", name, returnType);
         }
         Binding binding = name == null ? null : this.getBinding(name);
         if (binding == null) {
             final T resolved =
-                this.doResolveType(name, returnType, typeWrapper);
+                this.doResolveType(name, returnType, typeWrapper, dataBinder);
             if (resolved != null) {
                 return resolved;
             }
@@ -782,7 +812,7 @@ public class Container {
         if (binding == null) {
             binding = this.newBinding(name, returnType, ScopeType.PROTOTYPE);
         }
-        boolean proxy = typeWrapper.useProxy();
+        final boolean proxy = typeWrapper.useProxy();
         Object instance = binding.getSource(proxy);
         if (instance != null) {
             return Convert.convert(returnType, instance);
@@ -793,7 +823,7 @@ public class Container {
             if (instance != null) {
                 return Convert.convert(returnType, instance);
             }
-            Binding finalBinding = binding;
+            final Binding finalBinding = binding;
             try {
                 FactoryBean<?> factoryBean = binding.getFactoryBean();
                 if (factoryBean == null) {
@@ -801,7 +831,7 @@ public class Container {
                         new FactoryBean<>() {
                             @Override
                             public Object getObject() {
-                                return doBuild(finalBinding);
+                                return doBuild(finalBinding, dataBinder);
                             }
 
                             @Override
@@ -814,7 +844,7 @@ public class Container {
             } catch (final Throwable e) {
                 throw new ContainerException("Instance make failed", e);
             }
-            T returnInstance = Convert.convert(returnType, instance);
+            final T returnInstance = Convert.convert(returnType, instance);
             if (binding.isShared()) {
                 binding.setSource(returnInstance);
             }
@@ -824,14 +854,18 @@ public class Container {
 
     /* ===================== doRemove ===================== */
 
-    protected void doRemove(final String name) {
+    protected void doRemove(final String name, final DataBinder dataBinder) {
         if (log.isDebugEnabled()) {
             log.debug("Container remove: {}", name);
         }
         synchronized (this.bindings) {
             final Binding binding = this.getBinding(name);
             if (binding.isCreated()) {
-                this.processBeanDestroy(binding, binding.getSource());
+                this.processBeanDestroy(
+                        binding,
+                        binding.getSource(),
+                        dataBinder
+                    );
             }
             this.removeBinding(name);
         }
@@ -840,9 +874,10 @@ public class Container {
     /* ===================== doCall =============== */
 
     protected <T> T doCall(
-        Object instance,
+        final Object instance,
         final Method method,
-        final Class<T> returnType
+        final Class<T> returnType,
+        final DataBinder dataBinder
     ) {
         if (log.isDebugEnabled()) {
             log.debug("Container call method: {} - {}", method, returnType);
@@ -852,7 +887,8 @@ public class Container {
             : this.typeToBeanName(instance.getClass());
         final InjectContext context =
             this.processBeforeInject(
-                    this.newBinding(name, instance, ScopeType.PROTOTYPE)
+                    this.newBinding(name, instance, ScopeType.PROTOTYPE),
+                    dataBinder
                 );
         final Object[] dependencies =
             this.processParameterInjector(context, method);
@@ -969,71 +1005,46 @@ public class Container {
     /* ===================== make ===================== */
 
     public <T> T make(final Class<T> returnType) {
-        return this.make(this.getBeanNameByType(returnType), returnType);
+        return this.make(returnType, DEFAULT_DATA_BINDER);
     }
 
     public <T> T make(final String name, final Class<T> returnType) {
-        return this.doMake(name, returnType);
-    }
-
-    public <T> T make(
-        final Class<T> returnType,
-        final Map<String, Object> args
-    ) {
-        return this.make(returnType, new DefaultDataBinder(args));
+        return this.make(name, returnType, DEFAULT_DATA_BINDER);
     }
 
     public <T> T make(final Class<T> returnType, final DataBinder dataBinder) {
-        return this.withAndReset(() -> this.make(returnType), dataBinder);
-    }
-
-    public <T> T make(
-        final String name,
-        final Class<T> returnType,
-        final Map<String, Object> args
-    ) {
-        return this.make(name, returnType, new DefaultDataBinder(args));
-    }
-
-    public <T> T make(
-        final String name,
-        final Class<T> returnType,
-        final DataBinder dataBinder
-    ) {
-        return this.withAndReset(() -> this.make(name, returnType), dataBinder);
-    }
-
-    public <T> T make(final TypeWrapper<T> returnType) {
         return this.make(
-                this.getBeanNameByType(returnType.getClazz()),
-                returnType
+                this.getBeanNameByType(returnType),
+                returnType,
+                dataBinder
             );
     }
 
+    public <T> T make(
+        final String name,
+        final Class<T> returnType,
+        final DataBinder dataBinder
+    ) {
+        return this.doMake(name, returnType, dataBinder);
+    }
+
+    public <T> T make(final TypeWrapper<T> returnType) {
+        return this.make(returnType, DEFAULT_DATA_BINDER);
+    }
+
     public <T> T make(final String name, final TypeWrapper<T> returnType) {
-        return this.doMake(name, returnType);
-    }
-
-    public <T> T make(
-        final TypeWrapper<T> returnType,
-        final Map<String, Object> args
-    ) {
-        return this.make(returnType, new DefaultDataBinder(args));
+        return this.make(name, returnType, DEFAULT_DATA_BINDER);
     }
 
     public <T> T make(
         final TypeWrapper<T> returnType,
         final DataBinder dataBinder
     ) {
-        return this.withAndReset(() -> this.make(returnType), dataBinder);
-    }
-
-    public <T> T make(
-        final String name,
-        final TypeWrapper<T> returnType,
-        final Map<String, Object> args
-    ) {
-        return this.make(name, returnType, new DefaultDataBinder(args));
+        return this.doMake(
+                this.getBeanNameByType(returnType.getClazz()),
+                returnType,
+                dataBinder
+            );
     }
 
     public <T> T make(
@@ -1041,20 +1052,23 @@ public class Container {
         final TypeWrapper<T> returnType,
         final DataBinder dataBinder
     ) {
-        return this.withAndReset(() -> this.make(name, returnType), dataBinder);
+        return this.doMake(name, returnType, dataBinder);
     }
 
     /* ====================== remove ======================= */
 
     public void remove(final String name) {
-        this.doRemove(name);
+        this.remove(name, DEFAULT_DATA_BINDER);
+    }
+
+    public void remove(final String name, final DataBinder dataBinder) {
+        this.doRemove(name, dataBinder);
     }
 
     /* ====================== call ======================= */
 
-    @SuppressWarnings("unchecked")
     public <T> T call(final Object instance, final Method method) {
-        return (T) this.call(instance, method, method.getReturnType());
+        return this.call(instance, method, DEFAULT_DATA_BINDER);
     }
 
     public <T> T call(
@@ -1062,76 +1076,73 @@ public class Container {
         final Method method,
         final Class<T> returnType
     ) {
-        return this.doCall(instance, method, returnType);
+        return this.call(instance, method, returnType, DEFAULT_DATA_BINDER);
     }
 
     public <T> T call(
         final Object instance,
         final String methodName,
         final Class<T> returnType
+    ) {
+        return this.call(instance, methodName, returnType, DEFAULT_DATA_BINDER);
+    }
+
+    public <T> T call(
+        final String name,
+        final String methodName,
+        final Class<T> returnType
+    ) {
+        return this.call(name, methodName, returnType, DEFAULT_DATA_BINDER);
+    }
+
+    public <T> T call(
+        final Class<?> type,
+        final String methodName,
+        final Class<T> returnType
+    ) {
+        return this.call(type, methodName, returnType, DEFAULT_DATA_BINDER);
+    }
+
+    public <T> T call(final Method method) {
+        return this.call(method, DEFAULT_DATA_BINDER);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T call(
+        final Object instance,
+        final Method method,
+        final DataBinder dataBinder
+    ) {
+        return (T) this.call(
+                instance,
+                method,
+                method.getReturnType(),
+                dataBinder
+            );
+    }
+
+    public <T> T call(
+        final Object instance,
+        final Method method,
+        final Class<T> returnType,
+        final DataBinder dataBinder
+    ) {
+        return this.doCall(instance, method, returnType, dataBinder);
+    }
+
+    public <T> T call(
+        final Object instance,
+        final String methodName,
+        final Class<T> returnType,
+        final DataBinder dataBinder
     ) {
         if (instance == null) {
             throw new NullPointerException("instance must not be null");
         }
-        return this.doCall(
+        return this.call(
                 instance,
                 ReflectUtil.getMethodByName(instance.getClass(), methodName),
-                returnType
-            );
-    }
-
-    public <T> T call(
-        final String name,
-        final String methodName,
-        final Class<T> returnType
-    ) {
-        final Object instance = this.make(name, Object.class);
-        return this.call(instance, methodName, returnType);
-    }
-
-    public <T> T call(
-        final Class<?> type,
-        final String methodName,
-        final Class<T> returnType
-    ) {
-        return this.call(this.make(type), methodName, returnType);
-    }
-
-    public <T> T call(final Method method) {
-        Object instance = Modifier.isStatic(method.getModifiers())
-            ? null
-            : this.make(method.getDeclaringClass());
-        return this.call(instance, method);
-    }
-
-    public <T> T call(
-        final Object instance,
-        final Method method,
-        final DataBinder dataBinder
-    ) {
-        return this.withAndReset(() -> this.call(instance, method), dataBinder);
-    }
-
-    public <T> T call(
-        final Object instance,
-        final Method method,
-        final Class<T> returnType,
-        final DataBinder dataBinder
-    ) {
-        return this.withAndReset(
-                () -> this.call(instance, method, returnType),
-                dataBinder
-            );
-    }
-
-    public <T> T call(
-        final Object instance,
-        final String methodName,
-        final Class<T> returnType,
-        final DataBinder dataBinder
-    ) {
-        return this.withAndReset(
-                () -> this.call(instance, methodName, returnType),
+                returnType,
                 dataBinder
             );
     }
@@ -1142,8 +1153,10 @@ public class Container {
         final Class<T> returnType,
         final DataBinder dataBinder
     ) {
-        return this.withAndReset(
-                () -> this.call(name, methodName, returnType),
+        return this.call(
+                this.make(name, Object.class, dataBinder),
+                methodName,
+                returnType,
                 dataBinder
             );
     }
@@ -1154,42 +1167,22 @@ public class Container {
         final Class<T> returnType,
         final DataBinder dataBinder
     ) {
-        return this.withAndReset(
-                () -> this.call(type, methodName, returnType),
+        return this.call(
+                this.make(type, dataBinder),
+                methodName,
+                returnType,
                 dataBinder
             );
     }
 
     public <T> T call(final Method method, final DataBinder dataBinder) {
-        return this.withAndReset(() -> this.call(method), dataBinder);
+        final Object instance = Modifier.isStatic(method.getModifiers())
+            ? null
+            : this.make(method.getDeclaringClass());
+        return this.call(instance, method, dataBinder);
     }
 
     /* ===================================================== */
-
-    public DataBinder getDataBinder() {
-        return this.dataBinder.get();
-    }
-
-    public Container with(final Map<String, Object> args) {
-        this.dataBinder.set(new DefaultDataBinder(args));
-        return this;
-    }
-
-    public Container resetWith() {
-        this.dataBinder.set(new DefaultDataBinder(new ConcurrentHashMap<>()));
-        return this;
-    }
-
-    public <T> T withAndReset(
-        final Supplier<T> callback,
-        final DataBinder dataBinder
-    ) {
-        final DataBinder reset = this.dataBinder.get();
-        this.dataBinder.set(dataBinder);
-        final T result = callback.get();
-        this.dataBinder.set(reset);
-        return result;
-    }
 
     public Container addFirstInstanceInjector(final InstanceInjector injector) {
         if (log.isDebugEnabled()) {

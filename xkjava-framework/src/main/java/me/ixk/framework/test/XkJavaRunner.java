@@ -151,6 +151,7 @@ public class XkJavaRunner
     @Override
     public void afterAll(ExtensionContext context) throws Exception {
         this.app.event().publishEvent(new AfterTestAllEvent(this.app));
+        this.app.destroy();
     }
 
     @Override

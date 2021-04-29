@@ -164,6 +164,9 @@ public class Binding {
     }
 
     public boolean isCreated() {
+        if (!this.context.isCreated()) {
+            return false;
+        }
         final boolean has = this.context.has(name);
         if (!has) {
             synchronized (this.getMutex()) {

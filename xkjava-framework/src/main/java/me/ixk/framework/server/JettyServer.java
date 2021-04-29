@@ -11,6 +11,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.ServletSecurityElement;
 import me.ixk.framework.annotation.core.Component;
+import me.ixk.framework.annotation.core.PreDestroy;
 import me.ixk.framework.config.AppProperties;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
@@ -42,10 +43,7 @@ import org.slf4j.LoggerFactory;
  * @author Otstar Lin
  * @date 2020/10/14 下午 4:53
  */
-@Component(
-    name = { " jetty ", "server" },
-    type = me.ixk.framework.server.Server.class
-)
+@Component(name = { "jetty", "server" })
 public class JettyServer implements me.ixk.framework.server.Server {
 
     private static final Logger log = LoggerFactory.getLogger(
@@ -60,8 +58,35 @@ public class JettyServer implements me.ixk.framework.server.Server {
     }
 
     @Override
-    public void start() {
-        this.startServer();
+    public synchronized void start() {
+        ThreadUtil
+            .newThread(
+                () -> {
+                    try {
+                        this.server.start();
+                    } catch (final Exception e) {
+                        log.error("Jetty start failed", e);
+                    }
+                    try {
+                        this.server.join();
+                    } catch (final InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        log.info("Jetty interrupt", e);
+                    }
+                },
+                "jetty"
+            )
+            .start();
+    }
+
+    @Override
+    @PreDestroy
+    public synchronized void stop() {
+        try {
+            this.server.stop();
+        } catch (Exception e) {
+            log.error("Jetty stop error", e);
+        }
     }
 
     @Override
@@ -122,27 +147,6 @@ public class JettyServer implements me.ixk.framework.server.Server {
 
     public Server server() {
         return this.server;
-    }
-
-    private void startServer() {
-        ThreadUtil
-            .newThread(
-                () -> {
-                    try {
-                        this.server.start();
-                    } catch (final Exception e) {
-                        log.error("Jetty start failed", e);
-                    }
-                    try {
-                        this.server.join();
-                    } catch (final InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        log.error("Jetty join failed", e);
-                    }
-                },
-                "jetty"
-            )
-            .start();
     }
 
     private void buildServer(final int port, final Resource resource) {

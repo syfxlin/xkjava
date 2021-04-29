@@ -20,6 +20,11 @@ public interface Server {
     void start();
 
     /**
+     * 停止
+     */
+    void stop();
+
+    /**
      * 获取 Servlet 上下文
      *
      * @return Servlet 上下文

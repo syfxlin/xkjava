@@ -31,9 +31,9 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 @Provider
 public class DatabaseProvider {
 
-    @Bean(name = "dataSource")
+    @Bean(name = "dataSource", destroyMethod = "close")
     @ConditionalOnMissingBean(name = "dataSource", value = DataSource.class)
-    public DataSource dataSource(final DatabaseProperties properties) {
+    public HikariDataSource dataSource(final DatabaseProperties properties) {
         final HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setDriverClassName(properties.getDriver());
         hikariConfig.setJdbcUrl(properties.getUrl());

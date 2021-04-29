@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import cn.hutool.core.util.ReflectUtil;
 import java.util.Map;
-import me.ixk.framework.ioc.bean.AutoWiredTest;
+import me.ixk.framework.ioc.bean.AutoWiredUser;
 import me.ixk.framework.ioc.bean.DataBinderUser;
 import me.ixk.framework.ioc.bean.Early1;
 import me.ixk.framework.ioc.bean.Early2;
@@ -77,10 +77,10 @@ class ContainerTest {
     @Test
     void bind() {
         // name, type
-        container.bind("test1", AutoWiredTest.class);
-        final AutoWiredTest test1 = container.make(
+        container.bind("test1", AutoWiredUser.class);
+        final AutoWiredUser test1 = container.make(
             "test1",
-            AutoWiredTest.class
+            AutoWiredUser.class
         );
         assertEquals("syfxlin", test1.getUser().getName());
 
@@ -151,12 +151,12 @@ class ContainerTest {
 
     @Test
     void remove() {
-        container.bind("remove1", AutoWiredTest.class);
+        container.bind("remove1", AutoWiredUser.class);
         assertTrue(container.has("remove1"));
         container.remove("remove1");
         assertFalse(container.has("remove1"));
         assertTrue(
-            container.getBindingNamesByType().get(AutoWiredTest.class).isEmpty()
+            container.getBindingNamesByType().get(AutoWiredUser.class).isEmpty()
         );
     }
 
