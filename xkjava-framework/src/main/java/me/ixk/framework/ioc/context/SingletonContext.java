@@ -20,12 +20,27 @@ public class SingletonContext implements Context {
     private final ConcurrentMap<String, Object> instances = new ConcurrentHashMap<>();
 
     @Override
-    public ConcurrentMap<String, Object> getInstances() {
-        return this.instances;
+    public boolean isShared() {
+        return true;
     }
 
     @Override
-    public boolean isShared() {
-        return true;
+    public Object get(final String name) {
+        return this.instances.get(name);
+    }
+
+    @Override
+    public void remove(final String name) {
+        this.instances.remove(name);
+    }
+
+    @Override
+    public void set(final String name, final Object instance) {
+        this.instances.put(name, instance);
+    }
+
+    @Override
+    public boolean has(final String name) {
+        return this.instances.containsKey(name);
     }
 }

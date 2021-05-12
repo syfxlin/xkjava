@@ -4,8 +4,6 @@
 
 package me.ixk.framework.ioc.context;
 
-import java.util.concurrent.ConcurrentMap;
-
 /**
  * Context
  *
@@ -41,30 +39,19 @@ public interface Context {
     }
 
     /**
-     * 获取所有实例
-     *
-     * @return 所有实例
-     */
-    ConcurrentMap<String, Object> getInstances();
-
-    /**
      * 获取实例
      *
      * @param name 实例名称
      * @return 实例
      */
-    default Object get(final String name) {
-        return this.getInstances().get(name);
-    }
+    Object get(final String name);
 
     /**
      * 删除实例
      *
      * @param name 实例名称
      */
-    default void remove(final String name) {
-        this.getInstances().remove(name);
-    }
+    void remove(final String name);
 
     /**
      * 设置实例
@@ -72,9 +59,7 @@ public interface Context {
      * @param name     名称
      * @param instance 实例
      */
-    default void set(final String name, final Object instance) {
-        this.getInstances().put(name, instance);
-    }
+    void set(final String name, final Object instance);
 
     /**
      * 是否存在实例
@@ -82,7 +67,5 @@ public interface Context {
      * @param name 实例名称
      * @return 是否存在
      */
-    default boolean has(final String name) {
-        return this.getInstances().containsKey(name);
-    }
+    boolean has(final String name);
 }

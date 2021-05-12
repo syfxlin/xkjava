@@ -4,7 +4,7 @@ package me.ixk.framework.ioc.context;
  * @author Otstar Lin
  * @date 2021/1/13 下午 4:23
  */
-public interface ThreadLocalContext extends Context {
+public interface ThreadLocalContext<T> extends Context {
     /**
      * 删除 Context
      */
@@ -15,14 +15,14 @@ public interface ThreadLocalContext extends Context {
      *
      * @return Request 对象
      */
-    Object getContext();
+    T getContext();
 
     /**
      * 设置 Context
      *
-     * @param request Request 对象
+     * @param context Request 对象
      */
-    void setContext(Object request);
+    void setContext(T context);
 
     /**
      * 该 Context 是否启动，一般的 Context 只要 new 后就会启动 但是如果是 ThreadLocal 则需要另行启动

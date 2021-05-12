@@ -1,23 +1,37 @@
 package me.ixk.framework.ioc.context;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 /**
  * @author Otstar Lin
  * @date 2021/4/18 下午 9:46
  */
 public class PrototypeContext implements Context {
 
-    private static final ConcurrentMap<String, Object> EMPTY = new ConcurrentHashMap<>();
-
     @Override
-    public ConcurrentMap<String, Object> getInstances() {
-        return EMPTY;
+    public boolean isShared() {
+        return false;
     }
 
     @Override
-    public boolean isShared() {
+    public Object get(String name) {
+        return null;
+    }
+
+    @Override
+    public void remove(String name) {
+        throw new UnsupportedOperationException(
+            "Unsupported remove instance from prototype"
+        );
+    }
+
+    @Override
+    public void set(String name, Object instance) {
+        throw new UnsupportedOperationException(
+            "Unsupported set instance to prototype"
+        );
+    }
+
+    @Override
+    public boolean has(String name) {
         return false;
     }
 }

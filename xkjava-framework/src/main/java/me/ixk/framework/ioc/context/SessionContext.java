@@ -5,8 +5,6 @@
 package me.ixk.framework.ioc.context;
 
 import com.alibaba.ttl.TransmittableThreadLocal;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +15,11 @@ import org.slf4j.LoggerFactory;
  * @author Otstar Lin
  * @date 2020/10/26 下午 9:36
  */
-public class SessionContext implements ThreadLocalContext {
+public class SessionContext implements ThreadLocalContext<HttpSession> {
 
     private static final Logger log = LoggerFactory.getLogger(
         SessionContext.class
     );
-    private static final String INSTANCE_ATTRIBUTE_NAME =
-        SessionContext.class.getName() + ".INSTANCE_ATTRIBUTE_NAME";
 
     private final TransmittableThreadLocal<HttpSession> session = new TransmittableThreadLocal<>();
 
@@ -36,7 +32,7 @@ public class SessionContext implements ThreadLocalContext {
     }
 
     @Override
-    public Object getContext() {
+    public HttpSession getContext() {
         if (this.isCreated()) {
             return this.session.get();
         }
@@ -44,12 +40,12 @@ public class SessionContext implements ThreadLocalContext {
     }
 
     @Override
-    public void setContext(final Object session) {
+    public void setContext(final HttpSession session) {
         if (log.isDebugEnabled()) {
             log.debug("Set session context");
         }
-        if (session instanceof HttpSession) {
-            this.session.set((HttpSession) session);
+        if (session != null) {
+            this.session.set(session);
         } else {
             throw new IllegalArgumentException(
                 "SessionContext set context, value does not instanceof HttpSession"
@@ -63,16 +59,26 @@ public class SessionContext implements ThreadLocalContext {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public ConcurrentMap<String, Object> getInstances() {
-        final HttpSession context = (HttpSession) this.getContext();
-        ConcurrentMap<String, Object> instances = (ConcurrentMap<String, Object>) context.getAttribute(
-            INSTANCE_ATTRIBUTE_NAME
-        );
-        if (instances == null) {
-            instances = new ConcurrentHashMap<>(50);
-            context.setAttribute(INSTANCE_ATTRIBUTE_NAME, instances);
-        }
-        return instances;
+    public Object get(final String name) {
+        final HttpSession context = this.getContext();
+        return context.getAttribute(name);
+    }
+
+    @Override
+    public void remove(final String name) {
+        final HttpSession context = this.getContext();
+        context.removeAttribute(name);
+    }
+
+    @Override
+    public void set(final String name, final Object instance) {
+        final HttpSession context = this.getContext();
+        context.setAttribute(name, instance);
+    }
+
+    @Override
+    public boolean has(final String name) {
+        final HttpSession context = this.getContext();
+        return context.getAttribute(name) != null;
     }
 }
