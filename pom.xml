@@ -42,7 +42,7 @@
     <reflections.version>0.9.12</reflections.version>
     <hibernate-validator.version>6.1.6.Final</hibernate-validator.version>
     <hutool.version>5.5.2</hutool.version>
-    <cron.version>9.1.3</cron.version>
+    <cron.version>9.1.6</cron.version>
     <lombok.version>1.18.20</lombok.version>
     <asm.version>9.0</asm.version>
     <cglib.version>3.3.0</cglib.version>
