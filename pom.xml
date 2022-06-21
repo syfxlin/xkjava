@@ -33,7 +33,7 @@
     <freemarker.version>2.3.30</freemarker.version>
     <hikari-cp.version>3.4.5</hikari-cp.version>
     <mybatis-plus.version>3.4.1</mybatis-plus.version>
-    <mysql.version>8.0.22</mysql.version>
+    <mysql.version>8.0.28</mysql.version>
     <lettuce.version>6.0.1.RELEASE</lettuce.version>
     <spring-el.version>5.2.9</spring-el.version>
     <aspectj.version>1.9.6</aspectj.version>
