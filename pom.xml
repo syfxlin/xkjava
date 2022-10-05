@@ -38,7 +38,7 @@
     <spring-el.version>5.2.9</spring-el.version>
     <aspectj.version>1.9.6</aspectj.version>
     <bcrypt.version>0.9.0</bcrypt.version>
-    <jackson.version>2.12.0</jackson.version>
+    <jackson.version>2.12.6.1</jackson.version>
     <reflections.version>0.9.12</reflections.version>
     <hibernate-validator.version>6.1.6.Final</hibernate-validator.version>
     <hutool.version>5.5.2</hutool.version>
